@@ -763,8 +763,8 @@
           );
         }
 
-        get button() {
-          return `<button title="${this.description}" data-action="doActivity" data-activity="${this.name}">
+        button({disabled} = {}) {
+          return `<button title="${this.description}" data-action="doActivity" data-activity="${this.name}" ${disabled ? "disabled" : ""}>
             <span class="icon">${this.icon}</span>
             ${this.name}
           </button>`
@@ -1260,15 +1260,26 @@
         }
 
         fillLeadershipActivities() {
-          this.fillActivities(LeadershipActivity.all, this.$(".leadership-activities"));
+          this.fillActivities({
+            from: LeadershipActivity.all,
+            into: this.$(".leadership-activities"),
+            activitiesLeftProperty: "leadershipActivitiesLeft",
+          });
         }
 
         fillCivicActivities(into = this.$(".civic-activities")) {
-          this.fillActivities(CivicActivity.all, this.$(".civic-activities"));
+          this.fillActivities({
+            from: CivicActivity.all,
+            into: this.$(".civic-activities"),
+            activitiesLeftProperty: "civicActivitiesLeft",
+          });
         }
 
-        fillActivities(from, into) {
-          reef.component(into, () => from.map(activity => activity.button).join(""));
+        fillActivities({from, into, activitiesLeftProperty}) {
+          reef.component(into, () => {
+            let disabled = this.currentTurn[activitiesLeftProperty] <= 0;
+            return from.map(activity => activity.button({disabled})).join("");
+          });
         }
 
         handleEvent(event) {
@@ -1364,7 +1375,15 @@
         activity(activity) {
           this.entries.prepend(activity);
           this.currentTurn.activities.push(activity);
-          this.currentTurn.leadershipActivitiesLeft = this.currentTurn.leadershipActivitiesTotal - this.currentTurn.activities.length;
+
+          let left = {};
+          left[LeadershipActivity] = this.currentTurn.leadershipActivitiesTotal;
+          left[CivicActivity] = this.currentTurn.civicActivitiesTotal;
+          this.currentTurn.activities.forEach(activity => {
+            left[activity.constructor] -= 1;
+          });
+          this.currentTurn.leadershipActivitiesLeft = left[LeadershipActivity];
+          this.currentTurn.civicActivitiesLeft = left[CivicActivity];
         }
 
         entry({title, description, body} = {}) {
