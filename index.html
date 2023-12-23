@@ -1338,7 +1338,7 @@
             body: [
               Maker.tag("h4", "Activities taken"),
               Maker.tag("ol", summary.activities.map(activity =>
-                Maker.tag("a", activity.icon, {href: "#", title: activity.name, click: () => { activity.scrollIntoView() }}) // TODO make this link work
+                Maker.tag("a", activity.icon, {href: "#", title: activity.name, click: () => { setTimeout(() => activity.scrollIntoView(), 1) }})
               )),
               Maker.tag("h4", "Stats at end of turn"),
               Maker.dl(this.withDiffs(summary.abilityScores, lastTurnSummary?.abilityScores), {class: "dl-oneline"}),
