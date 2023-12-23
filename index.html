@@ -1057,6 +1057,11 @@
               icon: "👀",
               name: "Oversee",
               description: "You visit a settlement to ensure vital work gets done.",
+              bumpCivicActivities() {
+                let activityLog = this.closest("domain-activity-log");
+                activityLog.currentTurn.civicActivitiesLeft += 1;
+                activityLog.currentTurn.civicActivitiesTotal += 1;
+              },
               criticalSuccess() {
                 this.success();
                 this.log(`👍🏻 Your vigilant oversight of this successful project inspires the domain.`);
@@ -1064,11 +1069,11 @@
               },
               success() {
                 this.log(`🎉 You oversee the project to completion.`);
-                this.log(`🎗️ TODO update activities-left; right now just hit the civic button anyway.`);
+                this.bumpCivicActivities();
               },
               failure() {
                 this.log(`😠 The project is completed, but the settlement is annoyed by your methods.`);
-                this.log(`🎗️ TODO update activities-left; right now just hit the civic button anyway.`);
+                this.bumpCivicActivities();
                 this.boost("Unrest");
               },
               criticalFailure() {
