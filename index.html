@@ -100,6 +100,11 @@
           padding: var(--internal-margin);
           background-color: var(--button-color, var(--_button-color));
 
+          &[disabled] {
+            --button-color: white;
+            --button-border-color: hsl(0, 0%, 80%);
+          }
+
           &:has(> .icon) {
             display: flex;
             align-items: center;
@@ -866,8 +871,17 @@
                 p(`You draw up plans, gather resources, entice citizens, and establish boundaries to found a brand new settlement in the hex. A settlement always starts as a village. See page 46 for further details about building settlements.`),
               ],
               establish() {
-                this.log("🎉 You establish the settlement")
-                this.domainSheet.data.settlements.push(new DomainLeader({type: "Village", name: "Outpost"}));
+                let namer = Maker.tag("input", {value: `Outpost ${this.domainSheet.data.settlements.length}`});
+
+                this.log(
+                  "🎉 You establish the settlement. What'll you name it?",
+                  namer,
+                  Maker.tag("button", "Do it!", {click: (event) => {
+                    let name = namer.value;
+                    this.domainSheet.data.settlements.push(new DomainLeader({type: "Village", name: name}));
+                    event.target.disabled = true;
+                  }})
+                );
               },
               conditionalSuccess(cost) {
                 this.modOneAnd(
