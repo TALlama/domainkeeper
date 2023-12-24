@@ -737,30 +737,45 @@
         static prereq(...parts) { return Activity.tagged("Requirements", ...parts) }
         static special(...parts) { return Activity.tagged("Special", ...parts) }
 
-        modAnd(text, {ability, by, andThen} = {}) {
+        pickOne(items, options) {
+          let {prompt, appendTo, beforeItems, afterItems} = options;
+          beforeItems ??= [];
+          afterItems ??= [];
+
+          return Maker.tag("section", {class: "pick-one", appendTo: appendTo || this.logElement},
+            options.prompt || `Pick one:`,
+            Maker.ol(
+              ...beforeItems,
+              ...items.map(item => this.pickOneItem(item, options)),
+              ...afterItems,
+            ),
+          );
+        }
+
+        pickOneItem(item, {format, andThen} = {}) {
+          let text = (format || ((i) => i.toString())).call(item, item);
+          return Maker.tag("a", text, {href: "#", click: (event) => andThen(item, {event})});
+        }
+
+        modAndThen({ability, by, andThen} = {}) {
           by ??= -1;
           andThen ??= () => {};
 
-          return Maker.tag("a", text, {href: "#", click: () => {
+          return () => {
             let direction = by > 0 ? "boost" : "reduce";
             let steps = Math.abs(by);
             this[direction](...new Array(steps).fill(ability));
-            andThen();
-          }});
+            return andThen();
+          }
         }
 
-        modOneAnd(text, options = {}) {
+        modOneAnd(format, options = {}) {
           let by = options.by ?? 1;
+          let text = (ability) => format.replace("{ability}", ability).replace("{by}", Math.abs(by));
 
-          return Maker.tag("section", {class: "pick-your-payment", appendTo: this.logElement},
-            options.prompt || `Pick one:`,
-            Maker.ol(
-              this.modAnd(text.replace("{ability}", "Culture").replace("{by}", Math.abs(by)), {ability: "Culture", ...options}),
-              this.modAnd(text.replace("{ability}", "Economy").replace("{by}", Math.abs(by)), {ability: "Economy", ...options}),
-              this.modAnd(text.replace("{ability}", "Loyalty").replace("{by}", Math.abs(by)), {ability: "Loyalty", ...options}),
-              this.modAnd(text.replace("{ability}", "Stability").replace("{by}", Math.abs(by)), {ability: "Stability", ...options}),
-              ...(options.additionalOptions || [])),
-          );
+          return this.pickOne([], {...options, beforeItems: "Culture Economy Loyalty Stability".split(" ").map(ability =>
+            this.pickOneItem(text(ability), {...options, andThen: this.modAndThen({...options, ability: ability})}),
+          )});
         }
 
         button({disabled} = {}) {
@@ -886,7 +901,7 @@
               conditionalSuccess(cost) {
                 this.modOneAnd(
                   `Reduce {ability} by {by} and establish the settlement`,
-                  {by: -cost, additionalOptions: [`Do not establish the settlement right now`], andThen: () => this.establish()});
+                  {by: -cost, afterItems: [`Do not establish the settlement right now`], andThen: () => this.establish()});
               },
               criticalSuccess() {
                 this.log(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
@@ -941,7 +956,7 @@
               },
               failure() {
                 this.log("😰 Construction is unexpectedly difficult.");
-                this.modOneAnd(`Reduce {ability} and build the feature`, {additionalOptions: [`Do not build`]});
+                this.modOneAnd(`Reduce {ability} and build the feature`, {afterItems: [`Do not build`]});
               },
               criticalFailure() {
                 this.log("❌ The construction process is a failure.");
