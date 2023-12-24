@@ -253,15 +253,15 @@
               --button-color: lightblue;
             }
 
-            > .new-turn {
+            > .end-turn {
               margin-top: var(--external-margin);
             }
 
-            > .new-turn-pending {
+            > .end-turn-pending {
               --button-color: white;
             }
             
-            > .new-turn-ready {
+            > .end-turn-ready {
               --button-color: green;
             }
           }
@@ -1386,7 +1386,7 @@
           this.addEventListener("click", this);
 
           this.initialBoosts();
-          this.newTurn(null);
+          this.endTurn(null);
           this.entry({
             title: "Welcome, Domainkeeper",
             description: "You've got a new domain. Let's see how it goes.",
@@ -1394,7 +1394,7 @@
               Maker.tag("p", `Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!`),
               Maker.tag("p", `
                 Click the buttons above to do activities. You can cancel activities until you've picked any buttons inside them, so feel free to explore.`),
-              Maker.tag("p", `When you're out of activities each turn, click "New turn" to see a summary of what's changed and start the next turn.`),
+              Maker.tag("p", `When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.`),
               Maker.tag("p", `Warning! Right now it doesn't do anything to try to save your state, so keep that tab open if you care about it! If you want to start again, just reload!`),
             ],
           });
@@ -1446,7 +1446,7 @@
               <ul class="activities-list civic-activities">
                 ${CivicActivity.all.map(activity => activity.button({disabled: civicLeft <= 0})).join("")}
               </ul>
-              <button class="new-turn ${leadershipLeft + civicLeft > 0 ? "new-turn-pending" : "new-turn-ready"}" data-action="newTurn">New turn</button>`;
+              <button class="end-turn ${leadershipLeft + civicLeft > 0 ? "end-turn-pending" : "end-turn-ready"}" data-action="endTurn">End turn</button>`;
           });
         }
 
@@ -1472,7 +1472,7 @@
           this.activity(activity);
         }
 
-        newTurn(event, {name}={}) {
+        endTurn(event, {name}={}) {
           if (event && (this.currentTurn.leadershipActivitiesLeft > 0 || this.currentTurn.civicActivitiesLeft > 0)) {
             if (!confirm(`You still have actions left; are you sure you want to waste them and end your turn?`)) {
               return;
