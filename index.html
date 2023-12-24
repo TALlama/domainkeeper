@@ -632,7 +632,7 @@
             dc = dc || this.controlDC;
             header.append(` vs ${dc}`);
             dc -= modifierTotal; // see https://github.com/colinaut/dice-roller/issues/1
-            roller.setAttribute("difficulty", dc);
+            roller.setAttribute("difficulty", Math.max(1, dc));
           }
           this.diceTray.prepend(roller);
           this.diceTray.prepend(header);
