@@ -237,6 +237,12 @@
               grid-template-columns: repeat(auto-fill, minmax(8em, 1fr));
               gap: var(--internal-margin);
               align-items: stretch;
+
+              + h4 { margin-top: var(--external-margin) }
+            }
+
+            h4 {
+              font-weight: 600;
             }
 
             > .leadership-activities {
@@ -245,6 +251,18 @@
 
             > .civic-activities {
               --button-color: lightblue;
+            }
+
+            > .new-turn {
+              margin-top: var(--external-margin);
+            }
+
+            > .new-turn-pending {
+              --button-color: white;
+            }
+            
+            > .new-turn-ready {
+              --button-color: green;
             }
           }
 
@@ -343,15 +361,15 @@
         }
 
         button.picked, button.pickable:hover {
-          --button-color: lime;
+          --button-color: lch(86% 55 190);
         }
 
         .outcome {
           &.picked, &:hover {
-            &.outcome-critical-success { --button-color: limegreen; }
-            &.outcome-success { --button-color: lime; }
-            &.outcome-failure { --button-color: yellow; }
-            &.outcome-critical-failure { --button-color: red; }
+            &.outcome-critical-success { --button-color: lch(65% 55 185); }
+            &.outcome-success { --button-color: lch(65% 55 150); }
+            &.outcome-failure { --button-color: lch(65% 55 0); }
+            &.outcome-critical-failure { --button-color: lch(65% 55 300); }
           }
         }
 
@@ -398,13 +416,7 @@
 
     <domain-activity-log>
       <aside class="status-banner"></aside>
-      <aside class="activities">
-        <p>You have <span data-rx="leadershipActivitiesLeft"></span> leadership activities left.</p>
-        <ul class="activities-list leadership-activities"></ul>
-        <p>You have <span data-rx="civicActivitiesLeft"></span> civic activities left.</p>
-        <ul class="activities-list civic-activities"></ul>
-        <button data-action="newTurn">New turn</button>
-      </aside>
+      <aside class="activities"></aside>
     </domain-activity-log>
 
     <script> // Extensions
@@ -1363,19 +1375,13 @@
       class DomainActivityLog extends RxElement {
         connectedCallback() {
           this.entries = Maker.tag("main", {class: "entries", appendTo: this});
-          this.currentTurn = reef.signal({
-            leadershipActivitiesTotal: this.domainSheet.leadershipActivitiesPerTurn,
-            leadershipActivitiesLeft: this.domainSheet.leadershipActivitiesPerTurn,
-            civicActivitiesTotal: this.domainSheet.civicActivitiesPerTurn,
-            civicActivitiesLeft: this.domainSheet.civicActivitiesPerTurn,
-            activities: [],
-          });
+          this.currentTurn = reef.signal({});
+          this.resetTurn();
           this.turnSummaries = [];
 
           this.fillRx(this.currentTurn);
           this.fillStatusBanner();
-          this.fillLeadershipActivities();
-          this.fillCivicActivities();
+          this.fillAvailableActivities();
           this.addEventListener("click", this);
 
           this.initialBoosts();
@@ -1397,6 +1403,14 @@
           focusedActivity && this.activity(focusedActivity);
         }
 
+        resetTurn() {
+          this.currentTurn.leadershipActivitiesTotal = this.domainSheet.leadershipActivitiesPerTurn;
+          this.currentTurn.leadershipActivitiesLeft = this.domainSheet.leadershipActivitiesPerTurn;
+          this.currentTurn.civicActivitiesTotal = this.domainSheet.civicActivitiesPerTurn;
+          this.currentTurn.civicActivitiesLeft = this.domainSheet.civicActivitiesPerTurn;
+          this.currentTurn.activities = [];
+        }
+
         fillStatusBanner() {
           reef.component(this.$(".status-banner"), () => {
             let abilities = this.domainSheet.data;
@@ -1416,26 +1430,22 @@
           });
         }
 
-        fillLeadershipActivities() {
-          this.fillActivities({
-            from: LeadershipActivity.all,
-            into: this.$(".leadership-activities"),
-            activitiesLeftProperty: "leadershipActivitiesLeft",
-          });
-        }
+        fillAvailableActivities() {
+          reef.component(this.$(".activities"), () => {
+            let leadershipLeft = this.currentTurn.leadershipActivitiesLeft;
+            let civicLeft = this.currentTurn.civicActivitiesLeft;
+            let activitx = (count) => count == 1 ? "activity" : "activities";
 
-        fillCivicActivities(into = this.$(".civic-activities")) {
-          this.fillActivities({
-            from: CivicActivity.all,
-            into: this.$(".civic-activities"),
-            activitiesLeftProperty: "civicActivitiesLeft",
-          });
-        }
-
-        fillActivities({from, into, activitiesLeftProperty}) {
-          reef.component(into, () => {
-            let disabled = this.currentTurn[activitiesLeftProperty] <= 0;
-            return from.map(activity => activity.button({disabled})).join("");
+            return `
+              <h4>You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.</h4>
+              <ul class="activities-list leadership-activities">
+                ${LeadershipActivity.all.map(activity => activity.button({disabled: leadershipLeft <= 0})).join("")}
+              </ul>
+              <h4>You have ${civicLeft} civic ${activitx(civicLeft)} left.</h4>
+              <ul class="activities-list civic-activities">
+                ${CivicActivity.all.map(activity => activity.button({disabled: civicLeft <= 0})).join("")}
+              </ul>
+              <button class="new-turn ${leadershipLeft + civicLeft > 0 ? "new-turn-pending" : "new-turn-ready"}" data-action="newTurn">New turn</button>`;
           });
         }
 
@@ -1462,20 +1472,21 @@
         }
 
         newTurn(event, {name}={}) {
+          if (event && (this.currentTurn.leadershipActivitiesLeft > 0 || this.currentTurn.civicActivitiesLeft > 0)) {
+            if (!confirm(`You still have actions left; are you sure you want to waste them and end your turn?`)) {
+              return;
+            }
+          }
+
           let summary = {
             activities: this.currentTurn.activities,
             abilityScores: this.domainSheet.abilityScores,
             statScores: this.domainSheet.statScores,
           };
-          
-          this.leadershipActivitiesTotal = (2 * 5) + 1;
-          this.leadershipActivitiesLeft = (2 * 5) + 1;
-          this.civicActivitiesTotal = 1;
-          this.civicActivitiesLeft = 1;
-          this.currentTurn.activities = [];
-
           this.turnSummaries.push(summary);
           this.domainSummaryEntry(summary);
+          
+          this.resetTurn();
           this.turnMarker(name || `Turn ${this.turn}`);
         }
 
