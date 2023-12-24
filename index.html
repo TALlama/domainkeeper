@@ -120,6 +120,13 @@
               font-size: 200%;
             }
           }
+
+          > small {
+            display: block;
+            margin-top: var(--internal-margin);
+            font-size: 80%;
+            opacity: .8;
+          }
         }
       }
 
@@ -700,6 +707,7 @@
 
         callOrReturn(value) { return value?.call ? value.call(this, this) : value }
 
+        get activityLog() { return this.closest("domain-activity-log") }
         get domainSheet() { return document.querySelector("domain-sheet") }
         get promptSection() { return Maker.tag("section", {class: "prompt pickable-group"}, this.prompt) }
         set prompt(value) { this._prompt = value }
@@ -718,10 +726,10 @@
         get outcome() {
           return this.callOrReturn(this._outcome) ?? [
             Maker.tag("h4", "Result:"),
-            Maker.tag("button", "Critical Success", {class: "pickable outcome outcome-critical-success", click: () => { this.criticalSuccess() }}),
-            Maker.tag("button", "Success", {class: "pickable outcome outcome-success", click: () => { this.success() }}),
-            Maker.tag("button", "Failure", {class: "pickable outcome outcome-failure", click: () => { this.failure() }}),
-            Maker.tag("button", "Critical Failure", {class: "pickable outcome outcome-critical-failure", click: () => { this.criticalFailure() }}),
+            Maker.tag("button", `Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "pickable outcome outcome-critical-success", click: () => { this.criticalSuccess() }}),
+            Maker.tag("button", `Success`, Maker.tag("small", this.successDescription), {class: "pickable outcome outcome-success", click: () => { this.success() }}),
+            Maker.tag("button", `Failure`, Maker.tag("small", this.failureDescription), {class: "pickable outcome outcome-failure", click: () => { this.failure() }}),
+            Maker.tag("button", `Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "pickable outcome outcome-critical-failure", click: () => { this.criticalFailure() }}),
           ];
         }
         get pickedOutcome() { return this.$(".outcome .picked") }
@@ -844,6 +852,10 @@
                   `If the hex is outside your domain, increase the DC by 2.`,
                   hexMods,
                 )],
+              criticalSuccessDescription: `Clear hex and boost economy`,
+              successDescription: `Clear hex`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `Unrest`,
               criticalSuccess() { this.success(); this.log("🐻 You brought back spoils!"); this.boost("Economy") },
               success() { this.log("🎉 You successfully clear the hex.") },
               failure() { this.log("❌ You fail to clear the hex.") },
@@ -858,6 +870,10 @@
                 p(`Your surveyors fully explore the hex and attempt to add it into your domain.`),
               ],
               abilities: ["Economy", "Stability"],
+              criticalSuccessDescription: `Claim hex; Boost a random stat`,
+              successDescription: `Claim hex`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `-1 Stability for rest of turn`,
               criticalSuccess() {
                 this.success();
                 let [ability, message] = [
@@ -888,9 +904,13 @@
                 p(`After careful consideration, you decide that you would rather not hold onto a particular hex as part of your claimed territory. You renounce your claim to it and pull back any settlers or explorers. Attempt a basic Exploration or Wilderness check. You can abandon more than one hex at a time, but each additional hex you abandon increases the DC of this check by 1.`),
                 special(`The Unrest gained from abandoning a hex doubles if it includes a settlement. A settlement in an abandoned hex becomes a Freehold (page 41).`),
               ],
+              criticalSuccessDescription: `Abandon Hex; Economy boost`,
+              successDescription: `Abandon hex; Unrest`,
+              failureDescription: `Abandon hex; Unrest + 2; Possible Squatters event`,
+              criticalFailureDescription: `Abandon hex; Unrest +3; Definite Bandit Activity Event`,
               criticalSuccess() {
                 this.success();
-                this.log(`⚱️ Settlers and explorers return and resettle elsewhere in your domain, bringing with them bits of salvage from the abandoned hexes..`)
+                this.log(`⚱️ Settlers and explorers return and resettle elsewhere in your domain, bringing with them bits of salvage from the abandoned hexes.`)
                 this.boost("Economy"); // this is the old `Gain 1 RP per abandoned hex`
               },
               success() {
@@ -917,6 +937,10 @@
                 prereq(`The hex in which you’re establishing the settlement has been Cleared and doesn’t currently have a settlement (including a Freehold) in it.`),
                 p(`You draw up plans, gather resources, entice citizens, and establish boundaries to found a brand new settlement in the hex. A settlement always starts as a village. See page 46 for further details about building settlements.`),
               ],
+              criticalSuccessDescription: `Establish settlement`,
+              successDescription: `Establish settlement if you reduce 1 Ability by 1`,
+              failureDescription: `Establish settlement if you reduce 1 Ability by 2`,
+              criticalFailureDescription: `Fail`,
               establish() {
                 let namer = Maker.tag("input", {value: `Outpost ${this.domainSheet.data.settlements.length}`});
 
@@ -956,6 +980,10 @@
               ],
               abilities: ["Loyalty"],
               dc: "Group DC", // TODO make this work
+              criticalSuccessDescription: `Integrate; Claim Hex`,
+              successDescription: `Integrate; Reduce 1 Ability by 1`,
+              failureDescription: `Fail; Increase Unrest`,
+              criticalFailureDescription: `Fail forever; Increase Unrest by 2`,
               criticalSuccess() {
                 this.log(`🤝🏻 The group becomes part of your domain, granting the specific boon or advantage listed in that group’s entry.`);
                 this.log(`🗺️ If you haven’t already claimed the hex in which the group dwells, you immediately do so, gaining Domain XP and increasing Size by 1 (this affects all statistics determined by Size; see page 38). If the hex doesn’t share a border with your domain, it becomes a secondary territory and checks involving this location take a Control penalty.`);
@@ -979,6 +1007,10 @@
               name: "Build Infrastructure",
               description: "You organize the effort to tame the land.",
               preprompt: p(hexMods),
+              criticalSuccessDescription: `Build it; Boost 1 Ability you pick`,
+              successDescription: `Build it`,
+              failureDescription: `Build it if you Reduce 1 Ability by 1`,
+              criticalFailureDescription: `Fail`,
               criticalSuccess() {
                 this.log(`🚀 The whole domain rallies around this project.`);
                 this.modOneAnd(`Boost {ability}`, {by: 1});
@@ -999,6 +1031,10 @@
               name: "Creative Solution",
               description: "You plan ahead to make the next action more successful.",
               preprompt: p(`You work with your domain’s scholars, thinkers, and practitioners of magical and mundane experimentation to come up with new ways to resolve issues when business as usual is just not working. Attempt a basic check.`),
+              criticalSuccessDescription: `Bank a Reroll+2 for this turn, and if you don't use it get XP`,
+              successDescription: `Bank a Reroll+2 for this turn`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `-1 penalty to Culture checks this + next turn`,
               criticalSuccess() {
                 this.success();
                 this.log(`⚙️ If you don’t use your Creative Solution by the end of this turn, you lose this benefit and gain 10 Domain XP instead.`);
@@ -1015,6 +1051,14 @@
               icon: "👨🏻‍🌾",
               name: "Work the Land",
               description: "You lead a party to harvest the bounty of this realm.",
+              preprompt: [
+                p(`This boosts the ability above the one you roll:`),
+                ol(`Rolling Stability will increase Loyalty`, `Rolling Loyalty will increase Economy`, `Rolling Economy will increase Culture`, `Rolling Culture will increase Stability`),
+              ],
+              criticalSuccessDescription: `Boost Ability by 2`,
+              successDescription: `Boost Ability by 1`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `Unrest`,
               criticalSuccess() {
                 this.log("🎁 You make good time and find plentiful resources!");
                 this.boost(this.aboveAbility, this.aboveAbility);
@@ -1033,7 +1077,15 @@
               icon: "🎄",
               name: "Celebrate Holiday",
               description: "You organize a festival where the populace can enjoy themselves.",
-              preprompt: p(`You declare a day of celebration. Holidays may be religious, historical, martial, or simply festive, but all relieve your citizens from their labors and give them a chance to make merry at the domain’s expense.`),
+              preprompt: [
+                p(`You declare a day of celebration. Holidays may be religious, historical, martial, or simply festive, but all relieve your citizens from their labors and give them a chance to make merry at the domain’s expense.`),
+                p(`This boosts the ability below the one you roll:`),
+                ol(`Rolling Culture will increase Economy`, `Rolling Economy will increase Loyalty`, `Rolling Loyalty will increase Stability`, `Rolling Stability will increase Culture`),
+              ],
+              criticalSuccessDescription: `Boost Ability by 2`,
+              successDescription: `Boost Ability by 1`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `Unrest`,
               criticalSuccess() {
                 this.log(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
                 this.boost(this.belowAbility, this.belowAbility)
@@ -1060,6 +1112,10 @@
                 p(`When disaster strikes, you send out a call for help to another nation with whom you have diplomatic relations. The DC of this check is equal to the other group’s Negotiation DC +2 (see the sidebar on page 23).`),
               ],
               dc: "Group DC", // TODO make this work
+              criticalSuccessDescription: `Boost an Ability you pick by 2; +4 bonus to future roll`,
+              successDescription: `Boost an Ability you pick by 2`,
+              failureDescription: `Boost a random Ability by 1`,
+              criticalFailureDescription: `1d4 Unrest`,
               criticalSuccess() {
                 this.success();
                 this.log(`🎁 In addition, your ally’s aid grants a +4 circumstance bonus to any one Domain check attempted during the remainder of this turn. You can choose to apply this bonus to any Domain check after the die is rolled, but must do so before the result is known.`);
@@ -1082,6 +1138,10 @@
               icon: "🎪",
               name: "Bread and Circuses",
               description: "You entertain the populace.",
+              criticalSuccessDescription: `Reduce Unrest; Gain Fame`,
+              successDescription: `Reduce Unrest`,
+              failureDescription: `Reduce Unrest; Reduce an Ability you pick by 1`,
+              criticalFailureDescription: `Reduce a random Ability by 1`,
               criticalSuccess() {
                 this.success();
                 this.log("🗣️ People come from far and wide to join the festivities, and carry work back to their own lands.")
@@ -1104,10 +1164,13 @@
               icon: "👀",
               name: "Oversee",
               description: "You visit a settlement to ensure vital work gets done.",
+              criticalSuccessDescription: `Do a Civic Activity; Increase Stability or Loyalty by 1`,
+              successDescription: `Do a Civic Activity`,
+              failureDescription: `Do a Civic Activity; Increase Unrest`,
+              criticalFailureDescription: `Increase Unrest; Decrease Stability or Loyalty by 1`,
               bumpCivicActivities() {
-                let activityLog = this.closest("domain-activity-log");
-                activityLog.currentTurn.civicActivitiesLeft += 1;
-                activityLog.currentTurn.civicActivitiesTotal += 1;
+                this.activityLog.currentTurn.civicActivitiesLeft += 1;
+                this.activityLog.currentTurn.civicActivitiesTotal += 1;
               },
               criticalSuccess() {
                 this.success();
@@ -1134,6 +1197,10 @@
               name: "Train Lieutenant",
               description: "You work with an NPC leader to increase their capacity.",
               abilities: ["Loyalty"],
+              criticalSuccessDescription: `NPC Leader gets 2 activitys/turn, or success`,
+              successDescription: `Leader adds 2 activities to their repertiore`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `Leader abandons their post`,
               criticalSuccess() {
                 let eligibleLeaders = this.domainSheet.data.leaders.filter(l => l.activitiesPerTurn < 2);
                 if (eligibleLeaders.length > 0) {
@@ -1169,6 +1236,10 @@
                 p(`While the PCs can strike out themselves to deal with ongoing events, it’s often more efficient to Hire Adventurers. When you Hire Adventurers to help end an ongoing event, the DC is equal to your Control DC adjusted by the event’s level modifier.`),
                 activity.modOneAnd(`Pay them with {ability}`, {prompt: "Before you roll, pay the mercs:"}),
               )},
+              criticalSuccessDescription: `Continuous Event ends`,
+              successDescription: `+2 bonus to end event`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `Fail; Can't Hire Adventurers for this Event`,
               criticalSuccess() {
                 this.log(`⚔️ You end the continuous event.`);
               },
@@ -1189,6 +1260,10 @@
               description: "You use the mystic arts to forsee future events and prepare for them.",
               preprompt: p(`Your domain’s spellcasters read the omens and provide advice on how best to prepare for near-future events. Attempt a basic check.`),
               abilities: ["Culture"],
+              criticalSuccessDescription: `+2 bonus to resolve event`,
+              successDescription: `+1 bonus to resolve event`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `-1 penalty to resolve event`,
               criticalSuccess() {
                 this.log(`🧿 Gain a +2 circumstance bonus to the check to resolve the event.`);
               },
@@ -1208,6 +1283,10 @@
               description: "You use the mystic arts to forsee future events and prepare for them.",
               abilities: ["Culture"],
               preprompt: p(`You encourage your domain’s artists to create and display a masterful work of art to bolster your domain’s reputation. Attempt a basic check; the result affects either Fame or Infamy (depending on the type of domain you’re running). Create a Masterpiece may be attempted only once per domain turn regardless of the number of leaders pursuing activities.`),
+              criticalSuccessDescription: `Gain Fame; Boost random Ability by 1`,
+              successDescription: `Gain Fame`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `Fail; Lose Fame OR 1d4 Unrest`,
               criticalSuccess() {
                 this.success();
                 this.log(`💰 There is a constant stream of people coming to see it for themselves.`);
@@ -1253,6 +1332,10 @@
               description: "This settlement has an idea!",
               preprompt: p(`Add building's cost to the DC`),
               abilities: ["Economy"],
+              criticalSuccessDescription: `Build it; Boost a random Ability by 1`,
+              successDescription: `Build it`,
+              failureDescription: `Fail`,
+              criticalFailureDescription: `Fail; Reduce a random Ability by 1`,
               criticalSuccess() {
                 this.log("😂 Everyone rallies to help.");
                 this.boost(this.randomAbility);
@@ -1263,6 +1346,12 @@
                 this.log("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
                 this.log("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
                 this.log("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
+              },
+              failure() { this.log("❌ You fail to build the building") },
+              criticalFailure() {
+                this.log("💀 Some workers are killed in a construction accident");
+                this.reduce(this.randomAbility);
+                this.failure();
               },
             }),
           ];
@@ -1294,8 +1383,13 @@
           this.entry({
             title: "Welcome, Domainkeeper",
             description: "You've got a new domain. Let's see how it goes.",
-            body: `
-              Click the buttons above to do activities. When you're out of activities each turn, click "New turn".`,
+            body: [
+              Maker.tag("p", `Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!`),
+              Maker.tag("p", `
+                Click the buttons above to do activities. You can cancel activities until you've picked any buttons inside them, so feel free to explore.`),
+              Maker.tag("p", `When you're out of activities each turn, click "New turn" to see a summary of what's changed and start the next turn.`),
+              Maker.tag("p", `Warning! Right now it doesn't do anything to try to save your state, so keep that tab open if you care about it! If you want to start again, just reload!`),
+            ],
           });
 
           // For debugging; put `focused: true` in an activity to auto-click it
