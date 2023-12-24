@@ -285,6 +285,7 @@
 
               &.leadership-activity { --bg: orange }
               &.civic-activity { --bg: lightblue }
+              &.event { --bg: red }
 
               border: 3px solid var(--bg);
               display: grid;
@@ -1478,6 +1479,18 @@
             }
           }
 
+          if (event) {
+            this.entry({
+              title: "Event",
+              attrs: {class: "event"},
+              body: (b) => {
+                Maker.tag(b,
+                  `Presumably some kind of event happens here and stuff happens. Adjust abilties and stats accordingly.`
+                );
+              },
+            });
+          }
+
           let summary = {
             activities: this.currentTurn.activities,
             abilityScores: this.domainSheet.abilityScores,
@@ -1557,8 +1570,8 @@
           this.currentTurn.civicActivitiesLeft = left[CivicActivity];
         }
 
-        entry({title, description, body} = {}) {
-          Maker.tag("article", {class: "entry", prependTo: this.entries}, [
+        entry({title, description, body, attrs} = {}) {
+          Maker.tag("article", {class: "entry", prependTo: this.entries}, attrs, [
             Maker.tag("header", title),
             Maker.tag("blockquote", {class: "description"}, description),
             Maker.tag("section", {class: "body"}, body),
