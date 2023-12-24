@@ -450,7 +450,7 @@
         constructor(properties) {
           super();
           Object.assign(this, properties);
-          this.actions ??= this.type == "PC" ? 2 : 1;
+          this.activitiesPerTurn ??= this.type == "PC" ? 2 : 1;
         }
       }
       customElements.define("domain-leader", DomainLeader);
@@ -482,10 +482,10 @@
             new DomainLeader({type: "PC", name: "David"}),
             new DomainLeader({type: "PC", name: "Morgan"}),
             new DomainLeader({type: "PC", name: "Joe"}),
-            new DomainLeader({type: "NPC", name: "Bertie", actions: 1}),
+            new DomainLeader({type: "NPC", name: "Bertie", activitiesPerTurn: 1}),
           ];
           saved.settlements ??= [
-            new DomainLeader({type: "Village", name: "Capital", actions: 1}),
+            new DomainLeader({type: "Village", name: "Capital", activitiesPerTurn: 1}),
           ]
 
           return saved;
@@ -522,18 +522,18 @@
 
         fillLeaders() {
           reef.component(this.$(".leaders ul"), () =>
-            this.data.leaders.map(leader => `<li>${leader.type}: ${leader.name} <span class='metadata'>${leader.actions} ${leader.actions == 1 ? "activity" : "activities"}</li>`).join("")
+            this.data.leaders.map(leader => `<li>${leader.type}: ${leader.name} <span class='metadata'>${leader.activitiesPerTurn} ${leader.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
           )
         }
 
         fillSettlements() {
           reef.component(this.$(".settlements ul"), () =>
-            this.data.settlements.map(settlement => `<li>${settlement.type}: ${settlement.name} <span class='metadata'>${settlement.actions} ${settlement.actions == 1 ? "activity" : "activities"}</li>`).join("")
+            this.data.settlements.map(settlement => `<li>${settlement.type}: ${settlement.name} <span class='metadata'>${settlement.activitiesPerTurn} ${settlement.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
           )
         }
 
-        get leadershipActivitiesPerTurn() { return this.data.leaders.reduce((total, leader) => total + leader.actions, 0) }
-        get civicActivitiesPerTurn() { return this.data.settlements.reduce((total, settlement) => total + settlement.actions, 0) }
+        get leadershipActivitiesPerTurn() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesPerTurn, 0) }
+        get civicActivitiesPerTurn() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesPerTurn, 0) }
 
         get controlDC() {
           let baseControlDCByLevel = {
