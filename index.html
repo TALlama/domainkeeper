@@ -131,6 +131,10 @@
       }
 
       @layer utilities {
+        .hidden {
+          display: none;
+        }
+
         .metadata {
           font-size: 80%;
           color: hsl(0, 0%, 40%);
@@ -1386,7 +1390,7 @@
           this.addEventListener("click", this);
 
           this.initialBoosts();
-          this.endTurn(null);
+          this.newTurn();
           this.entry({
             title: "Welcome, Domainkeeper",
             description: "You've got a new domain. Let's see how it goes.",
@@ -1479,18 +1483,22 @@
             }
           }
 
-          if (event) {
-            this.entry({
-              title: "Event",
-              attrs: {class: "event"},
-              body: (b) => {
-                Maker.tag(b,
-                  `Presumably some kind of event happens here and stuff happens. Adjust abilties and stats accordingly.`
-                );
-              },
-            });
-          }
+          this.entry({
+            title: "Event",
+            attrs: {class: "event"},
+            body: (b) => {
+              Maker.tag(b,
+                Maker.tag("p", `Presumably some kind of event happens here and stuff happens. Adjust abilties and stats accordingly.`),
+                Maker.tag("button", "OK, Done!", {click: (event) => {
+                  event.target.closest("button").classList.add("hidden");
+                  this.newTurn()
+                }}),
+              );
+            },
+          });
+        }
 
+        newTurn(name) {
           let summary = {
             activities: this.currentTurn.activities,
             abilityScores: this.domainSheet.abilityScores,
