@@ -521,14 +521,14 @@
         }
 
         fillLeaders() {
-          reef.component(this.$(".leaders ul"), () =>
-            this.data.leaders.map(leader => `<li>${leader.type}: ${leader.name} <span class='metadata'>${leader.activitiesPerTurn} ${leader.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
+          this.leadersComponent ||= reef.component(this.$(".leaders ul"), () =>
+            this.data.leaders.map(leader => `<li key="${leader}">${leader.type}: ${leader.name} <span class='metadata'>${leader.activitiesPerTurn} ${leader.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
           )
         }
 
         fillSettlements() {
           reef.component(this.$(".settlements ul"), () =>
-            this.data.settlements.map(settlement => `<li>${settlement.type}: ${settlement.name} <span class='metadata'>${settlement.activitiesPerTurn} ${settlement.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
+            this.data.settlements.map(settlement => `<li key="${settlement}">${settlement.type}: ${settlement.name} <span class='metadata'>${settlement.activitiesPerTurn} ${settlement.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
           )
         }
 
@@ -1103,8 +1103,19 @@
               description: "You work with an NPC leader to increase their capacity.",
               abilities: ["Loyalty"],
               criticalSuccess() {
-                this.log(`🧠 An apt pupil! They gain a second activity per turn.`);
-                this.log(`🎗️ TODO we should actually track that. For now, just do the extra action anyway.`);
+                let eligibleLeaders = this.domainSheet.data.leaders.filter(l => l.activitiesPerTurn < 2);
+                if (eligibleLeaders.length > 0) {
+                  this.log(`🧠 An apt pupil! They gain a second activity per turn.`);
+                  this.pickOne(eligibleLeaders, {
+                    format: (leader) => leader.name,
+                    andThen: (picked) => {
+                      this.log(`${picked.name} can now do 2 activities per turn`);
+                      picked.activitiesPerTurn = 2;
+                      this.domainSheet.leadersComponent.render();
+
+                    },
+                  });
+                } else { this.success() }
               },
               success() {
                 this.log(`🤯 You teach them more about leadership. Add two actions to those available to them.`);
