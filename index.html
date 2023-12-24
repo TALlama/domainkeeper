@@ -380,7 +380,14 @@
 
         .pickable-group {
           &:has(.picked) {
-            .pickable:not(.picked) { --button-color: white; --button-border-color: lightgrey }
+            .pickable {
+              pointer-events: none;
+            }
+
+            .pickable:not(.picked) {
+              --button-color: white;
+              --button-border-color: lightgrey;
+            }
           }
         }
       }
