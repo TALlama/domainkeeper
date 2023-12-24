@@ -1395,11 +1395,12 @@
             title: "Welcome, Domainkeeper",
             description: "You've got a new domain. Let's see how it goes.",
             body: [
-              Maker.tag("p", `Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!`),
+              Maker.tag("p", `💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!`),
               Maker.tag("p", `
-                Click the buttons above to do activities. You can cancel activities until you've picked any buttons inside them, so feel free to explore.`),
-              Maker.tag("p", `When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.`),
-              Maker.tag("p", `Warning! Right now it doesn't do anything to try to save your state, so keep that tab open if you care about it! If you want to start again, just reload!`),
+              👑 Click the buttons above to do activities. You can cancel activities until you've picked any buttons inside them, so feel free to explore.`),
+              Maker.tag("p", `♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.`),
+              Maker.tag("p", `❌ Warning! Right now it doesn't do anything to try to save your state, so keep that tab open if you care about it! If you want to start again, just reload!`),
+              Maker.tag("p", `🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.`),
             ],
           });
 
@@ -1464,7 +1465,18 @@
             icon: "🌱",
             name: "Initial Boosts",
             description: "Starting stats",
-            prompt: "",
+            prompt: [
+              Maker.tag("p", `I gave you some random stats, but you can reallocate`),
+              Maker.ol(`Start each ability at 2`,
+                `one boost`,
+                `one boost`,
+                `two boosts to different stats`,
+                `three boosts to different stats`,
+              ),
+              Maker.tag("p", `Like in other Pathfinder things, you can't pick the same stat more than once in any given group.`),
+              Maker.tag("p", `You should end up with a 6, a 4, a 3,and a 2.`),
+              Maker.tag("p", `But maybe that makes things too hard or too easy! We ca adjust this!`),
+            ],
             outcome: "",
           });
 
