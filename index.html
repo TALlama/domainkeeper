@@ -1528,6 +1528,7 @@
           
           this.resetTurn();
           this.turnMarker(name || `Turn ${this.turn}`);
+          this.ruin();
         }
 
         doActivity(event, {actionTarget}) {
@@ -1547,6 +1548,38 @@
           Maker.tag("article", {class: "turn-marker", prependTo: this.entries, title}, [
             Maker.tag("span", {class: "turn-name"}, name),
           ]);
+        }
+
+        ruin() {
+          let activity = new SystemActivity({
+            icon: "😢",
+            name: "Ruin",
+            description: "If Unrest is too high, random stats get reduced",
+            prompt: "",
+            outcome: "",
+          });
+
+          let doRuin = (threshold) => {
+            if (activity.domainSheet.data.unrest >= threshold) {
+              activity.log(`🤬 Unrest is higher than ${threshold}.`);
+              let ability = activity.randomAbility;
+              activity.log({
+                "Culture": "💸 Corruption is rampant, and no one trusts the domain.",
+                "Economy": "🥷🏻 Crime is everywhere, making it hard on honest citizens.",
+                "Loyalty": "🧟‍♂️ Decay pervades the domain; only fools would depend on tomorrow.",
+                "Stability": "🧟‍♂️ Strife pits neighbors against each other, and everyone is on edge.",
+              }[ability]);
+              activity.reduce(ability);
+            } else {
+              activity.log(`😌 Unrest is not ${threshold} or higher.`);
+            }
+          }
+
+          doRuin(5);
+          doRuin(10);
+          doRuin(15);
+
+          this.activity(activity);
         }
 
         withDiffs(newValues, baseline) {
