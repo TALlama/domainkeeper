@@ -82,6 +82,16 @@
             grid-template-columns: 10em 1fr;
           }
         }
+
+        @media print {
+          body {
+            grid-template-columns: 1fr;
+          }
+
+          .rolls {
+            display: none;
+          }
+        }
       }
 
       @layer baseline {
@@ -159,25 +169,30 @@
         domain-sheet {
           position: sticky;
           top: 0;
-          border-right: 3px solid black;
           padding: var(--internal-margin);
           padding-top: 0;
           max-height: 100vh;
           overflow: hidden;
 
-          h3, h4, h5 {
-            background: black;
-            color: white;
+          @media screen {
+            border-right: 3px solid black;
+          }
+
+          h3, h4, h5, h6 {
+            --header-bg: black;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--header-bg);
             padding: var(--internal-margin);
             margin: var(--internal-margin) calc(-1 * var(--internal-margin));
             font-size: 80%;
           }
 
+          h3, h4, h5 {
+            color: white;
+          }
+
           h6 {
-            background: hsl(0, 0%, 90%);
-            padding: var(--internal-margin);
-            margin: var(--internal-margin) calc(-1 * var(--internal-margin));
-            font-size: 80%;
+            --header-bg: hsl(0, 0%, 90%);
           }
 
           h3 {
@@ -215,6 +230,41 @@
         @media (width < 1250px) {
           domain-sheet .abilities {
             label { display: inline-grid; margin-bottom: var(--external-margin) }
+          }
+        }
+
+        @media print {
+          .ability-roll {
+            display: none;
+          }
+
+          input {
+            border: none;
+            width: 2em;
+          }
+
+          domain-sheet {
+            .abilities, .stats, .leaders, .settlements {
+              display: flex;
+              flex-direction: row;
+              flex-wrap: wrap;
+              gap: var(--external-margin);
+              margin-bottom: 0;
+              padding: 0;
+            }
+
+            input[type="number"] {
+              text-align: start;
+
+              &::-webkit-inner-spin-button, &::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+              }
+            }
+          }
+
+          domain-activity-log {
+            > .activities { display: none; }
           }
         }
 
@@ -310,6 +360,7 @@
                 grid-area: header;
                 display: flex;
                 background: var(--bg);
+                border-bottom: 1px solid var(--bg);
                 padding: var(--internal-margin);
               }
 
@@ -328,6 +379,7 @@
               > .description {
                 grid-area: description;
                 background: var(--description-bg);
+                border-bottom: 1px solid var(--description-bg);
                 padding: var(--internal-margin);
                 font-size: 80%;
               }
@@ -338,6 +390,7 @@
 
                 h1, h2, h3, h4, h5, h6 {
                   background: var(--description-bg);
+                  border-bottom: 1px solid var(--description-bg);
                   padding: var(--internal-margin);
                   margin: var(--external-margin) calc(-1 * var(--internal-margin));
                   font-size: 80%;
@@ -410,14 +463,14 @@
       <section class="abilities"></section>
       <section class="stats"></section>
 
-      <section class="leaders">
+      <section>
         <h4>Leaders</h4>
-        <ul class="list-unstyled"> </ul>
+        <ul class="leaders list-unstyled"> </ul>
       </section>
 
-      <section class="settlements">
+      <section>
         <h4>Settlements</h4>
-        <ul class="list-unstyled"> </ul>
+        <ul class="settlements list-unstyled"> </ul>
       </section>
 
       <section class="rolls">
@@ -575,13 +628,13 @@
         }
 
         fillLeaders() {
-          this.leadersComponent ||= reef.component(this.$(".leaders ul"), () =>
+          this.leadersComponent ||= reef.component(this.$(".leaders"), () =>
             this.data.leaders.map(leader => `<li key="${leader}">${leader.type}: ${leader.name} <span class='metadata'>${leader.activitiesPerTurn} ${leader.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
           )
         }
 
         fillSettlements() {
-          reef.component(this.$(".settlements ul"), () =>
+          reef.component(this.$(".settlements"), () =>
             this.data.settlements.map(settlement => `<li key="${settlement}">${settlement.type}: ${settlement.name} <span class='metadata'>${settlement.activitiesPerTurn} ${settlement.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
           )
         }
