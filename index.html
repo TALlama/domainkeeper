@@ -166,6 +166,17 @@
       }
 
       @layer components {
+        :root {
+          --color-leadership-activity-bg: orange;
+          --color-civic-activity-bg: lightblue;
+          --color-event-bg: red;
+
+          --color-critical-success-bg: lch(65% 55 185);
+          --color-success-bg: lch(65% 55 150);
+          --color-failure-bg: lch(65% 55 0);
+          --color-critical-failure-bg: lch(65% 55 300);
+        }
+
         domain-sheet {
           position: sticky;
           top: 0;
@@ -274,7 +285,7 @@
 
           > .status-banner {
             font-size: 200%;
-            background-color: red;
+            background-color: var(--color-event-bg);
             padding: var(--internal-margin);
 
             &:empty {
@@ -300,11 +311,11 @@
             }
 
             > .leadership-activities {
-              --button-color: orange;
+              --button-color: var(--color-leadership-activity-bg);
             }
 
             > .civic-activities {
-              --button-color: lightblue;
+              --button-color: var(--color-civic-activity-bg);
             }
 
             > .end-turn {
@@ -335,13 +346,21 @@
 
             > .entry {
               --bg: grey;
+              --outcome-bg: var(--bg);
               --description-bg: lightgrey;
 
-              &.leadership-activity { --bg: orange }
-              &.civic-activity { --bg: lightblue }
-              &.event { --bg: red }
+              &[data-type="leadership-activity"] { --bg: var(--color-leadership-activity-bg); }
+              &[data-type="civic-activity"] { --bg: var(--color-civic-activity-bg); }
+              &.event { --bg: var(--color-event-bg) }
+
+              &[data-outcome="critical-success"] { --outcome-bg: var(--color-critical-success-bg); }
+              &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
+              &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
+              &[data-outcome="critical-failure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
               border: 3px solid var(--bg);
+              border-top-color: var(--outcome-bg);
+              border-left-color: var(--outcome-bg);
               display: grid;
               grid-template-areas:
                 "header     "
@@ -359,7 +378,7 @@
               > header {
                 grid-area: header;
                 display: flex;
-                background: var(--bg);
+                background: linear-gradient(140deg, var(--outcome-bg), var(--bg));
                 border-bottom: 1px solid var(--bg);
                 padding: var(--internal-margin);
               }
@@ -413,6 +432,30 @@
           &.diff-positive { color: green }
         }
 
+        .activities-summary {
+          display: flex;
+          flex-wrap: wrap;
+        }
+
+        .activity-summary {
+          --bg: lightgray;
+          --outcome-bg: var(--bg);
+          --type-bg: var(--bg);
+
+          padding: var(--internal-margin);
+          background:  var(--bg);
+          border-top: var(--internal-margin) solid var(--outcome-bg);
+          border-bottom: var(--internal-margin) solid var(--type-bg);
+
+          &[data-outcome="critical-success"] { --outcome-bg: var(--color-critical-success-bg); }
+          &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
+          &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
+          &[data-outcome="critical-failure"] { --outcome-bg: var(--color-critical-failure-bg); }
+
+          &[data-type="leadership-activity"] { --type-bg: var(--color-leadership-activity-bg); }
+          &[data-type="civic-activity"] { --type-bg: var(--color-civic-activity-bg); }
+        }
+
         button .modifier {
           padding-left: var(--internal-margin);
           opacity: .6;
@@ -424,10 +467,10 @@
 
         .outcome {
           &.picked, &:hover {
-            &.outcome-critical-success { --button-color: lch(65% 55 185); }
-            &.outcome-success { --button-color: lch(65% 55 150); }
-            &.outcome-failure { --button-color: lch(65% 55 0); }
-            &.outcome-critical-failure { --button-color: lch(65% 55 300); }
+            &.outcome-critical-success { --button-color: var(--color-critical-success-bg); }
+            &.outcome-success { --button-color: var(--color-success-bg); }
+            &.outcome-failure { --button-color: var(--color-failure-bg); }
+            &.outcome-critical-failure { --button-color: var(--color-critical-failure-bg); }
           }
         }
 
@@ -549,6 +592,11 @@
           this.$$("[data-rx]").forEach((elem) => {
             reef.component(elem, () => signal[elem.dataset.rx]);
           });
+        }
+
+        handleEvent(event) {
+          let actionTarget = event.target.closest("[data-action]");
+          if (actionTarget) { this[actionTarget.dataset.action].call(this, event, {actionTarget}) }
         }
       }
     </script>
@@ -769,6 +817,7 @@
           this.abilities ||= this.abilities || ["Culture", "Economy", "Loyalty", "Stability"];
 
           Maker.tag(this, {class: "entry activity"},
+            {"data-type": this.tagName.toLowerCase()},
             {class: (LeadershipActivity === this.constructor ? "leadership-activity" : "")},
             {class: (CivicActivity === this.constructor ? "civic-activity" : "")},
             Maker.tag("header", this.name, Maker.tag("a", "Cancel", {href: "#", class: "cancel-activity", click: () => this.cancel()})),
@@ -776,6 +825,15 @@
             Maker.tag("blockquote", {class: "description"}, this.description),
             Maker.tag("section", {class: "body"}, (el) => this.body(el, this)),
           );
+        }
+
+        connectedCallback() {
+          this.addEventListener("click", this);
+        }
+
+        handleEvent(event) {
+          let setOutcome = event.target.closest("[data-set-outcome]")?.dataset?.setOutcome;
+          if (setOutcome) { this.dataset.outcome = setOutcome }
         }
 
         body(into) {
@@ -803,10 +861,10 @@
         get outcome() {
           return this.callOrReturn(this._outcome) ?? [
             Maker.tag("h4", "Result:"),
-            Maker.tag("button", `Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "pickable outcome outcome-critical-success", click: () => { this.criticalSuccess() }}),
-            Maker.tag("button", `Success`, Maker.tag("small", this.successDescription), {class: "pickable outcome outcome-success", click: () => { this.success() }}),
-            Maker.tag("button", `Failure`, Maker.tag("small", this.failureDescription), {class: "pickable outcome outcome-failure", click: () => { this.failure() }}),
-            Maker.tag("button", `Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "pickable outcome outcome-critical-failure", click: () => { this.criticalFailure() }}),
+            Maker.tag("button", `Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "pickable outcome outcome-critical-success", "data-set-outcome": "critical-success", click: () => { this.criticalSuccess() }}),
+            Maker.tag("button", `Success`, Maker.tag("small", this.successDescription), {class: "pickable outcome outcome-success", "data-set-outcome": "success", click: () => { this.success() }}),
+            Maker.tag("button", `Failure`, Maker.tag("small", this.failureDescription), {class: "pickable outcome outcome-failure", "data-set-outcome": "failure", click: () => { this.failure() }}),
+            Maker.tag("button", `Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "pickable outcome outcome-critical-failure", "data-set-outcome": "critical-failure", click: () => { this.criticalFailure() }}),
           ];
         }
         get pickedOutcome() { return this.$(".outcome .picked") }
@@ -1515,11 +1573,6 @@
           });
         }
 
-        handleEvent(event) {
-          let actionTarget = event.target.closest("[data-action]");
-          if (actionTarget) { this[actionTarget.dataset.action].call(this, event, {actionTarget}) }
-        }
-
         initialBoosts() {
           let activity = new SystemActivity({
             icon: "🌱",
@@ -1656,8 +1709,14 @@
             description: `Turn ${this.turn}`,
             body: [
               Maker.tag("h4", "Activities taken"),
-              Maker.tag("ol", summary.activities.map(activity =>
-                Maker.tag("a", activity.icon, {href: "#", title: activity.name, click: () => { setTimeout(() => activity.scrollIntoView(), 1) }})
+              Maker.tag("div", {class: "activities-summary"}, summary.activities.map(activity =>
+                Maker.tag("a", activity.icon, {
+                  href: "#",
+                  title: activity.name,
+                  class: `activity-summary`,
+                  "data-type": activity.dataset.type,
+                  "data-outcome": activity.dataset.outcome,
+                  click: () => { setTimeout(() => activity.scrollIntoView(), 1) }})
               )),
               Maker.tag("h4", "Stats at end of turn"),
               Maker.dl(this.withDiffs(summary.abilityScores, lastTurnSummary?.abilityScores), {class: "dl-oneline"}),
