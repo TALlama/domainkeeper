@@ -189,6 +189,14 @@
             border-right: 3px solid black;
           }
 
+          .domain-name {
+            display: flex;
+
+            .domain-data-management {
+              margin-left: auto;
+            }
+          }
+
           h3, h4, h5, h6 {
             --header-bg: black;
             background: var(--header-bg);
@@ -491,18 +499,7 @@
   </head>
   <body>
     <domain-sheet>
-      <script type="x-domain/data">
-        {
-          "name": "Anvilania",
-          "abilityBoosts": [
-            ["stability"],
-            ["stability"],
-            ["stability", "culture"],
-            ["stability", "culture", "economy"]
-          ]
-        }
-      </script>
-      <h3 data-rx="name"></h3>
+      <h3 class="domain-name"></h3>
       <section class="abilities"></section>
       <section class="stats"></section>
 
@@ -526,6 +523,8 @@
       <aside class="status-banner"></aside>
       <aside class="activities"></aside>
     </domain-activity-log>
+
+    <save-slots rootkey="domainkeeper"></save-slots>
 
     <script> // Extensions
       Array.prototype.random = Array.prototype.random || function () {
@@ -588,17 +587,29 @@
         $ = this.querySelector;
         $$ = this.querySelectorAll;
 
-        fillRx(signal) {
-          this.$$("[data-rx]").forEach((elem) => {
-            reef.component(elem, () => signal[elem.dataset.rx]);
-          });
-        }
-
         handleEvent(event) {
           let actionTarget = event.target.closest("[data-action]");
           if (actionTarget) { this[actionTarget.dataset.action].call(this, event, {actionTarget}) }
         }
       }
+    </script>
+    <script> // SaveSlots
+      class SaveSlots extends RxElement {
+        static observedAttributes = ["rootkey"];
+
+        set root(value) { window.localStorage[this.rootKey] = JSON.stringify(value) }
+        get root() { return JSON.parse(window.localStorage[this.rootKey] || "{}") }
+        get rootKey() { return this.getAttribute("rootkey") || `saveSlots-${document.location.toString().split("?")[0]}` }
+        
+        load({key, defaultValue} = {}) { return this.root[key] || defaultValue }
+        save(toSave) { this.root = {...this.root, ...toSave} }
+        clear(...keys) {
+          let toSave = this.root;
+          keys.forEach(key => delete toSave[key])
+          this.root = toSave;
+        }
+      }
+      customElements.define("save-slots", SaveSlots);
     </script>
     <script> // Leaders
       class DomainLeader extends RxElement {
@@ -612,13 +623,48 @@
     </script>
     <script> // Domain
       class DomainSheet extends RxElement {
+        get saveSlots() { return document.querySelector("save-slots") }
+
         connectedCallback() {
           this.data = reef.signal(this.loadData());
           this.makeReactive();
+
+          this.addEventListener("click", this);
+        }
+
+        doSaveData() {
+          this.saveData();
+          alert("Domain stats saved. We don't yet save action history.")
+        }
+
+        doClearData() {
+          if (confirm("Really clear data? There is no undo")) {
+            this.clearData();
+            setTimeout(() => window.location.reload(), 0);
+          }
+        }
+
+        clearData() {
+          this.saveSlots.clear("domain");
+
+          let newData = this.loadData();
+          Object.keys(newData).forEach(key => this.data[key] = newData[key])
+        }
+
+        saveData() {
+          this.saveSlots.save({domain: this.data});
         }
 
         loadData() {
-          let saved = JSON.parse(this.$("script[type='x-domain/data']")?.innerHTML || "{}");
+          let saved = this.saveSlots.load({key: "domain", defaultValue: {
+            name: "Anvilania",
+            abilityBoosts: [
+              ["stability"],
+              ["stability"],
+              ["stability", "culture"],
+              ["stability", "culture", "economy"],
+            ],
+          }});
           let abilitiesStartAt = 2;
 
           saved.level ??= 1;
@@ -650,7 +696,7 @@
         get statsList() { return this.$(".stats") }
 
         makeReactive() {
-          this.fillRx(this.data);
+          this.fillName();
           this.fillLeaders();
           this.fillSettlements();
 
@@ -673,6 +719,17 @@
             let input = event.target.closest("[data-in]");
             if (input) { this.data[input.dataset.in.toLocaleLowerCase()] = Number(input.value) }
           })
+        }
+
+        fillName() {
+          reef.component(this.$(".domain-name"), () =>
+            `${this.data.name}
+              <span class="domain-data-management">
+                <a href="#" data-action="doSaveData">💾</a>
+                <a href="#" data-action="doClearData">❌</a>
+              </span>
+            `
+          );
         }
 
         fillLeaders() {
@@ -1502,7 +1559,6 @@
           this.resetTurn();
           this.turnSummaries = [];
 
-          this.fillRx(this.currentTurn);
           this.fillStatusBanner();
           this.fillAvailableActivities();
           this.addEventListener("click", this);
@@ -1517,7 +1573,7 @@
               Maker.tag("p", `
               👑 Click the buttons above to do activities. You can cancel activities until you've picked any buttons inside them, so feel free to explore.`),
               Maker.tag("p", `♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.`),
-              Maker.tag("p", `❌ Warning! Right now it doesn't do anything to try to save your state, so keep that tab open if you care about it! If you want to start again, just reload!`),
+              Maker.tag("p", `💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!`),
               Maker.tag("p", `🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.`),
             ],
           });
@@ -1574,6 +1630,8 @@
         }
 
         initialBoosts() {
+          if (!this.domainSheet.data.abilityBoosts) { return; }
+
           let activity = new SystemActivity({
             icon: "🌱",
             name: "Initial Boosts",
@@ -1593,10 +1651,11 @@
             outcome: "",
           });
 
-          activity.domainSheet.data.abilityBoosts.forEach((boosts) => {
+          this.domainSheet.data.abilityBoosts.forEach((boosts) => {
             activity.log(Maker.tag("hr"));
             activity.boost(...boosts);
           });
+          this.domainSheet.data.abilityBoosts = null;
 
           this.activity(activity);
         }
@@ -1624,6 +1683,8 @@
         }
 
         newTurn(name) {
+          this.domainSheet.saveData();
+
           let summary = {
             activities: this.currentTurn.activities,
             abilityScores: this.domainSheet.abilityScores,
@@ -1708,6 +1769,7 @@
             title: "Domain summary",
             description: `Turn ${this.turn}`,
             body: [
+              Maker.tag("p", "💾 Domain saved"),
               Maker.tag("h4", "Activities taken"),
               Maker.tag("div", {class: "activities-summary"}, summary.activities.map(activity =>
                 Maker.tag("a", activity.icon, {
