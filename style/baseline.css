@@ -13,15 +13,18 @@
   }
 
   button {
-    --_button-color: hsl(0, 0%, 80%);
-    --_button-border-color: black;
+    --_button-bg: hsl(0, 0%, 80%);
+    --_button-color: hsl(0, 0%, 0%);
+    --_button-border-color: var(--button-color, var(--_button-color));
+    background-color: var(--button-bg, var(--_button-bg));
+    color: var(--button-color, var(--_button-color));
     border: 1px solid var(--button-border-color, var(--_button-border-color));
     font-weight: 600;
     padding: var(--internal-margin);
-    background-color: var(--button-color, var(--_button-color));
 
     &[disabled] {
-      --button-color: white;
+      --button-bg: white;
+      --button-color: hsl(0, 0%, 60%);
       --button-border-color: hsl(0, 0%, 80%);
     }
 

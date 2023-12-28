@@ -152,11 +152,11 @@
       }
 
       > .leadership-activities {
-        --button-color: var(--color-leadership-activity-bg);
+        --button-bg: var(--color-leadership-activity-bg);
       }
 
       > .civic-activities {
-        --button-color: var(--color-civic-activity-bg);
+        --button-bg: var(--color-civic-activity-bg);
       }
 
       > .end-turn {
@@ -164,11 +164,11 @@
       }
 
       > .end-turn-pending {
-        --button-color: white;
+        --button-bg: white;
       }
       
       > .end-turn-ready {
-        --button-color: green;
+        --button-bg: green;
       }
     }
 
@@ -303,15 +303,15 @@
   }
 
   button.picked, button.pickable:hover {
-    --button-color: lch(86% 55 190);
+    --button-bg: lch(86% 55 190);
   }
 
   .outcome {
     &.picked, &:hover {
-      &.outcome-critical-success { --button-color: var(--color-critical-success-bg); }
-      &.outcome-success { --button-color: var(--color-success-bg); }
-      &.outcome-failure { --button-color: var(--color-failure-bg); }
-      &.outcome-critical-failure { --button-color: var(--color-critical-failure-bg); }
+      &.outcome-critical-success { --button-bg: var(--color-critical-success-bg); }
+      &.outcome-success { --button-bg: var(--color-success-bg); }
+      &.outcome-failure { --button-bg: var(--color-failure-bg); }
+      &.outcome-critical-failure { --button-bg: var(--color-critical-failure-bg); }
     }
   }
 
@@ -322,8 +322,9 @@
       }
 
       .pickable:not(.picked) {
-        --button-color: white;
-        --button-border-color: lightgrey;
+        --button-bg: white;
+        --button-color: hsl(0, 0%, 60%);
+        --button-border-color: hsl(0, 0%, 80%);
       }
     }
   }
