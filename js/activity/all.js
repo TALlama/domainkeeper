@@ -109,19 +109,19 @@ export class Activity extends RxElement {
     beforeItems ??= [];
     afterItems ??= [];
 
-    return Maker.tag("section", {class: "pick-one", appendTo: appendTo || this.logElement},
-      options.prompt || `Pick one:`,
-      Maker.ol(
+    return Maker.tag("section", {class: "pickable-group", appendTo: appendTo || this.logElement},
+      Maker.tag("h5", options.prompt || `Pick one:`),
+      [
         ...beforeItems,
         ...items.map(item => this.pickOneItem(item, options)),
         ...afterItems,
-      ),
+      ].map(item => Maker.tag("button", {class: "pickable"}, ...item)),
     );
   }
 
   pickOneItem(item, {format, andThen} = {}) {
     let text = (format || ((i) => i.toString())).call(item, item);
-    return Maker.tag("a", text, {href: "#", click: (event) => andThen(item, {event})});
+    return [text, {click: (event) => andThen(item, {event})}];
   }
 
   modAndThen({ability, by, andThen} = {}) {
