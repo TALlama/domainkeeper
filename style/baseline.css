@@ -1,0 +1,45 @@
+@layer baseline {
+  strong {
+    font-weight: 600;
+  }
+
+  ol {
+    list-style: circle;
+    padding-left: 1em;
+  }
+
+  p {
+    margin: var(--external-margin) 0;
+  }
+
+  button {
+    --_button-color: hsl(0, 0%, 80%);
+    --_button-border-color: black;
+    border: 1px solid var(--button-border-color, var(--_button-border-color));
+    font-weight: 600;
+    padding: var(--internal-margin);
+    background-color: var(--button-color, var(--_button-color));
+
+    &[disabled] {
+      --button-color: white;
+      --button-border-color: hsl(0, 0%, 80%);
+    }
+
+    &:has(> .icon) {
+      display: flex;
+      align-items: center;
+
+      > .icon {
+        width: 25%;
+        font-size: 200%;
+      }
+    }
+
+    > small {
+      display: block;
+      margin-top: var(--internal-margin);
+      font-size: 80%;
+      opacity: .8;
+    }
+  }
+}

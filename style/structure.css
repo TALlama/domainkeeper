@@ -1,0 +1,36 @@
+@layer structure {
+  :root {
+    --external-margin: 1rem;
+    --internal-margin: .5rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    display: grid;
+    grid-template-columns: 15em 1fr;
+    grid-gap: var(--external-margin);
+
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  @media (width < 1250px) {
+    body {
+      grid-template-columns: 10em 1fr;
+    }
+  }
+
+  @media print {
+    body {
+      grid-template-columns: 1fr;
+    }
+
+    .rolls {
+      display: none;
+    }
+  }
+}

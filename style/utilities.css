@@ -1,0 +1,24 @@
+@layer utilities {
+  .hidden {
+    display: none;
+  }
+
+  .metadata {
+    font-size: 80%;
+    color: hsl(0, 0%, 40%);
+  }
+
+  .list-unstyled {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  dl.dl-oneline {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(3em, 1fr));
+
+    dt { text-align: end; grid-column: span 2 }
+    dt::after { content: ":"; padding-inline-end: var(--internal-margin); }
+  }
+}
