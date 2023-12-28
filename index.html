@@ -527,9 +527,9 @@
     <save-slots rootkey="domainkeeper"></save-slots>
 
     <script> // Extensions
-      Array.prototype.random = Array.prototype.random || function () {
-        return this[Math.floor((Math.random()*this.length))];
-      };
+      Array.prototype.random = Array.prototype.random || function() { return this[Math.floor((Math.random()*this.length))] };
+      Array.prototype.first = Array.prototype.first || function() { return this[0] }
+      Array.prototype.last = Array.prototype.last || function() { return this[this.length - 1] }
     </script>
     <script> // Maker
       class Maker {
@@ -688,6 +688,7 @@
           saved.settlements ??= [
             new DomainLeader({type: "Village", name: "Capital", activitiesPerTurn: 1}),
           ]
+          saved.turns ??= [];
 
           return saved;
         }
@@ -932,7 +933,7 @@
         criticalFailure() { this.failure() }
 
         cancel() {
-          let activities = this.activityLog.currentTurn.activities;
+          let activities = this.domainSheet.data.turns.last().activities;
           let ixThis = activities.findIndex(i => i == this);
           activities.splice(ixThis, 1);
           this.activityLog.countRemainingActivities();
@@ -1361,8 +1362,7 @@
               failureDescription: `Do a Civic Activity; Increase Unrest`,
               criticalFailureDescription: `Increase Unrest; Decrease Stability or Loyalty by 1`,
               bumpCivicActivities() {
-                this.activityLog.currentTurn.civicActivitiesLeft += 1;
-                this.activityLog.currentTurn.civicActivitiesTotal += 1;
+                this.domainSheet.data.turns.last().bonusCivicActivities += 1;
               },
               criticalSuccess() {
                 this.success();
@@ -1555,7 +1555,6 @@
       class DomainActivityLog extends RxElement {
         connectedCallback() {
           this.entries = Maker.tag("main", {class: "entries", appendTo: this});
-          this.currentTurn = reef.signal({});
           this.resetTurn();
           this.turnSummaries = [];
 
@@ -1584,11 +1583,12 @@
         }
 
         resetTurn() {
-          this.currentTurn.leadershipActivitiesTotal = this.domainSheet.leadershipActivitiesPerTurn;
-          this.currentTurn.leadershipActivitiesLeft = this.domainSheet.leadershipActivitiesPerTurn;
-          this.currentTurn.civicActivitiesTotal = this.domainSheet.civicActivitiesPerTurn;
-          this.currentTurn.civicActivitiesLeft = this.domainSheet.civicActivitiesPerTurn;
-          this.currentTurn.activities = [];
+          this.domainSheet.data.turns.push({
+            leadershipActivities: this.domainSheet.leadershipActivitiesPerTurn,
+            civicActivities: this.domainSheet.civicActivitiesPerTurn,
+            activities: [],
+          });
+          this.countRemainingActivities();
         }
 
         fillStatusBanner() {
@@ -1612,8 +1612,8 @@
 
         fillAvailableActivities() {
           reef.component(this.$(".activities"), () => {
-            let leadershipLeft = this.currentTurn.leadershipActivitiesLeft;
-            let civicLeft = this.currentTurn.civicActivitiesLeft;
+            let leadershipLeft = this.domainSheet.data.turns.last().leadershipActivitiesLeft;
+            let civicLeft = this.domainSheet.data.turns.last().civicActivitiesLeft;
             let activitx = (count) => count == 1 ? "activity" : "activities";
 
             return `
@@ -1660,8 +1660,8 @@
           this.activity(activity);
         }
 
-        endTurn(event, {name}={}) {
-          if (event && (this.currentTurn.leadershipActivitiesLeft > 0 || this.currentTurn.civicActivitiesLeft > 0)) {
+        endTurn(event) {
+          if (event && (this.domainSheet.data.turns.last().leadershipActivitiesLeft > 0 || this.domainSheet.data.turns.last().civicActivitiesLeft > 0)) {
             if (!confirm(`You still have actions left; are you sure you want to waste them and end your turn?`)) {
               return;
             }
@@ -1686,7 +1686,7 @@
           this.domainSheet.saveData();
 
           let summary = {
-            activities: this.currentTurn.activities,
+            activities: this.domainSheet.data.turns.last().activities,
             abilityScores: this.domainSheet.abilityScores,
             statScores: this.domainSheet.statScores,
           };
@@ -1694,7 +1694,7 @@
           this.domainSummaryEntry(summary);
           
           this.resetTurn();
-          this.turnMarker(name || `Turn ${this.turn}`);
+          this.turnMarker(name);
           this.ruin();
         }
 
@@ -1713,7 +1713,7 @@
 
         turnMarker(name, title) {
           Maker.tag("article", {class: "turn-marker", prependTo: this.entries, title}, [
-            Maker.tag("span", {class: "turn-name"}, name),
+            Maker.tag("span", {class: "turn-name"}, name || `Turn ${this.turn}`),
           ]);
         }
 
@@ -1789,19 +1789,20 @@
 
         activity(activity) {
           this.entries.prepend(activity);
-          this.currentTurn.activities.push(activity);
+          this.domainSheet.data.turns.last().activities.push(activity);
           this.countRemainingActivities();
         }
 
         countRemainingActivities() {
           let left = {};
-          left[LeadershipActivity] = this.currentTurn.leadershipActivitiesTotal;
-          left[CivicActivity] = this.currentTurn.civicActivitiesTotal;
-          this.currentTurn.activities.forEach(activity => {
+          left[LeadershipActivity] = this.domainSheet.leadershipActivitiesPerTurn;
+          left[CivicActivity] = this.domainSheet.civicActivitiesPerTurn;
+          this.domainSheet.data.turns.last().activities.forEach(activity => {
             left[activity.constructor] -= 1;
           });
-          this.currentTurn.leadershipActivitiesLeft = left[LeadershipActivity];
-          this.currentTurn.civicActivitiesLeft = left[CivicActivity];
+
+          this.domainSheet.data.turns.last().leadershipActivitiesLeft = left[LeadershipActivity];
+          this.domainSheet.data.turns.last().civicActivitiesLeft = left[CivicActivity];
         }
 
         entry({title, description, body, attrs} = {}) {
