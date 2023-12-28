@@ -1,4 +1,5 @@
 import {RxElement} from "../rx_element.js";
+import {DomainLeader} from "../domain_leader.js";
 
 export class Activity extends RxElement {
   constructor(properties) {
