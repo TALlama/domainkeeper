@@ -189,9 +189,17 @@ class DomainSheet extends RxElement {
     };
   }
 
-  modify(diff, ...names) { names.forEach(name => { this.data[name.toLocaleLowerCase()] += diff }) }
-  boost(...names) { this.modify(1, ...names) }
-  reduce(...names) { this.modify(-1, ...names) }
+  modify({by}, names) { names.forEach(name => { this.data[name.toLocaleLowerCase()] += by }) }
+  boost(...names) {
+    let {by} = names[0];
+    by && names.shift();
+    this.modify({by: by ?? 1}, names);
+  }
+  reduce(...names) {
+    let {by} = names[0];
+    by && names.shift();
+    this.modify({by: by ?? -1}, names);
+  }
 
   get unrestModifier() {
     let unrest = this.data.unrest;

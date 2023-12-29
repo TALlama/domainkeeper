@@ -86,16 +86,22 @@ export class Activity extends RxElement {
   }
 
   boost(...abilities) {
+    let {by} = abilities[0];
+    by && abilities.shift();
+    by ??= 1;
     abilities.forEach(ability => {
-      this.log(`📈 Boosted ${ability}`);
-      this.domainSheet.boost(ability)
+      this.domainSheet.boost({by}, ability);
+      this.log(`📈 Boosted ${ability} by ${by}`, Maker.tag("span", {class: "metadata"}, `, to ${this.domainSheet.data[ability.toLowerCase()]}`));
     });
   }
 
   reduce(...abilities) {
+    let {by} = abilities[0];
+    by && abilities.shift();
+    by ??= -1;
     abilities.forEach(ability => {
-      this.log(`📉 Reduced ${ability}`);
-      this.domainSheet.reduce(ability)
+      this.domainSheet.boost({by}, ability);
+      this.log(`📉 Reduced ${ability} by ${Math.abs(by)}`, Maker.tag("span", {class: "metadata"}, `, to ${this.domainSheet.data[ability.toLowerCase()]}`));
     });
   }
 
@@ -129,9 +135,7 @@ export class Activity extends RxElement {
     andThen ??= () => {};
 
     return () => {
-      let direction = by > 0 ? "boost" : "reduce";
-      let steps = Math.abs(by);
-      this[direction](...new Array(steps).fill(ability));
+      this[by > 0 ? "boost" : "reduce"]({by}, ability);
       return andThen();
     }
   }
@@ -326,7 +330,7 @@ export class LeadershipActivity extends Activity {
         },
         criticalFailure() {
           this.log(`🤬 The group refuses to pledge to you— furthermore, it will never Pledge Fealty to your domain, barring significant in-play changes or actions by the PCs (subject to the GM’s approval). The group’s potentially violent rebuff of your offer increases Unrest by 2.`);
-          this.boost("Unrest", "Unrest");
+          this.boost({by: 2}, "Unrest");
         },
       }),
       new LeadershipActivity({
@@ -388,7 +392,7 @@ export class LeadershipActivity extends Activity {
         criticalFailureDescription: `Unrest`,
         criticalSuccess() {
           this.log("🎁 You make good time and find plentiful resources!");
-          this.boost(this.aboveAbility, this.aboveAbility);
+          this.boost({by: 2}, this.aboveAbility);
         },
         success() {
           this.log("🎉 A fruitful expedition");
@@ -415,7 +419,7 @@ export class LeadershipActivity extends Activity {
         criticalFailureDescription: `Unrest`,
         criticalSuccess() {
           this.log(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
-          this.boost(this.belowAbility, this.belowAbility)
+          this.boost({by: 2}, this.belowAbility);
         },
         success() {
           this.log(`🎉 Your holiday is a success.`);
@@ -427,7 +431,7 @@ export class LeadershipActivity extends Activity {
         },
         criticalFailure() {
           this.log("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate. A random ability is reduced.")
-          this.reduce(this.randomAbility);
+          this.reduce(Ability.random);
         },
       }),
       new LeadershipActivity({
@@ -453,12 +457,11 @@ export class LeadershipActivity extends Activity {
         },
         failure() {
           this.log(`🥡 Your ally sends what aid they can.`);
-          this.boost(this.randomAbility);
+          this.boost(Ability.random);
         },
         criticalFailure() {
           this.log(`💥 Your ally is tangled up in its own problems and is unable to assist you, is insulted by your request for aid, or might even have an interest in seeing your domain struggle against one of your ongoing events. Whatever the case, your pleas for aid make your domain look desperate. You gain no aid, but you do increase Unrest by 1d4.`);
-          let steps = [1, 2, 3, 4].random();
-          this.boost(...new Array(steps).fill("Unrest"));
+          this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
         },
       }),
       new LeadershipActivity({
@@ -484,7 +487,7 @@ export class LeadershipActivity extends Activity {
         },
         criticalFailure() {
           this.log(`🔥 The merriment gets out of hand and riots ensue.`);
-          this.reduce(this.randomAbility);
+          this.reduce(Ability.random);
         },
       }),
       new LeadershipActivity({
@@ -616,7 +619,7 @@ export class LeadershipActivity extends Activity {
         criticalSuccess() {
           this.success();
           this.log(`💰 There is a constant stream of people coming to see it for themselves.`);
-          this.boost(this.randomAbility);
+          this.boost(Ability.random);
         },
         success() {
           this.log(`🗿 A stunning work of art is created, and people speak of it far and wide.`);
@@ -630,8 +633,7 @@ export class LeadershipActivity extends Activity {
           if (this.domainSheet.data.fame > 0) {
             this.reduce("Fame");
           } else {
-            let steps = [1, 2, 3, 4].random();
-            this.boost(...new Array(steps).fill("Unrest"));
+            this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
           }
         },
       }),
