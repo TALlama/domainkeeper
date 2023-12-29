@@ -10,6 +10,7 @@ export default class DomainActivityLog extends RxElement {
 
     this.fillStatusBanner();
     this.fillAvailableActivities();
+    this.fillConsumables();
     this.addEventListener("click", this);
 
     this.initialBoosts();
@@ -79,6 +80,17 @@ export default class DomainActivityLog extends RxElement {
     });
   }
 
+  fillConsumables() {
+    reef.component(this.$(".consumables"), () => {
+      return Object.values(this.domainSheet.data.consumables).map(consumable => `
+        <li class="consumable" data-action="${consumable.action}" data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
+          <span class="name">${consumable.name}</span>
+          <div class="description">${consumable.description}</div>
+        </li>`
+      ).join("");
+    });
+  }
+
   initialBoosts() {
     if (!this.domainSheet.data.abilityBoosts) { return; }
 
@@ -126,9 +138,15 @@ export default class DomainActivityLog extends RxElement {
           Maker.tag("section", {class: "pickable-group"},
             Maker.tag("button", "3 Unrest", {class: "pickable", click: () => this.domainSheet.boost({by: 3}, "Unrest")}),
             Maker.tag("button", "Lower random ability", {class: "pickable", click: () => this.domainSheet.boost(Ability.random)}),
-            Maker.tag("button", "Lose 1 Fame", {class: "pickable", click: () => this.domainSheet.reduce("Fame")}),
+            Maker.tag("button", "Lose 1 Fame", {class: "pickable", click: () => this.domainSheet.useConsumable({name: "Fame"})}),
             Maker.tag("button", "I did something else", {class: "pickable"}),
-            {click: event => event.target.closest(".pickable") ? this.newTurn() : null},
+            {click: event => {
+              let picked = event.target.closest(".pickable");
+              if (picked) {
+                this.domainSheet.useAllConsumables({useBy: "end-of-turn"});
+                this.newTurn();
+              }
+            }},
           ),
         );
       },
@@ -148,7 +166,18 @@ export default class DomainActivityLog extends RxElement {
     
     this.resetTurn();
     this.turnMarker(name);
+    this.domainSheet.addFame();
     this.ruin();
+  }
+
+  reroll(event) {
+    let lastRoll = this.domainSheet.$("dice-roller");
+    if (!lastRoll) { return }
+
+    lastRoll.shadowRoot.querySelector("*").click(); // Ew
+    
+    let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
+    consumableId && this.domainSheet.useConsumable({id: consumableId});
   }
 
   doActivity(event, {actionTarget}) {
@@ -182,7 +211,7 @@ export default class DomainActivityLog extends RxElement {
     let doRuin = (threshold) => {
       if (activity.domainSheet.data.unrest >= threshold) {
         activity.log(`🤬 Unrest is higher than ${threshold}.`);
-        let ability = activity.randomAbility;
+        let ability = Ability.random;
         activity.log({
           "Culture": "💸 Corruption is rampant, and no one trusts the domain.",
           "Economy": "🥷🏻 Crime is everywhere, making it hard on honest citizens.",

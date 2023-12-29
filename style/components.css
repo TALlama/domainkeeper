@@ -172,6 +172,15 @@
       }
     }
 
+    .consumables {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--external-margin);
+      margin-bottom: var(--external-margin);
+
+      font-size: 80%;
+    }
+
     > .entries {
       > .turn-marker {
         display: flex;
@@ -304,6 +313,26 @@
 
   button.picked, button.pickable:hover {
     --button-bg: lch(86% 55 190);
+  }
+
+  .consumable {
+    --_consumable-bg: yellow;
+    --_consumable-color: black;
+    --_consumable-border-color: var(--consumable-color, var(--_consumable-color));
+
+    color: var(--consumable-color, var(--_consumable-color));
+    border: 1px solid var(--consumable-border-color, var(--_consumable-border-color));
+    background: var(--consumable-bg, var(--_consumable-bg));
+    padding: var(--internal-margin);
+
+    &[data-use-by="end-of-turn"] {
+      border-style: dashed;
+    }
+
+    .description {
+      font-size: 80%;
+      margin-top: var(--internal-margin);
+    }
   }
 
   .outcome {

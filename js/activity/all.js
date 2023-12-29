@@ -105,6 +105,11 @@ export class Activity extends RxElement {
     });
   }
 
+  addFame() {
+    this.log("👩🏻‍🎤 Add fame");
+    this.domainSheet.addFame();
+  }
+
   // Formatting options
   static tagged(tag, ...parts) { return Maker.tag("li", Maker.tag("strong", `${tag} `), ...parts) }
   static prereq(...parts) { return Activity.tagged("Requirements", ...parts) }
@@ -372,6 +377,7 @@ export class LeadershipActivity extends Activity {
         },
         success() {
           this.log(`🎉 You can call upon the solution to aid in resolving any Domain check made during the remainder of this turn. Do so when a check is rolled, but before you learn the result. Immediately reroll that check with a +2 circumstance bonus; you must take the new result.`);
+          this.domainSheet.addConsumable({name: "Creative Solution", action: "reroll", description: "Reroll +2"});
         },
         failure() { this.log("❌ You spend time thinking the problem through, but no solution shows itself.") },
         criticalFailure() {
@@ -475,7 +481,7 @@ export class LeadershipActivity extends Activity {
         criticalSuccess() {
           this.success();
           this.log("🗣️ People come from far and wide to join the festivities, and carry work back to their own lands.")
-          this.boost("Fame");
+          this.addFame();
         },
         success() {
           this.log(`🎉 The people enjoy the distraction.`);
@@ -623,15 +629,16 @@ export class LeadershipActivity extends Activity {
         },
         success() {
           this.log(`🗿 A stunning work of art is created, and people speak of it far and wide.`);
-          this.boost("Fame");
+          this.addFame();
         },
         failure() {
           this.log(`❌ Your attempt to create a masterpiece fails`);
         },
         criticalFailure() {
           this.log(`💥 Not only does your attempt to create a masterpiece fail, it does so in a dramatic and humiliating way. Lose 1 Fame or Infamy point; if you have no Fame or Infamy points to lose, instead gain 1d4 Unrest.`);
-          if (this.domainSheet.data.fame > 0) {
-            this.reduce("Fame");
+          let consumed = this.domainSheet.useConsumable({name: "Fame"});
+          if (consumed) {
+            this.log("🤡 Fame reduced by 1");
           } else {
             this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
           }

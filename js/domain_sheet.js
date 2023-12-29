@@ -52,7 +52,6 @@ class DomainSheet extends RxElement {
     saved.loyalty ??= abilitiesStartAt;
     saved.stability ??= abilitiesStartAt;
     saved.unrest ??= 0;
-    saved.fame ??= 1;
     saved.size ??= 1;
     saved.xp ??= 0;
     saved.level ??= 1;
@@ -67,6 +66,7 @@ class DomainSheet extends RxElement {
     saved.settlements ??= [
       new DomainLeader({type: "Village", name: "Capital", activitiesPerTurn: 1}),
     ]
+    saved.consumables ??= {};
     saved.turns ??= [];
 
     return saved;
@@ -89,7 +89,7 @@ class DomainSheet extends RxElement {
         }}));
     });
 
-    "Unrest Fame Size XP".split(" ").forEach((stat) => {
+    "Unrest Size XP".split(" ").forEach((stat) => {
       Maker.tag("label", {appendTo: this.statsList, rx: () => `<label>${stat} <input type="number" @value="${this.data[stat.toLocaleLowerCase()]}" data-in="${stat}" min="0" /></label>`})
     })
     Maker.tag("label", {appendTo: this.statsList, rx: () => `<label>Level <input type="number" @value="${this.data.level}" data-in="Level" min=1 max=20 /></label>`});
@@ -152,6 +152,35 @@ class DomainSheet extends RxElement {
     };
 
     return this.data.size + baseControlDCByLevel[this.data.level];
+  }
+
+  addFame() {
+    let existing = this.findConsumables({name: "Fame"});
+    if (existing.length >= 3) { return }
+
+    this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
+  }
+
+  findConsumables(pattern) {
+    return Object.values(this.data.consumables).filter(consumable =>
+      Object.keys(pattern).reduce((all, key) => all && (pattern[key] === consumable[key]), true)
+    );
+  }
+
+  addConsumable(attrs) {
+    let id = attrs.id || crypto.randomUUID();
+    this.data.consumables[id] = {name: "Consumable", description: "?", useBy: "end-of-turn", id, ...attrs};
+  }
+
+  useConsumable(pattern) {
+    let matches = this.findConsumables(pattern);
+    if (matches[0]) { delete this.data.consumables[matches[0].id] }
+  }
+
+  useAllConsumables(pattern) {
+    this
+      .findConsumables(pattern)
+      .forEach(consumable => this.useConsumable({id: consumable.id}));
   }
 
   mod(ability) {
