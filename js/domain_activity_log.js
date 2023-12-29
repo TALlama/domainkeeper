@@ -1,4 +1,5 @@
 import {RxElement} from "./rx_element.js";
+import {Ability} from "./abilities.js";
 import {Activity, SystemActivity, LeadershipActivity, CivicActivity} from "./activity/all.js";
 
 export default class DomainActivityLog extends RxElement {
@@ -124,7 +125,7 @@ export default class DomainActivityLog extends RxElement {
           Maker.tag("p", `Presumably some kind of event happens here and stuff happens. Adjust abilties and stats accordingly. Maybe it's one of these:`),
           Maker.tag("section", {class: "pickable-group"},
             Maker.tag("button", "3 Unrest", {class: "pickable", click: () => this.domainSheet.boost("Unrest", "Unrest", "Unrest")}),
-            Maker.tag("button", "Lower random ability", {class: "pickable", click: () => this.domainSheet.boost("Culture Economy Loyalty Stability".split(" ").random())}),
+            Maker.tag("button", "Lower random ability", {class: "pickable", click: () => this.domainSheet.boost(Ability.random)}),
             Maker.tag("button", "Lose 1 Fame", {class: "pickable", click: () => this.domainSheet.reduce("Fame")}),
             Maker.tag("button", "I did something else", {class: "pickable"}),
             {click: event => event.target.closest(".pickable") ? this.newTurn() : null},

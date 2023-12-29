@@ -1,4 +1,5 @@
 import {RxElement} from "../rx_element.js";
+import {Ability} from "../abilities.js";
 import {DomainLeader} from "../domain_leader.js";
 
 export class Activity extends RxElement {
@@ -44,9 +45,8 @@ export class Activity extends RxElement {
   get pickedPrompt() { return this.$(".prompt .picked") }
   get pickedPromptAbility() { return this.pickedPrompt.dataset.ability }
 
-  get belowAbility() { return {Culture: "Economy", Economy: "Loyalty", Loyalty: "Stability", Stability: "Culture"}[this.pickedPromptAbility] }
-  get aboveAbility() { return {Stability: "Loyalty", Loyalty: "Economy", Economy: "Culture", Culture: "Stability"}[this.pickedPromptAbility] }
-  get randomAbility() { return "Culture Economy Loyalty Stability".split(" ").random() }
+  get belowAbility() { return Ability.next(this.pickedPromptAbility) }
+  get aboveAbility() { return Ability.previous(this.pickedPromptAbility) }
 
   get outcomeSection() { return Maker.tag("section", {class: "outcome pickable-group"}, this.outcome) }
   set outcome(value) { this._outcome = value }
@@ -140,7 +140,7 @@ export class Activity extends RxElement {
     let by = options.by ?? 1;
     let text = (ability) => format.replace("{ability}", ability).replace("{by}", Math.abs(by));
 
-    return this.pickOne([], {...options, beforeItems: "Culture Economy Loyalty Stability".split(" ").map(ability =>
+    return this.pickOne([], {...options, beforeItems: Ability.all.map(ability =>
       this.pickOneItem(text(ability), {...options, andThen: this.modAndThen({...options, ability: ability})}),
     )});
   }
@@ -664,7 +664,7 @@ export class CivicActivity extends Activity {
         criticalFailureDescription: `Fail; Reduce a random Ability by 1`,
         criticalSuccess() {
           this.log("😂 Everyone rallies to help.");
-          this.boost(this.randomAbility);
+          this.boost(Ability.random);
           this.success();
         },
         success() {
@@ -676,7 +676,7 @@ export class CivicActivity extends Activity {
         failure() { this.log("❌ You fail to build the building") },
         criticalFailure() {
           this.log("💀 Some workers are killed in a construction accident");
-          this.reduce(this.randomAbility);
+          this.reduce(Ability.random);
           this.failure();
         },
       }),
