@@ -105,6 +105,10 @@ export class Activity extends RxElement {
     });
   }
 
+  addConsumable(attrs) {
+    this.domainSheet.addConsumable(attrs);
+  }
+
   addFame() {
     this.log("👩🏻‍🎤 Add fame");
     this.domainSheet.addFame();
@@ -228,6 +232,7 @@ export class LeadershipActivity extends Activity {
         failure() { this.log(`❌ You fail to claim the hex`) },
         criticalFailure() {
           this.log(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of your next turn.`);
+          this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
         },
       }),
       new LeadershipActivity({
@@ -382,6 +387,7 @@ export class LeadershipActivity extends Activity {
         failure() { this.log("❌ You spend time thinking the problem through, but no solution shows itself.") },
         criticalFailure() {
           this.log(`Your scholars and thinkers are so frustrated that you take a –1 circumstance penalty to Culture checks until the end of the NEXT Domain turn.`)
+          this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
         },
       }),
       new LeadershipActivity({
@@ -580,6 +586,7 @@ export class LeadershipActivity extends Activity {
         },
         success() {
           this.log(`🔪 The continuous event doesn’t end, but you gain a +2 circumstance bonus to resolve the event during the next Event phase`);
+          this.addConsumable({name: "Status: Hired Hands", description: "+2 Event Resolution (Circumstance bonus)"});
         },
         failure() {
           this.log(`❌ You fail to end the continuous event`);
@@ -601,15 +608,18 @@ export class LeadershipActivity extends Activity {
         criticalFailureDescription: `-1 penalty to resolve event`,
         criticalSuccess() {
           this.log(`🧿 Gain a +2 circumstance bonus to the check to resolve the event.`);
+          this.addConsumable({name: "Status: Prepared 2", description: "+2 Event Resolution (Circumstance bonus)"});
         },
         success() {
           this.log(`🎴 Gain a +1 circumstance bonus to the check to resolve the event.`);
+          this.addConsumable({name: "Status: Prepared 1", description: "+1 Event Resolution (Circumstance bonus)"});
         },
         failure() {
           this.log(`❌ Your spellcasters divine no aid.`);
         },
         criticalFailure() {
           this.log(`💥 Your spellcasters provide inaccurate readings of the future. Take a -1 circumstance penalty to the check to resolve the event`);
+          this.addConsumable({name: "Status: Ill-Prepared", description: "-1 Event Resolution (Circumstance bonus)"});
         },
       }),
       new LeadershipActivity({

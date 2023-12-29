@@ -83,7 +83,7 @@ export default class DomainActivityLog extends RxElement {
   fillConsumables() {
     reef.component(this.$(".consumables"), () => {
       return Object.values(this.domainSheet.data.consumables).map(consumable => `
-        <li class="consumable" data-action="${consumable.action}" data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
+        <li class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
           <span class="name">${consumable.name}</span>
           <div class="description">${consumable.description}</div>
         </li>`
