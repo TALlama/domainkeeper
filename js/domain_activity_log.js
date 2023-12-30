@@ -121,7 +121,7 @@ export default class DomainActivityLog extends RxElement {
         Maker.tag("p", `You should end up with a 6, a 4, a 3,and a 2.`),
         Maker.tag("p", `But maybe that makes things too hard or too easy! We ca adjust this!`),
       ],
-      outcome: "",
+      possibleOutcomes: "",
     });
 
     this.domainSheet.data.abilityBoosts.forEach((boosts) => {
@@ -218,7 +218,7 @@ export default class DomainActivityLog extends RxElement {
       name: "Ruin",
       description: "If Unrest is too high, random stats get reduced",
       prompt: "",
-      outcome: "",
+      possibleOutcomes: "",
     });
 
     let doRuin = (threshold) => {

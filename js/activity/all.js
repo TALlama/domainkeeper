@@ -52,10 +52,10 @@ export class Activity extends RxElement {
   get belowAbility() { return Ability.next(this.pickedPromptAbility) }
   get aboveAbility() { return Ability.previous(this.pickedPromptAbility) }
 
-  get outcomeSection() { return Maker.tag("section", {class: "outcome pickable-group"}, this.outcome) }
-  set outcome(value) { this._outcome = value }
-  get outcome() {
-    return this.callOrReturn(this._outcome) ?? [
+  get outcomeSection() { return Maker.tag("section", {class: "outcome pickable-group"}, this.possibleOutcomes) }
+  set possibleOutcomes(value) { this._possibleOutcomes = value }
+  get possibleOutcomes() {
+    return this.callOrReturn(this._possibleOutcomes) ?? [
       Maker.tag("h4", "Result:"),
       Maker.tag("button", `Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "pickable outcome outcome-critical-success", "data-set-outcome": "critical-success", click: () => { this.criticalSuccess() }}),
       Maker.tag("button", `Success`, Maker.tag("small", this.successDescription), {class: "pickable outcome outcome-success", "data-set-outcome": "success", click: () => { this.success() }}),
@@ -695,7 +695,7 @@ export class CivicActivity extends Activity {
         name: "Contribute",
         description: "This settlement is hard at work.",
         prompt: "",
-        outcome: (ability) => ability.modOneAnd(`Increase {ability}`, {by: 1}),
+        possibleOutcomes: (ability) => ability.modOneAnd(`Increase {ability}`, {by: 1}),
       }),
       new CivicActivity({
         icon: "🚧",
