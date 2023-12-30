@@ -211,7 +211,6 @@ class DomainSheet extends RxElement {
   get statScores() {
     return {
       Unrest: this.data.unrest,
-      Fame: this.data.fame,
       Size: this.data.size,
       XP: this.data.xp,
       Level: this.data.level,

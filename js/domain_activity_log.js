@@ -5,7 +5,6 @@ import {Activity, SystemActivity, LeadershipActivity, CivicActivity} from "./act
 export default class DomainActivityLog extends RxElement {
   connectedCallback() {
     this.entries = Maker.tag("main", {class: "entries", appendTo: this});
-    this.resetTurn();
     this.turnSummaries = [];
 
     this.fillStatusBanner();
@@ -14,20 +13,25 @@ export default class DomainActivityLog extends RxElement {
     this.fillCurrentTurnDebug();
     this.addEventListener("click", this);
 
-    this.initialBoosts();
-    this.newTurn();
-    this.entry({
-      title: "Welcome, Domainkeeper",
-      description: "You've got a new domain. Let's see how it goes.",
-      body: [
-        Maker.tag("p", `💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!`),
-        Maker.tag("p", `
-        👑 Click the buttons above to do activities. You can cancel activities until you've picked any buttons inside them, so feel free to explore.`),
-        Maker.tag("p", `♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.`),
-        Maker.tag("p", `💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!`),
-        Maker.tag("p", `🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.`),
-      ],
-    });
+    if (this.domainSheet.data.turns.length === 0) {
+      this.resetTurn();
+      this.initialBoosts();
+      this.newTurn();
+      this.entry({
+        title: "Welcome, Domainkeeper",
+        description: "You've got a new domain. Let's see how it goes.",
+        body: [
+          Maker.tag("p", `💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!`),
+          Maker.tag("p", `
+          👑 Click the buttons above to do activities. You can cancel activities until you've picked any buttons inside them, so feel free to explore.`),
+          Maker.tag("p", `♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.`),
+          Maker.tag("p", `💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!`),
+          Maker.tag("p", `🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.`),
+        ],
+      });
+    } else {
+      this.reenactHistory();
+    }
 
     // For debugging; put `focused: true` in an activity to auto-click it
     let focusedActivity = Activity.all.find(a => a.focused);
@@ -64,8 +68,8 @@ export default class DomainActivityLog extends RxElement {
 
   fillAvailableActivities() {
     reef.component(this.$(".activities"), () => {
-      let leadershipLeft = this.domainSheet.data.turns.last().leadershipActivitiesLeft;
-      let civicLeft = this.domainSheet.data.turns.last().civicActivitiesLeft;
+      let leadershipLeft = this.domainSheet.data.turns.last()?.leadershipActivitiesLeft;
+      let civicLeft = this.domainSheet.data.turns.last()?.civicActivitiesLeft;
       let activitx = (count) => count == 1 ? "activity" : "activities";
 
       return `
@@ -94,7 +98,7 @@ export default class DomainActivityLog extends RxElement {
 
   fillCurrentTurnDebug() {
     reef.component(this.$(".debug .current-turn"), () => {
-      return JSON.stringify(this.domainSheet.data.turns.last(), null, 2).escapeHtml();
+      return JSON.stringify(this.domainSheet.data.turns.last() || {}, null, 2).escapeHtml();
     });
   }
 
@@ -163,14 +167,16 @@ export default class DomainActivityLog extends RxElement {
   newTurn(name) {
     this.domainSheet.saveData();
 
+    let lastTurn = this.domainSheet.data.turns.last();
     let summary = {
-      entries: this.domainSheet.data.turns.last().entries,
+      entries: lastTurn.entries,
       abilityScores: this.domainSheet.abilityScores,
       statScores: this.domainSheet.statScores,
     };
     this.turnSummaries.push(summary);
     this.domainSummaryEntry(summary);
     
+    this.debugEntry(lastTurn, `Completed turn`);
     this.resetTurn();
     this.turnMarker(name);
     this.domainSheet.addFame();
@@ -301,6 +307,38 @@ export default class DomainActivityLog extends RxElement {
       Maker.tag("blockquote", {class: "description"}, description),
       Maker.tag("section", {class: "body"}, body),
     ]);
+  }
+
+  debugEntry(obj, title) {
+    Maker.tag("code", {class: "debug", prependTo: this.entries, title}, Maker.tag("pre", JSON.stringify(obj, null, 2)));
+  }
+
+  reenactHistory() {
+    let turns = this.domainSheet.data.turns;
+    turns.forEach((turn, turnNumber) => {
+      this.debugEntry(turn, `Saved turn #${turnNumber} of ${turns.length}`);
+      turn.entries.forEach(entry => this.savedEntry(entry));
+      if (turns.length > turnNumber + 1) { this.turnMarker(`Turn ${turnNumber + 1} (from save)`) }
+    });
+
+    this.entry({
+      title: "Welcome back, Domainkeeper",
+      description: "Here's your saved domain. How's it going?",
+      body: ["Stuff happened, but I don't recall all of it."],
+    });
+  }
+
+  savedEntry(entry) {
+    this.entry({
+      title: entry.name,
+      body: Maker.tag("section", {class: "log"}, entry.log.map(l => Maker.tag("p", p => {p.innerHTML = l}))),
+      attrs: {
+        id: entry.id,
+        "data-type": entry.type,
+        "data-used-ability": entry.usedAbility,
+        "data-outcome": entry.outcome,
+      },
+    });
   }
 }
 customElements.define("domain-activity-log", DomainActivityLog);
