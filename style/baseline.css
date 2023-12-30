@@ -49,4 +49,21 @@
       opacity: .8;
     }
   }
+
+  code {
+    font-family: monospace;
+    font-size: 80%;
+    color: darkred;
+
+    & > pre {
+      border: 1px solid currentColor;
+      background-color: rgb(255, 235, 235);
+      padding: var(--internal-margin);
+      margin: var(--external-margin) 0;
+    }
+  }
+
+  pre {
+    white-space: pre;
+  }
 }

@@ -3,6 +3,10 @@
     display: none;
   }
 
+  .debug {
+    display: var(--debug-display, none);
+  }
+
   .metadata {
     font-size: 80%;
     color: hsl(0, 0%, 40%);

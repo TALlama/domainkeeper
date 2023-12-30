@@ -11,6 +11,7 @@ export default class DomainActivityLog extends RxElement {
     this.fillStatusBanner();
     this.fillAvailableActivities();
     this.fillConsumables();
+    this.fillCurrentTurnDebug();
     this.addEventListener("click", this);
 
     this.initialBoosts();
@@ -88,6 +89,12 @@ export default class DomainActivityLog extends RxElement {
           <div class="description">${consumable.description}</div>
         </li>`
       ).join("");
+    });
+  }
+
+  fillCurrentTurnDebug() {
+    reef.component(this.$(".debug .current-turn"), () => {
+      return JSON.stringify(this.domainSheet.data.turns.last(), null, 2).escapeHtml();
     });
   }
 
