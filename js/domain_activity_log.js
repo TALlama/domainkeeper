@@ -36,9 +36,9 @@ export default class DomainActivityLog extends RxElement {
 
   resetTurn() {
     this.domainSheet.data.turns.push({
-      leadershipActivities: this.domainSheet.leadershipActivitiesPerTurn,
-      civicActivities: this.domainSheet.civicActivitiesPerTurn,
-      activities: [],
+      leadershipActivitiesLeft: null,
+      civicActivitiesLeft: null,
+      entries: [],
     });
     this.countRemainingActivities();
   }
@@ -164,7 +164,7 @@ export default class DomainActivityLog extends RxElement {
     this.domainSheet.saveData();
 
     let summary = {
-      activities: this.domainSheet.data.turns.last().activities,
+      entries: this.domainSheet.data.turns.last().entries,
       abilityScores: this.domainSheet.abilityScores,
       statScores: this.domainSheet.statScores,
     };
@@ -259,15 +259,16 @@ export default class DomainActivityLog extends RxElement {
       description: `Turn ${this.turn}`,
       body: [
         Maker.tag("p", "💾 Domain saved"),
-        Maker.tag("h4", "Activities taken"),
-        Maker.tag("div", {class: "activities-summary"}, summary.activities.map(activity =>
-          Maker.tag("a", activity.icon, {
+        Maker.tag("h4", "What happened"),
+        Maker.tag("div", {class: "entries-summary"}, summary.entries.map(entry =>
+          Maker.tag("a", Activity.icon(entry.name), {
             href: "#",
-            title: activity.name,
-            class: `activity-summary`,
-            "data-type": activity.dataset.type,
-            "data-outcome": activity.dataset.outcome,
-            click: () => { setTimeout(() => activity.scrollIntoView(), 1) }})
+            title: entry.name,
+            class: `entry-summary`,
+            "data-type": entry.type,
+            "data-used-ability": entry.usedAbility,
+            "data-outcome": entry.outcome,
+            click: () => { setTimeout(() => document.getElementById(entry.id).scrollIntoView(), 1) }})
         )),
         Maker.tag("h4", "Stats at end of turn"),
         Maker.dl(this.withDiffs(summary.abilityScores, lastTurnSummary?.abilityScores), {class: "dl-oneline"}),
@@ -278,20 +279,20 @@ export default class DomainActivityLog extends RxElement {
 
   activity(activity) {
     this.entries.prepend(activity);
-    this.domainSheet.data.turns.last().activities.push(activity);
+    this.domainSheet.data.turns.last().entries.push(activity.record);
     this.countRemainingActivities();
   }
 
   countRemainingActivities() {
     let left = {};
-    left[LeadershipActivity] = this.domainSheet.leadershipActivitiesPerTurn;
-    left[CivicActivity] = this.domainSheet.civicActivitiesPerTurn;
-    this.domainSheet.data.turns.last().activities.forEach(activity => {
-      left[activity.constructor] -= 1;
+    left["leadership-activity"] = this.domainSheet.leadershipActivitiesPerTurn;
+    left["civic-activity"] = this.domainSheet.civicActivitiesPerTurn;
+    this.domainSheet.data.turns.last().entries.forEach(entry => {
+      left[entry.type] -= 1;
     });
 
-    this.domainSheet.data.turns.last().leadershipActivitiesLeft = left[LeadershipActivity];
-    this.domainSheet.data.turns.last().civicActivitiesLeft = left[CivicActivity];
+    this.domainSheet.data.turns.last().leadershipActivitiesLeft = left["leadership-activity"];
+    this.domainSheet.data.turns.last().civicActivitiesLeft = left["civic-activity"];
   }
 
   entry({title, description, body, attrs} = {}) {

@@ -282,12 +282,12 @@
     &.diff-positive { color: green }
   }
 
-  .activities-summary {
+  .entries-summary {
     display: flex;
     flex-wrap: wrap;
   }
 
-  .activity-summary {
+  .entry-summary {
     --bg: lightgray;
     --outcome-bg: var(--bg);
     --type-bg: var(--bg);

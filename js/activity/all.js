@@ -7,9 +7,10 @@ export class Activity extends RxElement {
     super();
 
     Object.assign(this, properties);
+    this.id ||= crypto.randomUUID();
     this.abilities ||= this.abilities || ["Culture", "Economy", "Loyalty", "Stability"];
 
-    Maker.tag(this, {class: "entry activity"},
+    Maker.tag(this, {id: this.id, class: "entry activity"},
       {"data-type": this.tagName.toLowerCase()},
       {class: (LeadershipActivity === this.constructor ? "leadership-activity" : "")},
       {class: (CivicActivity === this.constructor ? "civic-activity" : "")},
@@ -25,8 +26,11 @@ export class Activity extends RxElement {
   }
 
   handleEvent(event) {
+    let setUsedAbility = event.target.closest("[data-set-used-ability]")?.dataset?.setUsedAbility;
+    if (setUsedAbility) { this.dataset.usedAbility = this.record.usedAbility = setUsedAbility }
+
     let setOutcome = event.target.closest("[data-set-outcome]")?.dataset?.setOutcome;
-    if (setOutcome) { this.dataset.outcome = setOutcome }
+    if (setOutcome) { this.dataset.outcome = this.record.outcome = setOutcome }
   }
 
   body(into) {
@@ -43,7 +47,7 @@ export class Activity extends RxElement {
   set promptText(value) { this._promptText = value }
   get promptText() { return this.callOrReturn(this._promptText) ?? (this.abilities.length === 1 ? "Roll:" : "Roll one:") }
   get pickedPrompt() { return this.$(".prompt .picked") }
-  get pickedPromptAbility() { return this.pickedPrompt.dataset.ability }
+  get pickedPromptAbility() { return this.pickedPrompt?.dataset?.ability }
 
   get belowAbility() { return Ability.next(this.pickedPromptAbility) }
   get aboveAbility() { return Ability.previous(this.pickedPromptAbility) }
@@ -67,20 +71,35 @@ export class Activity extends RxElement {
   criticalFailure() { this.failure() }
 
   cancel() {
-    let activities = this.domainSheet.data.turns.last().activities;
-    let ixThis = activities.findIndex(i => i == this);
-    activities.splice(ixThis, 1);
+    let entries = this.domainSheet.data.turns.last().entries;
+    let ixThis = entries.findIndex(r => r == this.record);
+    entries.splice(ixThis, 1);
     this.activityLog.countRemainingActivities();
 
     this.remove();
   }
 
-  log(...parts) { return Maker.tag("p", ...parts, {appendTo: this.logElement}); }
   get logElement() { return this.$('.log') }
+  log(...parts) {
+    let newEntry = Maker.tag("p", ...parts, {appendTo: this.logElement});
+    this.record.log.push(newEntry.innerHTML);
+    return newEntry;
+  }
+
+  get record() {
+    return this._record ||= reef.signal({
+      id: this.id,
+      type: this.constructor.name.replace(/^./, l => l.toLowerCase()).replaceAll(/[A-Z]/g, l => `-${l.toLowerCase()}`),
+      name: this.name,
+      usedAbility: this.pickedPromptAbility,
+      outcome: this.dataset.outcome,
+      log: [],
+    });
+  }
 
   roll(ability) {
     return Maker.tag("button",
-      {"class": "ability-roll pickable", "data-ability": ability},
+      {"class": "ability-roll pickable", "data-ability": ability, "data-set-used-ability": ability},
       ability,
       Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}));
   }
@@ -166,6 +185,13 @@ export class Activity extends RxElement {
   }
 
   static get all() { return [...LeadershipActivity.all, ...CivicActivity.all] }
+  static icon(name) {
+    this._allActivities ??= this.all;
+    return this._allActivities.find(a => a.name === name)?.icon ?? {
+      "Ruin": "😢",
+      "Initial Boosts": "🌱",
+    }[name] ?? "❓";
+  }
 }
 
 export class SystemActivity extends Activity {
