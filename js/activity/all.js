@@ -161,7 +161,7 @@ export class Activity extends RxElement {
   button({disabled} = {}) {
     return `<button title="${this.description}" data-action="doActivity" data-activity="${this.name}" ${disabled ? "disabled" : ""}>
       <span class="icon">${this.icon}</span>
-      ${this.name}
+      <span class="name">${this.name}</span>
     </button>`
   }
 

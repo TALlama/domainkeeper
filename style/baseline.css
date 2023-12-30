@@ -35,6 +35,10 @@
       > .icon {
         width: 25%;
         font-size: 200%;
+
+        + * {
+          flex-grow: 1;
+        }
       }
     }
 
