@@ -73,11 +73,19 @@ export default class DomainActivityLog extends RxElement {
       let activitx = (count) => count == 1 ? "activity" : "activities";
 
       return `
-        <h4>You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.</h4>
+        <h4>
+          You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.
+          <a href="#" data-action="addBonusLeadershipActivity">+</a>
+          <a href="#" data-action="addBonusLeadershipActivity" data-amount="-1">-</a>
+        </h4>
         <ul class="activities-list leadership-activities">
           ${LeadershipActivity.all.map(activity => activity.button({disabled: leadershipLeft <= 0})).join("")}
         </ul>
-        <h4>You have ${civicLeft} civic ${activitx(civicLeft)} left.</h4>
+        <h4>
+          You have ${civicLeft} civic ${activitx(civicLeft)} left.
+          <a href="#" data-action="addBonusCivicActivity">+</a>
+          <a href="#" data-action="addBonusCivicActivity" data-amount="-1">-</a>
+        </h4>
         <ul class="activities-list civic-activities">
           ${CivicActivity.all.map(activity => activity.button({disabled: civicLeft <= 0})).join("")}
         </ul>
@@ -131,6 +139,20 @@ export default class DomainActivityLog extends RxElement {
     this.domainSheet.data.abilityBoosts = null;
 
     this.activity(activity);
+  }
+
+  addBonusLeadershipActivity(event) {
+    let turn = this.domainSheet.data.turns.last();
+    turn.bonusLeadershipActivities ??= 0;
+    turn.bonusLeadershipActivities += Number(event?.target?.closest("[data-amount]")?.dataset?.amount || 1);
+    this.closest("domain-activity-log").countRemainingActivities();
+  }
+
+  addBonusCivicActivity(event) {
+    let turn = this.domainSheet.data.turns.last();
+    turn.bonusCivicActivities ??= 0;
+    turn.bonusCivicActivities += Number(event?.target?.closest("[data-amount]")?.dataset?.amount || 1);
+    this.closest("domain-activity-log").countRemainingActivities();
   }
 
   endTurn(event) {
@@ -295,14 +317,14 @@ export default class DomainActivityLog extends RxElement {
   countRemainingActivities() {
     let turn = this.domainSheet.data.turns.last();
     let left = {};
-    left["leadership-activity"] = this.domainSheet.leadershipActivitiesPerTurn;
+    left["leadership-activity"] = this.domainSheet.leadershipActivitiesPerTurn + (turn.bonusLeadershipActivities ?? 0);
     left["civic-activity"] = this.domainSheet.civicActivitiesPerTurn + (turn.bonusCivicActivities ?? 0);
     this.domainSheet.data.turns.last().entries.forEach(entry => {
       left[entry.type] -= 1;
     });
 
-    turn.leadershipActivitiesLeft = left["leadership-activity"];
-    turn.civicActivitiesLeft = left["civic-activity"];
+    turn.leadershipActivitiesLeft = Math.max(0, left["leadership-activity"]);
+    turn.civicActivitiesLeft = Math.max(0, left["civic-activity"]);
   }
 
   entry({title, description, body, attrs} = {}) {

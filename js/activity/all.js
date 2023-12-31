@@ -551,10 +551,7 @@ export class LeadershipActivity extends Activity {
         failureDescription: `Do a Civic Activity; Increase Unrest`,
         criticalFailureDescription: `Increase Unrest; Decrease Stability or Loyalty by 1`,
         bumpCivicActivities() {
-          let turn = this.domainSheet.data.turns.last();
-          turn.bonusCivicActivities ??= 0;
-          turn.bonusCivicActivities += 1;
-          this.closest("domain-activity-log").countRemainingActivities();
+          this.closest("domain-activity-log").addBonusCivicActivity();
         },
         criticalSuccess() {
           this.success();
