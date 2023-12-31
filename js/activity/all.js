@@ -43,33 +43,47 @@ export class Activity extends RxElement {
   get domainSheet() { return document.querySelector("domain-sheet") }
   get promptSection() { return Maker.tag("section", {class: "prompt pickable-group"}, this.prompt) }
   set prompt(value) { this._prompt = value }
-  get prompt() { return this.callOrReturn(this._prompt) ?? [Maker.tag("h4", this.promptText), this.abilities.flatMap(a => this.roll(a))] }
+  get prompt() {
+    return this.callOrReturn(this._prompt) ?? [
+      Maker.tag("h4", this.promptText),
+      Maker.pickableGroup(this.abilities.toDictionary(ability => [
+        ability,
+        [
+          ability,
+          Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}),
+          {"class": "pickable", "data-set-used-ability": ability, change: () => this.domainSheet.roll({modifier: ability})},
+        ],
+      ])),
+    ];
+  }
   set promptText(value) { this._promptText = value }
   get promptText() { return this.callOrReturn(this._promptText) ?? (this.abilities.length === 1 ? "Roll:" : "Roll one:") }
 
-  get usedAbility() { return this.dataset.setUsedAbility }
+  get usedAbility() { return this.dataset.usedAbility }
   set usedAbility(value) {
     this.dataset.usedAbility = this.record.usedAbility = value;
-    //this.$(`.prompt [data-set-used-ability="${value}"]`)?.classList?.add("picked");
+    this.$(`.prompt [data-set-used-ability="${value}"]`)?.classList?.add("picked");
   }
   get belowAbility() { return Ability.next(this.usedAbility) }
   get aboveAbility() { return Ability.previous(this.usedAbility) }
 
-  get outcomeSection() { return Maker.tag("section", {class: "outcome pickable-group"}, this.possibleOutcomes) }
+  get outcomeSection() { return Maker.tag("section", {class: "outcome"}, this.possibleOutcomes) }
   set possibleOutcomes(value) { this._possibleOutcomes = value }
   get possibleOutcomes() {
     return this.callOrReturn(this._possibleOutcomes) ?? [
       Maker.tag("h4", "Result:"),
-      Maker.tag("button", `Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "pickable outcome outcome-critical-success", "data-set-outcome": "critical-success", click: () => { this.criticalSuccess() }}),
-      Maker.tag("button", `Success`, Maker.tag("small", this.successDescription), {class: "pickable outcome outcome-success", "data-set-outcome": "success", click: () => { this.success() }}),
-      Maker.tag("button", `Failure`, Maker.tag("small", this.failureDescription), {class: "pickable outcome outcome-failure", "data-set-outcome": "failure", click: () => { this.failure() }}),
-      Maker.tag("button", `Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "pickable outcome outcome-critical-failure", "data-set-outcome": "critical-failure", click: () => { this.criticalFailure() }}),
+      Maker.pickableGroup({
+        "critical-success": [`Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "outcome outcome-critical-success", "data-set-outcome": "critical-success", change: () => { this.criticalSuccess() }}],
+        "success": [`Success`, Maker.tag("small", this.successDescription), {class: "outcome outcome-success", "data-set-outcome": "success", change: () => { this.success() }}],
+        "failure": [`Failure`, Maker.tag("small", this.failureDescription), {class: "outcome outcome-failure", "data-set-outcome": "failure", change: () => { this.failure() }}],
+        "critical-failure": [`Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "outcome outcome-critical-failure", "data-set-outcome": "critical-failure", change: () => { this.criticalFailure() }}],
+      }),
     ];
   }
   get outcome() { return this.dataset.outcome }
   set outcome(value) {
     this.dataset.outcome = this.record.outcome = value;
-    //this.$(`.outcome [data-set-outcome="${value}"]`)?.classList?.add("picked");
+    this.$(`.outcome [data-set-outcome="${value}"]`)?.classList?.add("picked");
   }
 
   criticalSuccess() { this.success() }
@@ -102,13 +116,6 @@ export class Activity extends RxElement {
       outcome: this.outcome,
       log: [],
     });
-  }
-
-  roll(ability) {
-    return Maker.tag("button",
-      {"class": "ability-roll pickable", "data-set-used-ability": ability},
-      ability,
-      Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}));
   }
 
   boost(...abilities) {

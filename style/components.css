@@ -311,7 +311,8 @@
     opacity: .6;
   }
 
-  button.picked, button.pickable:hover {
+  button.picked, button.pickable:hover,
+  .pickable-group label.picked, .pickable-group label.pickable:hover {
     --button-bg: lch(86% 55 190);
   }
 
@@ -345,6 +346,8 @@
   }
 
   .pickable-group {
+    margin: var(--external-margin) 0;
+
     &:has(.picked) {
       .pickable {
         pointer-events: none;

@@ -140,18 +140,21 @@ export default class DomainActivityLog extends RxElement {
       }
     }
 
+    // TODO make this a system activity, so it can log what happens
     this.entry({
       title: "Event",
       attrs: {class: "event"},
       body: (b) => {
         Maker.tag(b,
           Maker.tag("p", `Presumably some kind of event happens here and stuff happens. Adjust abilties and stats accordingly. Maybe it's one of these:`),
-          Maker.tag("section", {class: "pickable-group"},
-            Maker.tag("button", "3 Unrest", {class: "pickable", click: () => this.domainSheet.boost({by: 3}, "Unrest")}),
-            Maker.tag("button", "Lower random ability", {class: "pickable", click: () => this.domainSheet.boost(Ability.random)}),
-            Maker.tag("button", "Lose 1 Fame", {class: "pickable", click: () => this.domainSheet.useConsumable({name: "Fame"})}),
-            Maker.tag("button", "I did something else", {class: "pickable"}),
-            {click: event => {
+          Maker.pickableGroup(
+            {
+              unrest: ["3 Unrest", {change: () => this.domainSheet.boost({by: 3}, "Unrest")}],
+              abilityDown: ["Lower random ability", {change: () => this.domainSheet.boost(Ability.random)}],
+              fameDown: ["Lose 1 Fame", {change: () => this.domainSheet.useConsumable({name: "Fame"})}],
+              other: ["I did something else"],
+            },
+            {change: event => {
               let picked = event.target.closest(".pickable");
               if (picked) {
                 this.domainSheet.useAllConsumables({useBy: "end-of-turn"});

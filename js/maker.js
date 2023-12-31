@@ -26,6 +26,7 @@ class Maker {
         if (name == "appendTo") { value.append(el); continue; }
         if (name == "rx") { reef.component(el, value); continue; }
         if (name == "click") { el.addEventListener(name, value); continue; }
+        if (name == "change") { el.addEventListener(name, value); continue; }
         if (name == "class") { value = [el.className, value].join(' ').trim() }
         
         el.setAttribute(name, value);
@@ -44,6 +45,20 @@ class Maker {
         let [key, value] = key_value;
         return [Maker.tag("dt", key), Maker.tag("dd", value)]
       }),
+      ...parts,
+    );
+  }
+
+  static pickableGroup(options, ...parts) {
+    let name = crypto.randomUUID();
+
+    return Maker.tag("fieldset", {class: "pickable-group"},
+      Object.keys(options).map(value =>
+        Maker.tag("label", {class: "pickable"},
+          Maker.tag("input", {class: "sr-only", type: "radio", value, name}),
+          options[value],
+        )
+      ),
       ...parts,
     );
   }

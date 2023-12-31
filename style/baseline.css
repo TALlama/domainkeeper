@@ -12,14 +12,18 @@
     margin: var(--external-margin) 0;
   }
 
-  button {
+  button, .pickable-group label {
     --_button-bg: hsl(0, 0%, 80%);
     --_button-color: hsl(0, 0%, 0%);
     --_button-border-color: var(--button-color, var(--_button-color));
     background-color: var(--button-bg, var(--_button-bg));
     color: var(--button-color, var(--_button-color));
     border: 1px solid var(--button-border-color, var(--_button-border-color));
+
+    display: inline-block;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-weight: 600;
+    font-size: 11px;
     padding: var(--internal-margin);
 
     &[disabled] {
