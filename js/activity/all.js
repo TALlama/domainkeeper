@@ -44,6 +44,11 @@ export class Activity extends RxElement {
 
   get activityLog() { return this.closest("domain-activity-log") }
   get domainSheet() { return document.querySelector("domain-sheet") }
+
+  get currentTurn() { return this.domainSheet.data.turns.last() }
+  get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
+  get peerActivityUsedAbilities() { return this.peerActivities.map(a => a.usedAbility) }
+
   get promptSection() { return Maker.tag("section", {class: "prompt pickable-group"}, this.prompt) }
   set prompt(value) { this._prompt = value }
   get prompt() {
@@ -54,7 +59,14 @@ export class Activity extends RxElement {
         [
           ability,
           Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}),
-          {"class": "pickable", "data-set-used-ability": ability, change: () => this.domainSheet.roll({modifier: ability})},
+          {
+            "class": "pickable",
+            "data-set-used-ability": ability,
+            change: () => this.domainSheet.roll({modifier: ability}),
+          },
+          {
+            "class": this.peerActivityUsedAbilities.includes(ability) ? "looks-disabled" : "",
+          },
         ],
       ])),
     ];
