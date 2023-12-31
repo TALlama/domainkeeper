@@ -14,7 +14,10 @@ export class Activity extends RxElement {
       {"data-type": this.tagName.toLowerCase()},
       {class: (LeadershipActivity === this.constructor ? "leadership-activity" : "")},
       {class: (CivicActivity === this.constructor ? "civic-activity" : "")},
-      Maker.tag("header", this.name, Maker.tag("a", "Cancel", {href: "#", class: "cancel-activity", click: () => this.cancel()})),
+      Maker.tag("header",
+        this.name,
+        Maker.tag("small", {class: "byline", rx: () => (this.actor ? `by ${this.actor.name}` : ``)}),
+        Maker.tag("a", "Cancel", {href: "#", class: "cancel-activity", click: () => this.cancel()})),
       Maker.tag("span", {class: "icon"}, this.icon),
       Maker.tag("blockquote", {class: "description"}, this.description),
       Maker.tag("section", {class: "body"}, (el) => this.body(el, this)),
@@ -85,6 +88,10 @@ export class Activity extends RxElement {
     this.dataset.outcome = this.record.outcome = value;
     this.$(`.outcome [data-set-outcome="${value}"]`)?.classList?.add("picked");
   }
+
+  get actorId() { return this.dataset.actorId }
+  set actorId(value) { this.dataset.actorId = this.record.actorId = value; }
+  get actor() { return this.domainSheet.actor(this.actorId) }
 
   criticalSuccess() { this.success() }
   success() { this.log('Good job!') }
@@ -209,6 +216,9 @@ export class Activity extends RxElement {
 }
 
 export class SystemActivity extends Activity {
+  get actorId() { return null }
+  set actorId(value) { }
+  get actor() { return null }
 }
 customElements.define("system-activity", SystemActivity);
 

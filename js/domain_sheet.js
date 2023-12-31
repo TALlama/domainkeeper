@@ -56,18 +56,22 @@ class DomainSheet extends RxElement {
     saved.xp ??= 0;
     saved.level ??= 1;
     saved.leaders ??= [
-      new DomainLeader({type: "PC", name: "Seth"}),
-      new DomainLeader({type: "PC", name: "Ben"}),
-      new DomainLeader({type: "PC", name: "David"}),
-      new DomainLeader({type: "PC", name: "Morgan"}),
-      new DomainLeader({type: "PC", name: "Joe"}),
-      new DomainLeader({type: "NPC", name: "Bertie", activitiesPerTurn: 1}),
+      {type: "PC", name: "Seth"},
+      {type: "PC", name: "Ben"},
+      {type: "PC", name: "David"},
+      {type: "PC", name: "Morgan"},
+      {type: "PC", name: "Joe"},
+      {type: "NPC", name: "Bertie", activitiesPerTurn: 1},
     ];
     saved.settlements ??= [
-      new DomainLeader({type: "Village", name: "Capital", activitiesPerTurn: 1}),
+      {type: "Village", name: "Capital", activitiesPerTurn: 1},
     ]
     saved.consumables ??= {};
     saved.turns ??= [];
+
+    "leaders settlements".split(" ").forEach(key => {
+      saved[key] = saved[key].map(attrs => new DomainLeader(attrs));
+    });
 
     return saved;
   }
@@ -113,15 +117,23 @@ class DomainSheet extends RxElement {
   }
 
   fillLeaders() {
-    this.leadersComponent ||= reef.component(this.$(".leaders"), () =>
-      this.data.leaders.map(leader => `<li key="${leader}">${leader.type}: ${leader.name} <span class='metadata'>${leader.activitiesPerTurn} ${leader.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
-    )
+    this.leadersComponent ||= reef.component(this.$(".leaders"), () => this.actorList(this.data.leaders));
   }
 
   fillSettlements() {
-    reef.component(this.$(".settlements"), () =>
-      this.data.settlements.map(settlement => `<li key="${settlement}">${settlement.type}: ${settlement.name} <span class='metadata'>${settlement.activitiesPerTurn} ${settlement.activitiesPerTurn == 1 ? "activity" : "activities"}</li>`).join("")
-    )
+    this.settlementsComponent ||= reef.component(this.$(".settlements"), () => this.actorList(this.data.settlements));
+  }
+
+  actorList(actors, current = this.currentActor) {
+    return actors.map(actor => {
+      let total = actor.activitiesPerTurn;
+      let left = actor.activitiesLeft;
+
+      return `<li id="${actor.id}" class="${(current == actor) ? "current" : ""}">
+        ${actor.type}: ${actor.name}
+        <span class='metadata'>${left} ${left == 1 ? "activity" : "activities"} ${left === total ? "" : `left of ${total}/turn`}</span>
+      </li>`;
+    }).join("");
   }
 
   get leadershipActivitiesPerTurn() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesPerTurn, 0) }
@@ -153,6 +165,12 @@ class DomainSheet extends RxElement {
 
     return this.data.size + baseControlDCByLevel[this.data.level];
   }
+
+  get currentActor() { return this.readyActor(this.data.currentActorId) || this.readyActors.first() }
+  actor(actorId) { return this.actors.find(a => a.id === actorId) }
+  get actors() { return [...this.data.leaders, ...this.data.settlements] }
+  readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }
+  get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
 
   addFame() {
     let existing = this.findConsumables({name: "Fame"});

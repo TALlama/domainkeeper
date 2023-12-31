@@ -221,7 +221,7 @@ export default class DomainActivityLog extends RxElement {
   doActivity(event, {actionTarget}) {
     let activityName = actionTarget.dataset.activity;
     let activity = Activity.all.find(a => a.name == activityName);
-    this.activity(activity);
+    activity && this.activity(activity);
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
@@ -310,6 +310,7 @@ export default class DomainActivityLog extends RxElement {
 
   activity(activity) {
     this.entries.prepend(activity);
+    activity.actorId = this.domainSheet.currentActor.id;
     this.domainSheet.data.turns.last().entries.push(activity.record);
     this.countRemainingActivities();
   }
@@ -355,12 +356,15 @@ export default class DomainActivityLog extends RxElement {
   }
 
   savedEntry(entry) {
+    let actor = this.domainSheet.actor(entry.actorId);
+
     this.entry({
-      title: entry.name,
+      title: [entry.name, actor && Maker.tag("small", `by ${actor.name}`)],
       body: Maker.tag("section", {class: "log"}, entry.log.map(l => Maker.tag("p", p => {p.innerHTML = l}))),
       attrs: {
         id: entry.id,
         "data-type": entry.type,
+        "data-actor-id": entry.actorId,
         "data-used-ability": entry.usedAbility,
         "data-outcome": entry.outcome,
       },
