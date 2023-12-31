@@ -129,11 +129,16 @@ class DomainSheet extends RxElement {
       let total = actor.activitiesPerTurn;
       let left = actor.activitiesLeft;
 
-      return `<li id="${actor.id}" class="${(current == actor) ? "current" : ""}">
+      return `<li id="${actor.id}" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
         ${actor.type}: ${actor.name}
         <span class='metadata'>${left} ${left == 1 ? "activity" : "activities"} ${left === total ? "" : `left of ${total}/turn`}</span>
       </li>`;
     }).join("");
+  }
+
+  setCurrentActor(event) {
+    let actorId = event.target.closest(".actor[id]").id;
+    if (actorId) { this.data.currentActorId = actorId }
   }
 
   get leadershipActivitiesPerTurn() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesPerTurn, 0) }
