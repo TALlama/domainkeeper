@@ -293,15 +293,16 @@ export default class DomainActivityLog extends RxElement {
   }
 
   countRemainingActivities() {
+    let turn = this.domainSheet.data.turns.last();
     let left = {};
     left["leadership-activity"] = this.domainSheet.leadershipActivitiesPerTurn;
-    left["civic-activity"] = this.domainSheet.civicActivitiesPerTurn;
+    left["civic-activity"] = this.domainSheet.civicActivitiesPerTurn + (turn.bonusCivicActivities ?? 0);
     this.domainSheet.data.turns.last().entries.forEach(entry => {
       left[entry.type] -= 1;
     });
 
-    this.domainSheet.data.turns.last().leadershipActivitiesLeft = left["leadership-activity"];
-    this.domainSheet.data.turns.last().civicActivitiesLeft = left["civic-activity"];
+    turn.leadershipActivitiesLeft = left["leadership-activity"];
+    turn.civicActivitiesLeft = left["civic-activity"];
   }
 
   entry({title, description, body, attrs} = {}) {
