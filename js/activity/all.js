@@ -27,10 +27,10 @@ export class Activity extends RxElement {
 
   handleEvent(event) {
     let setUsedAbility = event.target.closest("[data-set-used-ability]")?.dataset?.setUsedAbility;
-    if (setUsedAbility) { this.dataset.usedAbility = this.record.usedAbility = setUsedAbility }
+    if (setUsedAbility) { this.usedAbility = setUsedAbility }
 
     let setOutcome = event.target.closest("[data-set-outcome]")?.dataset?.setOutcome;
-    if (setOutcome) { this.dataset.outcome = this.record.outcome = setOutcome }
+    if (setOutcome) { this.outcome = setOutcome }
   }
 
   body(into) {
@@ -46,11 +46,14 @@ export class Activity extends RxElement {
   get prompt() { return this.callOrReturn(this._prompt) ?? [Maker.tag("h4", this.promptText), this.abilities.flatMap(a => this.roll(a))] }
   set promptText(value) { this._promptText = value }
   get promptText() { return this.callOrReturn(this._promptText) ?? (this.abilities.length === 1 ? "Roll:" : "Roll one:") }
-  get pickedPrompt() { return this.$(".prompt .picked") }
-  get pickedPromptAbility() { return this.pickedPrompt?.dataset?.ability }
 
-  get belowAbility() { return Ability.next(this.pickedPromptAbility) }
-  get aboveAbility() { return Ability.previous(this.pickedPromptAbility) }
+  get usedAbility() { return this.dataset.setUsedAbility }
+  set usedAbility(value) {
+    this.dataset.usedAbility = this.record.usedAbility = value;
+    //this.$(`.prompt [data-set-used-ability="${value}"]`)?.classList?.add("picked");
+  }
+  get belowAbility() { return Ability.next(this.usedAbility) }
+  get aboveAbility() { return Ability.previous(this.usedAbility) }
 
   get outcomeSection() { return Maker.tag("section", {class: "outcome pickable-group"}, this.possibleOutcomes) }
   set possibleOutcomes(value) { this._possibleOutcomes = value }
@@ -63,7 +66,11 @@ export class Activity extends RxElement {
       Maker.tag("button", `Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "pickable outcome outcome-critical-failure", "data-set-outcome": "critical-failure", click: () => { this.criticalFailure() }}),
     ];
   }
-  get pickedOutcome() { return this.$(".outcome .picked") }
+  get outcome() { return this.dataset.outcome }
+  set outcome(value) {
+    this.dataset.outcome = this.record.outcome = value;
+    //this.$(`.outcome [data-set-outcome="${value}"]`)?.classList?.add("picked");
+  }
 
   criticalSuccess() { this.success() }
   success() { this.log('Good job!') }
@@ -91,15 +98,15 @@ export class Activity extends RxElement {
       id: this.id,
       type: this.constructor.name.replace(/^./, l => l.toLowerCase()).replaceAll(/[A-Z]/g, l => `-${l.toLowerCase()}`),
       name: this.name,
-      usedAbility: this.pickedPromptAbility,
-      outcome: this.dataset.outcome,
+      usedAbility: this.usedAbility,
+      outcome: this.outcome,
       log: [],
     });
   }
 
   roll(ability) {
     return Maker.tag("button",
-      {"class": "ability-roll pickable", "data-ability": ability, "data-set-used-ability": ability},
+      {"class": "ability-roll pickable", "data-set-used-ability": ability},
       ability,
       Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}));
   }
