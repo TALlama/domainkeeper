@@ -68,18 +68,28 @@ export default class DomainActivityLog extends RxElement {
 
   fillAvailableActivities() {
     reef.component(this.$(".activities"), () => {
+      let currentActor = this.domainSheet.currentActor;
       let leadershipLeft = this.domainSheet.data.turns.last()?.leadershipActivitiesLeft;
       let civicLeft = this.domainSheet.data.turns.last()?.civicActivitiesLeft;
       let activitx = (count) => count == 1 ? "activity" : "activities";
+      let used = (this.domainSheet.currentActor?.activitesTaken || []).map(a => a.name);
+      let buttons = (available, leftOfType) => {
+        return available.map(activity =>
+          activity.button({
+            disabled: (used.includes(activity.name) || leftOfType <= 0),
+          })
+        ).join("");
+      };
 
       return `
+        <h3>${currentActor.name} is up!</h3>
         <h4>
           You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.
           <a href="#" data-action="addBonusLeadershipActivity">+</a>
           <a href="#" data-action="addBonusLeadershipActivity" data-amount="-1">-</a>
         </h4>
         <ul class="activities-list leadership-activities">
-          ${LeadershipActivity.all.map(activity => activity.button({disabled: leadershipLeft <= 0})).join("")}
+          ${buttons(LeadershipActivity.all, leadershipLeft)}
         </ul>
         <h4>
           You have ${civicLeft} civic ${activitx(civicLeft)} left.
@@ -87,7 +97,7 @@ export default class DomainActivityLog extends RxElement {
           <a href="#" data-action="addBonusCivicActivity" data-amount="-1">-</a>
         </h4>
         <ul class="activities-list civic-activities">
-          ${CivicActivity.all.map(activity => activity.button({disabled: civicLeft <= 0})).join("")}
+          ${buttons(CivicActivity.all, civicLeft)}
         </ul>
         <button class="end-turn ${leadershipLeft + civicLeft > 0 ? "end-turn-pending" : "end-turn-ready"}" data-action="endTurn">End turn</button>`;
     });

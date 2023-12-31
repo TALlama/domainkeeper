@@ -8,7 +8,6 @@ export class DomainLeader {
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet?.data?.turns?.last() }
   get activitesTaken() { return this.currentTurn?.entries?.filter(e => e.actorId === this.id) || [] }
+  set activitesTaken(value) { /* ignore */ }
   get activitiesLeft() { return this.activitiesPerTurn - this.activitesTaken.length }
 }
-
-window.DomainLeader = DomainLeader;
