@@ -39,6 +39,7 @@ export default class DomainActivityLog extends RxElement {
   }
 
   resetTurn() {
+    delete this.domainSheet.data.currentActorId;
     this.domainSheet.data.turns.push({
       leadershipActivitiesLeft: null,
       civicActivitiesLeft: null,
@@ -182,7 +183,7 @@ export default class DomainActivityLog extends RxElement {
           Maker.pickableGroup(
             {
               unrest: ["3 Unrest", {change: () => this.domainSheet.boost({by: 3}, "Unrest")}],
-              abilityDown: ["Lower random ability", {change: () => this.domainSheet.boost(Ability.random)}],
+              abilityDown: ["Lower random ability", {change: () => this.domainSheet.reduce(Ability.random)}],
               fameDown: ["Lose 1 Fame", {change: () => this.domainSheet.useConsumable({name: "Fame"})}],
               other: ["I did something else"],
             },
