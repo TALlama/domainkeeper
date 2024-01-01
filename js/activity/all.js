@@ -410,20 +410,20 @@ export class LeadershipActivity extends Activity {
         name: "Build Infrastructure",
         description: "You organize the effort to tame the land.",
         preprompt: p(hexMods),
-        criticalSuccessDescription: `Build it; Boost 1 Ability you pick`,
-        successDescription: `Build it`,
-        failureDescription: `Build it if you Reduce 1 Ability by 1`,
+        criticalSuccessDescription: `Build it`,
+        successDescription: `Build it if you Reduce 1 Ability by 1`,
+        failureDescription: `Build it if you Reduce 1 Ability by 2`,
         criticalFailureDescription: `Fail`,
         criticalSuccess() {
           this.log(`🚀 The whole domain rallies around this project.`);
-          this.modOneAnd(`Boost {ability}`, {by: 1});
         },
         success() {
-          this.log("🛣️ The target hex gains a road, bridge, fort, irrigation system, etc");
+          this.log("😓 Construction is always costly.");
+          this.modOneAnd(`Reduce {ability} by {by} and build the feature`, {afterItems: [`Do not build`]});
         },
         failure() {
           this.log("😰 Construction is unexpectedly difficult.");
-          this.modOneAnd(`Reduce {ability} and build the feature`, {afterItems: [`Do not build`]});
+          this.modOneAnd(`Reduce {ability} by {by} and build the feature`, {by: -2, afterItems: [`Do not build`]});
         },
         criticalFailure() {
           this.log("❌ The construction process is a failure.");
@@ -737,7 +737,10 @@ export class CivicActivity extends Activity {
         icon: "🚧",
         name: "Build Structure",
         description: "This settlement has an idea!",
-        preprompt: p(`Add building's cost to the DC`),
+        preprompt: (activity) => {return Maker.tag("div",
+          p(`Add building's cost to the DC`),
+          activity.modOneAnd(`Pay with {by} {ability}`, {prompt: "Before you roll, supply building costs:"}),
+        )},
         abilities: ["Economy"],
         criticalSuccessDescription: `Build it; Boost a random Ability by 1`,
         successDescription: `Build it`,

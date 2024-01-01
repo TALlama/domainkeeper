@@ -39,7 +39,6 @@ class DomainSheet extends RxElement {
       name: "Anvilania",
       abilityBoosts: [
         ["stability"],
-        ["stability"],
         ["stability", "culture"],
         ["stability", "culture", "economy"],
       ],
