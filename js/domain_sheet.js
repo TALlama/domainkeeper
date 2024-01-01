@@ -145,6 +145,9 @@ class DomainSheet extends RxElement {
   get civicActivitiesPerTurn() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesPerTurn, 0) }
 
   get controlDC() {
+    let size = this.data.size;
+    let sizeMod = size < 10 ? 0 : (size < 25 ? 1 : (size < 50 ? 2 : (size < 100 ? 3 : 4)));
+
     let baseControlDCByLevel = {
       1: 14, // Charter, government, heartland, initial proficiencies, favored land, settlement construction (village)
       2: 15, // Kingdom feat
@@ -168,7 +171,7 @@ class DomainSheet extends RxElement {
       20: 40, // Ability boosts, envy of the world, Kingdom feat, ruin resistance
     };
 
-    return this.data.size + baseControlDCByLevel[this.data.level];
+    return sizeMod + baseControlDCByLevel[this.data.level];
   }
 
   get currentActor() { return this.readyActor(this.data.currentActorId) || this.readyActors.first() }
