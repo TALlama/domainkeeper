@@ -41,11 +41,8 @@ export default class DomainActivityLog extends RxElement {
   resetTurn() {
     delete this.domainSheet.data.currentActorId;
     this.domainSheet.data.turns.push({
-      leadershipActivitiesLeft: null,
-      civicActivitiesLeft: null,
       entries: [],
     });
-    this.countRemainingActivities();
   }
 
   fillStatusBanner() {
@@ -70,8 +67,8 @@ export default class DomainActivityLog extends RxElement {
   fillAvailableActivities() {
     reef.component(this.$(".activities"), () => {
       let currentActor = this.domainSheet.currentActor;
-      let leadershipLeft = this.domainSheet.data.turns.last()?.leadershipActivitiesLeft;
-      let civicLeft = this.domainSheet.data.turns.last()?.civicActivitiesLeft;
+      let leadershipLeft = this.leadershipActivitiesLeft;
+      let civicLeft = this.civicActivitiesLeft;
       let activitx = (count) => count == 1 ? "activity" : "activities";
       let used = (this.domainSheet.currentActor?.activitesTaken || []).map(a => a.name);
       let buttons = (available, leftOfType) => {
@@ -86,16 +83,12 @@ export default class DomainActivityLog extends RxElement {
         <h3>${currentActor.name} is up!</h3>
         <h4>
           You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.
-          <a href="#" data-action="addBonusLeadershipActivity">+</a>
-          <a href="#" data-action="addBonusLeadershipActivity" data-amount="-1">-</a>
         </h4>
         <ul class="activities-list leadership-activities">
           ${buttons(LeadershipActivity.all, leadershipLeft)}
         </ul>
         <h4>
           You have ${civicLeft} civic ${activitx(civicLeft)} left.
-          <a href="#" data-action="addBonusCivicActivity">+</a>
-          <a href="#" data-action="addBonusCivicActivity" data-amount="-1">-</a>
         </h4>
         <ul class="activities-list civic-activities">
           ${buttons(CivicActivity.all, civicLeft)}
@@ -117,7 +110,7 @@ export default class DomainActivityLog extends RxElement {
 
   fillCurrentTurnDebug() {
     reef.component(this.$(".debug .current-turn"), () => {
-      return JSON.stringify(this.domainSheet.data.turns.last() || {}, null, 2).escapeHtml();
+      return JSON.stringify(this.currentTurn || {}, null, 2).escapeHtml();
     });
   }
 
@@ -151,22 +144,8 @@ export default class DomainActivityLog extends RxElement {
     this.activity(activity);
   }
 
-  addBonusLeadershipActivity(event) {
-    let turn = this.domainSheet.data.turns.last();
-    turn.bonusLeadershipActivities ??= 0;
-    turn.bonusLeadershipActivities += Number(event?.target?.closest("[data-amount]")?.dataset?.amount || 1);
-    this.closest("domain-activity-log").countRemainingActivities();
-  }
-
-  addBonusCivicActivity(event) {
-    let turn = this.domainSheet.data.turns.last();
-    turn.bonusCivicActivities ??= 0;
-    turn.bonusCivicActivities += Number(event?.target?.closest("[data-amount]")?.dataset?.amount || 1);
-    this.closest("domain-activity-log").countRemainingActivities();
-  }
-
   endTurn(event) {
-    if (event && (this.domainSheet.data.turns.last().leadershipActivitiesLeft > 0 || this.domainSheet.data.turns.last().civicActivitiesLeft > 0)) {
+    if (event && (this.leadershipActivitiesLeft > 0 || this.civicActivitiesLeft > 0)) {
       if (!confirm(`You still have actions left; are you sure you want to waste them and end your turn?`)) {
         return;
       }
@@ -235,6 +214,7 @@ export default class DomainActivityLog extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
+  get currentTurn() { return this.domainSheet.currentTurn }
   get turn() { return this.turnSummaries.length; }
 
   turnSummary(turn = this.turn) {
@@ -322,20 +302,14 @@ export default class DomainActivityLog extends RxElement {
     this.entries.prepend(activity);
     activity.actorId = this.domainSheet.currentActor.id;
     this.domainSheet.data.turns.last().entries.push(activity.record);
-    this.countRemainingActivities();
   }
 
-  countRemainingActivities() {
-    let turn = this.domainSheet.data.turns.last();
-    let left = {};
-    left["leadership-activity"] = this.domainSheet.leadershipActivitiesPerTurn + (turn.bonusLeadershipActivities ?? 0);
-    left["civic-activity"] = this.domainSheet.civicActivitiesPerTurn + (turn.bonusCivicActivities ?? 0);
-    this.domainSheet.data.turns.last().entries.forEach(entry => {
-      left[entry.type] -= 1;
-    });
+  get leadershipActivitiesLeft() {
+    return Math.max(0, this.domainSheet.leadershipActivitiesPerTurn - this.currentTurn.entries.count(e => e.type === "leadership-activity"));
+  }
 
-    turn.leadershipActivitiesLeft = Math.max(0, left["leadership-activity"]);
-    turn.civicActivitiesLeft = Math.max(0, left["civic-activity"]);
+  get civicActivitiesLeft() {
+    return Math.max(0, this.domainSheet.civicActivitiesPerTurn - this.currentTurn.entries.count(e => e.type === "civic-activity"));
   }
 
   entry({title, description, body, attrs} = {}) {

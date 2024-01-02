@@ -130,7 +130,9 @@ class DomainSheet extends RxElement {
 
       return `<li id="${actor.id}" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
         ${actor.type}: ${actor.name}
-        <span class='metadata'>${left} ${left == 1 ? "activity" : "activities"} ${left === total ? "" : `left of ${total}/turn`}</span>
+        <span class='metadata'>${left} ${left == 1 ? "activity" : "activities"} ${left === total ? "" : `left (of ${total})`}</span>
+        <a href="#" data-action="doAddBonusActivity">+</a>
+        <a href="#" data-action="doAddBonusActivity" data-amount="-1">-</a>
       </li>`;
     }).join("");
   }
@@ -140,8 +142,8 @@ class DomainSheet extends RxElement {
     if (actorId) { this.data.currentActorId = actorId }
   }
 
-  get leadershipActivitiesPerTurn() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesPerTurn, 0) }
-  get civicActivitiesPerTurn() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesPerTurn, 0) }
+  get leadershipActivitiesPerTurn() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
+  get civicActivitiesPerTurn() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesLeft, 0) }
 
   get controlDC() {
     let size = this.data.size;
@@ -173,6 +175,7 @@ class DomainSheet extends RxElement {
     return sizeMod + baseControlDCByLevel[this.data.level];
   }
 
+  get currentTurn() { return this.data.turns.last() }
   get currentActor() { return this.readyActor(this.data.currentActorId) || this.readyActors.first() }
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
   get actors() { return [...this.data.leaders, ...this.data.settlements] }
@@ -184,6 +187,21 @@ class DomainSheet extends RxElement {
     if (existing.length >= 3) { return }
 
     this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
+  }
+
+  doAddBonusActivity(event) {
+    let actorId = event.target.closest(".actor[id]")?.id ?? event.target.closest("[data-actor-id")?.dataset?.actorId;
+    let actor = this.actor(actorId);
+    if (actor) {
+      let amount = Number(event.target.closest("[data-amount]")?.dataset?.amount ?? 1);
+      this.addBonusActivity(actor, amount);
+    }
+  }
+
+  addBonusActivity(actor, count = 1) {
+    this.currentTurn.bonusActivities ??= {};
+    this.currentTurn.bonusActivities[actor.id] ??= 0;
+    this.currentTurn.bonusActivities[actor.id] += count;
   }
 
   findConsumables(pattern) {

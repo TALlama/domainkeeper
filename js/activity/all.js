@@ -114,8 +114,6 @@ export class Activity extends RxElement {
     let entries = this.domainSheet.data.turns.last().entries;
     let ixThis = entries.findIndex(r => r == this.record);
     entries.splice(ixThis, 1);
-    this.activityLog.countRemainingActivities();
-
     this.remove();
   }
 
@@ -164,6 +162,11 @@ export class Activity extends RxElement {
   addFame() {
     this.log("👩🏻‍🎤 Add fame");
     this.domainSheet.addFame();
+  }
+
+  addBonusActivity(actor) {
+    this.log(`🛟 Added bonus activity for ${actor.name}`);
+    this.domainSheet.addBonusActivity(actor);
   }
 
   // Formatting options
@@ -568,13 +571,17 @@ export class LeadershipActivity extends Activity {
         icon: "👀",
         name: "Oversee",
         description: "You visit a settlement to ensure vital work gets done.",
+        preprompt: (activity) => {return Maker.tag("div",
+          Maker.tag("h4", "Which settlement will you travel to?"),
+          activity.pickOne(activity.domainSheet.data.settlements, {
+            format: (settlement) => settlement.name,
+            andThen: (picked) => { activity.targetSettlement = picked },
+          }),
+        )},
         criticalSuccessDescription: `Do a Civic Activity; Increase Stability or Loyalty by 1`,
         successDescription: `Do a Civic Activity`,
         failureDescription: `Do a Civic Activity; Increase Unrest`,
         criticalFailureDescription: `Increase Unrest; Decrease Stability or Loyalty by 1`,
-        bumpCivicActivities() {
-          this.closest("domain-activity-log").addBonusCivicActivity();
-        },
         criticalSuccess() {
           this.success();
           this.log(`👍🏻 Your vigilant oversight of this successful project inspires the domain.`);
@@ -582,11 +589,11 @@ export class LeadershipActivity extends Activity {
         },
         success() {
           this.log(`🎉 You oversee the project to completion.`);
-          this.bumpCivicActivities();
+          this.addBonusActivity(this.targetSettlement);
         },
         failure() {
           this.log(`😠 The project is completed, but the settlement is annoyed by your methods.`);
-          this.bumpCivicActivities();
+          this.addBonusActivity(this.targetSettlement);
           this.boost("Unrest");
         },
         criticalFailure() {
