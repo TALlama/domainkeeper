@@ -142,8 +142,8 @@ class DomainSheet extends RxElement {
     if (actorId) { this.data.currentActorId = actorId }
   }
 
-  get leadershipActivitiesPerTurn() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
-  get civicActivitiesPerTurn() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesLeft, 0) }
+  get leadershipActivitiesLeft() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
+  get civicActivitiesLeft() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesLeft, 0) }
 
   get controlDC() {
     let size = this.data.size;

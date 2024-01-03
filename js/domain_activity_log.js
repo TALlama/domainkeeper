@@ -304,13 +304,8 @@ export default class DomainActivityLog extends RxElement {
     this.domainSheet.data.turns.last().entries.push(activity.record);
   }
 
-  get leadershipActivitiesLeft() {
-    return Math.max(0, this.domainSheet.leadershipActivitiesPerTurn - this.currentTurn.entries.count(e => e.type === "leadership-activity"));
-  }
-
-  get civicActivitiesLeft() {
-    return Math.max(0, this.domainSheet.civicActivitiesPerTurn - this.currentTurn.entries.count(e => e.type === "civic-activity"));
-  }
+  get leadershipActivitiesLeft() { return this.domainSheet.leadershipActivitiesLeft }
+  get civicActivitiesLeft() { return this.domainSheet.civicActivitiesLeft }
 
   entry({title, description, body, attrs} = {}) {
     Maker.tag("article", {class: "entry", prependTo: this.entries}, attrs, [
