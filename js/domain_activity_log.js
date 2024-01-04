@@ -1,6 +1,7 @@
 import {RxElement} from "./rx_element.js";
 import {Ability} from "./abilities.js";
 import {Activity, SystemActivity, LeadershipActivity, CivicActivity} from "./activity/all.js";
+import {PickableGroup} from "./pickable_group.js";
 
 export default class DomainActivityLog extends RxElement {
   connectedCallback() {
@@ -159,21 +160,21 @@ export default class DomainActivityLog extends RxElement {
       body: (b) => {
         Maker.tag(b,
           Maker.tag("p", `Presumably some kind of event happens here and stuff happens. Adjust abilties and stats accordingly. Maybe it's one of these:`),
-          Maker.pickableGroup(
-            {
+          new PickableGroup({
+            options: {
               unrest: ["3 Unrest", {change: () => this.domainSheet.boost({by: 3}, "Unrest")}],
               abilityDown: ["Lower random ability", {change: () => this.domainSheet.reduce(Ability.random)}],
               fameDown: ["Lose 1 Fame", {change: () => this.domainSheet.useConsumable({name: "Fame"})}],
               other: ["I did something else"],
             },
-            {change: event => {
+            parts: [{change: event => {
               let picked = event.target.closest(".pickable");
               if (picked) {
                 this.domainSheet.useAllConsumables({useBy: "end-of-turn"});
                 this.newTurn();
               }
-            }},
-          ),
+            }}],
+          }),
         );
       },
     });

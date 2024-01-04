@@ -15,6 +15,21 @@ Eris.test("Maker", maker => {
     );
   });
 
+  maker.describe("content", fn => {
+    fn.it("can be given as strings", ({assert}) => assert.equals(Maker.tag("div", "one").outerHTML, `<div>one</div>`))
+    fn.it("can be given as integers", ({assert}) => assert.equals(Maker.tag("div", 1).outerHTML, `<div>1</div>`))
+    fn.it("can be given as floats", ({assert}) => assert.equals(Maker.tag("div", 1.3).outerHTML, `<div>1.3</div>`))
+    fn.it("can be given as boolean true", ({assert}) => assert.equals(Maker.tag("div", true).outerHTML, `<div>true</div>`))
+    fn.it("can be given as boolean false", ({assert}) => assert.equals(Maker.tag("div", false).outerHTML, `<div>false</div>`))
+    fn.it("can be given as objects with a render() function", ({assert}) => assert.equals(Maker.tag("div", {render: () => "howdy"}).outerHTML, `<div>howdy</div>`))
+    fn.it("can be given as arrays containing whatever", ({assert}) =>
+      assert.equals(Maker.tag("div", ["one", 1, 1.3, true, false]).outerHTML, `<div>one11.3truefalse</div>`)
+    );
+    fn.it("can be given as functions returning whatever", ({assert}) =>
+      assert.equals(Maker.tag("div", () => "hey").outerHTML, `<div>hey</div>`)
+    );
+  });
+
   maker.describe("special attributes", fn => {
     fn.it("class compounds", ({assert}) =>
       assert.equals(Maker.tag("div", {class: "foo"}, {class: "bar sna"}).outerHTML, `<div class="foo bar sna"></div>`)

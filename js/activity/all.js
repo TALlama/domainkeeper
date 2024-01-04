@@ -1,6 +1,7 @@
 import {RxElement} from "../rx_element.js";
 import {Ability} from "../abilities.js";
 import {DomainLeader} from "../domain_leader.js";
+import {PickableGroup} from "../pickable_group.js";
 
 export class Activity extends RxElement {
   constructor(properties) {
@@ -47,28 +48,30 @@ export class Activity extends RxElement {
 
   get currentTurn() { return this.domainSheet.data.turns.last() }
   get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
-  get peerActivityUsedAbilities() { return this.peerActivities.map(a => a.usedAbility) }
+  get peerActivityAbilityUsers() { return this.peerActivities.toDictionary(a => [a.usedAbility, this.domainSheet.actor(a.actorId)]) }
 
   get promptSection() { return Maker.tag("section", {class: "prompt pickable-group"}, this.prompt) }
   set prompt(value) { this._prompt = value }
   get prompt() {
     return this.callOrReturn(this._prompt) ?? [
       Maker.tag("h4", this.promptText),
-      Maker.pickableGroup(this.abilities.toDictionary(ability => [
-        ability,
-        [
+      new PickableGroup({
+        options: this.abilities.toDictionary(ability => [
           ability,
-          Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}),
-          {
-            "class": "pickable",
-            "data-set-used-ability": ability,
-            change: () => this.domainSheet.roll({modifier: ability}),
-          },
-          {
-            "class": this.peerActivityUsedAbilities.includes(ability) ? "looks-disabled" : "",
-          },
-        ],
-      ])),
+          [
+            ability,
+            Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}),
+            {
+              "class": "pickable",
+              "data-set-used-ability": ability,
+              change: () => this.domainSheet.roll({modifier: ability}),
+            },
+            {
+              "class": this.peerActivityAbilityUsers[ability] ? "looks-disabled" : "",
+            },
+          ],
+        ]),
+      }),
     ];
   }
   set promptText(value) { this._promptText = value }
@@ -87,11 +90,13 @@ export class Activity extends RxElement {
   get possibleOutcomes() {
     return this.callOrReturn(this._possibleOutcomes) ?? [
       Maker.tag("h4", "Result:"),
-      Maker.pickableGroup({
-        "critical-success": [`Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "outcome outcome-critical-success", "data-set-outcome": "critical-success", change: () => { this.criticalSuccess() }}],
-        "success": [`Success`, Maker.tag("small", this.successDescription), {class: "outcome outcome-success", "data-set-outcome": "success", change: () => { this.success() }}],
-        "failure": [`Failure`, Maker.tag("small", this.failureDescription), {class: "outcome outcome-failure", "data-set-outcome": "failure", change: () => { this.failure() }}],
-        "critical-failure": [`Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "outcome outcome-critical-failure", "data-set-outcome": "critical-failure", change: () => { this.criticalFailure() }}],
+      new PickableGroup({
+        options: {
+          "critical-success": [`Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "outcome outcome-critical-success", "data-set-outcome": "critical-success", change: () => { this.criticalSuccess() }}],
+          "success": [`Success`, Maker.tag("small", this.successDescription), {class: "outcome outcome-success", "data-set-outcome": "success", change: () => { this.success() }}],
+          "failure": [`Failure`, Maker.tag("small", this.failureDescription), {class: "outcome outcome-failure", "data-set-outcome": "failure", change: () => { this.failure() }}],
+          "critical-failure": [`Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "outcome outcome-critical-failure", "data-set-outcome": "critical-failure", change: () => { this.criticalFailure() }}],
+        },
       }),
     ];
   }

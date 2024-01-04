@@ -11,6 +11,8 @@ class Maker {
         Maker.tag(el, ...part);
       } else if ("function" === typeof part) {
         Maker.tag(el, part.call(el, el));
+      } else if ("function" === typeof part.render) {
+        Maker.tag(el, part.render(el));
       } else {
         Maker.setAttributes(el, part);
       }
@@ -46,20 +48,6 @@ class Maker {
         let [key, value] = key_value;
         return [Maker.tag("dt", key), Maker.tag("dd", value)]
       }),
-      ...parts,
-    );
-  }
-
-  static pickableGroup(options, ...parts) {
-    let name = crypto.randomUUID();
-
-    return Maker.tag("fieldset", {class: "pickable-group"},
-      Object.keys(options).map(value =>
-        Maker.tag("label", {class: "pickable"},
-          Maker.tag("input", {class: "sr-only", type: "radio", value, name}),
-          options[value],
-        )
-      ),
       ...parts,
     );
   }
