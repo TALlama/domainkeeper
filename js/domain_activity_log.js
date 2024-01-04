@@ -2,6 +2,7 @@ import {RxElement} from "./rx_element.js";
 import {Ability} from "./abilities.js";
 import {Activity, SystemActivity, LeadershipActivity, CivicActivity} from "./activity/all.js";
 import {PickableGroup} from "./pickable_group.js";
+import {blockedTooltip} from "./blocked_tooltip.js";
 
 export default class DomainActivityLog extends RxElement {
   connectedCallback() {
@@ -74,11 +75,15 @@ export default class DomainActivityLog extends RxElement {
       let activitx = (count) => count == 1 ? "activity" : "activities";
       let used = (this.domainSheet.currentActor?.activitesTaken || []).map(a => a.name);
       let buttons = (available, leftOfType) => {
-        return available.map(activity =>
-          activity.button({
-            disabled: (used.includes(activity.name) || leftOfType <= 0),
-          })
-        ).join("");
+        return available.map(activity => {
+          let whyDisabled = null;
+          if (used.includes(activity.name)) {
+            whyDisabled = `${currentActor.name} has already done this activity this turn`;
+          } else if (leftOfType <= 0) {
+            whyDisabled = `${currentActor.name} has done all their activites for this turn`;
+          }
+          return blockedTooltip(whyDisabled, activity.button({disabled: whyDisabled !== null}));
+        }).join("");
       };
 
       return `

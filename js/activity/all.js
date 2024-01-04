@@ -2,6 +2,7 @@ import {RxElement} from "../rx_element.js";
 import {Ability} from "../abilities.js";
 import {DomainLeader} from "../domain_leader.js";
 import {PickableGroup} from "../pickable_group.js";
+import {blockedTooltip} from "../blocked_tooltip.js";
 
 export class Activity extends RxElement {
   constructor(properties) {
@@ -71,6 +72,14 @@ export class Activity extends RxElement {
             },
           ],
         ]),
+        option: (ability, optParts, html) => {
+          let usedBy = this.peerActivityAbilityUsers[ability];
+          if (usedBy) {
+            return {html: blockedTooltip(`${usedBy.name} already used this ability for this activity this turn`, html)};
+          } else {
+            return html;
+          }
+        },
       }),
     ];
   }
