@@ -6,8 +6,8 @@
     --color-civic-activity-bg: lightblue;
     --color-event-bg: red;
 
-    --color-critical-success-bg: lch(65% 55 185);
-    --color-success-bg: lch(65% 55 150);
+    --color-critical-success-bg: lch(65% 55 150);
+    --color-success-bg: lch(86% 55 190);
     --color-failure-bg: lch(65% 55 0);
     --color-critical-failure-bg: lch(65% 55 300);
   }
@@ -251,7 +251,7 @@
         .cancel-activity {
           margin-left: auto;
         }
-        &:has(.picked) .cancel-activity { display: none }
+        &:has(.prompt input:checked, .outcome input:checked) .cancel-activity { display: none }
 
         > .icon {
           grid-area: icon;
@@ -326,11 +326,6 @@
     opacity: .6;
   }
 
-  button.picked, button.pickable:hover:not(.looks-disabled, [disabled]),
-  .pickable-group label.picked, .pickable-group label.pickable:hover:not(.looks-disabled, [disabled]) {
-    --button-bg: lch(86% 55 190);
-  }
-
   .consumable {
     --_consumable-bg: yellow;
     --_consumable-color: black;
@@ -351,28 +346,34 @@
     }
   }
 
-  .outcome {
-    &.picked, &:hover {
-      &.outcome-critical-success { --button-bg: var(--color-critical-success-bg); }
-      &.outcome-success { --button-bg: var(--color-success-bg); }
-      &.outcome-failure { --button-bg: var(--color-failure-bg); }
-      &.outcome-critical-failure { --button-bg: var(--color-critical-failure-bg); }
-    }
-  }
-
   .pickable-group {
     margin: var(--external-margin) 0;
 
-    &:has(.picked) {
+    :is(label.pickable) {
+      &:has(input:checked), &:hover {
+        --button-bg: var(--color-selected-bg);
+      }
+    }
+
+    &:has(input:checked) {
       .pickable {
         pointer-events: none;
       }
 
-      .pickable:not(.picked) {
+      .pickable:not(:has(input:checked)) {
         --button-bg: white;
         --button-color: hsl(0, 0%, 60%);
         --button-border-color: hsl(0, 0%, 80%);
       }
+    }
+  }
+
+  .outcome {
+    .pickable-group &:has(input:checked), &:hover {
+      &.outcome-critical-success { --button-bg: var(--color-critical-success-bg); }
+      &.outcome-success { --button-bg: var(--color-success-bg); }
+      &.outcome-failure { --button-bg: var(--color-failure-bg); }
+      &.outcome-critical-failure { --button-bg: var(--color-critical-failure-bg); }
     }
   }
 }
