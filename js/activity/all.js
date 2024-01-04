@@ -51,7 +51,7 @@ export class Activity extends RxElement {
   get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
   get peerActivityAbilityUsers() { return this.peerActivities.toDictionary(a => [a.usedAbility, this.domainSheet.actor(a.actorId)]) }
 
-  get promptSection() { return Maker.tag("section", {class: "prompt pickable-group"}, this.prompt) }
+  get promptSection() { return Maker.tag("section", {class: "prompt"}, this.prompt) }
   set prompt(value) { this._prompt = value }
   get prompt() {
     return this.callOrReturn(this._prompt) ?? [
@@ -191,19 +191,21 @@ export class Activity extends RxElement {
     beforeItems ??= [];
     afterItems ??= [];
 
-    return Maker.tag("section", {class: "pickable-group", appendTo: appendTo || this.logElement},
+    return Maker.tag("section", {appendTo: appendTo || this.logElement},
       Maker.tag("h5", options.prompt || `Pick one:`),
-      [
-        ...beforeItems,
-        ...items.map(item => this.pickOneItem(item, options)),
-        ...afterItems,
-      ].map(item => Maker.tag("button", {class: "pickable"}, ...item)),
+      new PickableGroup({
+        options: [
+          ...beforeItems,
+          ...items.map(item => this.pickOneItem(item, options)),
+          ...afterItems,
+        ]
+      }),
     );
   }
 
   pickOneItem(item, {format, andThen} = {}) {
     let text = (format || ((i) => i.toString())).call(item, item);
-    return [text, {click: (event) => andThen(item, {event})}];
+    return [text, {change: (event) => andThen(item, {event})}];
   }
 
   modAndThen({ability, by, andThen} = {}) {
