@@ -89,7 +89,6 @@ export class Activity extends RxElement {
   get usedAbility() { return this.dataset.usedAbility }
   set usedAbility(value) {
     this.dataset.usedAbility = this.record.usedAbility = value;
-    (this.$(`.prompt [data-set-used-ability="${value}"] input[type="radio"]`) || {}).checked = true;
   }
   get belowAbility() { return Ability.next(this.usedAbility) }
   get aboveAbility() { return Ability.previous(this.usedAbility) }
@@ -112,7 +111,6 @@ export class Activity extends RxElement {
   get outcome() { return this.dataset.outcome }
   set outcome(value) {
     this.dataset.outcome = this.record.outcome = value;
-    (this.$(`.outcome [data-set-outcome="${value}"] input[type="radio"]`) || {}).checked = true;
   }
 
   get actorId() { return this.dataset.actorId }
