@@ -75,7 +75,7 @@ export class Activity extends RxElement {
         option: (ability, optParts, html) => {
           let usedBy = this.peerActivityAbilityUsers[ability];
           if (usedBy) {
-            return {html: blockedTooltip(`${usedBy.name} already used this ability for this activity this turn`, html)};
+            return blockedTooltip(`${usedBy.name} already used this ability for this activity this turn`, html);
           } else {
             return html;
           }
