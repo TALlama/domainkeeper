@@ -70,8 +70,8 @@ export default class DomainActivityLog extends RxElement {
   fillAvailableActivities() {
     reef.component(this.$(".activities"), () => {
       let currentActor = this.domainSheet.currentActor;
-      let leadershipLeft = this.leadershipActivitiesLeft;
-      let civicLeft = this.civicActivitiesLeft;
+      let leadershipLeft = this.domainSheet.leadershipActivitiesLeft;
+      let civicLeft = this.domainSheet.civicActivitiesLeft;
       let activitx = (count) => count == 1 ? "activity" : "activities";
       let used = (this.domainSheet.currentActor?.activitesTaken || []).map(a => a.name);
       let buttons = (available, leftOfType) => {
@@ -80,14 +80,14 @@ export default class DomainActivityLog extends RxElement {
           if (used.includes(activity.name)) {
             whyDisabled = `${currentActor.name} has already done this activity this turn`;
           } else if (leftOfType <= 0) {
-            whyDisabled = `${currentActor.name} has done all their activites for this turn`;
+            whyDisabled = `The domain has used all its activites for this turn`;
           }
           return blockedTooltip(whyDisabled, activity.button({disabled: whyDisabled !== null}));
         }).join("");
       };
 
       return `
-        <h3>${currentActor.name} is up!</h3>
+        <h3>${currentActor ? `${currentActor.name} is up!` : `All actions have bee taken for this turn.`}</h3>
         <h4>
           You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.
         </h4>
@@ -152,7 +152,7 @@ export default class DomainActivityLog extends RxElement {
   }
 
   endTurn(event) {
-    if (event && (this.leadershipActivitiesLeft > 0 || this.civicActivitiesLeft > 0)) {
+    if (event && (this.domainSheet.leadershipActivitiesLeft > 0 || this.domainSheet.civicActivitiesLeft > 0)) {
       if (!confirm(`You still have actions left; are you sure you want to waste them and end your turn?`)) {
         return;
       }
@@ -310,9 +310,6 @@ export default class DomainActivityLog extends RxElement {
     activity.actorId = this.domainSheet.currentActor.id;
     this.domainSheet.data.turns.last().entries.push(activity.record);
   }
-
-  get leadershipActivitiesLeft() { return this.domainSheet.leadershipActivitiesLeft }
-  get civicActivitiesLeft() { return this.domainSheet.civicActivitiesLeft }
 
   entry({title, description, body, attrs} = {}) {
     Maker.tag("article", {class: "entry", prependTo: this.entries}, attrs, [
