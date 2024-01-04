@@ -33,8 +33,9 @@ export default class DomainActivityLog extends RxElement {
       this.reenactHistory();
     }
 
-    // For debugging; put `focused: true` in an activity to auto-click it
-    let focusedActivity = Activity.all.find(a => a.focused);
+    // For debugging; put `?focus=Some+Name` in the URL to auto-click it
+    let focus = new URL(document.location).searchParams.get("focus");
+    let focusedActivity = Activity.all.find(a => a.name === focus);
     focusedActivity && this.activity(focusedActivity);
   }
 
