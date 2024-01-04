@@ -25,6 +25,7 @@ class Maker {
         if (name == "prependTo") { value.prepend(el); continue; }
         if (name == "appendTo") { value.append(el); continue; }
         if (name == "rx") { reef.component(el, value); continue; }
+        if (name == "html") { el.innerHTML += value; continue; }
         if (name == "click") { el.addEventListener(name, value); continue; }
         if (name == "change") { el.addEventListener(name, value); continue; }
         if (name == "class") { value = [el.className, value].join(' ').trim() }

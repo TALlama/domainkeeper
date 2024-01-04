@@ -20,6 +20,8 @@ export class Eris {
         params,
         reporter,
         assert: new ErisAssertions(reporter),
+        befores: [],
+        afters: [],
       };
       this.#root.run(context);
       reporter.summarize();
@@ -49,22 +51,24 @@ export class ErisTestCase {
     this.#body = body;
   }
 
-  get description() { return `${this.name}  -  ${this.#body}` }
+  get description() { return `${this.#body}` }
 
   run(context = {}) {
+    context.befores.forEach(fn => fn(this, context));
     this.#body(context);
+    context.afters.forEach(fn => fn(this, context));
   }
 }
 
 export class ErisTestGroup {
   #suite = [];
+  #befores = [];
+  #afters = [];
 
   constructor(name, builder) {
     this.name = name;
     builder(this);
   }
-
-  get description() { return this.name }
 
   it(description, body) {
     this.#suite.push(new ErisTestCase(description, body));
@@ -74,13 +78,25 @@ export class ErisTestGroup {
     this.#suite.push(new ErisTestGroup(description, builder));
   }
 
+  let(name, fn) {
+    this.before(() => this[name] = fn());
+    this.after(() => {this[name].remove(); delete this[name]});
+  }
+
+  before(fn) { this.#befores.push(fn) }
+  after(fn) { this.#afters.push(fn) }
+
   run(context = {}) {
     let reporter = context.reporter;
 
     reporter.beginGroup(this);
     this.#suite.forEach(testcase => {
       reporter.begin(context);
-      reporter.run(testcase, context);
+      reporter.run(testcase, {
+        ...context,
+        befores: [...context.befores, ...this.#befores],
+        afters: [...context.afters, ...this.#afters],
+      });
       reporter.end(context);
     });
     reporter.endGroup(this);
@@ -91,6 +107,7 @@ export class ErisAssertions {
   constructor(reporter) { this.reporter = reporter }
 
   true(condition, failMessage, passMessage) { this.reporter.tick(condition, condition ? passMessage : failMessage) }
+  false(condition, failMessage, passMessage) { this.true(!condition, passMessage, failMessage) }
   equals(actual, expected) { this.true(actual === expected, `Expected ${expected} but got ${actual}`) }
   jsonEquals(actual, expected) { this.equals(JSON.stringify(actual), JSON.stringify(expected)) }
   includedIn(actual, expectedIn) { this.true(expectedIn.includes(actual), `Expected ${actual} to be in ${expectedIn}`) }
@@ -108,11 +125,12 @@ export class ErisConsoleReporter {
   begin() {}
   end() {}
 
-  beginGroup(group) { console.group(group.description) }
+  beginGroup(group) { console.group(group.name) }
   endGroup(group) { console.groupEnd() }
 
   run(testable, context) {
-    console.group(testable.description);
+    console.group(testable.name);
+    testable.description && console.debug(testable.description);
     try {
       testable.run(context);
     } catch (err) {
