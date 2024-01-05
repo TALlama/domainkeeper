@@ -1,6 +1,6 @@
 import {RxElement} from "./rx_element.js";
 import {Ability} from "./abilities.js";
-import {Activity, SystemActivity} from "./activity/all.js";
+import {Activity, SystemActivity} from "./activity.js";
 import {PickableGroup} from "./pickable_group.js";
 import {DomainActivityPicker} from "./domain_activity_picker.js";
 

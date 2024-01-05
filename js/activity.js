@@ -1,8 +1,8 @@
-import {RxElement} from "../rx_element.js";
-import {Ability} from "../abilities.js";
-import {DomainLeader} from "../domain_leader.js";
-import {PickableGroup} from "../pickable_group.js";
-import {blockedTooltip} from "../blocked_tooltip.js";
+import {RxElement} from "./rx_element.js";
+import {Ability} from "./abilities.js";
+import {DomainLeader} from "./domain_leader.js";
+import {PickableGroup} from "./pickable_group.js";
+import {blockedTooltip} from "./blocked_tooltip.js";
 
 export class Activity extends RxElement {
   constructor(properties) {

@@ -1,5 +1,5 @@
 import {RxElement} from "./rx_element.js";
-import {LeadershipActivity, CivicActivity} from "./activity/all.js";
+import {LeadershipActivity, CivicActivity} from "./activity.js";
 import {blockedTooltip} from "./blocked_tooltip.js";
 
 export class DomainActivityPicker extends RxElement {
