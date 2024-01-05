@@ -123,12 +123,21 @@ class DomainSheet extends RxElement {
     );
   }
 
+
+  activitx(count) { return count == 1 ? "1 activity" : `${count} activities`};
+
   fillLeaders() {
-    this.leadersComponent ||= reef.component(this.$(".leaders"), () => this.actorList(this.data.leaders.sort((a, b) => a.initiative - b.initiative)));
+    this.leadersComponent ||= reef.component(this.$(".leaders-section"), () =>
+      `<h4>Leaders <span class="badge">${this.activitx(this.leadershipActivitiesLeft)} left</span></h4>
+      <ul class="actors leaders list-unstyled">${this.actorList(this.data.leaders.sort((a, b) => a.initiative - b.initiative))}</ul>`
+    );
   }
 
   fillSettlements() {
-    this.settlementsComponent ||= reef.component(this.$(".settlements"), () => this.actorList(this.data.settlements));
+    this.settlementsComponent ||= reef.component(this.$(".settlements-section"), () =>
+      `<h4>Settlements <span class="badge">${this.activitx(this.civicActivitiesLeft)} left</span></h4>
+      <ul class="actors settlements list-unstyled">${this.actorList(this.data.settlements)}</ul>`
+    );
   }
 
   actorList(actors, current = this.currentActor) {
@@ -137,11 +146,9 @@ class DomainSheet extends RxElement {
       let left = actor.activitiesLeft;
 
       return `<li id="${actor.id}" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
-        ${actor.type}: ${actor.name}
-        <div class='metadata'>
-          ${left} ${left == 1 ? "activity" : "activities"} ${left === total ? "" : `left (of ${total})`}
-          <a href="#" data-action="doAddBonusActivity">+</a>
-          <a href="#" data-action="doAddBonusActivity" data-amount="-1">-</a>
+        ${actor.name}
+        <span class="metadata">${actor.type}</span>
+        <span class="badge">${actor.activitiesLeft}</span>
         </div>
       </li>`;
     }).join("");
@@ -202,21 +209,6 @@ class DomainSheet extends RxElement {
       this.log(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
       this.data.xp += 100;
     }
-  }
-
-  doAddBonusActivity(event) {
-    let actorId = event.target.closest(".actor[id]")?.id ?? event.target.closest("[data-actor-id")?.dataset?.actorId;
-    let actor = this.actor(actorId);
-    if (actor) {
-      let amount = Number(event.target.closest("[data-amount]")?.dataset?.amount ?? 1);
-      this.addBonusActivity(actor, amount);
-    }
-  }
-
-  addBonusActivity(actor, count = 1) {
-    this.currentTurn.bonusActivities ??= {};
-    this.currentTurn.bonusActivities[actor.id] ??= 0;
-    this.currentTurn.bonusActivities[actor.id] += count;
   }
 
   findConsumables(pattern) {

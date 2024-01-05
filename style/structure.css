@@ -2,6 +2,7 @@
   :root {
     --external-margin: 1rem;
     --internal-margin: .5rem;
+    --small-margin: .25rem;
   }
 
   * {
@@ -10,7 +11,7 @@
 
   body {
     display: grid;
-    grid-template-columns: 12em 1fr;
+    grid-template-columns: 14em 1fr;
     grid-gap: var(--external-margin);
 
     margin: 0;

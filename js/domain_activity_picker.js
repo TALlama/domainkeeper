@@ -11,6 +11,7 @@ export class DomainActivityPicker extends RxElement {
   get currentTurn() { return this.domainSheet.currentTurn }
   get currentActor() { return this.domainSheet.currentActor }
   get isLeader() { return this.domainSheet.data.leaders.find(l => l.id == this.currentActor?.id) }
+  get isSettlement() { return this.domainSheet.data.settlements.find(l => l.id == this.currentActor?.id) }
   get previousActivityNames() { return (this.currentActor?.activitesTaken || []).map(a => a.name) }
 
   buttons(available, leftOfType) {
@@ -27,20 +28,14 @@ export class DomainActivityPicker extends RxElement {
 
   render() {
     return `
-      <h3>${this.currentActor ? `${this.currentActor.name} is up!` : `All actions have been taken for this turn.`}</h3>
       ${this.isLeader
         ? this.renderActivityList(LeadershipActivity.all, this.domainSheet.leadershipActivitiesLeft, "leadership")
-        : this.renderActivityList(CivicActivity.all, this.domainSheet.civicActivitiesLeft, "civic")}
+        : this.isSettlement ? this.renderActivityList(CivicActivity.all, this.domainSheet.civicActivitiesLeft, "civic") : ""}
       ${this.renderEndTurnButton()}`;
   }
 
   renderActivityList(activities, left, typeName) {
-    let activitx = (count) => count == 1 ? "activity" : "activities";
-
     return `
-      <h4>
-        You have ${left} ${typeName} ${activitx(left)} left.
-      </h4>
       <ul class="activities-list ${typeName}-activities">
         ${this.buttons(activities, left)}
       </ul>`;

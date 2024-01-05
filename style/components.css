@@ -18,7 +18,6 @@
   domain-sheet {
     position: sticky;
     top: 0;
-    padding: var(--internal-margin);
     padding-top: 0;
     max-height: 100vh;
     overflow: hidden;
@@ -36,11 +35,16 @@
     }
 
     h3, h4, h5, h6 {
+      display: flex;
       background: var(--header-bg);
       border-bottom: 1px solid var(--header-bg);
       padding: var(--internal-margin);
-      margin: var(--internal-margin) calc(-1 * var(--internal-margin));
+      margin: var(--internal-margin) 0 0;
       font-size: var(--step--1);
+
+      .badge {
+        margin-left: auto;
+      }
     }
 
     h3, h4, h5 {
@@ -57,13 +61,16 @@
 
     .abilities, .stats {
       font-size: var(--step-1);
-      margin-bottom: var(--internal-margin);
-      padding: var(--internal-margin) 0;
+    }
+
+    .stats {
+      border-top: 1px solid black;
     }
 
     .abilities .ability, .stats .stat {
       display: grid;
       grid-template-columns: 4ch 1fr auto;
+      padding-inline-end: var(--internal-margin);
 
       label { grid-column: 2; }
     }
@@ -73,14 +80,20 @@
     }
 
     .actors {
-      margin: calc(-1 * var(--internal-margin));
-
       li {
-        padding: var(--internal-margin);
+        display: flex;
+        align-items: baseline;
+        gap: var(--internal-margin);
+        padding: var(--small-margin);
 
         &.current {
           font-weight: 600;
           background: var(--color-selected-bg);
+        }
+
+        .badge {
+          margin-left: auto;
+          border: 1px solid black;
         }
 
         & + li {
@@ -92,6 +105,8 @@
     input[type="number"] {
       max-width: 5em;
       text-align: end;
+      font-size: var(--step-0);
+      border: none;
     }
   }
 
@@ -136,9 +151,23 @@
     }
   }
 
+  actor-sheet {
+    h3 {
+      display: flex;
+      background-color: black;
+      color: white;
+      padding: var(--internal-margin);
+
+      .badge {
+        margin-left: auto;
+      }
+    }
+  }
+
   domain-activity-log {
-    padding: var(--external-margin);
-    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--external-margin);
 
     > .status-banner {
       font-size: var(--step-5);
@@ -190,9 +219,15 @@
       display: flex;
       flex-wrap: wrap;
       gap: var(--external-margin);
-      margin: var(--external-margin) 0;
 
       font-size: var(--step--1);
+
+      &:empty {
+        &::before {
+          content: "🪹 No consumables or statuses";
+          opacity: 0.8;
+        }
+      }
     }
 
     > .entries {
@@ -440,6 +475,21 @@
       &.outcome-success { --button-bg: var(--color-success-bg); }
       &.outcome-failure { --button-bg: var(--color-failure-bg); }
       &.outcome-critical-failure { --button-bg: var(--color-critical-failure-bg); }
+    }
+  }
+
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: var(--small-margin);
+    background: white;
+    color: black;
+    font-size: var(--step--2);
+    border-radius: var(--internal-margin);
+    padding: 0 var(--internal-margin);
+
+    a {
+      text-decoration: none;
     }
   }
 }

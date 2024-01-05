@@ -14,16 +14,8 @@
       <h3 class="domain-header"></h3>
       <section class="abilities"></section>
       <section class="stats"></section>
-
-      <section>
-        <h4>Leaders</h4>
-        <ul class="actors leaders list-unstyled"> </ul>
-      </section>
-
-      <section>
-        <h4>Settlements</h4>
-        <ul class="actors settlements list-unstyled"> </ul>
-      </section>
+      <section class="leaders-section"></section>
+      <section class="settlements-section"></section>
 
       <section class="rolls">
         <h4>Dice tray</h4>
@@ -33,6 +25,7 @@
 
     <domain-activity-log>
       <aside class="status-banner"></aside>
+      <actor-sheet></actor-sheet>
       <domain-activity-picker></domain-activity-picker>
       <ul class="consumables"></ul>
       <code class="debug"><pre class="current-turn"></pre></code>
@@ -48,6 +41,7 @@
     <script type="module" src="js/abilities.js"></script>
     <script type="module" src="js/save_slots.js"></script>
     <script type="module" src="js/domain_sheet.js"></script>
+    <script type="module" src="js/actor_sheet.js"></script>
     <script type="module" src="js/domain_activity_log.js"></script>
   </body>
 </html>
