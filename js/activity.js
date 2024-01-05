@@ -2,6 +2,7 @@ import {RxElement} from "./rx_element.js";
 import {Ability} from "./abilities.js";
 import {DomainLeader} from "./domain_leader.js";
 import {PickableGroup} from "./pickable_group.js";
+import {DifficultyClass} from "./difficulty_class.js";
 import {blockedTooltip} from "./blocked_tooltip.js";
 
 export class Activity extends RxElement {
@@ -56,35 +57,43 @@ export class Activity extends RxElement {
   get prompt() {
     return this.callOrReturn(this._prompt) ?? [
       Maker.tag("h4", this.promptText),
-      new PickableGroup({
-        options: this.abilities.toDictionary(ability => [
-          ability,
-          [
+      Maker.tag("section", {class: "roll-setup"},
+        Maker.tag("difficulty-class", {base: this.domainSheet.controlDC, ...this.difficultyClassOptions}),
+        new PickableGroup({
+          options: this.abilities.toDictionary(ability => [
             ability,
-            Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}),
-            {
-              "class": "pickable",
-              "data-set-used-ability": ability,
-              change: () => this.domainSheet.roll({modifier: ability}),
-            },
-            {
-              "class": this.peerActivityAbilityUsers[ability] ? "looks-disabled" : "",
-            },
-          ],
-        ]),
-        option: (ability, optParts, html) => {
-          let usedBy = this.peerActivityAbilityUsers[ability];
-          if (usedBy) {
-            return blockedTooltip(`${usedBy.name} already used this ability for this activity this turn`, html);
-          } else {
-            return html;
-          }
-        },
-      }),
+            [
+              ability,
+              Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}),
+              {
+                "class": "pick-ability",
+                "data-set-used-ability": ability,
+                change: () => this.domainSheet.roll({modifier: ability, dc: this.difficulty}),
+              },
+              {
+                "class": this.peerActivityAbilityUsers[ability] ? "looks-disabled" : "",
+              },
+            ],
+          ]),
+          option: (ability, optParts, html) => {
+            let usedBy = this.peerActivityAbilityUsers[ability];
+            if (usedBy) {
+              return blockedTooltip(`${usedBy.name} already used this ability for this activity this turn`, html);
+            } else {
+              return html;
+            }
+          },
+          parts: [{class: "ability"}],
+        }),
+      ),
     ];
   }
   set promptText(value) { this._promptText = value }
   get promptText() { return this.callOrReturn(this._promptText) ?? (this.abilities.length === 1 ? "Roll:" : "Roll one:") }
+
+  get difficultyClassOptions() { return this._difficultyClassOptions ??= {} }
+  set difficultyClassOptions(value) { this._difficultyClassOptions = value }
+  get difficulty() { return this.$(".prompt difficulty-class")?.total }
 
   get usedAbility() { return this.dataset.usedAbility }
   set usedAbility(value) {
@@ -255,7 +264,14 @@ export class LeadershipActivity extends Activity {
   static get all() {
     let {p, ol} = Maker;
     let {tagged, prereq, special} = Activity;
-    let hexMods = `Additional Modifier (not factored in): Mountains: -4; Swamps: -3; Forests: -2; Hills: -1; Plains: -0. `;
+    let hexMods = `Additional Modifier: Mountains: -4; Swamps: -3; Forests: -2; Hills: -1; Plains: -0. `;
+    let hexDCOptions = [
+      {name: "Mountains", value: 4},
+      {name: "Swamps", value: 3},
+      {name: "Forests", value: 2},
+      {name: "Hills", value: 1},
+      {name: "Plains", value: 0},
+    ]
 
     return [
       new LeadershipActivity({
@@ -271,7 +287,14 @@ export class LeadershipActivity extends Activity {
             `If the hex is outside your domain, increase the DC by 2.`,
             hexMods,
           )],
-        criticalSuccessDescription: `Clear hex and boost economy`,
+          difficultyClassOptions: {
+            selected: "Outside Domain",
+            options: JSON.stringify([
+              {name: "Outside Domain", value: 2},
+              ...hexDCOptions,
+            ]),
+          },
+          criticalSuccessDescription: `Clear hex and boost economy`,
         successDescription: `Clear hex`,
         failureDescription: `Fail`,
         criticalFailureDescription: `Unrest`,
@@ -427,6 +450,7 @@ export class LeadershipActivity extends Activity {
         name: "Build Infrastructure",
         description: "You organize the effort to tame the land.",
         preprompt: p(hexMods),
+        difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
         criticalSuccessDescription: `Build it`,
         successDescription: `Build it if you Reduce 1 Ability by 1`,
         failureDescription: `Build it if you Reduce 1 Ability by 2`,
@@ -586,8 +610,8 @@ export class LeadershipActivity extends Activity {
         name: "Oversee",
         description: "You visit a settlement to ensure vital work gets done.",
         preprompt: (activity) => {return Maker.tag("div",
-          Maker.tag("h4", "Which settlement will you travel to?"),
           activity.pickOne(activity.domainSheet.data.settlements, {
+            prompt: "Which settlement will you travel to?",
             format: (settlement) => settlement.name,
             andThen: (picked) => { activity.targetSettlement = picked },
           }),

@@ -12,7 +12,7 @@
     margin: var(--external-margin) 0;
   }
 
-  button, .pickable-group label {
+  button, .pickable-group label, difficulty-class label {
     --_button-bg: hsl(0, 0%, 80%);
     --_button-color: hsl(0, 0%, 0%);
     --_button-border-color: var(--button-color, var(--_button-color));
