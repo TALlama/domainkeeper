@@ -116,7 +116,7 @@ class DomainSheet extends RxElement {
   }
 
   fillLeaders() {
-    this.leadersComponent ||= reef.component(this.$(".leaders"), () => this.actorList(this.data.leaders));
+    this.leadersComponent ||= reef.component(this.$(".leaders"), () => this.actorList(this.data.leaders.sort((a, b) => a.initiative - b.initiative)));
   }
 
   fillSettlements() {

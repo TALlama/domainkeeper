@@ -42,6 +42,7 @@ export default class DomainActivityLog extends RxElement {
 
   resetTurn() {
     delete this.domainSheet.data.currentActorId;
+    this.domainSheet.data.leaders.forEach(l => l.rollInitiative());
     this.domainSheet.data.turns.push({
       entries: [],
     });

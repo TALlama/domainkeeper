@@ -3,6 +3,7 @@ export class DomainLeader {
     Object.assign(this, properties);
     this.id ??= `leader-${this.name}-${crypto.randomUUID()}`;
     this.activitiesPerTurn ??= this.type == "PC" ? 2 : 1;
+    this.initiative ??= this.rollInitiative();
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
@@ -14,4 +15,6 @@ export class DomainLeader {
     let byId = this.currentTurn?.bonusActivities;
     return byId ? (byId[this.id] || 0) : 0;
   }
+
+  rollInitiative() { return this.initiative = Number((Math.random() * 20).toFixed()) }
 }
