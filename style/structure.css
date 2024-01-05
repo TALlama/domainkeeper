@@ -10,7 +10,7 @@
 
   body {
     display: grid;
-    grid-template-columns: 15em 1fr;
+    grid-template-columns: 12em 1fr;
     grid-gap: var(--external-margin);
 
     margin: 0;
@@ -18,9 +18,10 @@
     min-height: 100vh;
   }
 
-  @media (width < 1250px) {
+  @media (width > 1000px) {
     body {
-      grid-template-columns: 10em 1fr;
+      max-width: 1000px;
+      margin: 0 auto;
     }
   }
 

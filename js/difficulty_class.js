@@ -9,7 +9,7 @@ export class DifficultyClass extends RxElement {
       other: 0,
       options: JSON.parse(this.getAttribute("options") || `[]`),
     });
-    this.getAttribute("selected").split(";").map(o => o.trim()).forEach(name => this.checkOption(name));
+    (this.getAttribute("selected") || "").split(";").map(o => o.trim()).forEach(name => this.checkOption(name));
   }
 
   get base() { return Number(this.getAttribute("base") || 10) }

@@ -1,5 +1,6 @@
 import {RxElement} from "./rx_element.js";
 import {DomainLeader} from "./domain_leader.js";
+import {Ability} from "./abilities.js";
 
 class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }
@@ -83,25 +84,30 @@ class DomainSheet extends RxElement {
     this.fillLeaders();
     this.fillSettlements();
 
-    "Stability Loyalty Economy Culture".split(" ").forEach((ability) => {
-      Maker.tag("div", {prependTo: this.abilitiesList},
+    Ability.all.forEach(ability => {
+      let key = ability.toLocaleLowerCase();
+
+      Maker.tag("article", {class: "ability", appendTo: this.abilitiesList},
         Maker.tag("a", {href: "#", class: "ability-roll", "data-ability": ability}, "🎲"),
-        Maker.tag("label", {rx: () => {
-          let value = this.data[ability.toLocaleLowerCase()];
-          return `<span class="ability-name">${ability}</span> <input type="number" @value="${value}" data-in="${ability}" min="0" /> `;
-        }}));
+        Maker.tag("label", ability, {for: `domain-${ability}`}),
+        Maker.tag("span", {
+          rx: () => `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" /> `,
+          change: (event) => this.data[key] = Number(event.target.value),
+        }));
     });
 
-    "Unrest Size XP".split(" ").forEach((stat) => {
-      Maker.tag("label", {appendTo: this.statsList, rx: () => `<label>${stat} <input type="number" @value="${this.data[stat.toLocaleLowerCase()]}" data-in="${stat}" min="0" /></label>`})
-    })
-    Maker.tag("label", {appendTo: this.statsList, rx: () => `<label>Level <input type="number" @value="${this.data.level}" data-in="Level" min=1 max=20 /></label>`});
-    Maker.tag("label", {appendTo: this.statsList, rx: () => `<label>Control DC <input type="number" @value="${this.controlDC}" readonly /></label>`});;
+    "Unrest Size XP Level".split(" ").forEach((stat) => {
+      let key = stat.toLocaleLowerCase();
+      let attrs = {Level: `min="1" max="20"`}[stat] || `min="0"`;
 
-    this.addEventListener("change", (event) => {
-      let input = event.target.closest("[data-in]");
-      if (input) { this.data[input.dataset.in.toLocaleLowerCase()] = Number(input.value) }
+      Maker.tag("article", {class: "stat", appendTo: this.statsList,
+        rx: () => `<label for="domain-${stat}">${stat}</label><input type="number" id="domain-${stat}" @value="${this.data[key]}" data-in="${stat}" ${attrs} />`,
+        change: (event) => this.data[key] = Number(event.target.value),
+      });
     })
+    Maker.tag("article", {class: "stat", appendTo: this.statsList,
+      rx: () => `<label for="domain-control-dc">Control DC</label><input type="number" id="domain-control-dc" @value="${this.controlDC}" readonly />`
+    });
   }
 
   fillName() {
@@ -130,9 +136,11 @@ class DomainSheet extends RxElement {
 
       return `<li id="${actor.id}" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
         ${actor.type}: ${actor.name}
-        <span class='metadata'>${left} ${left == 1 ? "activity" : "activities"} ${left === total ? "" : `left (of ${total})`}</span>
-        <a href="#" data-action="doAddBonusActivity">+</a>
-        <a href="#" data-action="doAddBonusActivity" data-amount="-1">-</a>
+        <div class='metadata'>
+          ${left} ${left == 1 ? "activity" : "activities"} ${left === total ? "" : `left (of ${total})`}
+          <a href="#" data-action="doAddBonusActivity">+</a>
+          <a href="#" data-action="doAddBonusActivity" data-amount="-1">-</a>
+        </div>
       </li>`;
     }).join("");
   }

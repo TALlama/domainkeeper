@@ -10,6 +10,9 @@
     --color-success-bg: lch(86% 55 190);
     --color-failure-bg: lch(65% 55 0);
     --color-critical-failure-bg: lch(65% 55 300);
+
+    --header-bg: black;
+    --subheader-bg: lightgrey;
   }
 
   domain-sheet {
@@ -33,12 +36,11 @@
     }
 
     h3, h4, h5, h6 {
-      --header-bg: black;
       background: var(--header-bg);
       border-bottom: 1px solid var(--header-bg);
       padding: var(--internal-margin);
       margin: var(--internal-margin) calc(-1 * var(--internal-margin));
-      font-size: 80%;
+      font-size: var(--step--1);
     }
 
     h3, h4, h5 {
@@ -54,31 +56,37 @@
     }
 
     .abilities, .stats {
-      font-size: 120%;
+      font-size: var(--step-1);
       margin-bottom: var(--internal-margin);
       padding: var(--internal-margin) 0;
     }
 
-    .abilities {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
+    .abilities .ability, .stats .stat {
+      display: grid;
+      grid-template-columns: 4ch 1fr auto;
 
-    .stats {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+      label { grid-column: 2; }
     }
 
     .ability-roll {
       margin-right: var(--external-margin);
     }
 
-    .actors li.current {
-      font-weight: 600;
-      background: var(--color-selected-bg);
-      padding: var(--internal-margin) 0;
+    .actors {
+      margin: calc(-1 * var(--internal-margin));
+
+      li {
+        padding: var(--internal-margin);
+
+        &.current {
+          font-weight: 600;
+          background: var(--color-selected-bg);
+        }
+
+        & + li {
+          border-top: 1px solid black;
+        }
+      }
     }
 
     input[type="number"] {
@@ -133,7 +141,7 @@
     padding-left: 0;
 
     > .status-banner {
-      font-size: 200%;
+      font-size: var(--step-5);
       background-color: var(--color-event-bg);
       padding: var(--internal-margin);
 
@@ -146,7 +154,7 @@
       > .activities-list {
         display: grid;
         align-items: flex-end;
-        grid-template-columns: repeat(auto-fill, minmax(8em, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
         gap: var(--internal-margin);
         align-items: stretch;
 
@@ -184,7 +192,7 @@
       gap: var(--external-margin);
       margin: var(--external-margin) 0;
 
-      font-size: 80%;
+      font-size: var(--step--1);
     }
 
     > .entries {
@@ -203,7 +211,7 @@
       > .entry {
         --bg: grey;
         --outcome-bg: var(--bg);
-        --description-bg: lightgrey;
+        --description-bg: var(--subheader-bg);
 
         &[data-type="leadership-activity"] { --bg: var(--color-leadership-activity-bg); }
         &[data-type="civic-activity"] { --bg: var(--color-civic-activity-bg); }
@@ -240,7 +248,7 @@
           padding: var(--internal-margin);
 
           > small {
-            font-size: 80%;
+            font-size: var(--step--1);
             margin-left: var(--internal-margin);
             opacity: 0.8;;
           }
@@ -263,7 +271,7 @@
 
         > .icon {
           grid-area: icon;
-          font-size: 300%;
+          font-size: var(--step-5);
           background: var(--bg);
           padding: var(--internal-margin);
         }
@@ -273,7 +281,7 @@
           background: var(--description-bg);
           border-bottom: 1px solid var(--description-bg);
           padding: var(--internal-margin);
-          font-size: 80%;
+          font-size: var(--step--1);
         }
 
         > .body {
@@ -285,7 +293,7 @@
             border-bottom: 1px solid var(--description-bg);
             padding: var(--internal-margin);
             margin: var(--external-margin) calc(-1 * var(--internal-margin));
-            font-size: 80%;
+            font-size: var(--step--1);
           }
         }
 
@@ -349,7 +357,7 @@
     }
 
     .description {
-      font-size: 80%;
+      font-size: var(--step--1);
       margin-top: var(--internal-margin);
     }
   }
@@ -416,8 +424,7 @@
       background-color: var(--button-bg);
       color: var(--button-border-color);
       padding: .2rem var(--internal-margin);
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      font-size: 11px;
+      font-size: var(--step-0);
       font-weight: 600;
 
       input {
