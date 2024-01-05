@@ -24,7 +24,7 @@
       border-right: 3px solid black;
     }
 
-    .domain-name {
+    .domain-header {
       display: flex;
 
       .domain-data-management {

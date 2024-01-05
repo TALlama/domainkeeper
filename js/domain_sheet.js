@@ -105,8 +105,8 @@ class DomainSheet extends RxElement {
   }
 
   fillName() {
-    reef.component(this.$(".domain-name"), () =>
-      `${this.data.name}
+    reef.component(this.$(".domain-header"), () =>
+      `<span class="domain-name">${this.data.name}</span>
         <span class="domain-data-management">
           <a href="#" data-action="doSaveData">💾</a>
           <a href="#" data-action="doClearData">❌</a>
