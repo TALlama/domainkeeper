@@ -10,6 +10,7 @@ export class DomainActivityPicker extends RxElement {
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
   get currentActor() { return this.domainSheet.currentActor }
+  get isLeader() { return this.domainSheet.data.leaders.find(l => l.id == this.currentActor?.id) }
   get previousActivityNames() { return (this.currentActor?.activitesTaken || []).map(a => a.name) }
 
   buttons(available, leftOfType) {
@@ -25,25 +26,28 @@ export class DomainActivityPicker extends RxElement {
   }
 
   render() {
-    let leadershipLeft = this.domainSheet.leadershipActivitiesLeft;
-    let civicLeft = this.domainSheet.civicActivitiesLeft;
+    return `
+      <h3>${this.currentActor ? `${this.currentActor.name} is up!` : `All actions have been taken for this turn.`}</h3>
+      ${this.isLeader
+        ? this.renderActivityList(LeadershipActivity.all, this.domainSheet.leadershipActivitiesLeft, "leadership")
+        : this.renderActivityList(CivicActivity.all, this.domainSheet.civicActivitiesLeft, "civic")}
+      ${this.renderEndTurnButton()}`;
+  }
+
+  renderActivityList(activities, left, typeName) {
     let activitx = (count) => count == 1 ? "activity" : "activities";
 
     return `
-      <h3>${this.currentActor ? `${this.currentActor.name} is up!` : `All actions have bee taken for this turn.`}</h3>
       <h4>
-        You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.
+        You have ${left} ${typeName} ${activitx(left)} left.
       </h4>
-      <ul class="activities-list leadership-activities">
-        ${this.buttons(LeadershipActivity.all, leadershipLeft)}
-      </ul>
-      <h4>
-        You have ${civicLeft} civic ${activitx(civicLeft)} left.
-      </h4>
-      <ul class="activities-list civic-activities">
-        ${this.buttons(CivicActivity.all, civicLeft)}
-      </ul>
-      <button class="end-turn ${leadershipLeft + civicLeft > 0 ? "end-turn-pending" : "end-turn-ready"}" data-action="endTurn">End turn</button>`;
+      <ul class="activities-list ${typeName}-activities">
+        ${this.buttons(activities, left)}
+      </ul>`;
+  }
+
+  renderEndTurnButton() {
+    return `<button class="end-turn ${this.currentActor ? "end-turn-pending" : "end-turn-ready"}" data-action="endTurn">End turn</button>`;
   }
 }
 DomainActivityPicker.define("domain-activity-picker");
