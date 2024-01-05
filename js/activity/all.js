@@ -249,7 +249,7 @@ export class SystemActivity extends Activity {
   set actorId(value) { }
   get actor() { return null }
 }
-customElements.define("system-activity", SystemActivity);
+SystemActivity.define("system-activity");
 
 export class LeadershipActivity extends Activity {
   static get all() {
@@ -740,7 +740,7 @@ export class LeadershipActivity extends Activity {
     ]
   }
 }
-customElements.define("leadership-activity", LeadershipActivity);
+LeadershipActivity.define("leadership-activity");
 
 export class CivicActivity extends Activity {
   static get all() {
@@ -788,5 +788,5 @@ export class CivicActivity extends Activity {
     ];
   }
 }
-customElements.define("civic-activity", CivicActivity);
+CivicActivity.define("civic-activity");
 

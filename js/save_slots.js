@@ -15,4 +15,4 @@ class SaveSlots extends RxElement {
     this.root = toSave;
   }
 }
-customElements.define("save-slots", SaveSlots);
+SaveSlots.define("save-slots");

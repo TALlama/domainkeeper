@@ -310,7 +310,7 @@ class DomainSheet extends RxElement {
     roller.shadowRoot.querySelector("div").click(); // Ew
   }
 }
-customElements.define("domain-sheet", DomainSheet);
+DomainSheet.define("domain-sheet");
 
 document.addEventListener("click", (event) => {
   let trigger = event.target.closest(".ability-roll");

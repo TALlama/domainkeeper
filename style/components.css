@@ -124,7 +124,7 @@
     }
 
     domain-activity-log {
-      > .activities { display: none; }
+      > domain-activity-picker { display: none; }
     }
   }
 
@@ -142,9 +142,7 @@
       }
     }
 
-    > .activities {
-      margin-bottom: var(--external-margin);
-
+    > domain-activity-picker {
       > .activities-list {
         display: grid;
         align-items: flex-end;
@@ -184,7 +182,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: var(--external-margin);
-      margin-bottom: var(--external-margin);
+      margin: var(--external-margin) 0;
 
       font-size: 80%;
     }

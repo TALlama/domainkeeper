@@ -1,8 +1,8 @@
 import {RxElement} from "./rx_element.js";
 import {Ability} from "./abilities.js";
-import {Activity, SystemActivity, LeadershipActivity, CivicActivity} from "./activity/all.js";
+import {Activity, SystemActivity} from "./activity/all.js";
 import {PickableGroup} from "./pickable_group.js";
-import {blockedTooltip} from "./blocked_tooltip.js";
+import {DomainActivityPicker} from "./domain_activity_picker.js";
 
 export default class DomainActivityLog extends RxElement {
   connectedCallback() {
@@ -10,7 +10,6 @@ export default class DomainActivityLog extends RxElement {
     this.turnSummaries = [];
 
     this.fillStatusBanner();
-    this.fillAvailableActivities();
     this.fillConsumables();
     this.fillCurrentTurnDebug();
     this.addEventListener("click", this);
@@ -64,43 +63,6 @@ export default class DomainActivityLog extends RxElement {
       } else {
         return ``;
       }
-    });
-  }
-
-  fillAvailableActivities() {
-    reef.component(this.$(".activities"), () => {
-      let currentActor = this.domainSheet.currentActor;
-      let leadershipLeft = this.domainSheet.leadershipActivitiesLeft;
-      let civicLeft = this.domainSheet.civicActivitiesLeft;
-      let activitx = (count) => count == 1 ? "activity" : "activities";
-      let used = (this.domainSheet.currentActor?.activitesTaken || []).map(a => a.name);
-      let buttons = (available, leftOfType) => {
-        return available.map(activity => {
-          let whyDisabled = null;
-          if (used.includes(activity.name)) {
-            whyDisabled = `${currentActor.name} has already done this activity this turn`;
-          } else if (leftOfType <= 0) {
-            whyDisabled = `The domain has used all its activites for this turn`;
-          }
-          return blockedTooltip(whyDisabled, activity.button({disabled: whyDisabled !== null}));
-        }).join("");
-      };
-
-      return `
-        <h3>${currentActor ? `${currentActor.name} is up!` : `All actions have bee taken for this turn.`}</h3>
-        <h4>
-          You have ${leadershipLeft} leadership ${activitx(leadershipLeft)} left.
-        </h4>
-        <ul class="activities-list leadership-activities">
-          ${buttons(LeadershipActivity.all, leadershipLeft)}
-        </ul>
-        <h4>
-          You have ${civicLeft} civic ${activitx(civicLeft)} left.
-        </h4>
-        <ul class="activities-list civic-activities">
-          ${buttons(CivicActivity.all, civicLeft)}
-        </ul>
-        <button class="end-turn ${leadershipLeft + civicLeft > 0 ? "end-turn-pending" : "end-turn-ready"}" data-action="endTurn">End turn</button>`;
     });
   }
 
@@ -354,4 +316,4 @@ export default class DomainActivityLog extends RxElement {
     });
   }
 }
-customElements.define("domain-activity-log", DomainActivityLog);
+DomainActivityLog.define("domain-activity-log");
