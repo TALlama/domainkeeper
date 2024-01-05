@@ -76,6 +76,8 @@ class DomainSheet extends RxElement {
     return saved;
   }
 
+  get activityLog() { return document.querySelector("domain-activity-log") }
+
   get abilitiesList() { return this.$(".abilities") }
   get statsList() { return this.$(".stats") }
 
@@ -91,7 +93,7 @@ class DomainSheet extends RxElement {
         Maker.tag("a", {href: "#", class: "ability-roll", "data-ability": ability}, "🎲"),
         Maker.tag("label", ability, {for: `domain-${ability}`}),
         Maker.tag("span", {
-          rx: () => `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" /> `,
+          rx: () => `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" max="${this.max(key)}" /> / ${this.max(key)}`,
           change: (event) => this.data[key] = Number(event.target.value),
         }));
     });
@@ -150,6 +152,8 @@ class DomainSheet extends RxElement {
     if (actorId) { this.data.currentActorId = actorId }
   }
 
+  max(ability) { return 5 }
+
   get leadershipActivitiesLeft() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
   get civicActivitiesLeft() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesLeft, 0) }
 
@@ -192,9 +196,12 @@ class DomainSheet extends RxElement {
 
   addFame() {
     let existing = this.findConsumables({name: "Fame"});
-    if (existing.length >= 3) { return }
-
-    this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
+    if (existing.length < 3) {
+      this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
+    } else {
+      this.log(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
+      this.data.xp += 100;
+    }
   }
 
   doAddBonusActivity(event) {
@@ -268,7 +275,24 @@ class DomainSheet extends RxElement {
     };
   }
 
-  modify({by}, names) { names.forEach(name => { this.data[name.toLocaleLowerCase()] += by }) }
+  log(message) {
+    this.activityLog?.currentActivity?.log(message);
+  }
+
+  modify({by}, names) {
+    names.forEach(name => {
+      let key = name.toLocaleLowerCase();
+      let current = this.data[key];
+      let target = current + by;
+      let max = this.max(name);
+      let overage = target - max;
+      this.data[key] = Math.min(max, target);
+      if (overage > 0) {
+        this.log(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
+        this.data.xp += overage * 50;
+      }
+    })
+  }
   boost(...names) {
     let {by} = names[0];
     by && names.shift();

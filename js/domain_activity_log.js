@@ -183,6 +183,8 @@ export default class DomainActivityLog extends RxElement {
     activity && this.activity(activity);
   }
 
+  get currentActivity() { return this.entries.querySelector("leadership-activity, civic-activity") }
+
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
   get turn() { return this.turnSummaries.length; }
