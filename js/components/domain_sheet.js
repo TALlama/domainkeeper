@@ -1,7 +1,8 @@
+import {Actor} from "../models/actor.js";
+import {Ability} from "../models/abilities.js";
+import {Structure} from "../models/structure.js";
+
 import {RxElement} from "./rx_element.js";
-import {Actor} from "./actor.js";
-import {Ability} from "./abilities.js";
-import {Structure} from "./structure.js";
 
 class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }

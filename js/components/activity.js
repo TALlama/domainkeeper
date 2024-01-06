@@ -1,7 +1,8 @@
+import {Actor} from "../models/actor.js";
+import {Ability} from "../models/abilities.js";
+import {Structure} from "../models/structure.js";
+
 import {RxElement} from "./rx_element.js";
-import {Ability} from "./abilities.js";
-import {Actor} from "./actor.js";
-import {Structure} from "./structure.js";
 import {PickableGroup} from "./pickable_group.js";
 import {DifficultyClass} from "./difficulty_class.js";
 import {blockedTooltip} from "./blocked_tooltip.js";

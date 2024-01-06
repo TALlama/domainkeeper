@@ -6,7 +6,7 @@ export class Ability {
   static get random() { return this.all.random() }
 }
 
-import {Eris} from "./eris.js";
+import {Eris} from "../eris.js";
 Eris.test("Ability", makeSure => {
   makeSure.it("knows the ability list", ({assert}) =>
     assert.equals(["Culture", "Economy", "Loyalty", "Stability"], Ability.all)

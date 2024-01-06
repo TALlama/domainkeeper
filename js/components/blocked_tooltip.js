@@ -1,4 +1,4 @@
-import {Eris} from "./eris.js";
+import {Eris} from "../eris.js";
 
 export function blockedTooltip(blockReason, content) {
   if (!blockReason) { return content }

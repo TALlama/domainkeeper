@@ -1,5 +1,6 @@
+import {Structure} from "../models/structure.js";
+
 import {RxElement} from "./rx_element.js";
-import {Structure} from "./structure.js";
 import {StructureChip} from "./structure_chip.js";
 
 export class ActorSheet extends RxElement {
