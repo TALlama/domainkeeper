@@ -10,6 +10,9 @@ export class RxElement extends HTMLElement {
     }
   }
 
+  get url() { return this._url ?? new URL(document.location) }
+  get searchParams() { return this.url.searchParams }
+
   static define(tagName) {
     customElements.define(tagName, this);
   }

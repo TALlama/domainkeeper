@@ -187,7 +187,7 @@ export class Activity extends RxElement {
 
   addBonusActivity(actor) {
     this.log(`🛟 Added bonus activity for ${actor.name}`);
-    this.domainSheet.addBonusActivity(actor);
+    actor.bonusActivities += 1;
   }
 
   // Formatting options
@@ -783,10 +783,12 @@ export class CivicActivity extends Activity {
         name: "Build Structure",
         description: "This settlement has an idea!",
         preprompt: (activity) => {return Maker.tag("div",
+          Maker.tag("div", "What would you like to build? ", Maker.tag("input", {name: "structure"})),
           p(`Add building's cost to the DC`),
           activity.modOneAnd(`Pay with {by} {ability}`, {prompt: "Before you roll, supply building costs:"}),
         )},
         abilities: ["Economy"],
+        structureName() { return this.$(`input[name="structure"]`)?.value || "structure" },
         criticalSuccessDescription: `Build it; Boost a random Ability by 1`,
         successDescription: `Build it`,
         failureDescription: `Fail`,
@@ -797,7 +799,10 @@ export class CivicActivity extends Activity {
           this.success();
         },
         success() {
-          this.log("🏛️ You built that thing!");
+          let structureName = this.structureName();
+          this.log(`🏛️ You built the ${this.structureName()}!`);
+          this.actor.powerups.push({name: structureName});
+
           this.log("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
           this.log("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
           this.log("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");

@@ -10,6 +10,11 @@ class DomainSheet extends RxElement {
     this.makeReactive();
 
     this.addEventListener("click", this);
+
+    // For debugging; put `?actor=Seth` in the URL to make that one current
+    let actorPicker = this.searchParams.get("actor");
+    let actor = this.actors.find(a => a.name === actorPicker || a.id === actorPicker);
+    if (actor) { this.data.currentActorId = actor.id }
   }
 
   doSaveData() {
@@ -64,7 +69,7 @@ class DomainSheet extends RxElement {
       {type: "NPC", name: "Bertie", activitiesPerTurn: 1},
     ];
     saved.settlements ??= [
-      {type: "Village", name: "Capital", activitiesPerTurn: 1},
+      {type: "Village", name: "Capital", activitiesPerTurn: 1, powerups: [{name: "Town Hall"}]},
     ]
     saved.consumables ??= {};
     saved.turns ??= [];

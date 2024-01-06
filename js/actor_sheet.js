@@ -13,6 +13,17 @@ export class ActorSheet extends RxElement {
   render() {
     if (!this.actor) { return this.renderNoActor() }
 
+    return `${this.renderHeader()}${this.renderBody()}`;
+  }
+
+  renderNoActor() {
+    return `<h3>
+      All activities for the turn have been taken.
+      <span class='badge'>0 activities left</span>
+    </h3>`
+  }
+
+  renderHeader() {
     let activitx = (count) => count == 1 ? "1 activity" : `${count} activities`;
 
     return `
@@ -27,25 +38,16 @@ export class ActorSheet extends RxElement {
     `;
   }
 
-  renderNoActor() {
-    return `<h3>
-      All activities for the turn have been taken.
-      <span class='badge'>0 activities left</span>
-    </h3>`
+  renderBody() {
+    return `<article>
+      <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${powerup.name}</li>`)}</ul>
+    </article>`
   }
 
   //////////////////////////////////// Event handling
 
   doAddBonusActivity(event) {
-    this.addBonusActivity(Number(event.target.closest("[data-amount]")?.dataset?.amount ?? 1));
-  }
-
-  //////////////////////////////////// Data handling
-
-  addBonusActivity(count = 1) {
-    this.currentTurn.bonusActivities ??= {};
-    this.currentTurn.bonusActivities[this.actor.id] ??= 0;
-    this.currentTurn.bonusActivities[this.actor.id] += count;
+    this.actor.bonusActivities += Number(event.target.closest("[data-amount]")?.dataset?.amount ?? 1);
   }
 }
 ActorSheet.define("actor-sheet");
