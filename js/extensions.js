@@ -13,6 +13,11 @@ Array.prototype.toDictionary = Array.prototype.toDictionary || function(fn) {
   });
   return retval;
 }
+Array.prototype.matches = Array.prototype.matches || function(pattern) {
+  return this.filter(object =>
+    Object.keys(pattern).reduce((all, key) => all && (pattern[key] === object[key]), true)
+  );
+}
 Array.eql = Array.eql || function(a, b) {
   return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((e, ix) => b[ix] === e);
 }
@@ -71,6 +76,43 @@ Eris.test("Array extensions", array => {
         assert.jsonEquals(["one", "two", "three"].toDictionary(e => [e, e.length]), {one: 3, two: 3, three: 5});
       });
     })
+  });
+  array.describe("matches", fn => {
+    fn.it("finds objects that match", ({assert}) => {
+      let arr = [
+        {num: 1, grade: "A"},
+        {num: 1, grade: "B"},
+        {num: 2, grade: "A"},
+        {num: 2, grade: "B"},
+        {other: "Thing"},
+      ]
+
+      assert.jsonEquals(arr.matches({num: 1}), [{num: 1, grade: "A"}, {num: 1, grade: "B"}]);
+      assert.jsonEquals(arr.matches({grade: "A"}), [{num: 1, grade: "A"}, {num: 2, grade: "A"}]);
+      assert.jsonEquals(arr.matches({}), arr);
+      assert.jsonEquals(arr.matches([]), arr);
+      assert.jsonEquals(arr.matches({random: "Values"}), []);
+    });
+    fn.it("finds arrays that match", ({assert}) => {
+      let arr = [
+        [1, "A"],
+        [1, "B"],
+        [2, "A"],
+        [2, "B"],
+        [],
+      ]
+
+      var pattern = {}; pattern[0] = 1;
+      assert.jsonEquals(arr.matches([1]), [[1, "A"], [1, "B"]]);
+      assert.jsonEquals(arr.matches(pattern), [[1, "A"], [1, "B"]]);
+
+      pattern = {}; pattern[1] = "A";
+      assert.jsonEquals(arr.matches(pattern), [[1, "A"], [2, "A"]]);
+
+      assert.jsonEquals(arr.matches({}), arr);
+      assert.jsonEquals(arr.matches([]), arr);
+      assert.jsonEquals(arr.matches({random: "Values"}), []);
+    });
   });
   array.describe("equality", makeSure => {
     makeSure.it("knows when things are equal",

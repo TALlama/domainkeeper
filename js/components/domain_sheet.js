@@ -22,7 +22,7 @@ class DomainSheet extends RxElement {
     if (this.searchParams.get("structures") === "all") {
       let capital = this.data.settlements[0];
       Structure.names.forEach(n =>
-        capital.powerups.push(new Structure(n))
+        capital.powerups.matches({name: n}).length || capital.powerups.push(new Structure(n))
       );
     };
   }
@@ -231,9 +231,7 @@ class DomainSheet extends RxElement {
   }
 
   findConsumables(pattern) {
-    return Object.values(this.data.consumables).filter(consumable =>
-      Object.keys(pattern).reduce((all, key) => all && (pattern[key] === consumable[key]), true)
-    );
+    return Object.values(this.data.consumables).matches(pattern);
   }
 
   addConsumable(attrs) {
