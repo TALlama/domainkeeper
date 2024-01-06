@@ -1,6 +1,7 @@
 import {RxElement} from "./rx_element.js";
 import {DomainLeader} from "./domain_leader.js";
 import {Ability} from "./abilities.js";
+import {Structure} from "./structure.js";
 
 class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }
@@ -69,7 +70,7 @@ class DomainSheet extends RxElement {
       {type: "NPC", name: "Bertie", activitiesPerTurn: 1},
     ];
     saved.settlements ??= [
-      {type: "Village", name: "Capital", activitiesPerTurn: 1, powerups: [{name: "Town Hall"}]},
+      {type: "Village", name: "Capital", activitiesPerTurn: 1, powerups: [new Structure("Town Hall")]},
     ]
     saved.consumables ??= {};
     saved.turns ??= [];
@@ -201,10 +202,14 @@ class DomainSheet extends RxElement {
 
   get currentTurn() { return this.data.turns.last() }
   get currentActor() { return this.readyActor(this.data.currentActorId) || this.readyActors.first() }
+
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
   get actors() { return [...this.data.leaders, ...this.data.settlements] }
   readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }
   get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
+
+  structure(structureId) { return this.structures.find(s => s.id === structureId) }
+  get structures() { return this.actors.flatMap(a => a.powerups) }
 
   addFame() {
     let existing = this.findConsumables({name: "Fame"});

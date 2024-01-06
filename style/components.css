@@ -167,8 +167,6 @@
       border: 1px solid black;
       padding: var(--internal-margin);
 
-      &:has(.powerups:empty) { display: none }
-
       .powerups {
         li {
           border: 1px solid black;

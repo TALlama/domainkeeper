@@ -41,6 +41,8 @@ export class ActorSheet extends RxElement {
   }
 
   renderBody() {
+    if (!this.actor.isSettlement) { return `` }
+
     return `<article>
       <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
       ${this.renderStructureControls()}
@@ -48,7 +50,7 @@ export class ActorSheet extends RxElement {
   }
 
   renderPowerup(powerup) {
-    return `<structure-chip name="${powerup.name}"></structure-chip>`;
+    return `<structure-chip structure-id="${powerup.id}"></structure-chip>`;
   }
 
   renderStructureControls() {
@@ -71,6 +73,7 @@ export class ActorSheet extends RxElement {
     let nameInput = form?.querySelector(`input[name="name"]`);
     let structureName = nameInput?.value;
     if (structureName) {
+      // TODO log this
       this.actor.powerups.push(new Structure(structureName));
       nameInput.value = "";
     }

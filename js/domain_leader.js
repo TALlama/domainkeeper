@@ -13,6 +13,8 @@ export class DomainLeader {
   get isLeader() { return this.domainSheet.data.leaders.find(l => l.id == this.id) }
   get isSettlement() { return this.domainSheet.data.settlements.find(l => l.id == this.id) }
 
+  // Activities
+
   get activitesTaken() { return this.currentTurn?.entries?.filter(e => e.actorId === this.id) || [] }
   set activitesTaken(value) { /* ignore */ }
   get activitiesLeft() { return this.activitiesPerTurn + this.bonusActivities - this.activitesTaken.length }
@@ -26,6 +28,15 @@ export class DomainLeader {
       turn.bonusActivities ||= {};
       turn.bonusActivities[this.id] = value;
     }
+  }
+
+  // Powerups
+
+  powerup(id) { return this.powerups.find(p => p.id === id) }
+
+  removePowerup(powerup) {
+    let index = this.powerups.indexOf(powerup);
+    index > -1 && this.powerups.splice(index, 1);
   }
 
   rollInitiative() { return this.initiative = Number((Math.random() * 20).toFixed()) }
