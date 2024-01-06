@@ -1,3 +1,9 @@
+/********************************************************************************/
+// The structure names and details are based on Paizo's Kingmaker Players Guide //
+// They are used here under Paizo's Community Use Policy                        //
+// See https://paizo.com/community/communityuse for details                     //
+/********************************************************************************/
+
 export class Structure {
   constructor(templateName, properties) {
     Object.assign(this, Structure.template(templateName));
