@@ -12,7 +12,7 @@ export class PickableGroup {
         this.option(
           value,
           this.options[value],
-          Maker.tag("label", {class: "pickable"},
+          Maker.tag("label", {class: "pickable btn"},
             Maker.tag("input", {class: "sr-only", type: "radio", value, name: this.name}),
             this.options[value],
           ),

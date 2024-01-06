@@ -220,6 +220,9 @@ class DomainSheet extends RxElement {
   structure(structureId) { return this.structures.find(s => s.id === structureId) }
   get structures() { return this.actors.flatMap(a => a.powerups) }
 
+  findBonuses(pattern) { return this.bonuses.matches(pattern) }
+  get bonuses() { return this.structures.flatMap(s => (s.bonuses || []).map(b => { return {...b, structure: s}})) }
+
   addFame() {
     let existing = this.findConsumables({name: "Fame"});
     if (existing.length < 3) {
@@ -320,11 +323,12 @@ class DomainSheet extends RxElement {
 
   get diceTray() { return this.$(".dice-tray") }
 
-  roll({die, modifier, level, dc}) {
+  roll({die, modifier, itemBonus, level, dc}) {
     let modifierValue = (modifier ? this.data[modifier.toLocaleLowerCase()] : 0);
     let levelValue = (level === false ? 0 : this.data.level);
 
     let components = [[modifier, modifierValue], ["Level", levelValue], ["Unrest", this.unrestModifier]];
+    itemBonus && components.push(["Item", itemBonus]); // TODO it'd be nice to name the source
     let modifierTotal = 0;
 
     let header = Maker.tag("h6");

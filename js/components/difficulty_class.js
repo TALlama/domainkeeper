@@ -1,3 +1,4 @@
+import {mod} from "../helpers.js";
 import {RxElement} from "./rx_element.js";
 
 export class DifficultyClass extends RxElement {
@@ -39,7 +40,7 @@ export class DifficultyClass extends RxElement {
   render() {
     return `
       <article class="mods">
-      <label class="base">Base DC <span class="modifier">${this.base}</span></label>${this.renderOptions()}<span class="other">Mod <input type="number" value="0"/></other>
+      <label class="base btn">Base DC <span class="modifier">${this.base}</span></label>${this.renderOptions()}<span class="other">Mod <input type="number" value="0"/></other>
       </article>
       <output>= DC ${this.total}</output>
     `;
@@ -50,13 +51,11 @@ export class DifficultyClass extends RxElement {
   }
 
   renderOption({name, value, checked}) {
-    return `<label data-option-name="${name}">
+    return `<label class="btn" data-option-name="${name}">
       <input type="checkbox" class="sr-only" value="${value}" ${checked ? "checked" : ""} />
       ${name}
-      <span class="modifier">${this.mod(value)}</span>
+      <span class="modifier">${mod(value)}</span>
     </label>`;
   }
-
-  mod(value) { return value < 0 ? value.toString() : `+${value}` }
 }
 DifficultyClass.define("difficulty-class");

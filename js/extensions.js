@@ -13,6 +13,15 @@ Array.prototype.toDictionary = Array.prototype.toDictionary || function(fn) {
   });
   return retval;
 }
+Array.prototype.sortBy = Array.prototype.sortBy || function(attr) {
+  if (attr[0] == "-") { return this.sortBy(attr.substr(1)).reverse() }
+
+  return this.sort((a, b) => {
+    let aVal = attr.call ? attr(a) : a[attr];
+    let bVal = attr.call ? attr(b) : b[attr];
+    return aVal > bVal ? 1 : -1;
+  })
+};
 Array.prototype.matches = Array.prototype.matches || function(pattern) {
   return this.filter(object =>
     Object.keys(pattern).reduce((all, key) => all && (pattern[key] === object[key]), true)
@@ -77,6 +86,17 @@ Eris.test("Array extensions", array => {
       });
     })
   });
+  array.describe("sortBy", fn => {
+    fn.it("sorts by the named attribute", ({assert}) => {
+      assert.jsonEquals([{n: 5}, {n: 2}, {n: 9}].sortBy("n"), [{n: 2}, {n: 5}, {n: 9}]);
+    })
+    fn.it("reverse-sorts by the named attribute when prefixed by -", ({assert}) => {
+      assert.jsonEquals([{n: 5}, {n: 2}, {n: 9}].sortBy("-n"), [{n: 9}, {n: 5}, {n: 2}]);
+    })
+    fn.it("sorts by the function's returned value", ({assert}) => {
+      assert.jsonEquals([{n: 5}, {n: 2}, {n: 9}].sortBy(o => o.n), [{n: 2}, {n: 5}, {n: 9}]);
+    })
+  })
   array.describe("matches", fn => {
     fn.it("finds objects that match", ({assert}) => {
       let arr = [

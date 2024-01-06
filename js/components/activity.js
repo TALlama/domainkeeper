@@ -1,3 +1,5 @@
+import {mod} from "../helpers.js";
+
 import {Actor} from "../models/actor.js";
 import {Ability} from "../models/abilities.js";
 import {Structure} from "../models/structure.js";
@@ -54,6 +56,44 @@ export class Activity extends RxElement {
   get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
   get peerActivityAbilityUsers() { return this.peerActivities.toDictionary(a => [a.usedAbility, this.domainSheet.actor(a.actorId)]) }
 
+  get bonuses() { return this.domainSheet.findBonuses({activity: this.name}).sortBy("ability") }
+  bonusesForAbility(ability) { return this.bonuses.filter(b => !b.ability || b.ability === ability).sortBy("-value") }
+  itemBonus(ability) { return this.bonusesForAbility(ability).first()?.value || 0 }
+
+  renderBonus(bonus, {includeAbility, used}={}) {
+    let whenRolling = includeAbility ? `when rolling ${bonus.ability || "any ability"} ` : "";
+    let string = `${mod(bonus.value)} ${whenRolling}<span class='metadata'>from ${bonus.structure.name}</span>`;
+    return used === false ? `<del>${string}</del>` : string;
+  }
+
+  rollParts(ability) {
+    let abilityMod = this.domainSheet.data[ability.toLowerCase()];
+    let itemMod = this.itemBonus(ability);
+
+    let modifierBreakdown = "";
+    if (itemMod) {
+      modifierBreakdown = Maker.tag("div", {
+        class: "modifier-breakdown",
+        html: [
+          this.renderBonus({value: abilityMod, structure: {name: "Ability"}}),
+          ...this.bonusesForAbility(ability).map((b, ix) => this.renderBonus(b, {used: ix === 0})),
+        ].join(`<br/>`),
+      });
+    }
+
+    return [
+      ability,
+      Maker.tag("span", `${mod(abilityMod + itemMod)}`, {class: "modifier"}),
+      {
+        class: "pick-ability",
+        "data-set-used-ability": ability,
+        change: () => this.domainSheet.roll({modifier: ability, itemBonus: itemMod, dc: this.difficulty}),
+      },
+      {class: this.peerActivityAbilityUsers[ability] ? "looks-disabled" : ""},
+      modifierBreakdown,
+    ];
+  }
+
   get promptSection() { return Maker.tag("section", {class: "prompt"}, this.prompt) }
   set prompt(value) { this._prompt = value }
   get prompt() {
@@ -62,21 +102,7 @@ export class Activity extends RxElement {
       Maker.tag("section", {class: "roll-setup"},
         Maker.tag("difficulty-class", {base: this.domainSheet.controlDC, ...this.difficultyClassOptions}),
         new PickableGroup({
-          options: this.abilities.toDictionary(ability => [
-            ability,
-            [
-              ability,
-              Maker.tag("span", ` ${this.domainSheet.mod(ability)}`, {class: "modifier"}),
-              {
-                "class": "pick-ability",
-                "data-set-used-ability": ability,
-                change: () => this.domainSheet.roll({modifier: ability, dc: this.difficulty}),
-              },
-              {
-                "class": this.peerActivityAbilityUsers[ability] ? "looks-disabled" : "",
-              },
-            ],
-          ]),
+          options: this.abilities.toDictionary(ability => [ability, this.rollParts(ability)]),
           option: (ability, optParts, html) => {
             let usedBy = this.peerActivityAbilityUsers[ability];
             if (usedBy) {
