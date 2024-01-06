@@ -1,6 +1,6 @@
 import {RxElement} from "./rx_element.js";
 import {Ability} from "./abilities.js";
-import {DomainLeader} from "./domain_leader.js";
+import {Actor} from "./actor.js";
 import {Structure} from "./structure.js";
 import {PickableGroup} from "./pickable_group.js";
 import {DifficultyClass} from "./difficulty_class.js";
@@ -393,7 +393,7 @@ export class LeadershipActivity extends Activity {
             namer,
             Maker.tag("button", "Do it!", {click: (event) => {
               let name = namer.value;
-              this.domainSheet.data.settlements.push(new DomainLeader({type: "Village", name: name}));
+              this.domainSheet.data.settlements.push(new Actor({type: "Village", name: name}));
               event.target.disabled = true;
             }})
           );

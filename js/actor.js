@@ -1,4 +1,4 @@
-export class DomainLeader {
+export class Actor {
   constructor(properties) {
     Object.assign(this, properties);
     this.id ??= `leader-${this.name}-${crypto.randomUUID()}`;

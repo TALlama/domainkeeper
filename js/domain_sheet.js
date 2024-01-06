@@ -1,5 +1,5 @@
 import {RxElement} from "./rx_element.js";
-import {DomainLeader} from "./domain_leader.js";
+import {Actor} from "./actor.js";
 import {Ability} from "./abilities.js";
 import {Structure} from "./structure.js";
 
@@ -76,7 +76,7 @@ class DomainSheet extends RxElement {
     saved.turns ??= [];
 
     "leaders settlements".split(" ").forEach(key => {
-      saved[key] = saved[key].map(attrs => new DomainLeader(attrs));
+      saved[key] = saved[key].map(attrs => new Actor(attrs));
     });
 
     return saved;
