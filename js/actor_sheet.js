@@ -1,4 +1,6 @@
 import {RxElement} from "./rx_element.js";
+import {Structure} from "./structure.js";
+import {StructureChip} from "./structure_chip.js";
 
 export class ActorSheet extends RxElement {
   connectedCallback() {
@@ -40,14 +42,38 @@ export class ActorSheet extends RxElement {
 
   renderBody() {
     return `<article>
-      <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${powerup.name}</li>`)}</ul>
+      <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
+      ${this.renderStructureControls()}
     </article>`
+  }
+
+  renderPowerup(powerup) {
+    return `<structure-chip name="${powerup.name}"></structure-chip>`;
+  }
+
+  renderStructureControls() {
+    if (!this.actor.isSettlement) { return `` }
+
+    return `<fieldset class="structure-controls">
+      Structure: <input name="name" list="available-structures"/>
+      <button data-action="doAddStructure">Build</button>
+    </fieldset>`;
   }
 
   //////////////////////////////////// Event handling
 
   doAddBonusActivity(event) {
     this.actor.bonusActivities += Number(event.target.closest("[data-amount]")?.dataset?.amount ?? 1);
+  }
+
+  doAddStructure(event) {
+    let form = event.target.closest('.structure-controls');
+    let nameInput = form?.querySelector(`input[name="name"]`);
+    let structureName = nameInput?.value;
+    if (structureName) {
+      this.actor.powerups.push(new Structure(structureName));
+      nameInput.value = "";
+    }
   }
 }
 ActorSheet.define("actor-sheet");

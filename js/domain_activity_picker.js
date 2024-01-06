@@ -10,8 +10,8 @@ export class DomainActivityPicker extends RxElement {
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
   get currentActor() { return this.domainSheet.currentActor }
-  get isLeader() { return this.domainSheet.data.leaders.find(l => l.id == this.currentActor?.id) }
-  get isSettlement() { return this.domainSheet.data.settlements.find(l => l.id == this.currentActor?.id) }
+  get isLeader() { return this.currentActor?.isLeader }
+  get isSettlement() { return this.currentActor?.isSettlement }
   get previousActivityNames() { return (this.currentActor?.activitesTaken || []).map(a => a.name) }
 
   buttons(available, leftOfType) {

@@ -1,6 +1,7 @@
 import {RxElement} from "./rx_element.js";
 import {Ability} from "./abilities.js";
 import {DomainLeader} from "./domain_leader.js";
+import {Structure} from "./structure.js";
 import {PickableGroup} from "./pickable_group.js";
 import {DifficultyClass} from "./difficulty_class.js";
 import {blockedTooltip} from "./blocked_tooltip.js";
@@ -783,7 +784,7 @@ export class CivicActivity extends Activity {
         name: "Build Structure",
         description: "This settlement has an idea!",
         preprompt: (activity) => {return Maker.tag("div",
-          Maker.tag("div", "What would you like to build? ", Maker.tag("input", {name: "structure"})),
+          Maker.tag("div", "What would you like to build? ", Maker.tag("input", {list: "available-structures", name: "structure"})),
           p(`Add building's cost to the DC`),
           activity.modOneAnd(`Pay with {by} {ability}`, {prompt: "Before you roll, supply building costs:"}),
         )},
@@ -801,7 +802,7 @@ export class CivicActivity extends Activity {
         success() {
           let structureName = this.structureName();
           this.log(`🏛️ You built the ${this.structureName()}!`);
-          this.actor.powerups.push({name: structureName});
+          this.actor.powerups.push(new Structure(structureName));
 
           this.log("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
           this.log("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");

@@ -9,6 +9,10 @@ export class DomainLeader {
 
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet?.data?.turns?.last() }
+
+  get isLeader() { return this.domainSheet.data.leaders.find(l => l.id == this.id) }
+  get isSettlement() { return this.domainSheet.data.settlements.find(l => l.id == this.id) }
+
   get activitesTaken() { return this.currentTurn?.entries?.filter(e => e.actorId === this.id) || [] }
   set activitesTaken(value) { /* ignore */ }
   get activitiesLeft() { return this.activitiesPerTurn + this.bonusActivities - this.activitesTaken.length }
