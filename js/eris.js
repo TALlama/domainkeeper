@@ -34,7 +34,7 @@ export class Eris {
     if (Eris.runImmediately) {
       fn();
     } else {
-      document.addEventListener("DOMContentLoaded", (event) => fn());
+      document.addEventListener("DOMContentLoaded", (event) => setTimeout(() => fn(), 1));
     }
   }
 
@@ -108,7 +108,7 @@ export class ErisAssertions {
 
   true(condition, failMessage, passMessage) { this.reporter.tick(condition, condition ? passMessage : failMessage) }
   false(condition, failMessage, passMessage) { this.true(!condition, passMessage, failMessage) }
-  equals(actual, expected) { this.true(actual === expected, `Expected ${expected} but got ${actual}`) }
+  equals(actual, expected) { this.true(Array.eql(actual, expected) || actual === expected, `Expected ${expected} but got ${actual}`) }
   jsonEquals(actual, expected) { this.equals(JSON.stringify(actual), JSON.stringify(expected)) }
   includedIn(actual, expectedIn) { this.true(expectedIn.includes(actual), `Expected ${actual} to be in ${expectedIn}`) }
   expectError(callback, errorClass) {

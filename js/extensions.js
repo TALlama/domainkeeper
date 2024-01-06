@@ -13,10 +13,12 @@ Array.prototype.toDictionary = Array.prototype.toDictionary || function(fn) {
   });
   return retval;
 }
+Array.eql = Array.eql || function(a, b) {
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((e, ix) => b[ix] === e);
+}
 
-
-Eris.test("Array extensions", string => {
-  string.describe("random", fn => {
+Eris.test("Array extensions", array => {
+  array.describe("random", fn => {
     fn.it("gets one of the items in the array", ({assert}) =>
       assert.includedIn([1, 2, 3].random(), [1, 2, 3])
     );
@@ -27,7 +29,7 @@ Eris.test("Array extensions", string => {
       assert.equals([].random(), undefined)
     );
   });
-  string.describe("first", fn => {
+  array.describe("first", fn => {
     fn.it("gets the first item in the array", ({assert}) =>
       assert.equals([1, 2, 3].first(), 1)
     );
@@ -35,7 +37,7 @@ Eris.test("Array extensions", string => {
     assert.equals([].first(), undefined)
     );
   });
-  string.describe("last", fn => {
+  array.describe("last", fn => {
     fn.it("gets the last item in the array", ({assert}) =>
       assert.equals([1, 2, 3].last(), 3)
     );
@@ -43,7 +45,7 @@ Eris.test("Array extensions", string => {
       assert.equals([].last(), undefined)
     );
   });
-  string.describe("count", fn => {
+  array.describe("count", fn => {
     fn.it("counts the items that match", ({assert}) => {
       assert.equals([1, 2, 3].count(i => i % 2 == 0), 1);
       assert.equals([1, 2, 3].count(i => i % 2 == 1), 2);
@@ -56,7 +58,7 @@ Eris.test("Array extensions", string => {
       assert.expectError(() => [1, 2, 3].count(), "TypeError")
     );
   });
-  string.describe("toDictionary", fn => {
+  array.describe("toDictionary", fn => {
     fn.it("uses each element as a key/value pair", ({assert}) => {
       assert.jsonEquals([["one", 1], ["two", 2]].toDictionary(), {one: 1, two: 2});
     });
@@ -69,6 +71,30 @@ Eris.test("Array extensions", string => {
         assert.jsonEquals(["one", "two", "three"].toDictionary(e => [e, e.length]), {one: 3, two: 3, three: 5});
       });
     })
+  });
+  array.describe("equality", makeSure => {
+    makeSure.it("knows when things are equal",
+      ({assert}) => assert.true(Array.eql([1, 2, 3], [1, 2, 3])));
+    makeSure.it("knows that empty arrays are equal",
+      ({assert}) => assert.true(Array.eql([], [])));
+    makeSure.it("knows that empty arrays are equal to a `new Array`",
+      ({assert}) => assert.true(Array.eql([], new Array())));
+
+    makeSure.it("never things non-arrays are equal", ({assert}) => {
+      assert.false(Array.eql("1,2", [1, 2]));
+      assert.false(Array.eql([1, 2], "1,2"));
+      assert.false(Array.eql([1, 2], [1, 2].toDictionary(e => [e - 1, e])));
+    });
+    makeSure.it("isn't equal if it has a different length", ({assert}) => {
+      assert.false(Array.eql([1, 2, 3, 4], [1, 2, 3]));
+      assert.false(Array.eql([1, 2, 3], [1, 2, 3, 4]));
+    });
+    makeSure.it("isn't equal even if the extra element is null", ({assert}) =>
+      assert.false(Array.eql([1, 2, 3, null], [1, 2, 3])));
+    makeSure.it("isn't equal even if the extra element is undefined", ({assert}) =>
+      assert.false(Array.eql([1, 2, 3, undefined], [1, 2, 3])));
+    makeSure.it("cares about order", ({assert}) =>
+      assert.false(Array.eql([3, 2, 1], [1, 2, 3, 4])));
   });
 });
 
