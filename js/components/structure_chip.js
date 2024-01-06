@@ -30,7 +30,7 @@ export class StructureChip extends RxElement {
         ${(structure.traits || []).map(t => `<span class="badge">${t}</span>`).join("")}
       </ul>
       <p class="description">${structure.description}</p>
-      <ul class="bonuses">${(structure.bonuses || []).map(b => `<li>${b}</li>`).join("")}</ul>
+      <ul class="bonuses">${(structure.bonuses || []).map(b => `<li>${this.renderBonus(b)}</li>`).join("")}</ul>
       <hr/>
       <p class="effects">${structure.effects}</p>
 
@@ -39,6 +39,10 @@ export class StructureChip extends RxElement {
         <button data-action="hideDetails">Close</button>
       </section>
     </sl-dialog>`;
+  }
+
+  renderBonus(bonus) {
+    return `+${bonus.value} to ${bonus.toActivity} using ${bonus.ability || "any ability"}`;
   }
 
   renderDestroyButton() {

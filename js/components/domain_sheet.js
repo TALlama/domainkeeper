@@ -17,6 +17,14 @@ class DomainSheet extends RxElement {
     let actorPicker = this.searchParams.get("actor");
     let actor = this.actors.find(a => a.name === actorPicker || a.id === actorPicker);
     if (actor) { this.data.currentActorId = actor.id }
+
+    // For debuging: put ?structures=all in the URL to give Capital one of each
+    if (this.searchParams.get("structures") === "all") {
+      let capital = this.data.settlements[0];
+      Structure.names.forEach(n =>
+        capital.powerups.push(new Structure(n))
+      );
+    };
   }
 
   doSaveData() {
