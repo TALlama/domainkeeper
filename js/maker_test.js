@@ -1,7 +1,7 @@
-import {Eris} from "./eris.js";
+import { Eris } from "./eris.js";
 
 Eris.test("Maker", maker => {
-  maker.let("attached", () => Maker.tag("div", {class: "debug", appendTo: document.body}));
+  maker.letElement("attached", () => Maker.tag("div", {class: "debug", appendTo: document.body}));
 
   maker.describe("tags", fn => {
     fn.it("makes tags, adds content", ({assert}) =>

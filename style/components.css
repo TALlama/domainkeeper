@@ -2,8 +2,8 @@
   :root {
     --color-selected-bg: hsl(120, 90%, 90%);
 
-    --color-leadership-activity-bg: orange;
-    --color-civic-activity-bg: lightblue;
+    --color-leadership-bg: orange;
+    --color-civic-bg: lightblue;
     --color-event-bg: red;
 
     --color-critical-success-bg: lch(65% 55 150);
@@ -13,6 +13,41 @@
 
     --header-bg: black;
     --subheader-bg: lightgrey;
+  }
+
+  ability-roll {
+    --modifier-width: 1.5rem;
+
+    display: inline-grid;
+    grid-template-areas:
+      "ability modifier"
+      "bonuses bonuses ";
+    grid-template-rows: 1rem 1fr;
+    grid-template-columns: 1fr var(--modifier-width);
+    
+    .ability {
+      grid-area: ability;
+    }
+
+    .modifier {
+      grid-area: modifier;
+      margin-left: auto;
+    }
+
+    .modifier-breakdown {
+      grid-area: bonuses;
+      font-size: var(--step--2);
+      align-self: start;
+      text-align: end;
+      display: none;
+
+      &:has(:nth-child(2)) { display: block }
+
+      .modifier-contribution {
+        display: inline-block;
+        width: var(--modifier-width);
+      }
+    }
   }
 
   domain-sheet {
@@ -145,12 +180,14 @@
       }
     }
 
-    domain-activity-log {
-      > domain-activity-picker { display: none; }
-    }
+    activity-picker { display: none; }
   }
 
   actor-sheet {
+    &:has(activity-picker[open]) {
+      box-shadow: 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg);
+    }
+
     h3 {
       display: flex;
       background-color: black;
@@ -190,42 +227,6 @@
       }
     }
 
-    > domain-activity-picker {
-      > .activities-list {
-        display: grid;
-        align-items: flex-end;
-        grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
-        gap: var(--internal-margin);
-        align-items: stretch;
-
-        + h4 { margin-top: var(--external-margin) }
-      }
-
-      h4 {
-        font-weight: 600;
-      }
-
-      > .leadership-activities {
-        --button-bg: var(--color-leadership-activity-bg);
-      }
-
-      > .civic-activities {
-        --button-bg: var(--color-civic-activity-bg);
-      }
-
-      > .end-turn {
-        margin-top: var(--external-margin);
-      }
-
-      > .end-turn-pending {
-        --button-bg: white;
-      }
-      
-      > .end-turn-ready {
-        --button-bg: green;
-      }
-    }
-
     .consumables {
       display: flex;
       flex-wrap: wrap;
@@ -242,6 +243,10 @@
     }
 
     > .entries {
+      display: flex;
+      flex-direction: column;
+      gap: var(--external-margin);
+
       > .turn-marker {
         display: flex;
         background: linear-gradient(to bottom, transparent, transparent 45%, grey 50%, transparent 55%, transparent);
@@ -253,113 +258,205 @@
           padding: var(--internal-margin);
         }
       }
+    }
+  }
 
-      > .entry {
-        --bg: grey;
-        --outcome-bg: var(--bg);
-        --description-bg: var(--subheader-bg);
+  activity-picker {
+    display: block;
 
-        &[data-type="leadership-activity"] { --bg: var(--color-leadership-activity-bg); }
-        &[data-type="civic-activity"] { --bg: var(--color-civic-activity-bg); }
-        &.event { --bg: var(--color-event-bg) }
+    > .activities-list {
+      display: grid;
+      align-items: flex-end;
+      grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+      gap: var(--internal-margin);
+      align-items: stretch;
 
-        &[data-outcome="critical-success"] { --outcome-bg: var(--color-critical-success-bg); }
-        &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
-        &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
-        &[data-outcome="critical-failure"] { --outcome-bg: var(--color-critical-failure-bg); }
+      + h4 { margin-top: var(--external-margin) }
+    }
 
-        border: 3px solid var(--bg);
-        border-top-color: var(--outcome-bg);
-        border-left-color: var(--outcome-bg);
-        display: grid;
-        grid-template-areas:
-          "header     "
-          "description"
-          "body       ";
+    h4 {
+      font-weight: 600;
+    }
 
-        &:has(> .icon) {
-          grid-template-columns: 1fr 4rem;
-          grid-template-areas:
-            "header      icon"
-            "description icon"
-            "body        body";
+    > .leadership-activities {
+      --button-bg: var(--color-leadership-bg);
+    }
+
+    > .civic-activities {
+      --button-bg: var(--color-civic-bg);
+    }
+
+    > .end-turn {
+      margin-top: var(--external-margin);
+    }
+
+    > .end-turn-pending {
+      --button-bg: white;
+    }
+    
+    > .end-turn-ready {
+      --button-bg: green;
+    }
+  }
+
+  activity-sheet {
+    --bg: grey;
+    --outcome-bg: var(--bg);
+    --summary-bg: var(--subheader-bg);
+
+    &[data-type="leadership"] { --bg: var(--color-leadership-bg); }
+    &[data-type="civic"] { --bg: var(--color-civic-bg); }
+    &.event { --bg: var(--color-event-bg) }
+
+    &[data-outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
+    &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
+    &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
+    &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
+
+    border: 3px solid var(--bg);
+    border-top-color: var(--outcome-bg);
+    border-left-color: var(--outcome-bg);
+    position: relative;
+    display: grid;
+    grid-template-areas:
+      "header     "
+      "summary"
+      "body       ";
+
+    &:has(> .icon) {
+      grid-template-columns: 1fr 4rem;
+      grid-template-areas:
+        "header      icon"
+        "summary     icon"
+        "body        body";
+    }
+
+    &:not([resolved]) {
+      box-shadow: 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg);
+    }
+
+    > header {
+      grid-area: header;
+      display: flex;
+      align-items: baseline;
+      background: linear-gradient(to right in lch, var(--outcome-bg) 60%, var(--bg));
+      border-bottom: 1px solid var(--bg);
+      padding: var(--internal-margin);
+
+      > small {
+        font-size: var(--step--1);
+        margin-left: var(--internal-margin);
+        opacity: 0.8;;
+      }
+    }
+
+    .cancel-activity {
+      margin-left: auto;
+    }
+
+    &[name="Build Structure"] {
+      activity-decision-panel[name="Pick a structure"] {
+        .pickable-group {
+          --min-item-width: 15em;
+
+          max-height: clamp(10em, 30vh, 30em);
+          overflow: scroll;
         }
 
-        > header {
-          grid-area: header;
-          display: flex;
-          align-items: baseline;
-          background: linear-gradient(140deg, var(--outcome-bg), var(--bg));
-          border-bottom: 1px solid var(--bg);
+        header structure-description {
+          background: var(--color-selected-bg);
+          margin: var(--internal-margin) 0;
           padding: var(--internal-margin);
-
-          > small {
-            font-size: var(--step--1);
-            margin-left: var(--internal-margin);
-            opacity: 0.8;;
-          }
-        }
-
-        .cancel-activity {
-          margin-left: auto;
-        }
-        &:has(.pick-ability input:checked, .outcome input:checked) .cancel-activity { display: none }
-
-        &:has(.pick-ability input:checked) difficulty-class .mods {
-          pointer-events: none;
-
-          label:not(.base, :has(input:checked)), .other {
-            --button-bg: white;
-            --button-color: hsl(0, 0%, 60%);
-            --button-border-color: hsl(0, 0%, 80%);
-          }
-        }
-
-        > .icon {
-          grid-area: icon;
-          font-size: var(--step-5);
-          background: var(--bg);
-          padding: var(--internal-margin);
-        }
-
-        > .description {
-          grid-area: description;
-          background: var(--description-bg);
-          border-bottom: 1px solid var(--description-bg);
-          padding: var(--internal-margin);
-          font-size: var(--step--1);
-        }
-
-        > .body {
-          grid-area: body;
-          padding: var(--internal-margin);
-
-          h1, h2, h3, h4, h5, h6 {
-            background: var(--description-bg);
-            border-bottom: 1px solid var(--description-bg);
-            padding: var(--internal-margin);
-            margin: var(--external-margin) calc(-1 * var(--internal-margin));
-            font-size: var(--step--1);
-          }
-        }
-
-        .pick-ability {
-          .modifier {
-            margin-left: var(--internal-margin);
-          }
-
-          .modifier-breakdown {
-            padding-top: var(--internal-margin);
-            font-size: var(--step--2);
-
-            &:empty { display: none }
-          }
-        }
-
-        + .entry {
-          margin-top: var(--external-margin);
         }
       }
+    }
+
+    &:has(.pick-ability input:checked) difficulty-class .mods {
+      pointer-events: none;
+
+      label:not(.base, :has(input:checked)), .other {
+        --button-bg: white;
+        --button-color: hsl(0, 0%, 60%);
+        --button-border-color: hsl(0, 0%, 80%);
+      }
+    }
+
+    > .icon {
+      grid-area: icon;
+      font-size: var(--step-5);
+      background: var(--bg);
+      padding: var(--internal-margin);
+    }
+
+    > .summary {
+      grid-area: summary;
+      background: var(--summary-bg);
+      border-bottom: 1px solid var(--summary-bg);
+      padding: var(--internal-margin);
+      font-size: var(--step--1);
+    }
+
+    > .body {
+      grid-area: body;
+
+      h1, h2, h3, h4, h5, h6, header {
+        --vertical-margin: var(--external-margin);
+
+        background: linear-gradient(to right in lch, var(--outcome-bg) 60%, var(--bg));
+        border-bottom: 1px solid var(--outcome-bg);
+        padding: var(--internal-margin);
+        margin: var(--vertical-margin) 0;
+        font-size: var(--step--1);
+      }
+
+      > .description {
+        padding: var(--internal-margin);
+
+        h1, h2, h3, h4, h5, h6, header {
+          margin-inline: calc(-1 * var(--internal-margin));
+        }
+      }
+
+      activity-decision-panel {
+        display: block;
+
+        &:not([resolved]) {
+          padding: 0 var(--internal-margin);
+
+          h1, h2, h3, h4, h5, h6, header {
+            margin-inline: calc(-1 * var(--internal-margin));
+          }
+        }
+
+        &[resolved] {
+          padding: 0;
+
+          header, + .log header{
+            --vertical-margin: 0;
+          }
+        }
+      }
+    }
+
+    .log {
+      display: none;
+      &:has(ol li:not(.debug)) { display: block }
+
+      .log-entry {
+        --level-color: transparent;
+        padding: var(--internal-margin);
+        padding-left: var(--external-margin);
+        background: linear-gradient(to right, var(--level-color), white var(--internal-margin));
+        box-shadow: inset 0 0 var(--small-margin) var(--level-color);
+
+        &.debug { --level-color: pink }
+        &.warning { --level-color: orange }
+        &.error { --level-color: red }
+      }
+    }
+
+    + .entry {
+      margin-top: var(--external-margin);
     }
   }
 
@@ -441,13 +538,13 @@
     border-top: var(--internal-margin) solid var(--outcome-bg);
     border-bottom: var(--internal-margin) solid var(--type-bg);
 
-    &[data-outcome="critical-success"] { --outcome-bg: var(--color-critical-success-bg); }
+    &[data-outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
     &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
     &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
-    &[data-outcome="critical-failure"] { --outcome-bg: var(--color-critical-failure-bg); }
+    &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
-    &[data-type="leadership-activity"] { --type-bg: var(--color-leadership-activity-bg); }
-    &[data-type="civic-activity"] { --type-bg: var(--color-civic-activity-bg); }
+    &[data-type="leadership"] { --type-bg: var(--color-leadership-bg); }
+    &[data-type="civic"] { --type-bg: var(--color-civic-bg); }
   }
 
   button .modifier {
@@ -482,8 +579,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--min-item-width), 1fr));
 
-    &.pick-structure { --min-item-width: 15em }
-
     :is(label.pickable) {
       &:has(input:checked), &:hover {
         --button-bg: var(--color-selected-bg);
@@ -505,6 +600,21 @@
         --button-border-color: hsl(0, 0%, 80%);
       }
     }
+
+    .pickable:has(ability-roll) {
+      display: inline-flex;
+      padding: 0;
+
+      ability-roll {
+        padding: var(--internal-margin);
+        flex-grow: 1;
+      }
+    }
+
+    .pickable:has(input[value="criticalSuccess"]):hover { --button-bg: var(--color-critical-success-bg) }
+    .pickable:has(input[value="success"]):hover { --button-bg: var(--color-success-bg) }
+    .pickable:has(input[value="failure"]):hover { --button-bg: var(--color-failure-bg) }
+    .pickable:has(input[value="criticalFailure"]):hover { --button-bg: var(--color-critical-failure-bg) }
   }
 
   difficulty-class {

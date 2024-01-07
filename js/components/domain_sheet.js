@@ -1,8 +1,9 @@
-import {Actor} from "../models/actor.js";
-import {Ability} from "../models/abilities.js";
-import {Structure} from "../models/structure.js";
+import { Ability } from "../models/abilities.js";
+import { Activity } from "../models/activity.js";
+import { Actor } from "../models/actor.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
+import { RxElement } from "./rx_element.js";
 
 class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }
@@ -87,11 +88,17 @@ class DomainSheet extends RxElement {
     "leaders settlements".split(" ").forEach(key => {
       saved[key] = saved[key].map(attrs => new Actor(attrs));
     });
+    saved.turns.forEach(turn => {
+      turn.entries = turn.entries.map(attrs => new Activity(attrs));
+    })
 
     return saved;
   }
 
   get activityLog() { return document.querySelector("domain-activity-log") }
+  get activities() { return this.data.turns.flatMap(t => t.entries) }
+  activity(activityId) { return this.activities.find(a => a.id === activityId) }
+  activitiesWhere(pattern) { return this.activities.matches(pattern) }
 
   get abilitiesList() { return this.$(".abilities") }
   get statsList() { return this.$(".stats") }
@@ -174,7 +181,13 @@ class DomainSheet extends RxElement {
     if (actorId) { this.data.currentActorId = actorId }
   }
 
-  max(ability) { return 5 }
+  max(stat) {
+    stat = stat.toLocaleLowerCase();
+
+    if (Ability.all.map(a => a.toLocaleLowerCase()).includes(stat)) { return 5 }
+    if ("unrest level".split(" ").includes(stat)) { return 20 }
+    return 999;
+  }
 
   get leadershipActivitiesLeft() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
   get civicActivitiesLeft() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesLeft, 0) }
@@ -210,6 +223,7 @@ class DomainSheet extends RxElement {
   }
 
   get currentTurn() { return this.data.turns.last() }
+  get previousTurn() { let turns = this.data.turns || []; return turns[turns.length - 2]; }
   get currentActor() { return this.readyActor(this.data.currentActorId) || this.readyActors.first() }
 
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
@@ -220,7 +234,7 @@ class DomainSheet extends RxElement {
   structure(structureId) { return this.structures.find(s => s.id === structureId) }
   get structures() { return this.actors.flatMap(a => a.powerups) }
 
-  findBonuses(pattern) { return this.bonuses.matches(pattern) }
+  findBonuses({ability, ...pattern}) { return this.bonuses.matches(pattern).filter(b => !b.ability || b.ability === ability).sortBy("-value") }
   get bonuses() { return this.structures.flatMap(s => (s.bonuses || []).map(b => { return {...b, structure: s}})) }
 
   addFame() {
@@ -228,7 +242,7 @@ class DomainSheet extends RxElement {
     if (existing.length < 3) {
       this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
     } else {
-      this.log(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
+      this.info(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
       this.data.xp += 100;
     }
   }
@@ -267,17 +281,6 @@ class DomainSheet extends RxElement {
     };
   }
 
-  abilityScoresWithDiffs(baseline, newValues = this.abilityScores) {
-    let retval = {};
-    Object.keys(newValues).forEach((ability) => {
-      let value = newValues[ability];
-      let diff = value - baseline[ability];
-      let signClass = diff > 0 ? "diff-positive" : (diff < 0 ? "diff-negative" : "diff-flat");
-      retval[ability] = [value, Maker.tag("span", {class: `metadata diff ${signClass}`}, `${diff >= 0 ? "+" : ""}${diff}`)];
-    });
-    return retval;
-  }
-
   get statScores() {
     return {
       Unrest: this.data.unrest,
@@ -287,9 +290,7 @@ class DomainSheet extends RxElement {
     };
   }
 
-  log(message) {
-    this.activityLog?.currentActivity?.log(message);
-  }
+  info(message) { this.activityLog?.currentActivity?.info(message) }
 
   modify({by}, names) {
     names.forEach(name => {
@@ -300,7 +301,7 @@ class DomainSheet extends RxElement {
       let overage = target - max;
       this.data[key] = Math.min(max, target);
       if (overage > 0) {
-        this.log(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
+        this.info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
         this.data.xp += overage * 50;
       }
     })
@@ -327,8 +328,10 @@ class DomainSheet extends RxElement {
     let modifierValue = (modifier ? this.data[modifier.toLocaleLowerCase()] : 0);
     let levelValue = (level === false ? 0 : this.data.level);
 
-    let components = [[modifier, modifierValue], ["Level", levelValue], ["Unrest", this.unrestModifier]];
+    let components = [[modifier, modifierValue]];
     itemBonus && components.push(["Item", itemBonus]); // TODO it'd be nice to name the source
+    components.push(["Level", levelValue]);
+    components.push(["Unrest", this.unrestModifier]);
     let modifierTotal = 0;
 
     let header = Maker.tag("h6");

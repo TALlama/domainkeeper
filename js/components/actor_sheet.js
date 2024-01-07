@@ -1,7 +1,9 @@
-import {Structure} from "../models/structure.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
-import {StructureChip} from "./structure_chip.js";
+import { nudge } from "./event_helpers.js";
+import { ActivityPicker } from "./activity_picker.js";
+import { RxElement } from "./rx_element.js";
+import { StructureChip } from "./structure_chip.js";
 
 export class ActorSheet extends RxElement {
   connectedCallback() {
@@ -13,6 +15,8 @@ export class ActorSheet extends RxElement {
   get currentTurn() { return this.domainSheet.currentTurn }
   get actor() { return this.domainSheet.currentActor }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     if (!this.actor) { return this.renderNoActor() }
 
@@ -23,7 +27,7 @@ export class ActorSheet extends RxElement {
     return `<h3>
       All activities for the turn have been taken.
       <span class='badge'>0 activities left</span>
-    </h3>`
+    </h3>${this.renderBody()}`
   }
 
   renderHeader() {
@@ -42,12 +46,18 @@ export class ActorSheet extends RxElement {
   }
 
   renderBody() {
-    if (!this.actor.isSettlement) { return `` }
+    let content = ``;
+
+    if (this.actor?.isSettlement) {
+      content = `
+        <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
+        ${this.renderStructureControls()}`;
+    }
 
     return `<article>
-      <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
-      ${this.renderStructureControls()}
-    </article>`
+      ${content}
+      <activity-picker></activity-picker>
+    </article>`;
   }
 
   renderPowerup(powerup) {
@@ -74,7 +84,7 @@ export class ActorSheet extends RxElement {
     let nameInput = form?.querySelector(`input[name="name"]`);
     let structureName = nameInput?.value;
     if (structureName) {
-      // TODO log this
+      nudge(this, (activity) => activity.info(`🏦 Structure added: ${structureName}`));
       this.actor.powerups.push(new Structure(structureName));
       nameInput.value = "";
     }

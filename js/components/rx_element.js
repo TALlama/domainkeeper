@@ -1,3 +1,5 @@
+import { fire } from "./event_helpers.js";
+
 export class RxElement extends HTMLElement {
   $ = this.querySelector;
   $$ = this.querySelectorAll;
@@ -8,6 +10,13 @@ export class RxElement extends HTMLElement {
       let handler = this[actionTarget.dataset.action];
       handler?.call(this, event, {actionTarget});
     }
+  }
+
+  fire(...args) { fire(this, ...args) }
+
+  setAttributeBoolean(name, present = this[name]) {
+    present ? this.setAttribute(name, "") : this.removeAttribute(name);
+    return present;
   }
 
   get url() { return this._url ?? new URL(document.location) }

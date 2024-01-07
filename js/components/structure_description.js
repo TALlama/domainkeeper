@@ -1,6 +1,6 @@
-import {Structure} from "../models/structure.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
+import { RxElement } from "./rx_element.js";
 
 export class StructureDescription extends RxElement {
   constructor(structure) {
@@ -21,6 +21,8 @@ export class StructureDescription extends RxElement {
     let structureId = this.structure.id;
     return this.domainSheet.actors.find(a => a.powerup(structureId));
   }
+
+  /////////////////////////////////////////////// Rendering
 
   render() {
     return `

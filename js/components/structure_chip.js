@@ -1,6 +1,7 @@
-import {Structure} from "../models/structure.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
+import { nudge } from "./event_helpers.js";
+import { RxElement } from "./rx_element.js";
 
 export class StructureChip extends RxElement {
   connectedCallback() {
@@ -16,6 +17,8 @@ export class StructureChip extends RxElement {
     let structureId = this.structure.id;
     return this.domainSheet.actors.find(a => a.powerup(structureId));
   }
+
+  /////////////////////////////////////////////// Rendering
 
   render() {
     return `
@@ -42,7 +45,7 @@ export class StructureChip extends RxElement {
   }
 
   renderBonus(bonus) {
-    return `+${bonus.value} to ${bonus.toActivity} using ${bonus.ability || "any ability"}`;
+    return `+${bonus.value} to ${bonus.activity} using ${bonus.ability || "any ability"}`;
   }
 
   renderDestroyButton() {
@@ -56,7 +59,7 @@ export class StructureChip extends RxElement {
 
   destroyStructure(event) {
     if (confirm("Really destroy? There is no undo!")) {
-      // TODO log this
+      nudge(this, (activity) => activity.error(`💥 Structure destroyed: ${this.structure.name}`));
       this.hideDetails(event);
       this.actor.removePowerup(this.structure);
     }

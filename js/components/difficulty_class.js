@@ -1,5 +1,6 @@
-import {mod} from "../helpers.js";
-import {RxElement} from "./rx_element.js";
+import { mod } from "../helpers.js";
+
+import { RxElement } from "./rx_element.js";
 
 export class DifficultyClass extends RxElement {
   connectedCallback() {
@@ -36,6 +37,8 @@ export class DifficultyClass extends RxElement {
   findOption(optionName) { return this.options.find(option => option.name === optionName) }
   checkOption(optionName) { this.findOption(optionName).checked = true }
   uncheckOption(optionName) { this.findOption(optionName).checked = false }
+
+  /////////////////////////////////////////////// Rendering
 
   render() {
     return `

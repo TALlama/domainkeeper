@@ -1,4 +1,4 @@
-import {RxElement} from "./rx_element.js";
+import { RxElement } from "./rx_element.js";
 
 class SaveSlots extends RxElement {
   static observedAttributes = ["rootkey"];

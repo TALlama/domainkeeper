@@ -1,6 +1,6 @@
-import {Structure} from "../models/structure.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
+import { RxElement } from "./rx_element.js";
 
 export class AvalableStructures extends RxElement {
   connectedCallback() {
@@ -8,12 +8,15 @@ export class AvalableStructures extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
-  get domainLevel() { return this.domainSheet.data.level }
+  get domainLevel() { return this.domainSheet?.data?.level || 0 }
 
   get templates() {
     let level = this.domainLevel;
     return Structure.templates.filter(t => t.level <= level);
   }
+  get names() { return this.templates.map(t => t.name) }
+
+  /////////////////////////////////////////////// Rendering
 
   render() {
     return `
