@@ -93,7 +93,6 @@
 
         .badge {
           margin-left: auto;
-          border: 1px solid black;
         }
 
         & + li {
@@ -364,6 +363,60 @@
     }
   }
 
+  structure-description {
+    display: grid;
+    gap: var(--internal-margin);
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name        name"
+      "traits      level"
+      "description description"
+      "bonuses     bonuses"
+      "effects     effects";
+    
+      font-weight: 400;
+    
+    > .name {
+      grid-area: name;
+      font-weight: 600;
+    }
+
+    > .level {
+      grid-area: level;
+      font-size: var(--step--1);
+    }
+    > .traits {
+      grid-area: traits;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--internal-margin);
+
+      &:empty { display: none }
+    }
+
+    > .description {
+      grid-area: description;
+
+      &:empty { display: none }
+    }
+    > .bonuses {
+      grid-area: bonuses;
+
+      &:empty { display: none }
+    }
+
+    > .effects {
+      grid-area: effects;
+
+      &:empty { display: none }
+
+      &:before {
+        content: "Effects: ";
+        font-weight: 600;
+      }
+    }
+  }
+
   .diff {
     margin-left: var(--internal-margin);
     &::before { content: "("}
@@ -423,9 +476,13 @@
   }
 
   .pickable-group {
+    --min-item-width: 10em;
+
     margin: var(--external-margin) 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--min-item-width), 1fr));
+
+    &.pick-structure { --min-item-width: 15em }
 
     :is(label.pickable) {
       &:has(input:checked), &:hover {
@@ -437,7 +494,7 @@
       border-left-width: 0;
     }
 
-    &:has(input:checked) {
+    &:not(.repickable):has(input:checked) {
       .pickable {
         pointer-events: none;
       }
@@ -512,6 +569,7 @@
     background: white;
     color: black;
     font-size: var(--step--2);
+    border: 1px solid black;
     border-radius: var(--internal-margin);
     padding: 0 var(--internal-margin);
 

@@ -8,6 +8,8 @@ import {RxElement} from "./rx_element.js";
 import {PickableGroup} from "./pickable_group.js";
 import {DifficultyClass} from "./difficulty_class.js";
 import {blockedTooltip} from "./blocked_tooltip.js";
+import {AvalableStructures} from "./available_structures.js";
+import {StructureDescription} from "./structure_description.js";
 
 export class Activity extends RxElement {
   constructor(properties) {
@@ -126,6 +128,7 @@ export class Activity extends RxElement {
   get usedAbility() { return this.dataset.usedAbility }
   set usedAbility(value) {
     this.dataset.usedAbility = this.record.usedAbility = value;
+    this.usedAbilitySet && this.usedAbilitySet();
   }
   get belowAbility() { return Ability.next(this.usedAbility) }
   get aboveAbility() { return Ability.previous(this.usedAbility) }
@@ -148,6 +151,7 @@ export class Activity extends RxElement {
   get outcome() { return this.dataset.outcome }
   set outcome(value) {
     this.dataset.outcome = this.record.outcome = value;
+    this.outcomeSet && this.outcomeSet();
   }
 
   get actorId() { return this.dataset.actorId }
@@ -811,12 +815,17 @@ export class CivicActivity extends Activity {
         name: "Build Structure",
         description: "This settlement has an idea!",
         preprompt: (activity) => {return Maker.tag("div",
-          Maker.tag("div", "What would you like to build? ", Maker.tag("input", {list: "available-structures", name: "structure"})),
+          Maker.tag("h4", "Select a building"),
+          new PickableGroup({
+            options: new AvalableStructures().templates.toDictionary(structure => [structure.name, new StructureDescription(structure)]),
+            parts: [{class: "pick-structure repickable"}],
+          }),
           p(`Add building's cost to the DC`),
           activity.modOneAnd(`Pay with {by} {ability}`, {prompt: "Before you roll, supply building costs:"}),
         )},
         abilities: ["Economy"],
-        structureName() { return this.$(`input[name="structure"]`)?.value || "structure" },
+        usedAbilitySet() { this.$(".pick-structure").classList.remove("repickable") },
+        structureName() { return this.$(".pick-structure input:checked")?.value || "Structure" },
         criticalSuccessDescription: `Build it; Boost a random Ability by 1`,
         successDescription: `Build it`,
         failureDescription: `Fail`,
