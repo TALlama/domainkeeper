@@ -1,7 +1,7 @@
 import {Ability} from "../models/abilities.js";
 
 import {RxElement} from "./rx_element.js";
-import {Activity, SystemActivity} from "./activity.js";
+import {ActivitySheet} from "./activity_sheet.js";
 import {PickableGroup} from "./pickable_group.js";
 import {DomainActivityPicker} from "./domain_activity_picker.js";
 
@@ -37,7 +37,7 @@ export default class DomainActivityLog extends RxElement {
 
     // For debugging; put `?activity=Some+Name` in the URL to auto-click it
     let activityFinder = this.searchParams.get("activity");
-    let focusedActivity = Activity.all.find(a => a.name === activityFinder);
+    let focusedActivity = ActivitySheet.all.find(a => a.name === activityFinder);
     focusedActivity && this.activity(focusedActivity);
   }
 
@@ -88,7 +88,7 @@ export default class DomainActivityLog extends RxElement {
   initialBoosts() {
     if (!this.domainSheet.data.abilityBoosts) { return; }
 
-    let activity = new SystemActivity({
+    let activity = new ActivitySheet({
       icon: "🌱",
       name: "Initial Boosts",
       description: "Starting stats",
@@ -180,11 +180,11 @@ export default class DomainActivityLog extends RxElement {
 
   doActivity(event, {actionTarget}) {
     let activityName = actionTarget.dataset.activity;
-    let activity = Activity.all.find(a => a.name == activityName);
+    let activity = ActivitySheet.all.find(a => a.name == activityName);
     activity && this.activity(activity);
   }
 
-  get currentActivity() { return this.entries.querySelector("leadership-activity, civic-activity") }
+  get currentActivity() { return this.entries.querySelector("activity-sheet") }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
@@ -201,7 +201,7 @@ export default class DomainActivityLog extends RxElement {
   }
 
   ruin() {
-    let activity = new SystemActivity({
+    let activity = new ActivitySheet({
       icon: "😢",
       name: "Ruin",
       description: "If Unrest is too high, random stats get reduced",
@@ -255,7 +255,7 @@ export default class DomainActivityLog extends RxElement {
         Maker.tag("p", "💾 Domain saved"),
         Maker.tag("h4", "What happened"),
         Maker.tag("div", {class: "entries-summary"}, summary.entries.map(entry =>
-          Maker.tag("a", Activity.icon(entry.name), {
+          Maker.tag("a", ActivitySheet.icon(entry.name), {
             href: "#",
             title: entry.name,
             class: `entry-summary`,

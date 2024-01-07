@@ -11,7 +11,7 @@ import {blockedTooltip} from "./blocked_tooltip.js";
 import {AvalableStructures} from "./available_structures.js";
 import {StructureDescription} from "./structure_description.js";
 
-export class Activity extends RxElement {
+export class ActivitySheet extends RxElement {
   constructor(properties) {
     super();
 
@@ -20,9 +20,7 @@ export class Activity extends RxElement {
     this.abilities ||= this.abilities || ["Culture", "Economy", "Loyalty", "Stability"];
 
     Maker.tag(this, {id: this.id, class: "entry activity"},
-      {"data-type": this.tagName.toLowerCase()},
-      {class: (LeadershipActivity === this.constructor ? "leadership-activity" : "")},
-      {class: (CivicActivity === this.constructor ? "civic-activity" : "")},
+      {"data-type": this.type},
       Maker.tag("header",
         this.name,
         Maker.tag("small", {class: "byline", rx: () => (this.actor ? `by ${this.actor.name}` : ``)}),
@@ -180,7 +178,7 @@ export class Activity extends RxElement {
   get record() {
     return this._record ||= reef.signal({
       id: this.id,
-      type: this.constructor.name.replace(/^./, l => l.toLowerCase()).replaceAll(/[A-Z]/g, l => `-${l.toLowerCase()}`),
+      type: this.type,
       name: this.name,
       usedAbility: this.usedAbility,
       outcome: this.outcome,
@@ -224,8 +222,8 @@ export class Activity extends RxElement {
 
   // Formatting options
   static tagged(tag, ...parts) { return Maker.tag("li", Maker.tag("strong", `${tag} `), ...parts) }
-  static prereq(...parts) { return Activity.tagged("Requirements", ...parts) }
-  static special(...parts) { return Activity.tagged("Special", ...parts) }
+  static prereq(...parts) { return ActivitySheet.tagged("Requirements", ...parts) }
+  static special(...parts) { return ActivitySheet.tagged("Special", ...parts) }
 
   pickOne(items, options) {
     let {prompt, appendTo, beforeItems, afterItems} = options;
@@ -275,7 +273,7 @@ export class Activity extends RxElement {
     </button>`
   }
 
-  static get all() { return [...LeadershipActivity.all, ...CivicActivity.all] }
+  static get all() { return [...this.leadershipActivities, ...this.civicActivities] }
   static icon(name) {
     this._allActivities ??= this.all;
     return this._allActivities.find(a => a.name === name)?.icon ?? {
@@ -283,19 +281,10 @@ export class Activity extends RxElement {
       "Initial Boosts": "🌱",
     }[name] ?? "❓";
   }
-}
 
-export class SystemActivity extends Activity {
-  get actorId() { return null }
-  set actorId(value) { }
-  get actor() { return null }
-}
-SystemActivity.define("system-activity");
-
-export class LeadershipActivity extends Activity {
-  static get all() {
+  static get leadershipActivities() {
     let {p, ol} = Maker;
-    let {tagged, prereq, special} = Activity;
+    let {tagged, prereq, special} = ActivitySheet;
     let hexMods = `Additional Modifier: Mountains: -4; Swamps: -3; Forests: -2; Hills: -1; Plains: -0. `;
     let hexDCOptions = [
       {name: "Mountains", value: 4},
@@ -306,7 +295,8 @@ export class LeadershipActivity extends Activity {
     ]
 
     return [
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🧭",
         name: "Reconnoiter Hex",
         description: "You hire a team to survey a particular hex.",
@@ -322,7 +312,8 @@ export class LeadershipActivity extends Activity {
         failure() { this.log("❌ You fail to reconnoiter the hex.") },
         criticalFailure() { this.log("💀 You catastrophically fail to reconnoiter the hex and several members of the party lose their lives."); this.boost("Unrest") },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "👷🏻‍♂️",
         name: "Clear Hex",
         description: "You lead the effort to clear out the dangers in an already-reconnoitered hex.",
@@ -351,7 +342,8 @@ export class LeadershipActivity extends Activity {
         failure() { this.log("❌ You fail to clear the hex.") },
         criticalFailure() { this.log("💀 You catastrophically fail to clear the hex and several workers lose their lives."); this.boost("Unrest") },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🎏",
         name: "Claim Hex",
         description: "You bring the cleared hex into the domain.",
@@ -386,7 +378,8 @@ export class LeadershipActivity extends Activity {
           this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🏃‍♂️",
         name: "Abandon Hex",
         description: "You renounce the domain's claim to a hex.",
@@ -421,7 +414,8 @@ export class LeadershipActivity extends Activity {
           this.boost("Unrest");
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🏙️",
         name: "Establish Settlement",
         description: "You coordinate the group that founds a new settlement.",
@@ -463,7 +457,8 @@ export class LeadershipActivity extends Activity {
         },
         criticalFailure() { this.log(`❌ You fail to establish the settlement`) },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🧎🏻‍♂️",
         name: "Pledge of Fealty",
         description: "You diplomatically invite another group to join the domain.",
@@ -494,7 +489,8 @@ export class LeadershipActivity extends Activity {
           this.boost({by: 2}, "Unrest");
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🛣️",
         name: "Build Infrastructure",
         description: "You organize the effort to tame the land.",
@@ -519,7 +515,8 @@ export class LeadershipActivity extends Activity {
           this.log("❌ The construction process is a failure.");
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "💡",
         name: "Creative Solution",
         description: "You plan ahead to make the next action more successful.",
@@ -542,7 +539,8 @@ export class LeadershipActivity extends Activity {
           this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "👨🏻‍🌾",
         name: "Work the Land",
         description: "You lead a party to harvest the bounty of this realm.",
@@ -568,7 +566,8 @@ export class LeadershipActivity extends Activity {
           this.boost("Unrest");
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🎄",
         name: "Celebrate Holiday",
         description: "You organize a festival where the populace can enjoy themselves.",
@@ -598,7 +597,8 @@ export class LeadershipActivity extends Activity {
           this.reduce(Ability.random);
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🥺",
         name: "Request Foreign Aid",
         description: "You entreat aid from a nation you already have diplomatic relations with.",
@@ -628,7 +628,8 @@ export class LeadershipActivity extends Activity {
           this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🎪",
         name: "Quell Unrest",
         description: "You entertain the populace.",
@@ -658,7 +659,8 @@ export class LeadershipActivity extends Activity {
           this.reduce(Ability.random);
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "👀",
         name: "Take Charge",
         description: "You visit a settlement to ensure vital work gets done.",
@@ -693,7 +695,8 @@ export class LeadershipActivity extends Activity {
           this.boost(["Stability", "Loyalty"].random());
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🚋",
         name: "Train Lieutenant",
         description: "You work with an NPC leader to increase their capacity.",
@@ -728,7 +731,8 @@ export class LeadershipActivity extends Activity {
           this.log(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🛡️",
         name: "Hire Adventurers",
         description: "You pay people to tackle an ongoing event.",
@@ -756,7 +760,8 @@ export class LeadershipActivity extends Activity {
           this.log(`🙊 Word spreads quickly through the region—you can no longer attempt to end this continuous event by Hiring Adventurers.`);
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🔮",
         name: "Prognostication",
         description: "You use the mystic arts to forsee future events and prepare for them.",
@@ -782,7 +787,8 @@ export class LeadershipActivity extends Activity {
           this.addConsumable({name: "Status: Ill-Prepared", description: "-1 Event Resolution (Circumstance bonus)"});
         },
       }),
-      new LeadershipActivity({
+      new ActivitySheet({
+        type: "leadership",
         icon: "🎨",
         name: "Create A Masterpiece",
         description: "You use the mystic arts to forsee future events and prepare for them.",
@@ -817,22 +823,20 @@ export class LeadershipActivity extends Activity {
       }),
     ]
   }
-}
-LeadershipActivity.define("leadership-activity");
-
-export class CivicActivity extends Activity {
-  static get all() {
+  static get civicActivities() {
     let {p, ol} = Maker;
 
     return [
-      new CivicActivity({
+      new ActivitySheet({
+        type: "civic",
         icon: "💰",
         name: "Contribute",
         description: "This settlement is hard at work.",
         prompt: "",
         possibleOutcomes: (ability) => ability.modOneAnd(`Increase {ability}`, {by: 1}),
       }),
-      new CivicActivity({
+      new ActivitySheet({
+        type: "civic",
         icon: "🚧",
         name: "Build Structure",
         description: "This settlement has an idea!",
@@ -876,5 +880,5 @@ export class CivicActivity extends Activity {
     ];
   }
 }
-CivicActivity.define("civic-activity");
+ActivitySheet.define("activity-sheet");
 

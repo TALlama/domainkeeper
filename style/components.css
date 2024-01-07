@@ -2,8 +2,8 @@
   :root {
     --color-selected-bg: hsl(120, 90%, 90%);
 
-    --color-leadership-activity-bg: orange;
-    --color-civic-activity-bg: lightblue;
+    --color-leadership-bg: orange;
+    --color-civic-bg: lightblue;
     --color-event-bg: red;
 
     --color-critical-success-bg: lch(65% 55 150);
@@ -206,11 +206,11 @@
       }
 
       > .leadership-activities {
-        --button-bg: var(--color-leadership-activity-bg);
+        --button-bg: var(--color-leadership-bg);
       }
 
       > .civic-activities {
-        --button-bg: var(--color-civic-activity-bg);
+        --button-bg: var(--color-civic-bg);
       }
 
       > .end-turn {
@@ -259,8 +259,8 @@
         --outcome-bg: var(--bg);
         --description-bg: var(--subheader-bg);
 
-        &[data-type="leadership-activity"] { --bg: var(--color-leadership-activity-bg); }
-        &[data-type="civic-activity"] { --bg: var(--color-civic-activity-bg); }
+        &[data-type="leadership"] { --bg: var(--color-leadership-bg); }
+        &[data-type="civic"] { --bg: var(--color-civic-bg); }
         &.event { --bg: var(--color-event-bg) }
 
         &[data-outcome="critical-success"] { --outcome-bg: var(--color-critical-success-bg); }
@@ -446,8 +446,8 @@
     &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
     &[data-outcome="critical-failure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
-    &[data-type="leadership-activity"] { --type-bg: var(--color-leadership-activity-bg); }
-    &[data-type="civic-activity"] { --type-bg: var(--color-civic-activity-bg); }
+    &[data-type="leadership"] { --type-bg: var(--color-leadership-bg); }
+    &[data-type="civic"] { --type-bg: var(--color-civic-bg); }
   }
 
   button .modifier {

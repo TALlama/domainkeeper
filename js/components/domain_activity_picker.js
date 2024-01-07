@@ -1,5 +1,5 @@
 import {RxElement} from "./rx_element.js";
-import {LeadershipActivity, CivicActivity} from "./activity.js";
+import {ActivitySheet} from "./activity_sheet.js";
 import {blockedTooltip} from "./blocked_tooltip.js";
 
 export class DomainActivityPicker extends RxElement {
@@ -29,8 +29,8 @@ export class DomainActivityPicker extends RxElement {
   render() {
     return `
       ${this.isLeader
-        ? this.renderActivityList(LeadershipActivity.all, this.domainSheet.leadershipActivitiesLeft, "leadership")
-        : this.isSettlement ? this.renderActivityList(CivicActivity.all, this.domainSheet.civicActivitiesLeft, "civic") : ""}
+        ? this.renderActivityList(ActivitySheet.leadershipActivities, this.domainSheet.leadershipActivitiesLeft, "leadership")
+        : this.isSettlement ? this.renderActivityList(ActivitySheet.civicActivities, this.domainSheet.civicActivitiesLeft, "civic") : ""}
       ${this.renderEndTurnButton()}`;
   }
 
