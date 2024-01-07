@@ -630,8 +630,12 @@ export class LeadershipActivity extends Activity {
       }),
       new LeadershipActivity({
         icon: "🎪",
-        name: "Bread and Circuses",
+        name: "Quell Unrest",
         description: "You entertain the populace.",
+        preprompt: [
+          p(`You organize and encourage your citizens' efforts on bringing the domain together.`),
+          p(`Depending on the ability used, this might take the form of a festival, competition, market day, circus, or other cooperative endeavor that brings people together. Perhaps your agents disperse through the citizenry to suppress dissent, or you hold a public trial. You could participate in baby-kissing and ribbon-cutting. Be creative!`),
+        ],
         criticalSuccessDescription: `Reduce Unrest; Gain Fame`,
         successDescription: `Reduce Unrest`,
         failureDescription: `Reduce Unrest; Reduce an Ability you pick by 1`,

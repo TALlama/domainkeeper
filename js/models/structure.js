@@ -41,7 +41,7 @@ export class Structure {
       level: 5,
       traits: ["Building"],
       description: `An arcanist’s tower is a home and laboratory for an arcane spellcaster (usually a wizard) and their apprentices, servants, and students.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 1}], // WAS +1 item bonus to Quell Unrest using Magic
+      bonuses: [{activity: "Quell Unrest", ability: "Culture", value: 1}], // WAS +1 item bonus to Quell Unrest using Magic
       effects: `Treat the settlement’s level as one level higher than its actual level for the purposes of determining which arcane magic items are readily available for sale in that settlement. This effect stacks up to three times. While in a settlement with an arcanist’s tower, you gain a +1 item bonus to checks made to Borrow an Arcane Spell or Learn a Spell.`,
     },
     {
@@ -50,7 +50,7 @@ export class Structure {
       traits: ["Ediface", "Yard"],
       description: `An Arena is a large public structure, traditionally open to the air, surrounded by seating and viewing areas. It’s used for staging competitions, athletics, gladiatorial combats, and elaborate entertainments and spectacles.`,
       bonuses: [
-        {activity: "Bread and Circuses", ability: "Loyalty", value: 2},
+        {activity: "Quell Unrest", ability: "Loyalty", value: 2},
         {activity: "Celebrate Holiday", ability: "Loyalty", value: 2},
       ], // WAS +2 item bonus to Celebrate Holiday and to Warfare checks made to Quell Unrest
       effects: `An arena lets you to retrain combat-themed feats more efficiently while in the settlement; doing so takes only 5 days rather than a week of downtime.`,
@@ -130,7 +130,7 @@ export class Structure {
       level: 5,
       traits: ["Building", "Ediface"],
       description: `Unlike a town hall or other seat of governmental power, a community center is the center for the socialization and common activities of the populace.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Loyalty", value: 1}], // WAS +1 to Quell Unrest and to all Loyalty-based kingdom skill checks
+      bonuses: [{activity: "Quell Unrest", ability: "Loyalty", value: 1}], // WAS +1 to Quell Unrest and to all Loyalty-based kingdom skill checks
     },
     {
       name: `Construction Yard`,
@@ -144,7 +144,7 @@ export class Structure {
       level: 8,
       traits: ["Building"],
       description: `This building has both a holding cell and an office space in which detectives can do their work.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Loyalty", value: 1}], // WAS +2 to Quell Unrest (Intrigue) and to Repair Reputation (Crime)
+      bonuses: [{activity: "Quell Unrest", ability: "Loyalty", value: 1}], // WAS +2 to Quell Unrest (Intrigue) and to Repair Reputation (Crime)
       effects: `The first time you build a detective agency each turn, reduce Crime by 1.`,
     },
     {
@@ -228,7 +228,7 @@ export class Structure {
       traits: ["Ediface", "Yard", "Fame", "Infamy"],
       description: `A gladiatorial arena is a sprawling open-air field surrounded by seating and viewing areas. It also includes extensive underground barracks and training facilities for gladiators to use.`,
       bonuses: [
-        {activity: "Bread and Circuses", ability: "Loyalty", value: 3},
+        {activity: "Quell Unrest", ability: "Loyalty", value: 3},
         {activity: "Celebrate Holiday", ability: "Loyalty", value: 3},
         {activity: "Hire Adventurers", value: 1},
       ], // WAS +3 to Celebrate Holiday, Hire Adventurers, or Quell Unrest (Warfare)
@@ -278,7 +278,7 @@ export class Structure {
       level: 1,
       traits: ["Building"],
       description: `An herbalist consists of small medicinal gardens tended by those with knowledge of herbs and their uses to heal or to harm, as well as a storefront for customers.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Stability", value: 1}], // WAS +1 item bonus to Provide Care
+      bonuses: [{activity: "Quell Unrest", ability: "Stability", value: 1}], // WAS +1 item bonus to Provide Care
       effects: `Treat the settlement’s level as one higher than usual for the purpose of determining which alchemical healing items are available for sale; this effect stacks with similar effects to a max of three levels higher than usual. When in a settlement with an herbalist, you gain a +1 item bonus to Medicine checks to Treat Disease and Treat Wounds.`,
     },
     {
@@ -287,8 +287,8 @@ export class Structure {
       traits: ["Building"],
       description: `A hospital is a building dedicated to healing the sick through both magical and mundane means.`,
       bonuses: [
-        {activity: "Bread and Circuses", value: 1},
-        {activity: "Bread and Circuses", ability: "Stability", value: 1},
+        {activity: "Quell Unrest", value: 1},
+        {activity: "Quell Unrest", ability: "Stability", value: 1},
       ], // WAS +2 to Provide Care; +1 to Quell Unrest
       effects: `Treat the settlement’s level as one higher than usual for the purpose of determining which healing items are available for sale; this effect stacks with similar effects to a max of three levels higher than usual. When in a settlement with an herbalist, you gain a +2 item bonus to Medicine checks to Treat Disease and Treat Wounds.`,
     },
@@ -328,7 +328,7 @@ export class Structure {
       level: 2,
       traits: ["Building"],
       description: `A jail is a fortified structure that houses criminals, prisoners, or dangerous monsters separate from the rest of society.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Loyalty", value: 1}], // WAS +1 item bonus to Quell Unrest using Intrigue
+      bonuses: [{activity: "Quell Unrest", ability: "Loyalty", value: 1}], // WAS +1 item bonus to Quell Unrest using Intrigue
       effects: `The first time you build a jail each a Kingdom turn, reduce Crime by 1.`,
     },
     {
@@ -348,7 +348,7 @@ export class Structure {
       level: 2,
       traits: ["Building"],
       description: `A library contains collections of books, scrolls, writings, and records conducive to research. Some libraries specialize in certain topics, but it’s best to assume these libraries are well-rounded in what books they cover`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 1}], // WAS +1 item bonus to Rest and Relax using Scholarship checks
+      bonuses: [{activity: "Quell Unrest", ability: "Culture", value: 1}], // WAS +1 item bonus to Rest and Relax using Scholarship checks
       effects: `While in a settlement with a library, you gain a +1 item bonus to Lore checks made to Recall Knowledge while Investigating, as well as to Researching (Gamemastery Guide 154), and to Decipher Writing.`,
     },
     {
@@ -403,7 +403,7 @@ export class Structure {
       level: 12,
       traits: ["Building", "Ediface"],
       description: `A menagerie is a large zoo that contains numerous enclosures, exhibits, tanks, or open preserves meant to display wildlife.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Stability", value: 2}], // WAS +2 item bonus to Rest and Relax using Wilderness
+      bonuses: [{activity: "Quell Unrest", ability: "Stability", value: 2}], // WAS +2 item bonus to Rest and Relax using Wilderness
       effects: `A menagerie typically contains a selection of level 5 or lower animals. If your party captures a living creature of level 6 or higher and can transport the creature back to a settlement with a menagerie, you can add that creature to the menagerie as long as your kingdom level is at least 4 higher than the creature’s level. Each time such a creature is added to a menagerie, gain 1 Fame or Infamy point (as appropriate) or reduce one Ruin of your choice by 1.\nOnly creatures with Intelligence modifiers of –4 or –5 are appropriate to place in a menagerie. A kingdom gains 1 Unrest at the start of a Kingdom turn for each sapient creature (anything with an Intelligence modifier of –3 or higher) on display in a menagerie.`,
     },
     {
@@ -443,7 +443,7 @@ export class Structure {
       level: 5,
       traits: ["Building", "Famous", "Infamous"],
       description: `A museum displays art, objects of important cultural note, wonders of the natural world, and other marvels in a place where citizens can observe and learn.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 1}], // WAS +1 item bonus to Rest and Relax using Arts
+      bonuses: [{activity: "Quell Unrest", ability: "Culture", value: 1}], // WAS +1 item bonus to Rest and Relax using Arts
       effects: `A magic item of level 6 or higher that has a particular import or bears significant historical or regional value (at the GM’s discretion) can be donated to a museum. Each time such an item is donated, reduce Unrest by 1. If that item is later removed from display, increase Unrest by 1.`,
     },
     {
@@ -459,7 +459,7 @@ export class Structure {
       level: 9,
       traits: ["Building", "Residential"],
       description: `This sprawling manor has luxurious grounds. It houses a noble family and their staff, and includes several smaller support structures such as servant’s quarters, stables, and groundskeeper’s cottages in addition to a manor.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Loyalty", value: 1}], // WAS +1 item bonus to Improve Lifestyle and to Quell Unrest using Politics
+      bonuses: [{activity: "Quell Unrest", ability: "Loyalty", value: 1}], // WAS +1 item bonus to Improve Lifestyle and to Quell Unrest using Politics
       effects: `The first time you build a noble villa each Kingdom turn, reduce Unrest by 2.`,
     },
     {
@@ -506,7 +506,7 @@ export class Structure {
       level: 3,
       traits: ["Yard"],
       description: `A park is a plot of undeveloped land set aside for public use. This lot could be left as is, or the landscaping could be manipulated to have a specific look or type of terrain.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Stability", value: 1}], // WAS +1 item bonus to Rest and Relax using Wilderness checks
+      bonuses: [{activity: "Quell Unrest", ability: "Stability", value: 1}], // WAS +1 item bonus to Rest and Relax using Wilderness checks
       effects: `The first time you build a park each Kingdom turn, reduce Unrest by 1.`,
     },
     {
@@ -549,7 +549,7 @@ export class Structure {
       level: 10,
       traits: ["Building", "Ediface"],
       description: `A printing house gives your citizens – and the PCs themselves – a place to create newspapers and books.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 2}], // WAS +2 to Quell Unrest and to Repair Reputation (Corruption, Strife)
+      bonuses: [{activity: "Quell Unrest", ability: "Culture", value: 2}], // WAS +2 to Quell Unrest and to Repair Reputation (Corruption, Strife)
       effects: `[Complete Linzi’s quest before this can be built] A PC in a settlement with a printing house gains a +2 item bonus to checks to Gather Information or to Research any topic which might appear in a library.`,
     },
     {
@@ -565,7 +565,7 @@ export class Structure {
       level: 5,
       traits: ["Yard"],
       description: `This untouched land has been blessed by primal spirits, druids friendly with your settlement, or allied fey creatures.`,
-      bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 1}], // WAS +1 item bonus to Quell Unrest using Folklore
+      bonuses: [{activity: "Quell Unrest", ability: "Culture", value: 1}], // WAS +1 item bonus to Quell Unrest using Folklore
       effects: `Treat the settlement’s level as one level higher than its actual level for the purposes of determining what primal magic items are readily available for sale in that settlement. This effect stacks up to three times.`,
     },
     {
@@ -685,7 +685,7 @@ export class Structure {
       description: `A temple is a building devoted to worshipping a deity or faith.`,
       bonuses: [
         {activity: "Celebrate Holiday", ability: "Culture", value: 1},
-        {activity: "Bread and Circuses", ability: "Culture", value: 1},
+        {activity: "Quell Unrest", ability: "Culture", value: 1},
       ], // WAS +1 item bonus to Celebrate Holiday and Provide Care
       effects: `The first time you build a temple each Kingdom turn, reduce Unrest by 2. Treat the settlement’s level as one level higher than its actual level for the purposes of determining what divine magic items are readily available for sale in that settlement. This effect stacks up to three times but does not stack with the same effect granted by shrines or cathedrals.`,
     },
