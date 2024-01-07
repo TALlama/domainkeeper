@@ -91,6 +91,13 @@ export class Structure {
       effects: `A bridge allows an island settlement to provide influence (see Influence on page 47), negates the Trade penalty for island settlements (see Land Borders on page 46), and allows travel over its associated Water Border with ease (see Navigating an Urban Grid on page 46). Bridges can only be built on Water Borders. When you build a bridge, check the “Bridge” box on one of the Water Borders on your Urban Grid to indicate its location.`,
     },
     {
+      name: `Builders' Lot`,
+      level: 3,
+      traits: ["Yard"],
+      description: `Dedicated builders live around and work from these lots, helping fix things up or keep new construction moving.`,
+      bonuses: [{activity: "Build Structure", value: 1}], // WAS +1 to Build a Structure and to Repair Reputation (Decay)
+    },
+    {
       name: `Castle`,
       level: 9,
       traits: ["Building", "Ediface", "Famous", "Infamous"],
@@ -119,11 +126,26 @@ export class Structure {
       effects: `Giving the citizens a place to bury and remember their departed loved ones helps to temper Unrest gained from dangerous events. If you have at least one cemetery in a settlement, reduce Unrest gained from any dangerous settlement events in that particular settlement by 1 (to a maximum of 4 for four cemeteries). The presence of a cemetery provides additional effects during certain kingdom events.`,
     },
     {
+      name: `Community Center`,
+      level: 5,
+      traits: ["Building", "Ediface"],
+      description: `Unlike a town hall or other seat of governmental power, a community center is the center for the socialization and common activities of the populace.`,
+      bonuses: [{activity: "Bread and Circuses", ability: "Loyalty", value: 1}], // WAS +1 to Quell Unrest and to all Loyalty-based kingdom skill checks
+    },
+    {
       name: `Construction Yard`,
       level: 10,
       traits: ["Yard"],
       description: `A construction yard supports the building of structures by providing a centralized place to gather supplies and craft components for larger projects.`,
       bonuses: [{activity: "Build Structure", value: 1}], // WAS +1 item bonus to Build Structure and to Repair Reputation (Decay)
+    },
+    {
+      name: `Detective Agency`,
+      level: 8,
+      traits: ["Building"],
+      description: `This building has both a holding cell and an office space in which detectives can do their work.`,
+      bonuses: [{activity: "Bread and Circuses", ability: "Loyalty", value: 1}], // WAS +2 to Quell Unrest (Intrigue) and to Repair Reputation (Crime)
+      effects: `The first time you build a detective agency each turn, reduce Crime by 1.`,
     },
     {
       name: `Dump`,
@@ -139,6 +161,34 @@ export class Structure {
       traits: ["Building"],
       description: `An embassy gives a place for diplomatic visitors to your kingdom to stay and bolsters international relations.`,
       bonuses: [{activity: "Request Foreign Aid", value: 1}], // TODO WAS +1 item bonus to Send Diplomatic Envoy and Request Foreign Aid
+    },
+    {
+      name: `Explorer's Guild`,
+      level: 10,
+      traits: ["Building"],
+      description: `This guild-hall boasts incredible trophies and luxurious interiors to suit even seasoned adventurers.`,
+      bonuses: [
+        {activity: "Hire Adventurers", value: 2},
+        {activity: "Abandon Hex", value: 2},
+        {activity: "Claim Hex", value: 2},
+        {activity: "Clear Hex", value: 2},
+        {activity: "Reconnoiter Hex", value: 2},
+      ], // TODO WAS +2 to Hire Adventurers and to Abandon, Claim, Clear, or Reconnoiter a Hex
+      effects: `The first time you build an exploration guild each turn, gain 1 Fame. Whenever you resolve a Monster Activity or similar kingdom event (at GM discretion), you gain 1 Fame at the start of the next kingdom turn.`,
+    },
+    {
+      name: `Explorer's Hall`,
+      level: 3,
+      traits: ["Building"],
+      description: `In addition to being a meeting space, this hall contains maps and trophies from local explorers and adventurers.`,
+      bonuses: [
+        {activity: "Hire Adventurers", value: 1},
+        {activity: "Abandon Hex", value: 1},
+        {activity: "Claim Hex", value: 1},
+        {activity: "Clear Hex", value: 1},
+        {activity: "Reconnoiter Hex", value: 1},
+      ], // TODO WAS +1 to Hire Adventurers and to Abandon, Claim, Clear, or Reconnoiter a Hex
+      effects: `The first time you build an exploration guild each turn, gain 1 Fame.`,
     },
     {
       name: `Festival Hall`,
@@ -173,6 +223,18 @@ export class Structure {
       effects: `A settlement without a general store or marketplace reduces its level for the purposes of determining what items can be purchased there by 2.`,
     },
     {
+      name: `Gladitorial Arena`,
+      level: 15,
+      traits: ["Ediface", "Yard", "Fame", "Infamy"],
+      description: `A gladiatorial arena is a sprawling open-air field surrounded by seating and viewing areas. It also includes extensive underground barracks and training facilities for gladiators to use.`,
+      bonuses: [
+        {activity: "Bread and Circuses", ability: "Loyalty", value: 3},
+        {activity: "Celebrate Holiday", ability: "Loyalty", value: 3},
+        {activity: "Hire Adventurers", value: 1},
+      ], // WAS +3 to Celebrate Holiday, Hire Adventurers, or Quell Unrest (Warfare)
+      effects: `A gladiatorial arena allows a PC in the settlement to retrain combat-themed feats (at the GM's discretion) more efficiently; doing so takes only 4 days rather than a week of downtime.`,
+    },
+    {
       name: `Granary`,
       level: 1,
       traits: ["Building"],
@@ -180,12 +242,36 @@ export class Structure {
       effects: `Each granary in your kingdom increases your maximum Food Commodity capacity by 1.`,
     },
     {
+      name: `Grand Bazaar`,
+      level: 13,
+      traits: ["Building", "Ediface", "Fame", "Infamy"],
+      description: `This sprawling marketplace is a true hub of trade.`,
+      // TODO bonuses: [{activity: "…", ability: "Loyalty", value: 1}], // WAS +3 to Establish Trade Agreement, Trade Commodities, or Purchase Commodities
+      effects: `A settlement with no general store, marketplace, or grand bazaar reduces its effective level for the purposes of determining what items can be purchased there by 2. The grand bazaar instead increases the settlement’s effective level for determining what items can be purchased by 2.`,
+    },
+    {
       name: `Guidhall`,
       level: 5,
       traits: ["Building"],
       description: `A guildhall serves as the headquarters for a trade guild or similar organization. It includes offices for its leaders and functionaries as well as workshops for its craftspeople and a storefront for customers. Guildhalls always specialize in a certain type of trade or pursuit, but typically, only the largest cities have multiple guildhalls. Smaller settlements tend to focus on one particular trade.`,
       // TODO bonuses: [{activity: "…", ability: "Loyalty", value: 1}], // WAS +1 item bonus to Economy skill checks associated with the guildhall’s specific trade focus
-      effects: `When you build a guildhall, indicate what sort of organization (such as bakers, grocers, smiths, etc.) it serves as a headquarters for. While in a settlement with a guildhall, you gain a +1 item bonus to all related skill checks to Earn Income or to Repair.`,
+      effects: `While in a settlement with a guildhall, you gain a +1 item bonus to skill checks to Earn Income or to Repair. In addition, increase the settlement’s effective level by 1 for the purpose of determining what level of items are available for sale.`,
+    },
+    {
+      name: `Harbor`,
+      level: 8,
+      traits: ["Yard"],
+      description: `A harbor serves as a bustling port for passengers and cargo. The harbor is supported by facilities for shipping and shipbuilding, but also features boardwalks for foot traffic and fishers to ply their trade.`,
+      // TODO bonuses: [{activity: "…", ability: "…", value: 1}], // WAS +2 to Go Fishing, Rest & Relax (Boating), and Establish Trade Agreement (Boating)
+      effects: `A harbor must be constructed next to a water border. A settlement with at least 1 harbor increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement; this bonus stacks with similar bonuses in the settlement.`,
+    },
+    {
+      name: `Harrow Reader`,
+      level: 3,
+      traits: ["Building"],
+      description: `This business employs magic to read auras, predict the future, and provide magical assistance with curses and similar mystical maleficium.`,
+      bonuses: [{activity: "Prognostication", value: 1}], // WAS +1 item bonus to Prognostication
+      effects: `While in a settlement with a harrow reader, you gain a +1 item bonus to checks made to Identify Magic, Learn a Spell, or Learn a Facet. This bonus is increased to +2 for divination magics and curses.`,
     },
     {
       name: `Herbalist`,
@@ -193,14 +279,18 @@ export class Structure {
       traits: ["Building"],
       description: `An herbalist consists of small medicinal gardens tended by those with knowledge of herbs and their uses to heal or to harm, as well as a storefront for customers.`,
       bonuses: [{activity: "Bread and Circuses", ability: "Stability", value: 1}], // WAS +1 item bonus to Provide Care
+      effects: `Treat the settlement’s level as one higher than usual for the purpose of determining which alchemical healing items are available for sale; this effect stacks with similar effects to a max of three levels higher than usual. When in a settlement with an herbalist, you gain a +1 item bonus to Medicine checks to Treat Disease and Treat Wounds.`,
     },
     {
       name: `Hospital`,
       level: 9,
       traits: ["Building"],
       description: `A hospital is a building dedicated to healing the sick through both magical and mundane means.`,
-      bonuses: [{activity: "Bread and Circuses", value: 1}], // WAS +1 item bonus to Provide Care and Quell Unrest
-      effects: `While in a settlement with a hospital, you gain a +2 item bonus to Medicine checks to Treat Disease and Treat Wounds.`,
+      bonuses: [
+        {activity: "Bread and Circuses", value: 1},
+        {activity: "Bread and Circuses", ability: "Stability", value: 1},
+      ], // WAS +2 to Provide Care; +1 to Quell Unrest
+      effects: `Treat the settlement’s level as one higher than usual for the purpose of determining which healing items are available for sale; this effect stacks with similar effects to a max of three levels higher than usual. When in a settlement with an herbalist, you gain a +2 item bonus to Medicine checks to Treat Disease and Treat Wounds.`,
     },
     { // TODO remove
       name: `Houses`,
@@ -208,6 +298,14 @@ export class Structure {
       traits: ["Building", "Residential"],
       description: `Houses provide a neighborhood of single and multi-family dwellings for your citizens.`,
       effects: `The first time you build houses each Kingdom turn, reduce Unrest by 1.`,
+    },
+    {
+      name: `Hunter's Lodge`,
+      level: 8,
+      traits: ["Building"],
+      description: `This lodge houses maps, training materials, and meat and hide processing areas for those who hunt game.`,
+      // TODO bonuses: [{activity: "…", value: 1}], // WAS +2 to Hunt & Gather and to Rest & Relax (Wilderness)
+      effects: `The hunter’s lodge must be built adjacent to a settlement border. Each time you successfully Hunt & Gather within the area of influence of a hunter’s lodge, you also gain 2 RP, or 2d4 RP if you critically succeed.`,
     },
     {
       name: `Illicit Market`,
@@ -348,6 +446,14 @@ export class Structure {
       bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 1}], // WAS +1 item bonus to Rest and Relax using Arts
       effects: `A magic item of level 6 or higher that has a particular import or bears significant historical or regional value (at the GM’s discretion) can be donated to a museum. Each time such an item is donated, reduce Unrest by 1. If that item is later removed from display, increase Unrest by 1.`,
     },
+    {
+      name: `Mystic Academy`,
+      level: 12,
+      traits: ["Building", "Ediface"],
+      description: `A mystic academy is dedicated to the study of the mystic arts and the training of elite clerics, mages, and mystics.`,
+      bonuses: [{activity: "Creative Solution", ability: "Culture", value: 2}], // WAS +2 to Supernatural Solution
+      effects: `At the start of the Activity phase of the kingdom turn, you may spend 6 RP to perform a free Supernatural Solution; although this is a leadership activity, it is not rolled by a leader and gains no leader benefits. If the military academy is built on the same lot as a mystic academy, both can be used simultaneously to upgrade to a university.`,
+    },
     { // TODO remove?
       name: `Noble Villa`,
       level: 9,
@@ -362,7 +468,7 @@ export class Structure {
       traits: ["Building"],
       description: `An occult shop is usually a sprawling, mysterious store that specializes in buying and selling obscure magic and strange curios. It often provides access to supernatural services like fortune-telling.`,
       bonuses: [{activity: "Prognostication", value: 2}], // WAS +2 item bonus to Prognostication
-      effects: `Treat the settlement’s level as one level higher than its actual level for the purposes of determining what magic items are readily available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way for more specific categories of magic items. While in a settlement with an occult shop, you gain a +2 item bonus to all checks made to Research esoteric subjects or to Recall Knowledge about the same.`,
+      effects: `Treat the settlement's level as one higher than usual for the purposes of determining what magic items are available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way. While in a settlement with an occult shop, you gain a +2 item bonus to checks made to Identify Magic, Learn a Spell, or Learn a Facet. This bonus is increased to +3 for divination magics and curses.`,
     },
     {
       name: `Opera House`,
@@ -380,7 +486,7 @@ export class Structure {
       level: 2,
       traits: ["Building", "Residential"],
       description: `This sprawling residential building provides housing for orphans or even homeless citizens, but it can also help supply housing for refugees—but preferably not all at the same time, though!`,
-      effects: `The first time you build an orphanage each Kingdom turn, reduce Unrest by 1.`,
+      effects: `The first time you build an orphanage each turn, reduce Unrest by 1. Each time you would gain more than 1 Unrest due to citizen deaths or the destruction of residential structures or settlements, reduce the total Unrest gained by 1.`,
     },
     {
       name: `Palace`,
@@ -419,12 +525,56 @@ export class Structure {
       effects: `A pier must be built in a lot next to a Water border.`,
     },
     {
+      name: `Planning Bureau`,
+      level: 5,
+      traits: ["Building"],
+      description: `An office stuffed full of bureaucrats and experience, plus records of past successes and failures.`,
+      bonuses: [
+        {activity: "Build Structure", value: 1},
+        {activity: "Build Infrastructure", value: 1},
+        {activity: "Establish Settlement", value: 1},
+      ], // WAS +1 to all Stability-based checks, Establish Work Site, Build Roads, and Irrigation
+      effects: `During the civic step of the Activity phase, declare one civic activity you plan to take during the next kingdom turn. At the start of the next kingdom turn’s Activity phase, you must perform the planned activity without using any standard activities; if for any reason you can’t perform the planned activity, gain 1d6 Unrest.`,
+    },
+    {
+      name: `Port`,
+      level: 12,
+      traits: ["Yard"],
+      description: `A port is a bustling hub of transport that is practically its own community.`,
+      // TODO bonuses: [{activity: "…", ability: "Loyalty", value: 1}], // WAS +3 to Go Fishing, Rest & Relax (Boating), and Establish Trade Agreement (Boating)
+      effects: `A port must be constructed next to a water border. A settlement with at least 1 port increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement; this bonus stacks with similar bonuses in the settlement.`,
+    },
+    {
+      name: `Printing House`,
+      level: 10,
+      traits: ["Building", "Ediface"],
+      description: `A printing house gives your citizens – and the PCs themselves – a place to create newspapers and books.`,
+      bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 2}], // WAS +2 to Quell Unrest and to Repair Reputation (Corruption, Strife)
+      effects: `[Complete Linzi’s quest before this can be built] A PC in a settlement with a printing house gains a +2 item bonus to checks to Gather Information or to Research any topic which might appear in a library.`,
+    },
+    {
+      name: `Rookery`,
+      level: 3,
+      traits: ["Building", "Ediface"],
+      description: `A rookery is a fortified nesting ground for ravens or other birds often used to deliver messages.`,
+      bonuses: [{activity: "Take Charge", value: 1}], // WAS +1 to Focus Attention, Manage Trade Agreement, Request Foreign Aid, and Take Charge
+      effects: `A rookery can be built in any claimed hex, rather than only in a settlement. A raven or other messenger bird can travel up to 8 hexes in a day (4 in inclement weather); if it cannot rest at a rookery each day on its path, you must succeed a DC 5 flat check or have the bird and its message be lost.`,
+    },
+    {
       name: `Sacred Grove`,
       level: 5,
       traits: ["Yard"],
       description: `This untouched land has been blessed by primal spirits, druids friendly with your settlement, or allied fey creatures.`,
       bonuses: [{activity: "Bread and Circuses", ability: "Culture", value: 1}], // WAS +1 item bonus to Quell Unrest using Folklore
       effects: `Treat the settlement’s level as one level higher than its actual level for the purposes of determining what primal magic items are readily available for sale in that settlement. This effect stacks up to three times.`,
+    },
+    {
+      name: `School`,
+      level: 5,
+      traits: ["Building", "Ediface"],
+      description: `A public school cares for children and teaches people a broad set of useful skills, educating the citizenry.`,
+      // TODO bonuses: [{activity: "…", ability: "Loyalty", value: 1}], // WAS +1 to all Culture-based checks and to Improve Lifestyle
+      effects: `The educated populace can sometimes point out problems with higher-minded citizens’ solutions. If the kingdom fails or critically fails an attempt at a Creative Solution, roll a DC 11 flat check; on a success, the degree of success for the creative solution is improved by one step.`,
     },
     {
       name: `Secure Warehouse`,
@@ -569,7 +719,7 @@ export class Structure {
       level: 2,
       traits: ["Building", "Ediface"],
       description: `A town hall is a public venue for town meetings and a repository for town history and records.`,
-      bonuses: [],
+      bonuses: [{activity: "Establish Settlement", value: 1}],
       effects: `The first time you build a town hall each Kingdom turn, reduce Unrest by 1. A town hall in a capital allows PC leaders to take 3 Leadership activities during the Activity phase of a Kingdom turn rather than just 2.`
     },
     {
