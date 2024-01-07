@@ -307,6 +307,22 @@ export class LeadershipActivity extends Activity {
 
     return [
       new LeadershipActivity({
+        icon: "🧭",
+        name: "Reconnoiter Hex",
+        description: "You hire a team to survey a particular hex.",
+        // TODO limit to after you've built an appropriate structure?
+        abilities: ["Economy", "Stability"],
+        difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
+        criticalSuccessDescription: `Reconnoiter hex and boost stability`,
+        successDescription: `Reconnoiter hex`,
+        failureDescription: `Fail`,
+        criticalFailureDescription: `Unrest`,
+        criticalSuccess() { this.success(); this.log("🗺️ The world feels a wee bit safer now."); this.boost("Stability") },
+        success() { this.log("🎉 You successfully reconnoiter the hex.") },
+        failure() { this.log("❌ You fail to reconnoiter the hex.") },
+        criticalFailure() { this.log("💀 You catastrophically fail to reconnoiter the hex and several members of the party lose their lives."); this.boost("Unrest") },
+      }),
+      new LeadershipActivity({
         icon: "👷🏻‍♂️",
         name: "Clear Hex",
         description: "You lead the effort to clear out the dangers in an already-reconnoitered hex.",
@@ -319,14 +335,14 @@ export class LeadershipActivity extends Activity {
             `If the hex is outside your domain, increase the DC by 2.`,
             hexMods,
           )],
-          difficultyClassOptions: {
-            selected: "Outside Domain",
-            options: JSON.stringify([
-              {name: "Outside Domain", value: 2},
-              ...hexDCOptions,
-            ]),
-          },
-          criticalSuccessDescription: `Clear hex and boost economy`,
+        difficultyClassOptions: {
+          selected: "Outside Domain",
+          options: JSON.stringify([
+            {name: "Outside Domain", value: 2},
+            ...hexDCOptions,
+          ]),
+        },
+        criticalSuccessDescription: `Clear hex and boost economy`,
         successDescription: `Clear hex`,
         failureDescription: `Fail`,
         criticalFailureDescription: `Unrest`,
@@ -339,6 +355,7 @@ export class LeadershipActivity extends Activity {
         icon: "🎏",
         name: "Claim Hex",
         description: "You bring the cleared hex into the domain.",
+        // TODO limit to 1/turn until level 4, then 2/turn until level 9, then 3/turn
         preprompt: [
           prereq(`You have Reconnoitered the hex to be claimed during hexploration. This hex must be adjacent to at least one hex that’s already part of your domain. If the hex to be claimed contains dangerous hazards or monsters, they must first be cleared out—either via standard adventuring or the Clear Hex activity.`),
           p(`Your surveyors fully explore the hex and attempt to add it into your domain.`),
@@ -639,7 +656,7 @@ export class LeadershipActivity extends Activity {
       }),
       new LeadershipActivity({
         icon: "👀",
-        name: "Oversee",
+        name: "Take Charge",
         description: "You visit a settlement to ensure vital work gets done.",
         preprompt: (activity) => {return Maker.tag("div",
           activity.pickOne(activity.domainSheet.data.settlements, {
@@ -763,8 +780,9 @@ export class LeadershipActivity extends Activity {
       }),
       new LeadershipActivity({
         icon: "🎨",
-        name: "Create Masterpiece",
+        name: "Create A Masterpiece",
         description: "You use the mystic arts to forsee future events and prepare for them.",
+        // TODO limit to 1/turn
         abilities: ["Culture"],
         preprompt: p(`You encourage your domain’s artists to create and display a masterful work of art to bolster your domain’s reputation. Attempt a basic check; the result affects either Fame or Infamy (depending on the type of domain you’re running). Create a Masterpiece may be attempted only once per domain turn regardless of the number of leaders pursuing activities.`),
         criticalSuccessDescription: `Gain Fame; Boost random Ability by 1`,

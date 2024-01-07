@@ -371,7 +371,7 @@ export class Structure {
       description: `An opera house functions well as a venue for operas, plays, and concerts, but also includes extensive facilities to aid in the training of all manner of bardic pursuits. Often, an opera house becomes a grandiose landmark, either due to its outlandish colors or eye-catching architecture.`,
       bonuses: [
         {activity: "Celebrate Holiday", ability: "Culture", value: 3},
-        {activity: "Create Masterpiece", value: 3},
+        {activity: "Create A Masterpiece", value: 3},
       ], // WAS +3 item bonus to Celebrate Holiday and Create a Masterpiece
       effects: `The first time you build an opera house each Kingdom turn, reduce Unrest by 4. While in a settlement with an opera house, you gain a +3 item bonus to Performance checks made to Earn Income.`,
     },
