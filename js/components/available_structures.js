@@ -14,6 +14,7 @@ export class AvalableStructures extends RxElement {
     let level = this.domainLevel;
     return Structure.templates.filter(t => t.level <= level);
   }
+  get names() { return this.templates.map(t => t.name) }
 
   render() {
     return `

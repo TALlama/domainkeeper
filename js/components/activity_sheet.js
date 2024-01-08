@@ -1,17 +1,101 @@
 import {mod} from "../helpers.js";
 
-import {Actor} from "../models/actor.js";
-import {Ability} from "../models/abilities.js";
 import {Activity} from "../models/activity.js";
-import {Structure} from "../models/structure.js";
 
 import {RxElement} from "./rx_element.js";
-import {PickableGroup} from "./pickable_group.js";
-import {DifficultyClass} from "./difficulty_class.js";
-import {blockedTooltip} from "./blocked_tooltip.js";
-import {AvalableStructures} from "./available_structures.js";
-import {StructureDescription} from "./structure_description.js";
 
+export class ActivitySheet extends RxElement {
+  connectedCallback() {
+    let activityId = this.getAttribute("activity-id")
+    this.activity = reef.signal(activityId
+      ? this.domainSheet.activity(activityId)
+      : new Activity(this.getAttribute("name") || JSON.parse(this.getAttribute("properties") || "{}")));
+
+    reef.component(this, () => this.render());
+    this.addEventListener("click", this);
+
+    this.activity.info("hey there");
+    this.activity.warning("oh no");
+    this.activity.error("ack!");
+  }
+
+  get domainSheet() { return document.querySelector("domain-sheet") }
+  get actor() { return this.domainSheet.actor(this.activity.actorId) }
+
+  render() {
+    return `
+      <header>
+        ${this.activity.name}
+        <small class="byline">${this.actor ? `by ${this.actor.name}` : ""}</small>
+        <a href="#" class="cancel-activity" data-action="cancelActivity">Cancel</a>
+      </header>
+      <span class="icon">${this.activity.icon}</span>
+      <blockquote class="description">${this.activity.description}</blockquote>
+      <section class="body">
+        ${this.renderDecisions()}
+        <h4>Log</h4>
+        <ol class="log list-unstyled">${this.renderLog()}</ol>
+      </section>`;
+  }
+
+  renderDecisions() {
+    return Object.values(this.activity.decisions).map(decision =>
+      `<h4>${decision.name}</h4><activity-decision-panel name=${decision.name}></activity-decision-panel>`
+    ).join("");
+  }
+
+  renderLog() {
+    return this.activity.log.map(entry =>
+      `<li class="log-${entry.level}">${entry.html}</li>`
+    ).join("");
+  }
+
+  static get leadershipActivities() { return [] }
+  static get civicActivities() { return [] }
+}
+ActivitySheet.define("activity-sheet");
+
+export class ActivityDecisionPanel extends RxElement {
+  connectedCallback() {
+    reef.component(this, () => this.render());
+    this.addEventListener("click", this);
+  }
+
+  get activity() { return this.closest("activity-sheet")?.activity }
+  get decision() { return this.activity.decisions[this.getAttribute("name")] }
+
+  render() {
+    let activity = this.activity;
+    let decision = this.decision;
+
+    // TODO instead of resolution, use the display value
+    return decision.resolved ? this.renderResolved(activity, decision) : this.renderPending(activity, decision);
+  }
+
+  renderResolved(activity, decision) { return `✅ ${decision.resolution}` }
+  renderPending(activity, decision) {
+    return `
+      <fieldset class='pickable-group repickable'>
+        ${decision.options.map(option => {
+          let value = decision.valueFor(option);
+          let name = `${activity.id}__${decision.name}`;
+          let id = `${name}__${value}`;
+
+          return `<label class='btn pickable' for="${id}">
+            <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
+            ${decision.displayFor(option)}
+          </label>`
+        }).join("")}
+      </fieldset>`;
+  }
+
+  doPick(event) {
+    this.decision.resolution = event.target.value;
+  }
+}
+ActivityDecisionPanel.define("activity-decision-panel");
+
+/*
 export class ActivitySheet extends RxElement {
   constructor(properties) {
     super();
@@ -898,5 +982,5 @@ export class ActivitySheet extends RxElement {
     ];
   }
 }
-ActivitySheet.define("activity-sheet");
-
+ActivitySheet.define("old-activity-sheet");
+*/

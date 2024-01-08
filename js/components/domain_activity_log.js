@@ -7,7 +7,7 @@ import {DomainActivityPicker} from "./domain_activity_picker.js";
 
 export default class DomainActivityLog extends RxElement {
   connectedCallback() {
-    this.entries = Maker.tag("main", {class: "entries", appendTo: this});
+    this.entries = Maker.tag("main", {class: "entries", appendTo: this, rx: () => this.renderEntries()});
     this.turnSummaries = [];
 
     this.fillStatusBanner();

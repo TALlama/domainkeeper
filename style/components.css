@@ -253,113 +253,113 @@
           padding: var(--internal-margin);
         }
       }
+    }
+  }
 
-      > .entry {
-        --bg: grey;
-        --outcome-bg: var(--bg);
-        --description-bg: var(--subheader-bg);
+  activity-sheet {
+    --bg: grey;
+    --outcome-bg: var(--bg);
+    --description-bg: var(--subheader-bg);
 
-        &[data-type="leadership"] { --bg: var(--color-leadership-bg); }
-        &[data-type="civic"] { --bg: var(--color-civic-bg); }
-        &.event { --bg: var(--color-event-bg) }
+    &[data-type="leadership"] { --bg: var(--color-leadership-bg); }
+    &[data-type="civic"] { --bg: var(--color-civic-bg); }
+    &.event { --bg: var(--color-event-bg) }
 
-        &[data-outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
-        &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
-        &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
-        &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
+    &[data-outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
+    &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
+    &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
+    &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
-        border: 3px solid var(--bg);
-        border-top-color: var(--outcome-bg);
-        border-left-color: var(--outcome-bg);
-        display: grid;
-        grid-template-areas:
-          "header     "
-          "description"
-          "body       ";
+    border: 3px solid var(--bg);
+    border-top-color: var(--outcome-bg);
+    border-left-color: var(--outcome-bg);
+    display: grid;
+    grid-template-areas:
+      "header     "
+      "description"
+      "body       ";
 
-        &:has(> .icon) {
-          grid-template-columns: 1fr 4rem;
-          grid-template-areas:
-            "header      icon"
-            "description icon"
-            "body        body";
-        }
+    &:has(> .icon) {
+      grid-template-columns: 1fr 4rem;
+      grid-template-areas:
+        "header      icon"
+        "description icon"
+        "body        body";
+    }
 
-        > header {
-          grid-area: header;
-          display: flex;
-          align-items: baseline;
-          background: linear-gradient(140deg, var(--outcome-bg), var(--bg));
-          border-bottom: 1px solid var(--bg);
-          padding: var(--internal-margin);
+    > header {
+      grid-area: header;
+      display: flex;
+      align-items: baseline;
+      background: linear-gradient(140deg, var(--outcome-bg), var(--bg));
+      border-bottom: 1px solid var(--bg);
+      padding: var(--internal-margin);
 
-          > small {
-            font-size: var(--step--1);
-            margin-left: var(--internal-margin);
-            opacity: 0.8;;
-          }
-        }
-
-        .cancel-activity {
-          margin-left: auto;
-        }
-        &:has(.pick-ability input:checked, .outcome input:checked) .cancel-activity { display: none }
-
-        &:has(.pick-ability input:checked) difficulty-class .mods {
-          pointer-events: none;
-
-          label:not(.base, :has(input:checked)), .other {
-            --button-bg: white;
-            --button-color: hsl(0, 0%, 60%);
-            --button-border-color: hsl(0, 0%, 80%);
-          }
-        }
-
-        > .icon {
-          grid-area: icon;
-          font-size: var(--step-5);
-          background: var(--bg);
-          padding: var(--internal-margin);
-        }
-
-        > .description {
-          grid-area: description;
-          background: var(--description-bg);
-          border-bottom: 1px solid var(--description-bg);
-          padding: var(--internal-margin);
-          font-size: var(--step--1);
-        }
-
-        > .body {
-          grid-area: body;
-          padding: var(--internal-margin);
-
-          h1, h2, h3, h4, h5, h6 {
-            background: var(--description-bg);
-            border-bottom: 1px solid var(--description-bg);
-            padding: var(--internal-margin);
-            margin: var(--external-margin) calc(-1 * var(--internal-margin));
-            font-size: var(--step--1);
-          }
-        }
-
-        .pick-ability {
-          .modifier {
-            margin-left: var(--internal-margin);
-          }
-
-          .modifier-breakdown {
-            padding-top: var(--internal-margin);
-            font-size: var(--step--2);
-
-            &:empty { display: none }
-          }
-        }
-
-        + .entry {
-          margin-top: var(--external-margin);
-        }
+      > small {
+        font-size: var(--step--1);
+        margin-left: var(--internal-margin);
+        opacity: 0.8;;
       }
+    }
+
+    .cancel-activity {
+      margin-left: auto;
+    }
+    &:has(.pick-ability input:checked, .outcome input:checked) .cancel-activity { display: none }
+
+    &:has(.pick-ability input:checked) difficulty-class .mods {
+      pointer-events: none;
+
+      label:not(.base, :has(input:checked)), .other {
+        --button-bg: white;
+        --button-color: hsl(0, 0%, 60%);
+        --button-border-color: hsl(0, 0%, 80%);
+      }
+    }
+
+    > .icon {
+      grid-area: icon;
+      font-size: var(--step-5);
+      background: var(--bg);
+      padding: var(--internal-margin);
+    }
+
+    > .description {
+      grid-area: description;
+      background: var(--description-bg);
+      border-bottom: 1px solid var(--description-bg);
+      padding: var(--internal-margin);
+      font-size: var(--step--1);
+    }
+
+    > .body {
+      grid-area: body;
+      padding: var(--internal-margin);
+
+      h1, h2, h3, h4, h5, h6 {
+        background: var(--description-bg);
+        border-bottom: 1px solid var(--description-bg);
+        padding: var(--internal-margin);
+        margin: var(--external-margin) calc(-1 * var(--internal-margin));
+        font-size: var(--step--1);
+      }
+    }
+
+    .pick-ability {
+      .modifier {
+        margin-left: var(--internal-margin);
+      }
+
+      .modifier-breakdown {
+        padding-top: var(--internal-margin);
+        font-size: var(--step--2);
+
+        &:empty { display: none }
+      }
+    }
+
+    + .entry {
+      margin-top: var(--external-margin);
     }
   }
 
