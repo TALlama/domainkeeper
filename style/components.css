@@ -263,10 +263,10 @@
         &[data-type="civic"] { --bg: var(--color-civic-bg); }
         &.event { --bg: var(--color-event-bg) }
 
-        &[data-outcome="critical-success"] { --outcome-bg: var(--color-critical-success-bg); }
+        &[data-outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
         &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
         &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
-        &[data-outcome="critical-failure"] { --outcome-bg: var(--color-critical-failure-bg); }
+        &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
         border: 3px solid var(--bg);
         border-top-color: var(--outcome-bg);
@@ -441,10 +441,10 @@
     border-top: var(--internal-margin) solid var(--outcome-bg);
     border-bottom: var(--internal-margin) solid var(--type-bg);
 
-    &[data-outcome="critical-success"] { --outcome-bg: var(--color-critical-success-bg); }
+    &[data-outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
     &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
     &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
-    &[data-outcome="critical-failure"] { --outcome-bg: var(--color-critical-failure-bg); }
+    &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
     &[data-type="leadership"] { --type-bg: var(--color-leadership-bg); }
     &[data-type="civic"] { --type-bg: var(--color-civic-bg); }

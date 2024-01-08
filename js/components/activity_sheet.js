@@ -2,6 +2,7 @@ import {mod} from "../helpers.js";
 
 import {Actor} from "../models/actor.js";
 import {Ability} from "../models/abilities.js";
+import {Activity} from "../models/activity.js";
 import {Structure} from "../models/structure.js";
 
 import {RxElement} from "./rx_element.js";
@@ -52,20 +53,24 @@ export class ActivitySheet extends RxElement {
   get activityLog() { return this.closest("domain-activity-log") }
   get domainSheet() { return document.querySelector("domain-sheet") }
 
+  // TODO move this to Activity
   get currentTurn() { return this.domainSheet.data.turns.last() }
   get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
   get peerActivityAbilityUsers() { return this.peerActivities.toDictionary(a => [a.usedAbility, this.domainSheet.actor(a.actorId)]) }
 
+  // TODO move this to Activity
   get bonuses() { return this.domainSheet.findBonuses({activity: this.name}).sortBy("ability") }
   bonusesForAbility(ability) { return this.bonuses.filter(b => !b.ability || b.ability === ability).sortBy("-value") }
   itemBonus(ability) { return this.bonusesForAbility(ability).first()?.value || 0 }
 
+  // TODO move this to helpers
   renderBonus(bonus, {includeAbility, used}={}) {
     let whenRolling = includeAbility ? `when rolling ${bonus.ability || "any ability"} ` : "";
     let string = `${mod(bonus.value)} ${whenRolling}<span class='metadata'>from ${bonus.structure.name}</span>`;
     return used === false ? `<del>${string}</del>` : string;
   }
 
+  // TODO move this to Activity
   rollParts(ability) {
     let abilityMod = this.domainSheet.data[ability.toLowerCase()];
     let itemMod = this.itemBonus(ability);
@@ -123,6 +128,7 @@ export class ActivitySheet extends RxElement {
   set difficultyClassOptions(value) { this._difficultyClassOptions = value }
   get difficulty() { return this.$(".prompt difficulty-class")?.total }
 
+  // TODO move this to Activity
   get usedAbility() { return this.dataset.usedAbility }
   set usedAbility(value) {
     this.dataset.usedAbility = this.record.usedAbility = value;
@@ -138,24 +144,28 @@ export class ActivitySheet extends RxElement {
       Maker.tag("h4", "Result:"),
       new PickableGroup({
         options: {
-          "critical-success": [`Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "outcome outcome-critical-success", "data-set-outcome": "critical-success", change: () => { this.criticalSuccess() }}],
-          "success": [`Success`, Maker.tag("small", this.successDescription), {class: "outcome outcome-success", "data-set-outcome": "success", change: () => { this.success() }}],
-          "failure": [`Failure`, Maker.tag("small", this.failureDescription), {class: "outcome outcome-failure", "data-set-outcome": "failure", change: () => { this.failure() }}],
-          "critical-failure": [`Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "outcome outcome-critical-failure", "data-set-outcome": "critical-failure", change: () => { this.criticalFailure() }}],
+          criticalSuccess: [`Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "outcome outcome-critical-success", "data-set-outcome": "criticalSuccess", change: () => { this.criticalSuccess() }}],
+          success: [`Success`, Maker.tag("small", this.successDescription), {class: "outcome outcome-success", "data-set-outcome": "success", change: () => { this.success() }}],
+          failure: [`Failure`, Maker.tag("small", this.failureDescription), {class: "outcome outcome-failure", "data-set-outcome": "failure", change: () => { this.failure() }}],
+          criticalFailure: [`Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "outcome outcome-critical-failure", "data-set-outcome": "criticalFailure", change: () => { this.criticalFailure() }}],
         },
       }),
     ];
   }
+
+  // TODO move this to Activity
   get outcome() { return this.dataset.outcome }
   set outcome(value) {
     this.dataset.outcome = this.record.outcome = value;
     this.outcomeSet && this.outcomeSet();
   }
 
+  // TODO move this to Activity
   get actorId() { return this.dataset.actorId }
   set actorId(value) { this.dataset.actorId = this.record.actorId = value; }
   get actor() { return this.domainSheet.actor(this.actorId) }
 
+  // TODO move this to Activity
   criticalSuccess() { this.success() }
   success() { this.log('Good job!') }
   failure() { this.log('Oh no!') }
@@ -175,6 +185,7 @@ export class ActivitySheet extends RxElement {
     return newEntry;
   }
 
+  // TODO use the underlying Activity
   get record() {
     return this._record ||= reef.signal({
       id: this.id,
@@ -186,6 +197,7 @@ export class ActivitySheet extends RxElement {
     });
   }
 
+  // TODO move all these log-and-do methods to Activity
   boost(...abilities) {
     let {by} = abilities[0];
     by && abilities.shift();
@@ -221,6 +233,7 @@ export class ActivitySheet extends RxElement {
   }
 
   // Formatting options
+  // TODO move to helpers
   static tagged(tag, ...parts) { return Maker.tag("li", Maker.tag("strong", `${tag} `), ...parts) }
   static prereq(...parts) { return ActivitySheet.tagged("Requirements", ...parts) }
   static special(...parts) { return ActivitySheet.tagged("Special", ...parts) }
@@ -266,6 +279,7 @@ export class ActivitySheet extends RxElement {
     )});
   }
 
+  // TODO should this be its own component?
   button({disabled} = {}) {
     return `<button title="${this.description}" data-action="doActivity" data-activity="${this.name}" ${disabled ? "disabled" : ""}>
       <span class="icon">${this.icon}</span>
@@ -273,6 +287,7 @@ export class ActivitySheet extends RxElement {
     </button>`
   }
 
+  // TODO move to Activity
   static get all() { return [...this.leadershipActivities, ...this.civicActivities] }
   static icon(name) {
     this._allActivities ??= this.all;
@@ -282,6 +297,7 @@ export class ActivitySheet extends RxElement {
     }[name] ?? "❓";
   }
 
+  // TODO move to Activity
   static get leadershipActivities() {
     let {p, ol} = Maker;
     let {tagged, prereq, special} = ActivitySheet;
@@ -823,6 +839,8 @@ export class ActivitySheet extends RxElement {
       }),
     ]
   }
+
+  // TODO move to Activity
   static get civicActivities() {
     let {p, ol} = Maker;
 

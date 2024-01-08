@@ -62,6 +62,7 @@ export class ErisTestCase {
 
 export class ErisTestGroup {
   #suite = [];
+  #lets = [];
   #befores = [];
   #afters = [];
 
@@ -79,6 +80,14 @@ export class ErisTestGroup {
   }
 
   let(name, fn) {
+    this.#lets[name] = fn;
+  }
+
+  get letVars() {
+    return Object.keys(this.#lets).toDictionary(name => [name, this.#lets[name]()]);
+  }
+
+  letElement(name, fn) {
     this.before(() => this[name] = fn());
     this.after(() => {this[name].remove(); delete this[name]});
   }
@@ -94,6 +103,7 @@ export class ErisTestGroup {
       reporter.begin(context);
       reporter.run(testcase, {
         ...context,
+        ...this.letVars,
         befores: [...context.befores, ...this.#befores],
         afters: [...context.afters, ...this.#afters],
       });
@@ -106,14 +116,17 @@ export class ErisTestGroup {
 export class ErisAssertions {
   constructor(reporter) { this.reporter = reporter }
 
-  true(condition, failMessage, passMessage) { this.reporter.tick(condition, condition ? passMessage : failMessage) }
-  false(condition, failMessage, passMessage) { this.true(!condition, passMessage, failMessage) }
-  equals(actual, expected) { this.true(Array.eql(actual, expected) || actual === expected, `Expected ${expected} but got ${actual}`) }
-  jsonEquals(actual, expected) { this.equals(JSON.stringify(actual), JSON.stringify(expected)) }
-  includedIn(actual, expectedIn) { this.true(expectedIn.includes(actual), `Expected ${actual} to be in ${expectedIn}`) }
+  true(condition, failMessage, passMessage) { this.reporter.tick(condition, condition ? (passMessage ?? `✅ ${JSON.stringify(condition)} is true`) : (failMessage ?? `❌ ${JSON.stringify(condition)} is false`)) }
+  false(condition, failMessage, passMessage) { this.true(!condition, (passMessage ?? `✅ ${JSON.stringify(condition)} is false`), (failMessage ?? `❌ ${JSON.stringify(condition)} is true`)) }
+  defined(actual) { this.true(actual !== null && actual !== undefined, `❌ Expected ${JSON.stringify(actual)} to be defined`) }
+  equals(actual, expected) { this.true(Array.eql(actual, expected) || actual === expected, `❌ Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`) }
+  jsonEquals(actual, expected) { this.equals(JSON.stringify(actual), JSON.stringify(expected), `❌ Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`) }
+  includedIn(actual, expectedIn) { this.true(expectedIn.includes(actual), `❌ Expected ${JSON.stringify(actual)} to be in ${JSON.stringify(expectedIn)}`) }
   expectError(callback, errorClass) {
-    try { callback(); this.true(false, `Expected error of type ${errorClass}`)}
-    catch(err) { this.equals(err.constructor.name, errorClass) }
+    try { callback(); this.true(false, `❌ Expected error of type ${errorClass}, but nothing was thrown`)}
+    catch(err) {
+      (err.constructor.name === errorClass) || this.reporter.error(err);
+      this.equals(err.constructor.name, errorClass, `❌ Expected error of type ${errorClass}, but ${err.constructor.name} was thrown instead`) }
   }
 }
 
@@ -143,7 +156,7 @@ export class ErisConsoleReporter {
   tick(passed, failMessage, passMessage) { passed ? this.passed(passMessage) : this.failed(failMessage) }
   passed(message) { this.passCount += 1; console.info(message ?? `✅`) }
   failed(message) { this.failCount += 1; console.error(message ?? `❌`) }
-  error(err) { console.error(`💥 ${err}`) }
+  error(err) { console.error(err, `💥 ${err}`) }
 
   summarize() {
     if (this.failCount + this.errorCount > 0) {
@@ -156,4 +169,22 @@ export class ErisConsoleReporter {
 
 document.addEventListener("DOMContentLoaded", (event) => {
   Eris.runImmediately = true;
+});
+
+Eris.test("Eris", makeSure => {
+  makeSure.it("can pass", ({assert}) => assert.true(true));
+
+  makeSure.describe("let blocks", makeSure => {
+    makeSure.let("foo", () => [1]);
+
+    makeSure.it("gives me `foo` in the context", ({assert, foo}) => {
+      assert.equals(foo, [1]);
+      foo.push(2);
+      assert.equals(foo, [1, 2]);
+    });
+
+    makeSure.it("gives me a new `foo` in each test", ({assert, foo}) => {
+      assert.equals(foo, [1]);
+    });
+  });
 });
