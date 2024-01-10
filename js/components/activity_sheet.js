@@ -270,51 +270,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
     return [
       new ActivitySheet({
         type: "leadership",
-        icon: "🏙️",
-        name: "Establish Settlement",
-        description: "You coordinate the group that founds a new settlement.",
-        preprompt: [
-          prereq(`The hex in which you’re establishing the settlement has been Cleared and doesn’t currently have a settlement (including a Freehold) in it.`),
-          p(`You draw up plans, gather resources, entice citizens, and establish boundaries to found a brand new settlement in the hex. A settlement always starts as a village. See page 46 for further details about building settlements.`),
-        ],
-        summaries: {
-          criticalSuccessDescription: `Establish settlement`,
-          successDescription: `Establish settlement if you reduce 1 Ability by 1`,
-          failureDescription: `Establish settlement if you reduce 1 Ability by 2`,
-          criticalFailureDescription: `Fail`,
-        },
-        establish() {
-          let namer = Maker.tag("input", {value: `Outpost ${this.domainSheet.data.settlements.length}`});
-
-          this.info(
-            "🎉 You establish the settlement. What'll you name it?",
-            namer,
-            Maker.tag("button", "Do it!", {click: (event) => {
-              let name = namer.value;
-              this.domainSheet.data.settlements.push(new Actor({type: "Village", name: name}));
-              event.target.disabled = true;
-            }})
-          );
-        },
-        conditionalSuccess(cost) {
-          this.modOneAnd(
-            `Reduce {ability} by {by} and establish the settlement`,
-            {by: -cost, afterItems: [`Do not establish the settlement right now`], andThen: () => this.establish()});
-        },
-        criticalSuccess() {
-          this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
-          this.establish();
-        },
-        success() {
-          this.conditionalSuccess(1);
-        },
-        failure() {
-          this.conditionalSuccess(2);
-        },
-        criticalFailure() { this.warning(`❌ You fail to establish the settlement`) },
-      }),
-      new ActivitySheet({
-        type: "leadership",
         icon: "🧎🏻‍♂️",
         name: "Pledge of Fealty",
         description: "You diplomatically invite another group to join the domain.",

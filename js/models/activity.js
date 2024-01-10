@@ -1,8 +1,10 @@
 import { callOrReturn, withDiffs } from "../helpers.js";
 
 import { addTransient } from "./utils.js";
+import { Actor } from "./actor.js";
 import { Ability } from "./abilities.js";
 import { Structure } from "./structure.js";
+
 import { AvalableStructures } from "../components/available_structures.js";
 import { StructureDescription } from "../components/structure_description.js";
 
@@ -51,18 +53,10 @@ class ActivityDecision {
     this.displayValues ||= this.options.toDictionary(o => [o, this.displayValue(o)]);
     this.summaries ||= this.options.toDictionary(o => [o, this.summaryValue(o)]);
 
-    this.#addStashProperty(activity);
     this.#addSaveAsProperty(activity, props.saveAs);
     this.#addValueProperty(activity, `${props.saveAs}Value`);
     this.#addDisplayProperty(activity, `${props.saveAs}Display`);
     this.#addSummaryProperty(activity, `${props.saveAs}Summary`);
-  }
-
-  #addStashProperty(activity) {
-    if (activity._stash) { return }
-
-    let stash = {};
-    Object.defineProperty(activity, "_stash", {configurable: true, enumerable: false, get() { return stash }});
   }
 
   #addSaveAsProperty(activity, saveAs) {
@@ -71,14 +65,14 @@ class ActivityDecision {
     Object.defineProperty(activity, saveAs, {
       configurable: true,
       enumerable: true,
-      get() { return activity._stash[`_${saveAs}`] },
+      get() { return activity.transient[`_${saveAs}`] },
       set(value) {
         if (![...decision.options, null, undefined].includes(value)) {
           throw TypeError(`Canot set ${saveAs} to ${value}; try one of ${JSON.stringify(decision.options)}`)
         }
-        if (activity._stash[`_${saveAs}`] === value) { return }
+        if (activity.transient[`_${saveAs}`] === value) { return }
 
-        activity._stash[`_${saveAs}`] = value;
+        activity.transient[`_${saveAs}`] = value;
         activity.callbacksEnabled && decision.picked?.call(activity, value, {decision, activity});
       },
     });
@@ -112,9 +106,6 @@ class ActivityDecision {
       get() { return decision.summaryValue(decision.resolution) },
     });
   }
-
-  //get options() { return callOrReturn(this.transient.options, this) || [] }
-  //set options(value) { this.transient.options = value }
 
   get dictionary() { return this.options.toDictionary(o => [this.saveValue(o), this.displayValue(o)]) }
 
@@ -478,18 +469,23 @@ export class Activity {
       icon: "🏃‍♂️",
       name: "Abandon Hex",
       summary: "You renounce the domain's claim to a hex.",
-      decisions: [{name: "Roll", options: ["Stability"]}, {name: "Outcome"}],
+      decisions: [{
+        name: "Roll",
+        options: ["Stability"],
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Abandon Hex; Economy boost`,
+          success: `Abandon hex; Unrest`,
+          failure: `Abandon hex; Unrest + 2; Possible Squatters event`,
+          criticalFailure: `Abandon hex; Unrest +3; Definite Bandit Activity Event`,
+        },
+      }],
       description() {
         return `<p><strong>Requirement:</strong> The hex to be abandoned must be controlled.</p>
           <p>After careful consideration, you decide that you would rather not hold onto a particular hex as part of your claimed territory. You renounce your claim to it and pull back any settlers or explorers.You can abandon more than one hex at a time, but each additional hex you abandon increases the DC of this check by 1.</p>
           <p><strong>Special:</strong> The Unrest gained from abandoning a hex doubles if it includes a settlement. A settlement in an abandoned hex becomes a Freehold (page 41).</p>
         `;
-      },
-      summaries: {
-        criticalSuccessDescription: `Abandon Hex; Economy boost`,
-        successDescription: `Abandon hex; Unrest`,
-        failureDescription: `Abandon hex; Unrest + 2; Possible Squatters event`,
-        criticalFailureDescription: `Abandon hex; Unrest +3; Definite Bandit Activity Event`,
       },
       criticalSuccess() {
         this.success();
@@ -510,6 +506,71 @@ export class Activity {
         this.failure();
         this.error(`🥷🏻 Automatically experience a Bandit Activity event instead of a Squatters event`);
         this.boost("Unrest");
+      },
+    }, {
+      type: "leadership",
+      icon: "🏙️",
+      name: "Establish Settlement",
+      summary: "You coordinate the group that founds a new settlement.",
+      description() {
+        return `<p><strong>Requirement:</strong> The hex in which you’re establishing the settlement has been Cleared and doesn’t currently have a settlement (including a Freehold) in it.</p>
+          <p>You draw up plans, gather resources, entice citizens, and establish boundaries to found a brand new settlement in the hex. A settlement always starts as a village. See page 46 for further details about building settlements.</p>
+        `;
+      },
+      decisions: [{
+        name: "Roll",
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Establish settlement`,
+          success: `Establish settlement if you reduce 1 Ability by 1`,
+          failure: `Establish settlement if you reduce 1 Ability by 2`,
+          criticalFailure: `Fail`,
+        },
+      }, {
+        name: "Payment",
+        options: [...Ability.all, "abandoned"],
+        displayValue(ability) {
+          return {
+            abandoned: `Abandon the attempt and pay nothing`,
+            free: `Volunteers pick up the tab`,
+          }[ability] || `Reduce ${ability} by ${this.amount} and establish the settlement`},
+        amount: 1,
+        picked: (payment, {activity, decision}) => {
+          if (payment === "abandoned") {
+            activity.warning("🚫 You do not establish a settlement");
+          } else if (payment === "free") {
+            activity.establish();
+          } else {
+            activity.reduce({by: -decision.amount}, payment);
+            activity.establish();
+          }
+        },
+      }],
+      establish() {
+        let name = prompt("What will you name the settlement?");
+        this.info(`🎉 You establish the settlement of ${name}`);
+        this.domainSheet.data.settlements.push(new Actor({type: "Village", name: name}));
+      },
+      conditionalSuccess(cost) {
+        this.decision("Payment").amount = cost;
+      },
+      criticalSuccess() {
+        this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
+
+        let payment = this.decision("Payment");
+        payment.amount = 0;
+        payment.options.push("free");
+        payment.resolution = "free";
+      },
+      success() {
+        this.conditionalSuccess(1);
+      },
+      failure() {
+        this.conditionalSuccess(2);
+      },
+      criticalFailure() {
+        this.decision("Payment").resolution = "abandoned";
       },
     }, {
       type: "civic",
