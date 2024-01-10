@@ -217,6 +217,7 @@ class DomainSheet extends RxElement {
   }
 
   get currentTurn() { return this.data.turns.last() }
+  get previousTurn() { let turns = this.data.turns || []; return turns[turns.length - 2]; }
   get currentActor() { return this.readyActor(this.data.currentActorId) || this.readyActors.first() }
 
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
@@ -272,17 +273,6 @@ class DomainSheet extends RxElement {
       Loyalty: this.data.loyalty,
       Stability: this.data.stability,
     };
-  }
-
-  abilityScoresWithDiffs(baseline, newValues = this.abilityScores) {
-    let retval = {};
-    Object.keys(newValues).forEach((ability) => {
-      let value = newValues[ability];
-      let diff = value - baseline[ability];
-      let signClass = diff > 0 ? "diff-positive" : (diff < 0 ? "diff-negative" : "diff-flat");
-      retval[ability] = [value, Maker.tag("span", {class: `metadata diff ${signClass}`}, `${diff >= 0 ? "+" : ""}${diff}`)];
-    });
-    return retval;
   }
 
   get statScores() {

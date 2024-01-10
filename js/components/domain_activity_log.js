@@ -13,13 +13,12 @@ export default class DomainActivityLog extends RxElement {
     this.addEventListener("click", this);
     this.addEventListener("domains:nudge", (event) => this.doNudge(event))
 
-    // TODO do we need to reenact history?
-    this.turnSummaries = []; // TODO can this go in the entries to get persisted?
-    this.currentTurn || this.newTurn();
-    
-    this.domainConcept();
-    this.welcome();
-    // TODO start turn 1
+    if (!this.currentTurn) {
+      this.newTurn();
+      this.domainConcept();
+      this.welcome();
+      this.newTurn();
+    }
 
     let activityFinder = this.searchParams.get("activity");
     activityFinder && this.activity(new Activity({name: activityFinder}));
@@ -90,17 +89,8 @@ export default class DomainActivityLog extends RxElement {
 
   newTurn(name) {
     this.domainSheet.saveData();
-
-    let lastTurn = this.domainSheet.data.turns.last() || {};
-    let summary = {
-      entries: lastTurn.entries || [],
-      abilityScores: this.domainSheet.abilityScores,
-      statScores: this.domainSheet.statScores,
-    };
-    this.turnSummaries.push(summary);
-    this.domainSummaryEntry(summary);
+    this.currentTurn && this.domainSummaryEntry();
     
-    this.debugEntry(lastTurn, `Completed turn`);
     this.resetTurn();
     this.domainSheet.addFame();
     this.ruin();
@@ -126,11 +116,6 @@ export default class DomainActivityLog extends RxElement {
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
   get currentActivity() { return this.currentTurn?.entries?.last() }
-  get turn() { return this.turnSummaries.length; }
-
-  turnSummary(turn = this.turn) {
-    return this.turnSummaries[turn - 1];
-  }
 
   ruin() {
     return; // TODO fix
@@ -166,43 +151,11 @@ export default class DomainActivityLog extends RxElement {
     this.activity(activity);
   }
 
-  withDiffs(newValues, baseline) {
-    if (!baseline) { return newValues }
+  domainSummaryEntry() {
+    let lastSummary = null; // TODO fix
 
-    let retval = {};
-    Object.keys(newValues).forEach((ability) => {
-      let value = newValues[ability];
-      let diff = value - baseline[ability];
-      let signClass = diff > 0 ? "diff-positive" : (diff < 0 ? "diff-negative" : "diff-flat");
-      retval[ability] = [value, Maker.tag("span", {class: `metadata diff ${signClass}`}, `${diff >= 0 ? "+" : ""}${diff}`)];
-    });
-    return retval;
-  }
+    this.activity(new Activity({name: "Domain Summary", lastSummary}));
 
-  domainSummaryEntry(summary) {
-    let lastTurnSummary = this.turnSummary(this.turn - 1);
-
-    this.entry({
-      title: "Domain summary",
-      description: `Turn ${this.turn}`,
-      body: [
-        Maker.tag("p", "💾 Domain saved"),
-        Maker.tag("h4", "What happened"),
-        Maker.tag("div", {class: "entries-summary"}, summary.entries.map(entry =>
-          Maker.tag("a", ActivitySheet.icon(entry.name), {
-            href: "#",
-            title: entry.name,
-            class: `entry-summary`,
-            "data-type": entry.type,
-            "data-used-ability": entry.usedAbility,
-            "data-outcome": entry.outcome,
-            click: () => { setTimeout(() => document.getElementById(entry.id).scrollIntoView(), 1) }})
-        )),
-        Maker.tag("h4", "Stats at end of turn"),
-        Maker.dl(this.withDiffs(summary.abilityScores, lastTurnSummary?.abilityScores), {class: "dl-oneline"}),
-        Maker.dl(this.withDiffs(summary.statScores, lastTurnSummary?.statScores), {class: "dl-oneline"}),
-      ],
-    })
   }
   activity(activity) {
     activity.actorId ??= this.domainSheet.currentActor.id;
@@ -265,46 +218,8 @@ export default class DomainActivityLog extends RxElement {
 
     return `
       <div class="turn-marker"><span class="turn-name">${turn.name || `Turn ${turn.number}`}<span></div>
-      ${entries.map(entry => `<activity-sheet key="${entry.id}" activity-id="${entry.id}"></activity-sheet>`).reverse().join("")}
+      ${entries.map(entry => `<activity-sheet key="${entry.id}" id="${entry.id}" activity-id="${entry.id}"></activity-sheet>`).reverse().join("")}
     `;
-  }
-
-  entry({title, description, body, attrs} = {}) {
-    // TODO handle these
-    //Maker.tag("article", {class: "entry", prependTo: this.entries}, attrs, [
-    //  Maker.tag("header", title),
-    //  Maker.tag("blockquote", {class: "description"}, description),
-    //  Maker.tag("section", {class: "body"}, body),
-    //]);
-  }
-
-  debugEntry(obj, title) {
-    // TODO what?
-    Maker.tag("code", {class: "debug", prependTo: this.entries, title}, Maker.tag("pre", JSON.stringify(obj, null, 2)));
-  }
-
-  reenactHistory() {
-    this.entry({
-      title: "Welcome back, Domainkeeper",
-      description: "Here's your saved domain. How's it going?",
-      body: ["Stuff happened, but I don't recall all of it."],
-    });
-  }
-
-  savedEntry(entry) {
-    let actor = this.domainSheet.actor(entry.actorId);
-
-    this.entry({
-      title: [entry.name, actor && Maker.tag("small", `by ${actor.name}`)],
-      body: Maker.tag("section", {class: "log"}, entry.log.map(l => Maker.tag("p", p => {p.innerHTML = l}))),
-      attrs: {
-        id: entry.id,
-        "data-type": entry.type,
-        "data-actor-id": entry.actorId,
-        "data-used-ability": entry.usedAbility,
-        "data-outcome": entry.outcome,
-      },
-    });
   }
 }
 DomainActivityLog.define("domain-activity-log");
