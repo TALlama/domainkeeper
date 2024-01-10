@@ -79,11 +79,26 @@
       background-color: rgb(255, 235, 235);
       padding: var(--internal-margin);
       margin: var(--external-margin) 0;
+      max-width: 50vw;
+      overflow: scroll;
     }
   }
 
   pre {
     white-space: pre;
+  }
+
+  @keyframes internal-error-pulse {
+      0% {background-color: #a30503;}
+    100% {background-color: #c30503;}
+  }
+
+
+  .internal-error {
+    display: inline-block;
+    color: white;
+    animation: 1s infinite alternate internal-error-pulse;
+    padding: var(--internal-margin);
   }
 
   .list-unstyled {

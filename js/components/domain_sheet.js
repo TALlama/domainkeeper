@@ -3,6 +3,7 @@ import {Ability} from "../models/abilities.js";
 import {Structure} from "../models/structure.js";
 
 import {RxElement} from "./rx_element.js";
+import { Activity } from "../models/activity.js";
 
 class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }
@@ -87,11 +88,17 @@ class DomainSheet extends RxElement {
     "leaders settlements".split(" ").forEach(key => {
       saved[key] = saved[key].map(attrs => new Actor(attrs));
     });
+    saved.turns.forEach(turn => {
+      turn.entries = turn.entries.map(attrs => new Activity(attrs));
+    })
 
     return saved;
   }
 
   get activityLog() { return document.querySelector("domain-activity-log") }
+  get activities() { return this.data.turns.flatMap(t => t.entries) }
+  activity(activityId) { return this.activities.find(a => a.id === activityId) }
+  activitiesWhere(pattern) { return this.activities.matches(pattern) }
 
   get abilitiesList() { return this.$(".abilities") }
   get statsList() { return this.$(".stats") }

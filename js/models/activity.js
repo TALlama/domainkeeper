@@ -1,82 +1,126 @@
+import { addTransient } from "./utils.js";
 import { Ability } from "./abilities.js";
 import { Structure } from "./structure.js";
 import { AvalableStructures } from "../components/available_structures.js";
 import { StructureDescription } from "../components/structure_description.js";
 
-let callOrReturn = (value) => { return value?.call ? value.call(this, this) : value };
+let callOrReturn = (value, bindTo, ...args) => { return value?.call ? value.call(bindTo, ...args) : value };
 
 class ActivityDecision {
-  #activity;
-
-  constructor(name, activity) {
-    this.name = name;
-    this.#activity = activity;
-
-    let single = this.resolutionAccessor = {setup: "parameter", roll: "usedAbility", outcome: "outcome", pay: "payment"}[name] || name;
-    let plural = this.optionsAccessor = {setup: "parameters", roll: "abilities", outcome: "outcomes", pay: "payments"}[name] || `${name}s`;
-    let capSingle = `${single[0].toUpperCase()}${single.substr(1)}`;
-    let capPlural = `${plural[0].toUpperCase()}${plural.substr(1)}`;
-    
-    // TODO all this metaprogramming should be decision-first, not activity-first
-    activity[`summaryFor${capSingle}`] ||= (value) => (activity[`summariesFor${capPlural}`][value] || "");
-    activity[`summariesFor${capPlural}`] ||= {};
-    activity[`${single}Summary`] || Object.defineProperty(activity, `${single}Summary`, {
-      get() { return this[`summaryFor${capSingle}`](this[single]) },
+  constructor(properties, activity) {
+    Object.defineProperty(this, "activity", {enumerable: false, value: activity});
+    addTransient(this, {value: {}});
+    Object.defineProperty(this, "options", {enumerable: true,
+      get() { return callOrReturn(this.transient.options, this) || [] },
+      set(value) { this.transient.options = value },
     });
 
-    activity[`displayFor${capSingle}`] ||= (value) => value;
-    this.displayFor = (value) => activity[`displayFor${capSingle}`](value);
-    activity[`displayFor${capPlural}`] || Object.defineProperty(activity, `displayFor${capPlural}`, {
-      get() { return this[plural].map(value => this[`displayFor${capSingle}`](value)) }
-    });
-    Object.defineProperty(this, `displays`, {get() { return activity[`displayFor${capPlural}`] }});
-    activity[`${single}Display`] || Object.defineProperty(activity, `${single}Display`, {
-      get() { return this[`displayFor${capSingle}`](this[single]) },
-    });
-    Object.defineProperty(this, `display`, {get() { return activity[`${single}Display`] }});
+    let template = {
+      Roll: {
+        saveAs: "ability",
+        options: Ability.all,
+        displayValue: (ability) => `<ability-roll ability="${ability}">${ability}</ability-roll>`,
+        description: `<difficulty-class base="${JSON.stringify(10)}"></difficulty-class>`,
+      },
+      Outcome: {
+        saveAs: "outcome",
+        options: ["criticalSuccess", "success", "failure", "criticalFailure"],
+        displayValues: {
+          criticalSuccess: `Critical Success`,
+          success: `Success`,
+          failure: `Failure`,
+          criticalFailure: `Critical Failure`,
+        },
+        picked: (outcome) => {
+          activity[outcome]?.call(activity);
+        }
+      },
+    }[properties.template || properties.name || properties] || {};
+    let props = {
+      saveAs: (template.name || properties.name || properties).toLowerCase(),
+      saveValue: (value) => value,
+      displayValue: (value) => (this.displayValues || {})[value] || value,
+      summaryValue: (value) => (this.summaries || {})[value],
+      mutable: () => !this.resolved,
+      ...template,
+      ...properties};
+    Object.assign(this, props);
 
-    (activity[`valueFor${capSingle}`] ||= (value) => value);
-    this.valueFor = (value) => activity[`valueFor${capSingle}`](value);
-    activity[`valueFor${capPlural}`] || Object.defineProperty(activity, `valueFor${capPlural}`, {
-      get() { return this[plural].map(value => this[`valueFor${capSingle}`](value)) },
-    });
-    Object.defineProperty(this, `values`, {get() { return activity[`valueFor${capPlural}`] }});
-    activity[`${single}Value`] || Object.defineProperty(activity, `${single}Value`, {
-      get() { return this[`valueFor${capSingle}`](this[single]) },
-      set(value) { this[single] = this[plural].find(option => this[`valueFor${capSingle}`](option) === value) },
-    });
-    Object.defineProperty(this, `value`, {get() { return activity[`${single}Value`] }});
+    this.displayValues ||= this.options.toDictionary(o => [o, this.displayValue(o)]);
+    this.summaries ||= this.options.toDictionary(o => [o, this.summaryValue(o)]);
 
-    Object.defineProperty(this, `dictionary`, {get() { return activity[`dictionaryOf${capPlural}`] }});
-    activity[`dictionaryOf${capPlural}`] || Object.defineProperty(activity, `dictionaryOf${capPlural}`, {
-      get() { return this[plural].toDictionary(value => [this[`valueFor${capSingle}`](value), this[`displayFor${capSingle}`](value)]) }
-    });
+    this.#addStashProperty(activity);
+    this.#addSaveAsProperty(activity, props.saveAs);
+    this.#addValueProperty(activity, `${props.saveAs}Value`);
+    this.#addDisplayProperty(activity, `${props.saveAs}Display`);
+    this.#addSummaryProperty(activity, `${props.saveAs}Summary`);
+  }
 
-    activity[`_${plural}`] = activity[plural];
-    Object.defineProperty(activity, plural, {
-      configurable: true,
-      get() { return callOrReturn(this[`_${plural}`]) },
-      set(value) { this[`_${plural}`] = value },
-    });
-    
-    
+  #addStashProperty(activity) {
+    if (activity._stash) { return }
+
+    let stash = {};
+    Object.defineProperty(activity, "_stash", {configurable: true, enumerable: false, get() { return stash }});
+  }
+
+  #addSaveAsProperty(activity, saveAs) {
     let decision = this;
-    let callback = `${single}Picked`;
-    Object.defineProperty(activity, single, {
+
+    Object.defineProperty(activity, saveAs, {
       configurable: true,
-      get() { return this[`_${single}`] },
+      enumerable: true,
+      get() { return activity._stash[`_${saveAs}`] },
       set(value) {
-        if (![...decision.options, null, undefined].includes(value)) { throw TypeError(`Canot set ${single} to ${value}; try one of ${JSON.stringify(decision.options)}`) }
-        this[`_${single}`] = value
-        this[callback]?.call(this, value)
+        if (![...decision.options, null, undefined].includes(value)) {
+          throw TypeError(`Canot set ${saveAs} to ${value}; try one of ${JSON.stringify(decision.options)}`)
+        }
+        if (activity._stash[`_${saveAs}`] === value) { return }
+
+        activity._stash[`_${saveAs}`] = value;
+        activity.callbacksEnabled && decision.picked?.call(activity, value, {decision, activity});
       },
     });
   }
 
-  get options() { return callOrReturn(this.#activity[this.optionsAccessor]) || [] }
-  set options(value) { /* ignore */ }
-  get resolution() { return this.#activity[this.resolutionAccessor] }
-  set resolution(value) { this.#activity[this.resolutionAccessor] = value }
+  #addValueProperty(activity, saveAsValue) {
+    let decision = this;
+
+    Object.defineProperty(activity, saveAsValue, {
+      configurable: true,
+      get() { return decision.saveValue(decision.resolution) },
+      set(value) { decision.resolution = decision.options.find(option => decision.saveValue(option) === value) },
+    });
+  }
+
+  #addDisplayProperty(activity, saveAsDisplay) {
+    let decision = this;
+
+    Object.defineProperty(activity, saveAsDisplay, {
+      configurable: true,
+      get() { return decision.displayValue(decision.resolution) },
+      set(value) { decision.resolution = decision.options.find(option => decision.displayValue(option) === value) },
+    });
+  }
+
+  #addSummaryProperty(activity, saveAsSummary) {
+    let decision = this;
+
+    Object.defineProperty(activity, saveAsSummary, {
+      configurable: true,
+      get() { return decision.summaryValue(decision.resolution) },
+    });
+  }
+
+  //get options() { return callOrReturn(this.transient.options, this) || [] }
+  //set options(value) { this.transient.options = value }
+
+  get dictionary() { return this.options.toDictionary(o => [this.saveValue(o), this.displayValue(o)]) }
+
+  get resolution() { return this.activity[this.saveAs] }
+  set resolution(value) { this.activity[this.saveAs] = value }
+
+  get mutable() { return callOrReturn(this._mutable, this.activity, this.activity, this) }
+  set mutable(value) { this._mutable = value }
 
   get resolved() { return this.options.length === 0 || !!this.resolution }
 }
@@ -84,105 +128,280 @@ class ActivityDecision {
 export class Activity {
   constructor(properties) {
     this.log = [];
+    addTransient(this, {value: {}});
 
-    let [templateName, props] = properties.name ? [properties.name, properties] : [properties, {}];
+    let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.name, properties];
     props = {
-      decisionNames: "setup roll outcome pay".split(" "),
-      abilities: Ability.all,
-      outcomes: "criticalSuccess success failure criticalFailure".split(" "),
-      xdisplayForOutcomes: { // TODO why does removing the x break everything?
-        criticalSuccess: "Critical Success",
-        success: "Success",
-        failure: "Failure",
-        criticalFailure: "Critical Failure",
-      },
+      decisions: [{name: "Roll"}, {name: "Outcome"}],
       ...Activity.template(templateName),
       ...props};
     Object.assign(this, props);
 
     // evaluate the template's lazy-loaded properties
-    "description".split(" ").forEach(prop => this[prop] && (this[prop] = this[prop]()));
+    "description".split(" ").forEach(prop =>
+      this[prop] && this[prop].call && (this[prop] = this[prop]())
+    );
 
     this.name ||= templateName;
-    this.id ||= crypto.randomUUID();
+    this.id ||= `activity-${this.name}-${crypto.randomUUID()}`;
+
+    Object.defineProperty(this, `callbacksEnabled`, {get() {return true}});
   }
+
+  /////////////////////////////////////////////// Associations
 
   // TODO how can we do this without hitting the DOM?
   get domainSheet() { return document.querySelector("domain-sheet") }
   get actor() { return this.domainSheet.actor(this.actorId) }
 
-  get decisionNames() { return this.decisions ? Object.keys(this.decisions) : undefined }
-  set decisionNames(value) {
-    this.decisions = value.toDictionary(v => [v, new ActivityDecision(v, this)])
+  /////////////////////////////////////////////// Decisions & Resolution
+
+  get decisions() { return this.transient.decisions }
+  set decisions(value) {
+    this.transient.decisions = value.map(v => v.constructor === ActivityDecision ? v : new ActivityDecision(v, this));
+  }
+  decision(name) { return this.decisions.find(d => d.name === name) }
+
+  get resolved() { return this.decisions.reduce((all, d) => all && d.resolved, true) }
+  
+  /////////////////////////////////////////////// Actions
+
+  boost(...abilities) {
+    let {by} = abilities[0];
+    by && abilities.shift();
+    by ??= 1;
+    abilities.forEach(ability => {
+      this.domainSheet.boost({by}, ability);
+      this.info(`📈 Boosted ${ability} by ${by} <small>, to ${this.domainSheet.data[ability.toLowerCase()]}</small>`);
+    });
   }
 
-  get resolved() { return Object.values(this.decisions).reduce((all, d) => all && d.resolved, true) }
-  
-  outcomePicked(outcome) {
-    this.info(`Outcome: ${this.displayForOutcome(outcome)}`);
-    this[outcome]?.call(this);
+  reduce(...abilities) {
+    let {by} = abilities[0];
+    by && abilities.shift();
+    by ??= -1;
+    abilities.forEach(ability => {
+      this.domainSheet.boost({by}, ability);
+      this.warning(`📉 Reduced ${ability} by ${Math.abs(by)} <small>, to ${this.domainSheet.data[ability.toLowerCase()]}</small>`);
+    });
   }
+
+  addConsumable(attrs, logMessage) {
+    this.info(logMessage || `➕ Added ${attrs.name}`);
+    this.domainSheet.addConsumable(attrs);
+  }
+
+  addFame() {
+    this.log("👩🏻‍🎤 Add fame");
+    this.domainSheet.addFame();
+  }
+
+  addBonusActivity(actor) {
+    this.log(`🛟 Added bonus activity for ${actor.name}`);
+    actor.bonusActivities += 1;
+  }
+
+  /////////////////////////////////////////////// Logging
 
   debug(html) { this.log.push({level: "debug", html}) }
   info(html) { this.log.push({level: "info", html}) }
   warning(html) { this.log.push({level: "warning", html}) }
   error(html) { this.log.push({level: "error", html}) }
   
+  /////////////////////////////////////////////// Templates
+
   static template(name) { return this.templates.find(s => s.name === name) }
   
   static get names() { return this._names ||= this.templates.map(s => s.name) }
-  static get templates() { return this._templates ||= [
-    {
-      type: "leadership",
-      name: "Claim Hex",
-      abilities: ["A", "B"],
+  static get templates() { return this._templates ||= [{
+    icon: "👑",
+    actorId: "system",
+    name: "Welcome, Domainkeeper",
+    summary: "You've got a new domain. Let's see how it goes.",
+    decisions: [],
+    description: () => `
+      <p>💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!</p>
+      <p>👑 Click the buttons above to do activities. You can cancel activities until you click buttons to roll or spend, so feel free to explore.</p>
+      <p>♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.</p>
+      <p>💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!</p>
+      <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
+    `,
+  }, {
+    icon: "🌱",
+    actorId: "system",
+    name: "Domain Concept",
+    summary: "Let's pick some starting stats",
+    description: () => `
+      <p>Use the buttons below to pick your stats, or allocate them as you like.</p>
+      <ol>
+        <li>Start each ability at 2</li>
+        <li>Heartland will boost one stat by 1</li>
+        <li>Charter will boost two different stats by 1 each</li>
+        <li>Government will boost three different stats by 1 each</li>
+      </ol>
+      <p>This should end with a 5/4/3/2 spread if you want to max one stat.</p>
+      <p>But maybe that makes things too hard or too easy! We ca adjust this!</p>
+    `,
+    decisions: (() => {
+      let boosts = {
+        // Heartlands
+        Forest: ["Culture"],
+        Swamp: ["Culture"],
+        Hill: ["Loyalty"],
+        Plain: ["Loyalty"],
+        Lake: ["Economy"],
+        River: ["Economy"],
+        Mountain: ["Stability"],
+        Ruins: ["Stability"],
+  
+        // Charters
+        Conquest: ["Loyalty"],
+        Expansion: ["Culture"],
+        Exploration: ["Stability"],
+        Grant: ["Economy"],
+        Open: [],
+  
+        // Governments
+        Despotism: ["Stability", "Economy"],
+        Feudalism: ["Stability", "Culture"],
+        Oligarchy: ["Loyalty", "Economy"],
+        Republic: ["Stability", "Loyalty"],
+        Thaumacracy: ["Economy", "Culture"],
+        Yeomanry: ["Loyalty", "Culture"],
+      };
+      let summaryValue = (option) => {
+        let abilities = boosts[option] || [];
+        return abilities.length === 0 ? `Free boost` : `Boost ${abilities.join(" and ")}`;
+      };
+      let picked = (option, {activity}) => activity.boost(...boosts[option]);
+
+      return [{
+        name: "Heartland",
+        saveAs: "heartland",
+        options: "Forest Swamp Hill Plain Lake River Mountain Ruins".split(" "),
+        picked,
+        summaryValue,
+      }, {
+        name: "Charter",
+        saveAs: "charter",
+        options: "Conquest Expansion Exploration Grant Open".split(" "),
+        picked,
+        summaryValue,
+      }, {
+        name: "Free Charter Boost",
+        saveAs: "freeCharterBoost",
+        options: Ability.all,
+        picked: (ability, {activity}) => activity.boost(ability),
+      }, {
+        name: "Government",
+        saveAs: "government",
+        options: "Despotism Feudalism Oligarchy Republic Thaumacracy Yeomanry".split(" "),
+        picked,
+        summaryValue,
+      }, {
+        name: "Free Government Boost",
+        saveAs: "freeGovernmentBoost",
+        options: Ability.all,
+        picked: (ability, {activity}) => activity.boost(ability),
+      }];
+    })(),
+  }, {
+    type: "leadership",
+    icon: "🧭",
+    name: "Reconnoiter Hex",
+    summary: "You hire a team to survey a particular hex.",
+    // TODO limit to after you've built an appropriate structure?
+    decisions: [
+      {name: "Roll", options: ["Economy", "Stability"]},
+      {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Reconnoiter hex and boost stability`,
+          success: `Reconnoiter hex`,
+          failure: `Fail`,
+          criticalFailure: `Unrest`,
+        },
+      }
+    ],
+    // TODO difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
+    criticalSuccess() {
+      this.success();
+      this.info("🗺️ The world feels a wee bit safer now.");
+      this.boost("Stability")
     },
-    {
-      type: "civic",
-      icon: "💰",
-      name: "Contribute",
-      summary: "This settlement is hard at work.",
-      decisionNames: ["setup"],
+    success() { this.info("🎉 You successfully reconnoiter the hex.") },
+    failure() { this.warning("❌ You fail to reconnoiter the hex.") },
+    criticalFailure() {
+      this.error(`💀 You catastrophically fail to reconnoiter the hex and several members of the party lose their lives.`);
+      this.boost("Unrest");
+    },
+  }, {
+    type: "leadership",
+    name: "Claim Hex",
+    abilities: ["A", "B"],
+  }, {
+    type: "civic",
+    icon: "💰",
+    name: "Contribute",
+    summary: "This settlement is hard at work.",
+    decisions: [{
+      name: "Contribution",
+      saveAs: "contribution",
       options: () => Ability.all,
-      optionPicked: (option) => this.boost(ability),
+      picked: (ability, {activity}) => activity.boost(ability),
+    }],
+  }, {
+    type: "civic",
+    icon: "🚧",
+    name: "Build Structure",
+    summary: "Construct something in this settlement that will have long-term benefits",
+    description: () => `Add building's cost to the DC`,
+    decisions: [{
+      name: "Pick a structure",
+      description: "Choose a structure you want to build.",
+      saveAs: "structureName",
+      options: () => new AvalableStructures().names,
+      displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
+      mutable: (activity, decision) => activity.decision("Roll").mutable,
     },
     {
-      type: "civic",
-      icon: "🚧",
-      name: "Build Structure",
-      summary: "Construct something in this settlement that will have long-term benefits",
-      description: () => `Add building's cost to the DC`,
-      parameters: () => new AvalableStructures().names,
-      displayForParameter: structureName => `<structure-description name="${structureName}"></structure-description>`,
-      abilities: ["Economy"],
-      payments: () => Ability.all,
-      summariesForOutcomes: {
+      name: "Roll",
+      options: ["Economy"]
+    },
+    {
+      name: "Outcome",
+      summaries: {
         criticalSuccess: `Build it; Boost a random Ability by 1`,
         success: `Build it`,
         failure: `Fail`,
         criticalFailure: `Fail; Reduce a random Ability by 1`,
       },
-      criticalSuccess() {
-        this.info("😂 Everyone rallies to help.");
-        this.boost(Ability.random);
-        this.success();
-      },
-      success() {
-        this.info(`🏛️ You built the ${this.parameterValue}!`);
-        this.actor.powerups.push(new Structure(this.parameterValue));
-
-        this.info("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
-        this.info("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
-        this.info("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
-      },
-      failure() { this.warning("❌ You fail to build the building") },
-      criticalFailure() {
-        this.warning("💀 Some workers are killed in a construction accident");
-        this.reduce(Ability.random);
-        this.failure();
-      },
     },
-  ]}
+    {
+      name: "Pay with",
+      saveAs: "paymentAbility",
+      options: () => Ability.all,
+    }],
+    criticalSuccess() {
+      this.info("😂 Everyone rallies to help.");
+      this.boost(Ability.random);
+      this.success();
+    },
+    success() {
+      this.info(`🏛️ You built the ${this.structureName}!`);
+      this.actor.powerups.push(new Structure(this.structureName));
+
+      this.info("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
+      this.info("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
+      this.info("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
+    },
+    failure() { this.warning("❌ You fail to build the building") },
+    criticalFailure() {
+      this.warning("💀 Some workers are killed in a construction accident");
+      this.reduce(Ability.random);
+      this.failure();
+    },
+  }]}
 }
 window.Activity = Activity;
 
@@ -249,251 +468,280 @@ Eris.test("Activity", makeSure => {
     });
   });
 
-  makeSure.describe("parameters", makeSure => {
-    makeSure.let("activity", () => new Activity({name: "Dance", parameters: ["A", "B", "C"]}));
+  makeSure.describe("decisions", makeSure => {
+    let makeActivity = (decision) => new Activity({name: "Dance", decisions: [decision]});
 
-    makeSure.it("accepts a property", ({assert, activity}) => {
-      assert.equals(activity.parameters, ["A", "B", "C"]);
+    makeSure.it("configures the decision with the object I pass in", ({assert}) => {
+      let activity = makeActivity({name: "Color", options: ["Red", "Green", "Blue"]});
+      assert.equals(activity.decisions.length, 1);
+      assert.equals(activity.decision("Color").options, ["Red", "Green", "Blue"]);
     });
 
     makeSure.it("accepts a property that's a function", ({assert}) => {
-      let activity = new Activity({name: "Dance", parameters: () => ["1", "2", "3"]})
-      assert.equals(activity.parameters, ["1", "2", "3"]);
+      let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+      assert.equals(activity.decision("Color").options, ["Red", "Green", "Blue"]);
     });
 
-    makeSure.it("exposes an accessor for the parameter", ({assert, activity}) => {
+    makeSure.it("exposes an accessor for the parameter", ({assert}) => {
       let callbacks = [];
-      activity.parameterPicked = (parameter) => callbacks.push(parameter);
-      activity.parameter = null;
-      activity.parameter = "B";
-      assert.equals(callbacks, [null, "B"]);
-      assert.equals(activity.parameter, "B");
+      let activity = makeActivity({
+        name: "Color",
+        options: () => ["Red", "Green", "Blue"],
+        picked: (color, {decision, activity}) => callbacks.push(color),
+      });
+      activity.color = null;
+      activity.color = "Blue";
+      assert.equals(callbacks, [null, "Blue"]);
+      assert.equals(activity.color, "Blue");
     });
 
-    makeSure.it("causes an exception if you try to set something that's not an option", ({assert, activity}) => {
-      assert.expectError(() => activity.parameter = "D", "TypeError");
+    makeSure.it("causes an exception if you try to set something that's not an option", ({assert}) => {
+      let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+      assert.expectError(() => activity.color = "Yellow", "TypeError");
     });
 
-    makeSure.describe("internal values", makeSure => {
-      makeSure.it("exposes accessors for the values", ({assert, activity}) => {
-        assert.equals(activity.valueForParameter("A"), "A");
-        assert.equals(activity.valueForParameters, ["A", "B", "C"]);
+    makeSure.describe("savedValue allows you to work with objects but save IDs", makeSure => {
+      let saveValue = (color) => color ? color[0].toLowerCase() : null;
+
+      makeSure.it("by default, uses the value itself", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+        assert.equals(activity.decision("Color").saveValue("Red"), "Red");
       });
 
       makeSure.it("can be set via property", ({assert}) => {
-        let activity = new Activity({name: "Dance", parameters: ["A", "B"], valueForParameter: (param) => `1-${param}`});
-        
-        assert.equals(activity.valueForParameter("A"), "1-A");
-        assert.equals(activity.valueForParameters, ["1-A", "1-B"]);
-        assert.jsonEquals(activity.dictionaryOfParameters, {"1-A": "A", "1-B": "B"});
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], saveValue});
+        assert.equals(activity.decision("Color").saveValue("Red"), "r");
+        assert.jsonEquals(activity.decision("Color").dictionary, {r: "Red", g: "Green", b: "Blue"});
+      });
 
-        assert.equals(activity.decisions.setup.valueFor("A"), "1-A");
-        assert.equals(activity.decisions.setup.values, ["1-A", "1-B"]);
-        assert.jsonEquals(activity.decisions.setup.dictionary, {"1-A": "A", "1-B": "B"});
+      makeSure.it("exposes an accessor for the current save value", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], saveValue});
+        
+        assert.equals(activity.colorValue, null);
+        
+        activity.color = "Red";
+        assert.equals(activity.colorValue, "r");
+
+        activity.colorValue = "g";
+        assert.equals(activity.color, "Green");
+        assert.equals(activity.colorValue, "g");
+      });
+    });
+
+    makeSure.describe("displayValue allows you to work with objects but show components or names", makeSure => {
+      let displayValue = (color) => color ? color[0].toUpperCase() : null;
+
+      makeSure.it("by default, uses the value itself", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+        assert.equals(activity.decision("Color").displayValue("Red"), "Red");
+      });
+
+      makeSure.it("can be set via property, using a function", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], displayValue});
+        assert.equals(activity.decision("Color").displayValue("Red"), "R");
+        assert.jsonEquals(activity.decision("Color").dictionary, {Red: "R", Green: "G", Blue: "B"});
+      });
+
+      makeSure.it("can be set via property, using a dictionary", ({assert}) => {
+        let displayValues = {Red: "R", Green: "G", Blue: "B"};
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], displayValues});
+        assert.equals(activity.decision("Color").displayValue("Red"), "R");
+        assert.jsonEquals(activity.decision("Color").dictionary, displayValues);
       });
 
       makeSure.it("exposes an accessor for the current display value", ({assert}) => {
-        let activity = new Activity({name: "Dance", parameters: ["A", "B"], valueForParameter: (param) => param ? `1-${param}` : undefined});
-        assert.equals(activity.parameterValue, undefined);
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], displayValue});
         
-        activity.parameter = "A";
-        assert.equals(activity.parameterValue, "1-A");
+        assert.equals(activity.colorDisplay, null);
+        
+        activity.color = "Red";
+        assert.equals(activity.colorDisplay, "R");
 
-        activity.parameterValue = "1-B";
-        assert.equals(activity.parameter, "B");
-        assert.equals(activity.parameterValue, "1-B");
+        activity.colorDisplay = "G";
+        assert.equals(activity.color, "Green");
+        assert.equals(activity.colorDisplay, "G");
       });
     });
 
-    makeSure.describe("display values", makeSure => {
-      makeSure.it("exposes accessors for the displays", ({assert, activity}) => {
-        assert.equals(activity.displayForParameter("A"), "A");
-        assert.equals(activity.displayForParameters, ["A", "B", "C"]);
+    makeSure.describe("summaryValue allow you to work with objects but show short descriptions", makeSure => {
+      let summaries = {Red: "Like a fire truck", Green: "Like a plant", Blue: "Like the sky"};
+      let summaryValue = (color) => summaries[color];
+
+      makeSure.it("by default, no summary is given", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+        assert.equals(activity.decision("Color").summaryValue("Red"), undefined);
       });
 
-      makeSure.it("can be set via property", ({assert}) => {
-        let activity = new Activity({name: "Dance", parameters: ["A", "B"], displayForParameter: (param) => param?.toLowerCase()});
-        assert.equals(activity.displayForParameter("A"), "a");
-        assert.equals(activity.displayForParameters, ["a", "b"]);
-        assert.jsonEquals(activity.dictionaryOfParameters, {A: "a", B: "b"});
+      makeSure.it("can be set via property, using a function", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], summaryValue});
+        assert.equals(activity.decision("Color").summaryValue("Red"), "Like a fire truck");
+        assert.jsonEquals(activity.decision("Color").summaries, summaries);
       });
 
-      makeSure.it("exposes an accessor for the current display value", ({assert}) => {
-        let activity = new Activity({name: "Dance", parameters: ["A", "B"], displayForParameter: (param) => param?.toLowerCase()});
-        assert.equals(activity.parameterDisplay, undefined);
+      makeSure.it("can be set via property, using a dictionary", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], summaries});
+        assert.equals(activity.decision("Color").summaryValue("Red"), "Like a fire truck");
+        assert.jsonEquals(activity.decision("Color").summaries, summaries);
+      });
+
+      makeSure.it("exposes a (read only) accessor for the current display value", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], summaryValue});
         
-        activity.parameter = "A";
-        assert.equals(activity.parameterDisplay, "a");
+        assert.equals(activity.colorSummary, undefined);
+        
+        activity.color = "Red";
+        assert.equals(activity.colorSummary, "Like a fire truck");
       });
     });
 
-    makeSure.describe("value summaries", makeSure => {
-      makeSure.it("exposes accessors for the summaries", ({assert, activity}) => {
-        assert.equals(activity.summaryForParameter("A"), "");
-        assert.jsonEquals(activity.summariesForParameters, {});
+    makeSure.describe("mutability allows the user to edit their pick", makeSure => {
+      makeSure.it("by default, is only mutable while pending", ({assert}) => {
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+        let decision = activity.decision("Color");
+        
+        assert.true(decision.mutable);
+        
+        activity.color = "Red";
+        assert.false(decision.mutable);
       });
 
-      makeSure.it("can be set via property", ({assert}) => {
-        let activity = new Activity({name: "Dance", parameters: ["A", "B"], summariesForParameters: {A: "eh!", B: "🐝"}});
-        assert.equals(activity.summaryForParameter("A"), "eh!");
-        assert.equals(activity.summaryForParameter("B"), "🐝");
-        assert.equals(activity.summaryForParameter("C"), "");
+      makeSure.it("can be overridden with properties", ({assert}) => {
+        let whatever = true;
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], mutable: () => whatever});
+        let decision = activity.decision("Color");
+        
+        assert.true(decision.mutable);
+        
+        whatever = false;
+        assert.false(decision.mutable);
       });
     });
   });
 
-  makeSure.describe("abilities", makeSure => {
-    makeSure.let("activity", () => new Activity({name: "Dance", abilities: ["A", "B", "C"]}));
-
-    makeSure.it("gets defaults if not set", ({assert}) => {
+  makeSure.describe("default decisions", makeSure => {
+    makeSure.it("has two decisions: roll and outcome", ({assert}) => {
       let activity = new Activity("Dance");
-      assert.equals(activity.abilities, Ability.all);
+      assert.equals(activity.decisions.map(d => d.name), ["Roll", "Outcome"]);
     });
 
-    makeSure.it("accepts a property", ({assert, activity}) => {
-      assert.equals(activity.abilities, ["A", "B", "C"]);
+    makeSure.describe("Roll decision", makeSure => {
+      makeSure.describe("saveAs", makeSure => {
+        makeSure.it("gets defaults if not set", ({assert}) => {
+          let activity = new Activity({name: "Dance", ability: "Culture"});
+          let decision = activity.decision("Roll");
+          assert.equals(decision.saveAs, "ability");
+          assert.equals(decision.resolution, "Culture");
+        });
+
+        makeSure.it("can be set by the properties", ({assert}) => {
+          let activity = new Activity({name: "Dance", rolled: "Culture", decisions: [{name: "Roll", saveAs: "rolled"}]});
+          let decision = activity.decision("Roll");
+          assert.equals(decision.saveAs, "rolled");
+          assert.equals(decision.resolution, "Culture");
+        });
+      });
+      
+      makeSure.describe("options", makeSure => {
+        makeSure.it("gets defaults if not set", ({assert}) => {
+          let activity = new Activity("Dance");
+          let decision = activity.decision("Roll");
+          assert.equals(decision.options, Ability.all);
+          assert.equals(decision.displayValue("Culture"), `<ability-roll ability="Culture">Culture</ability-roll>`);
+        });
+
+        makeSure.it("can be set by the properties", ({assert}) => {
+          let activity = new Activity({name: "Dance", decisions: [{name: "Roll", options: ["Culture"]}]});
+          let decision = activity.decision("Roll");
+          assert.equals(decision.options, ["Culture"]);
+          assert.equals(decision.displayValue("Culture"), `<ability-roll ability="Culture">Culture</ability-roll>`);
+        });
+      });
     });
 
-    makeSure.it("accepts a property that's a function", ({assert}) => {
-      let activity = new Activity({name: "Dance", abilities: () => ["1", "2", "3"]})
-      assert.equals(activity.abilities, ["1", "2", "3"]);
-    });
+    makeSure.describe("Outcome decision", makeSure => {
+      makeSure.describe("saveAs", makeSure => {
+        makeSure.it("gets defaults if not set", ({assert}) => {
+          let activity = new Activity({name: "Dance", outcome: "success"});
+          let decision = activity.decision("Outcome");
+          assert.equals(decision.saveAs, "outcome");
+          assert.equals(decision.resolution, "success");
+        });
 
-    makeSure.it("exposes an accessor for the usedAbility", ({assert, activity}) => {
-      let callbacks = [];
-      activity.usedAbilityPicked = (parameter) => callbacks.push(parameter);
-      activity.usedAbility = null;
-      activity.usedAbility = "B";
-      assert.equals(callbacks, [null, "B"]);
-      assert.equals(activity.usedAbility, "B");
-    });
+        makeSure.it("can be set by the properties", ({assert}) => {
+          let activity = new Activity({name: "Dance", successLevel: "success", decisions: [{name: "Outcome", saveAs: "successLevel"}]});
+          let decision = activity.decision("Outcome");
+          assert.equals(decision.saveAs, "successLevel");
+          assert.equals(decision.resolution, "success");
+        });
+      });
+      
+      makeSure.describe("options", makeSure => {
+        makeSure.it("gets defaults if not set", ({assert}) => {
+          let activity = new Activity("Dance");
+          let decision = activity.decision("Outcome");
+          assert.equals(decision.options, "criticalSuccess success failure criticalFailure".split(" "));
+          assert.equals(decision.displayValue("criticalSuccess"), `Critical Success`);
+        });
 
-    makeSure.it("causes an exception if you try to set something that's not an option", ({assert, activity}) => {
-      assert.expectError(() => activity.usedAbility = "D", "TypeError");
+        makeSure.it("can be set by the properties", ({assert}) => {
+          let activity = new Activity({name: "Dance", decisions: [{name: "Outcome", options: ["criticalSuccess"]}]});
+          let decision = activity.decision("Outcome");
+          assert.equals(decision.options, ["criticalSuccess"]);
+          assert.equals(decision.displayValue("criticalSuccess"), `Critical Success`);
+        });
+      });
+
+      makeSure.it("setting the outcome calls outcome callbacks", ({assert}) => {
+        let callbacks = {criticalSuccess: 0, success: 0, failure: 0, criticalFailure: 0};
+        let activity = new Activity({
+          criticalSuccess: () => callbacks.criticalSuccess++,
+          success: () => callbacks.success++,
+          failure: () => callbacks.failure++,
+          criticalFailure: () => callbacks.criticalFailure++,
+        });
+
+        activity.outcome = "criticalSuccess";
+        assert.equals(callbacks.criticalSuccess, 1);
+
+        activity.outcome = "success";
+        assert.equals(callbacks.success, 1);
+
+        activity.outcome = "failure";
+        assert.equals(callbacks.failure, 1);
+
+        activity.outcome = "criticalFailure";
+        assert.equals(callbacks.criticalFailure, 1);
+
+        activity.outcome = null;
+      });
+
+      makeSure.it("does not hit callbacks when restoring state or setting the same value", ({assert}) => {
+        let callbacks = {criticalSuccess: 0, success: 0, failure: 0, criticalFailure: 0};
+        let activity = new Activity({
+          criticalSuccess: () => callbacks.criticalSuccess++,
+          outcome: "criticalSuccess",
+        });
+
+        assert.equals(callbacks.criticalSuccess, 0);
+        activity.outcome = "criticalSuccess";
+        assert.equals(callbacks.criticalSuccess, 0);
+      });
     });
   });
 
-  makeSure.describe("outcomes", makeSure => {
-    makeSure.let("activity", () => new Activity({name: "Dance"}));
-
-    makeSure.it("gets defaults if not set", ({assert, activity}) => {
-      assert.equals(activity.outcomes, ["criticalSuccess", "success", "failure", "criticalFailure"]);
+  makeSure.describe("resolved", makeSure => {
+    makeSure.it("is not resolved by default", ({assert}) => {
+      let activity = new Activity("Dance");
+      assert.false(activity.resolved);
     });
 
-    makeSure.it("accepts a property", ({assert}) => {
-      let activity = new Activity({name: "Dance", outcomes: ["A", "B", "C"]});
-      assert.equals(activity.outcomes, ["A", "B", "C"]);
-    });
-
-    makeSure.it("accepts a property that's a function", ({assert}) => {
-      let activity = new Activity({name: "Dance", outcomes: () => ["1", "2", "3"]})
-      assert.equals(activity.outcomes, ["1", "2", "3"]);
-    });
-
-    makeSure.it("exposes an accessor for the outcome, which calls outcome-callacks by default", ({assert, activity}) => {
-      let callbacks = {criticalSuccess: 0, success: 0, failure: 0, criticalFailure: 0};
-      activity.criticalSuccess = () => callbacks.criticalSuccess++;
-      activity.success = () => callbacks.success++;
-      activity.failure = () => callbacks.failure++;
-      activity.criticalFailure = () => callbacks.criticalFailure++;
-
-      activity.outcome = "criticalSuccess";
-      assert.equals(callbacks.criticalSuccess, 1);
-      assert.equals(activity.outcome, "criticalSuccess");
-
-      activity.outcome = "success";
-      assert.equals(callbacks.success, 1);
+    makeSure.it("is resolved if all decisions are resolved", ({assert}) => {
+      let activity = new Activity({name: "Dance", ability: "Economy", outcome: "success"});
+      assert.equals(activity.ability, "Economy");
+      assert.equals(activity.decision("Roll").resolved, true);
       assert.equals(activity.outcome, "success");
-
-      activity.outcome = "failure";
-      assert.equals(callbacks.failure, 1);
-      assert.equals(activity.outcome, "failure");
-
-      activity.outcome = "criticalFailure";
-      assert.equals(callbacks.criticalFailure, 1);
-      assert.equals(activity.outcome, "criticalFailure");
-
-      activity.outcome = null;
-      assert.equals(activity.outcome, null);
-    });
-
-    makeSure.it("causes an exception if you try to set something that's not an option", ({assert, activity}) => {
-      assert.expectError(() => activity.outcome = "boom", "TypeError");
-    });
-  });
-
-  makeSure.describe("decision", makeSure => {
-    makeSure.describe("names", makeSure => {
-      makeSure.it("gets defaults if not set", ({assert}) => {
-        let activity = new Activity("Dance");
-        assert.equals(activity.decisionNames, ["setup", "roll", "outcome", "pay"]);
-      });
-      makeSure.it("accepts a property", ({assert}) => {
-        let activity = new Activity({name: "Dance", decisionNames: ["foo", "bar"]});
-        assert.equals(activity.decisionNames, ["foo", "bar"]);
-      });
-    });
-
-    makeSure.describe("default options for decisions", makeSure => {
-      makeSure.let("activity", () => new Activity("Dance"));
-
-      makeSure.it("knows the decision names", ({assert, activity}) => {
-        assert.equals(Object.keys(activity.decisions), ["setup", "roll", "outcome", "pay"]);
-      });
-
-      makeSure.it("has a setup decision, which is resolved by default, since it has no options", ({assert, activity}) => {
-        let decision = activity.decisions.setup;
-        assert.defined(decision);
-        assert.equals(decision.options, []);
-        assert.true(decision.resolved);
-      });
-
-      makeSure.it("has a roll decision, which is unresolved by default, since no ability has been rolled", ({assert, activity}) => {
-        let decision = activity.decisions.roll;
-        assert.defined(decision);
-        assert.equals(decision.options, activity.abilities);
-        assert.false(decision.resolved);
-        
-        decision.resolution = "Economy";
-        assert.true(decision.resolved);
-
-        assert.equals(activity.usedAbility, "Economy");
-      });
-
-      makeSure.it("has an outcome decision, which is unresolved by default, since no outcome has been picked", ({assert, activity}) => {
-        let decision = activity.decisions.outcome;
-        assert.defined(decision);
-        assert.equals(decision.options, ["criticalSuccess", "success", "failure", "criticalFailure"]);
-        assert.false(decision.resolved);
-        
-        decision.resolution = "criticalSuccess";
-        assert.true(decision.resolved);
-
-        assert.equals(activity.outcome, "criticalSuccess");
-      });
-
-      makeSure.it("has a pay decision, which is resolved by default, since no payment options are given", ({assert, activity}) => {
-        let decision = activity.decisions.pay;
-        assert.defined(decision);
-        assert.equals(decision.options, []);
-        assert.true(decision.resolved);
-      });
-    });
-
-    makeSure.describe("resolved", makeSure => {
-      makeSure.it("is not resolved by default", ({assert}) => {
-        let activity = new Activity("Dance");
-        assert.false(activity.resolved);
-      });
-
-      makeSure.it("is resolved if all decisions are resolved", ({assert}) => {
-        let activity = new Activity({name: "Dance", usedAbility: "Economy", outcome: "success"});
-        assert.equals(activity.usedAbility, "Economy");
-        assert.equals(activity.decisions.roll.resolved, true);
-        assert.equals(activity.outcome, "success");
-        assert.equals(activity.decisions.outcome.resolved, true);
-        assert.true(activity.resolved);
-      });
+      assert.equals(activity.decision("Outcome").resolved, true);
+      assert.true(activity.resolved);
     });
   });
 });

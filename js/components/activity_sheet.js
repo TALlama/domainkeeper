@@ -1,52 +1,71 @@
-import {mod} from "../helpers.js";
+import {errorMessage, mod} from "../helpers.js";
 
 import {Activity} from "../models/activity.js";
 
 import {RxElement} from "./rx_element.js";
+import {DifficultyClass} from "./difficulty_class.js";
+import {AbilityRoll} from "./ability_roll.js";
+
+import { debugJSON } from "../helpers.js";
 
 export class ActivitySheet extends RxElement {
   connectedCallback() {
-    let activityId = this.getAttribute("activity-id")
-    this.activity = reef.signal(activityId
+    let activityId = this.getAttribute("activity-id");
+    let initWith = activityId || this.getAttribute("name") || JSON.parse(this.getAttribute("properties") || "{}");
+
+    this.activity = activityId
       ? this.domainSheet.activity(activityId)
-      : new Activity(this.getAttribute("name") || JSON.parse(this.getAttribute("properties") || "{}")));
+      : reef.signal(new Activity(initWith));
 
     reef.component(this, () => this.render());
     this.addEventListener("click", this);
-
-    this.activity.info("hey there");
-    this.activity.warning("oh no");
-    this.activity.error("ack!");
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
   get actor() { return this.domainSheet.actor(this.activity.actorId) }
 
+  get canCancel() { return this.mutableDecisionsCount == (this.activity.decisions || []).length }
+  get mutableDecisionsCount() { return (this.activity.decisions || []).count(d => d.mutable) }
+
   render() {
+    this.setAttribute("name", this.activity.name);
+    this.setAttribute("data-type", this.activity.type); // TODO make this just "type"
+    this.setAttribute("data-outcome", this.activity.outcome); // TODO make this just "outcome"
+
     return `
       <header>
         ${this.activity.name}
         <small class="byline">${this.actor ? `by ${this.actor.name}` : ""}</small>
-        <a href="#" class="cancel-activity" data-action="cancelActivity">Cancel</a>
+        ${debugJSON(this.activity.id)}
+        ${this.renderCancelLink()}
       </header>
       <span class="icon">${this.activity.icon}</span>
-      <blockquote class="description">${this.activity.description}</blockquote>
+      <blockquote class="summary">${this.activity.summary}</blockquote>
       <section class="body">
+        <blockquote class="description">${this.activity.description || ""}</blockquote>
         ${this.renderDecisions()}
-        <h4>Log</h4>
-        <ol class="log list-unstyled">${this.renderLog()}</ol>
+        <section class="log">
+          <header>Log</header>
+          <ol class="log-entries list-unstyled">${this.renderLog()}</ol>
+        </section>
       </section>`;
   }
 
+  renderCancelLink() {
+    return this.canCancel
+      ? `<a href="#" class="cancel-activity" data-action="cancelActivity">Cancel</a>`
+      : ``;
+  }
+
   renderDecisions() {
-    return Object.values(this.activity.decisions).map(decision =>
-      `<h4>${decision.name}</h4><activity-decision-panel name=${decision.name}></activity-decision-panel>`
+    return this.activity.decisions.map(decision =>
+      `<activity-decision-panel name="${decision.name}"></activity-decision-panel>`
     ).join("");
   }
 
   renderLog() {
     return this.activity.log.map(entry =>
-      `<li class="log-${entry.level}">${entry.html}</li>`
+      `<li class="log-entry ${entry.level}">${entry.html}</li>`
     ).join("");
   }
 
@@ -62,81 +81,71 @@ export class ActivityDecisionPanel extends RxElement {
   }
 
   get activity() { return this.closest("activity-sheet")?.activity }
-  get decision() { return this.activity.decisions[this.getAttribute("name")] }
+  get decision() { return this.activity.decision(this.getAttribute("name")) }
 
   render() {
     let activity = this.activity;
     let decision = this.decision;
+    if (!decision) { return `` }
 
-    // TODO instead of resolution, use the display value
-    return decision.resolved ? this.renderResolved(activity, decision) : this.renderPending(activity, decision);
+    decision.resolved && this.setAttribute("resolved", "");
+
+    return `
+      <header>
+        <span class='name'>${decision.name}</span>
+        ${decision.resolved ? this.renderResolved(activity, decision) : ``}
+        ${this.renderUndoLink()}
+      </header>
+      ${decision.resolved ? `` : this.renderPending(activity, decision)}`;
   }
 
-  renderResolved(activity, decision) { return `✅ ${decision.resolution}` }
+  renderResolved(activity, decision) {
+    return `<span class="picked">${decision.displayValue(decision.resolution)}</span>`;
+  }
+
+  renderUndoLink(css="") {
+    return this.decision.resolution && this.decision.mutable ? `<a href="#" class="pick-again ${css}" data-action="undoPick"> ⤺ Pick again…</a>` : ``;
+  }
+
   renderPending(activity, decision) {
+    if (!decision.options) {
+      return errorMessage(`Cannot render pending decision "${decision.name}" in "${activity.name}" [${activity.id}] because it has no options`, decision, activity);
+    }
+
     return `
-      <fieldset class='pickable-group repickable'>
+      <div class="description">${decision.description || ""}</div>
+      <fieldset class='pickable-group'>
         ${decision.options.map(option => {
-          let value = decision.valueFor(option);
+          let value = decision.saveValue(option);
           let name = `${activity.id}__${decision.name}`;
           let id = `${name}__${value}`;
 
           return `<label class='btn pickable' for="${id}">
             <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
-            ${decision.displayFor(option)}
+            ${decision.displayValue(option)}
+            ${this.renderSummary(activity, decision, option)}
           </label>`
         }).join("")}
       </fieldset>`;
   }
 
+  renderSummary(activity, decision, option) {
+    let summary = decision.summaryValue(option);
+    return summary ? `<small class="metadata">${summary}</small>` : ``;
+  }
+
   doPick(event) {
     this.decision.resolution = event.target.value;
+  }
+
+  undoPick(event) {
+    this.decision.resolution = null;
   }
 }
 ActivityDecisionPanel.define("activity-decision-panel");
 
 /*
 export class ActivitySheet extends RxElement {
-  constructor(properties) {
-    super();
-
-    Object.assign(this, properties);
-    this.id ||= crypto.randomUUID();
-    this.abilities ||= this.abilities || ["Culture", "Economy", "Loyalty", "Stability"];
-
-    Maker.tag(this, {id: this.id, class: "entry activity"},
-      {"data-type": this.type},
-      Maker.tag("header",
-        this.name,
-        Maker.tag("small", {class: "byline", rx: () => (this.actor ? `by ${this.actor.name}` : ``)}),
-        Maker.tag("a", "Cancel", {href: "#", class: "cancel-activity", click: () => this.cancel()})),
-      Maker.tag("span", {class: "icon"}, this.icon),
-      Maker.tag("blockquote", {class: "description"}, this.description),
-      Maker.tag("section", {class: "body"}, (el) => this.body(el, this)),
-    );
-  }
-
-  connectedCallback() {
-    this.addEventListener("click", this);
-  }
-
-  handleEvent(event) {
-    let setUsedAbility = event.target.closest("[data-set-used-ability]")?.dataset?.setUsedAbility;
-    if (setUsedAbility) { this.usedAbility = setUsedAbility }
-
-    let setOutcome = event.target.closest("[data-set-outcome]")?.dataset?.setOutcome;
-    if (setOutcome) { this.outcome = setOutcome }
-  }
-
-  body(into) {
-    Maker.tag(into, this.callOrReturn(this.preprompt), this.promptSection, this.preoutcome, this.outcomeSection, Maker.tag("section", {class: "log"}));
-  }
-
-  callOrReturn(value) { return value?.call ? value.call(this, this) : value }
-
-  get activityLog() { return this.closest("domain-activity-log") }
-  get domainSheet() { return document.querySelector("domain-sheet") }
-
   // TODO move this to Activity
   get currentTurn() { return this.domainSheet.data.turns.last() }
   get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
@@ -183,77 +192,16 @@ export class ActivitySheet extends RxElement {
     ];
   }
 
-  get promptSection() { return Maker.tag("section", {class: "prompt"}, this.prompt) }
-  set prompt(value) { this._prompt = value }
-  get prompt() {
-    return this.callOrReturn(this._prompt) ?? [
-      Maker.tag("h4", this.promptText),
-      Maker.tag("section", {class: "roll-setup"},
         Maker.tag("difficulty-class", {base: this.domainSheet.controlDC, ...this.difficultyClassOptions}),
-        new PickableGroup({
-          options: this.abilities.toDictionary(ability => [ability, this.rollParts(ability)]),
-          option: (ability, optParts, html) => {
             let usedBy = this.peerActivityAbilityUsers[ability];
             if (usedBy) {
               return blockedTooltip(`${usedBy.name} already used this ability for this activity this turn`, html);
             } else {
               return html;
             }
-          },
-          parts: [{class: "ability"}],
-        }),
-      ),
-    ];
-  }
-  set promptText(value) { this._promptText = value }
-  get promptText() { return this.callOrReturn(this._promptText) ?? (this.abilities.length === 1 ? "Roll:" : "Roll one:") }
-
-  get difficultyClassOptions() { return this._difficultyClassOptions ??= {} }
-  set difficultyClassOptions(value) { this._difficultyClassOptions = value }
   get difficulty() { return this.$(".prompt difficulty-class")?.total }
 
-  // TODO move this to Activity
-  get usedAbility() { return this.dataset.usedAbility }
-  set usedAbility(value) {
-    this.dataset.usedAbility = this.record.usedAbility = value;
-    this.usedAbilitySet && this.usedAbilitySet();
-  }
-  get belowAbility() { return Ability.next(this.usedAbility) }
-  get aboveAbility() { return Ability.previous(this.usedAbility) }
-
-  get outcomeSection() { return Maker.tag("section", {class: "outcome"}, this.possibleOutcomes) }
-  set possibleOutcomes(value) { this._possibleOutcomes = value }
-  get possibleOutcomes() {
-    return this.callOrReturn(this._possibleOutcomes) ?? [
-      Maker.tag("h4", "Result:"),
-      new PickableGroup({
-        options: {
-          criticalSuccess: [`Critical Success`, Maker.tag("small", this.criticalSuccessDescription), {class: "outcome outcome-critical-success", "data-set-outcome": "criticalSuccess", change: () => { this.criticalSuccess() }}],
-          success: [`Success`, Maker.tag("small", this.successDescription), {class: "outcome outcome-success", "data-set-outcome": "success", change: () => { this.success() }}],
-          failure: [`Failure`, Maker.tag("small", this.failureDescription), {class: "outcome outcome-failure", "data-set-outcome": "failure", change: () => { this.failure() }}],
-          criticalFailure: [`Critical Failure`, Maker.tag("small", this.criticalFailureDescription), {class: "outcome outcome-critical-failure", "data-set-outcome": "criticalFailure", change: () => { this.criticalFailure() }}],
-        },
-      }),
-    ];
-  }
-
-  // TODO move this to Activity
-  get outcome() { return this.dataset.outcome }
-  set outcome(value) {
-    this.dataset.outcome = this.record.outcome = value;
-    this.outcomeSet && this.outcomeSet();
-  }
-
-  // TODO move this to Activity
-  get actorId() { return this.dataset.actorId }
-  set actorId(value) { this.dataset.actorId = this.record.actorId = value; }
-  get actor() { return this.domainSheet.actor(this.actorId) }
-
-  // TODO move this to Activity
-  criticalSuccess() { this.success() }
-  success() { this.log('Good job!') }
-  failure() { this.log('Oh no!') }
-  criticalFailure() { this.failure() }
+  Maker.tag("small", this.criticalSuccessDescription)
 
   cancel() {
     let entries = this.domainSheet.data.turns.last().entries;
@@ -261,14 +209,6 @@ export class ActivitySheet extends RxElement {
     entries.splice(ixThis, 1);
     this.remove();
   }
-
-  get logElement() { return this.$('.log') }
-  log(...parts) {
-    let newEntry = Maker.tag("p", ...parts, {appendTo: this.logElement});
-    this.record.log.push(newEntry.innerHTML);
-    return newEntry;
-  }
-
   // TODO use the underlying Activity
   get record() {
     return this._record ||= reef.signal({
@@ -280,47 +220,6 @@ export class ActivitySheet extends RxElement {
       log: [],
     });
   }
-
-  // TODO move all these log-and-do methods to Activity
-  boost(...abilities) {
-    let {by} = abilities[0];
-    by && abilities.shift();
-    by ??= 1;
-    abilities.forEach(ability => {
-      this.domainSheet.boost({by}, ability);
-      this.log(`📈 Boosted ${ability} by ${by}`, Maker.tag("span", {class: "metadata"}, `, to ${this.domainSheet.data[ability.toLowerCase()]}`));
-    });
-  }
-
-  reduce(...abilities) {
-    let {by} = abilities[0];
-    by && abilities.shift();
-    by ??= -1;
-    abilities.forEach(ability => {
-      this.domainSheet.boost({by}, ability);
-      this.log(`📉 Reduced ${ability} by ${Math.abs(by)}`, Maker.tag("span", {class: "metadata"}, `, to ${this.domainSheet.data[ability.toLowerCase()]}`));
-    });
-  }
-
-  addConsumable(attrs) {
-    this.domainSheet.addConsumable(attrs);
-  }
-
-  addFame() {
-    this.log("👩🏻‍🎤 Add fame");
-    this.domainSheet.addFame();
-  }
-
-  addBonusActivity(actor) {
-    this.log(`🛟 Added bonus activity for ${actor.name}`);
-    actor.bonusActivities += 1;
-  }
-
-  // Formatting options
-  // TODO move to helpers
-  static tagged(tag, ...parts) { return Maker.tag("li", Maker.tag("strong", `${tag} `), ...parts) }
-  static prereq(...parts) { return ActivitySheet.tagged("Requirements", ...parts) }
-  static special(...parts) { return ActivitySheet.tagged("Special", ...parts) }
 
   pickOne(items, options) {
     let {prompt, appendTo, beforeItems, afterItems} = options;
@@ -369,16 +268,6 @@ export class ActivitySheet extends RxElement {
       <span class="icon">${this.icon}</span>
       <span class="name">${this.name}</span>
     </button>`
-  }
-
-  // TODO move to Activity
-  static get all() { return [...this.leadershipActivities, ...this.civicActivities] }
-  static icon(name) {
-    this._allActivities ??= this.all;
-    return this._allActivities.find(a => a.name === name)?.icon ?? {
-      "Ruin": "😢",
-      "Initial Boosts": "🌱",
-    }[name] ?? "❓";
   }
 
   // TODO move to Activity

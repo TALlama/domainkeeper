@@ -242,6 +242,10 @@
     }
 
     > .entries {
+      display: flex;
+      flex-direction: column;
+      gap: var(--external-margin);
+
       > .turn-marker {
         display: flex;
         background: linear-gradient(to bottom, transparent, transparent 45%, grey 50%, transparent 55%, transparent);
@@ -259,7 +263,7 @@
   activity-sheet {
     --bg: grey;
     --outcome-bg: var(--bg);
-    --description-bg: var(--subheader-bg);
+    --summary-bg: var(--subheader-bg);
 
     &[data-type="leadership"] { --bg: var(--color-leadership-bg); }
     &[data-type="civic"] { --bg: var(--color-civic-bg); }
@@ -276,14 +280,14 @@
     display: grid;
     grid-template-areas:
       "header     "
-      "description"
+      "summary"
       "body       ";
 
     &:has(> .icon) {
       grid-template-columns: 1fr 4rem;
       grid-template-areas:
         "header      icon"
-        "description icon"
+        "summary     icon"
         "body        body";
     }
 
@@ -291,7 +295,7 @@
       grid-area: header;
       display: flex;
       align-items: baseline;
-      background: linear-gradient(140deg, var(--outcome-bg), var(--bg));
+      background: linear-gradient(to right in lch, var(--outcome-bg) 60%, var(--bg));
       border-bottom: 1px solid var(--bg);
       padding: var(--internal-margin);
 
@@ -305,7 +309,23 @@
     .cancel-activity {
       margin-left: auto;
     }
-    &:has(.pick-ability input:checked, .outcome input:checked) .cancel-activity { display: none }
+
+    &[name="Build Structure"] {
+      activity-decision-panel[name="Pick a structure"] {
+        .pickable-group {
+          --min-item-width: 15em;
+
+          max-height: clamp(10em, 30vh, 30em);
+          overflow: scroll;
+        }
+
+        header structure-description {
+          background: var(--color-selected-bg);
+          margin: var(--internal-margin) 0;
+          padding: var(--internal-margin);
+        }
+      }
+    }
 
     &:has(.pick-ability input:checked) difficulty-class .mods {
       pointer-events: none;
@@ -324,24 +344,49 @@
       padding: var(--internal-margin);
     }
 
-    > .description {
-      grid-area: description;
-      background: var(--description-bg);
-      border-bottom: 1px solid var(--description-bg);
+    > .summary {
+      grid-area: summary;
+      background: var(--summary-bg);
+      border-bottom: 1px solid var(--summary-bg);
       padding: var(--internal-margin);
       font-size: var(--step--1);
     }
 
     > .body {
       grid-area: body;
-      padding: var(--internal-margin);
 
-      h1, h2, h3, h4, h5, h6 {
-        background: var(--description-bg);
-        border-bottom: 1px solid var(--description-bg);
+      h1, h2, h3, h4, h5, h6, header {
+        --vertical-margin: var(--external-margin);
+
+        background: linear-gradient(to right in lch, var(--outcome-bg) 60%, var(--bg));
+        border-bottom: 1px solid var(--outcome-bg);
         padding: var(--internal-margin);
-        margin: var(--external-margin) calc(-1 * var(--internal-margin));
+        margin: var(--vertical-margin) 0;
         font-size: var(--step--1);
+      }
+
+      > .description {
+        padding: var(--internal-margin);
+      }
+
+      activity-decision-panel {
+        display: block;
+
+        &:not([resolved]) {
+          padding: 0 var(--internal-margin);
+
+          h1, h2, h3, h4, h5, h6, header {
+            margin-inline: calc(-1 * var(--internal-margin));
+          }
+        }
+
+        &[resolved] {
+          padding: 0;
+
+          header, + .log header{
+            --vertical-margin: 0;
+          }
+        }
       }
     }
 
@@ -355,6 +400,23 @@
         font-size: var(--step--2);
 
         &:empty { display: none }
+      }
+    }
+
+    .log {
+      display: none;
+      &:has(ol li:not(.debug)) { display: block }
+
+      .log-entry {
+        --level-color: transparent;
+        padding: var(--internal-margin);
+        padding-left: var(--external-margin);
+        background: linear-gradient(to right, var(--level-color), white var(--internal-margin));
+        box-shadow: inset 0 0 var(--small-margin) var(--level-color);
+
+        &.debug { --level-color: pink }
+        &.warning { --level-color: orange }
+        &.error { --level-color: red }
       }
     }
 
@@ -482,8 +544,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--min-item-width), 1fr));
 
-    &.pick-structure { --min-item-width: 15em }
-
     :is(label.pickable) {
       &:has(input:checked), &:hover {
         --button-bg: var(--color-selected-bg);
@@ -505,6 +565,21 @@
         --button-border-color: hsl(0, 0%, 80%);
       }
     }
+
+    .pickable:has(ability-roll) {
+      display: inline-flex;
+      padding: 0;
+
+      ability-roll {
+        padding: var(--internal-margin);
+        flex-grow: 1;
+      }
+    }
+
+    .pickable:has(input[value="criticalSuccess"]):hover { --button-bg: var(--color-critical-success-bg) }
+    .pickable:has(input[value="success"]):hover { --button-bg: var(--color-success-bg) }
+    .pickable:has(input[value="failure"]):hover { --button-bg: var(--color-failure-bg) }
+    .pickable:has(input[value="criticalFailure"]):hover { --button-bg: var(--color-critical-failure-bg) }
   }
 
   difficulty-class {
