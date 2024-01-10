@@ -236,7 +236,7 @@ class DomainSheet extends RxElement {
     if (existing.length < 3) {
       this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
     } else {
-      this.log(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
+      this.info(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
       this.data.xp += 100;
     }
   }
@@ -284,9 +284,7 @@ class DomainSheet extends RxElement {
     };
   }
 
-  log(message) {
-    this.activityLog?.currentActivity?.log(message);
-  }
+  info(message) { this.activityLog?.currentActivity?.log(message) }
 
   modify({by}, names) {
     names.forEach(name => {
@@ -297,7 +295,7 @@ class DomainSheet extends RxElement {
       let overage = target - max;
       this.data[key] = Math.min(max, target);
       if (overage > 0) {
-        this.log(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
+        this.info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
         this.data.xp += overage * 50;
       }
     })

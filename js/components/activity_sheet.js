@@ -267,23 +267,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
     return [
       new ActivitySheet({
         type: "leadership",
-        icon: "🧭",
-        name: "Reconnoiter Hex",
-        description: "You hire a team to survey a particular hex.",
-        // TODO limit to after you've built an appropriate structure?
-        abilities: ["Economy", "Stability"],
-        difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
-        criticalSuccessDescription: `Reconnoiter hex and boost stability`,
-        successDescription: `Reconnoiter hex`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Unrest`,
-        criticalSuccess() { this.success(); this.log("🗺️ The world feels a wee bit safer now."); this.boost("Stability") },
-        success() { this.log("🎉 You successfully reconnoiter the hex.") },
-        failure() { this.log("❌ You fail to reconnoiter the hex.") },
-        criticalFailure() { this.log("💀 You catastrophically fail to reconnoiter the hex and several members of the party lose their lives."); this.boost("Unrest") },
-      }),
-      new ActivitySheet({
-        type: "leadership",
         icon: "👷🏻‍♂️",
         name: "Clear Hex",
         description: "You lead the effort to clear out the dangers in an already-reconnoitered hex.",
@@ -303,14 +286,16 @@ ActivityDecisionPanel.define("activity-decision-panel");
             ...hexDCOptions,
           ]),
         },
-        criticalSuccessDescription: `Clear hex and boost economy`,
-        successDescription: `Clear hex`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Unrest`,
-        criticalSuccess() { this.success(); this.log("🐻 You brought back spoils!"); this.boost("Economy") },
-        success() { this.log("🎉 You successfully clear the hex.") },
-        failure() { this.log("❌ You fail to clear the hex.") },
-        criticalFailure() { this.log("💀 You catastrophically fail to clear the hex and several workers lose their lives."); this.boost("Unrest") },
+        summaries: {
+          criticalSuccessDescription: `Clear hex and boost economy`,
+          successDescription: `Clear hex`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `Unrest`,
+        },
+        criticalSuccess() { this.success(); this.info("🐻 You brought back spoils!"); this.boost("Economy") },
+        success() { this.info("🎉 You successfully clear the hex.") },
+        failure() { this.warning("❌ You fail to clear the hex.") },
+        criticalFailure() { this.error("💀 You catastrophically fail to clear the hex and several workers lose their lives."); this.boost("Unrest") },
       }),
       new ActivitySheet({
         
@@ -326,28 +311,30 @@ ActivityDecisionPanel.define("activity-decision-panel");
           p(`After careful consideration, you decide that you would rather not hold onto a particular hex as part of your claimed territory. You renounce your claim to it and pull back any settlers or explorers. Attempt a basic Exploration or Wilderness check. You can abandon more than one hex at a time, but each additional hex you abandon increases the DC of this check by 1.`),
           special(`The Unrest gained from abandoning a hex doubles if it includes a settlement. A settlement in an abandoned hex becomes a Freehold (page 41).`),
         ],
-        criticalSuccessDescription: `Abandon Hex; Economy boost`,
-        successDescription: `Abandon hex; Unrest`,
-        failureDescription: `Abandon hex; Unrest + 2; Possible Squatters event`,
-        criticalFailureDescription: `Abandon hex; Unrest +3; Definite Bandit Activity Event`,
+        summaries: {
+          criticalSuccessDescription: `Abandon Hex; Economy boost`,
+          successDescription: `Abandon hex; Unrest`,
+          failureDescription: `Abandon hex; Unrest + 2; Possible Squatters event`,
+          criticalFailureDescription: `Abandon hex; Unrest +3; Definite Bandit Activity Event`,
+        },
         criticalSuccess() {
           this.success();
-          this.log(`⚱️ Settlers and explorers return and resettle elsewhere in your domain, bringing with them bits of salvage from the abandoned hexes.`)
+          this.info(`⚱️ Settlers and explorers return and resettle elsewhere in your domain, bringing with them bits of salvage from the abandoned hexes.`)
           this.boost("Economy"); // this is the old `Gain 1 RP per abandoned hex`
         },
         success() {
-          this.log(`🎉 You abandon the hex or hexes, decreasing Size by 1 per hex abandoned (this affects all statistics determined by Size; see page 38).`);
+          this.info(`🎉 You abandon the hex or hexes, decreasing Size by 1 per hex abandoned (this affects all statistics determined by Size; see page 38).`);
           this.reduce("Size");
           this.boost("Unrest");
         },
         failure() {
           this.success();
-          this.log(`😠 Some citizens become disgruntled refugees who refuse to leave the hex. Increase Unrest by add additional point and then attempt a DC 6 flat check. If you fail, the refugees become bandits, and during your next Event phase, you experience a Squatters event automatically in addition to any other event that might occur.`);
+          this.warning(`😠 Some citizens become disgruntled refugees who refuse to leave the hex. Increase Unrest by add additional point and then attempt a DC 6 flat check. If you fail, the refugees become bandits, and during your next Event phase, you experience a Squatters event automatically in addition to any other event that might occur.`);
           this.boost("Unrest");
         },
         criticalFailure() {
           this.failure();
-          this.log(`🥷🏻 Automatically experience a Bandit Activity event instead of a Squatters event`);
+          this.error(`🥷🏻 Automatically experience a Bandit Activity event instead of a Squatters event`);
           this.boost("Unrest");
         },
       }),
@@ -360,14 +347,16 @@ ActivityDecisionPanel.define("activity-decision-panel");
           prereq(`The hex in which you’re establishing the settlement has been Cleared and doesn’t currently have a settlement (including a Freehold) in it.`),
           p(`You draw up plans, gather resources, entice citizens, and establish boundaries to found a brand new settlement in the hex. A settlement always starts as a village. See page 46 for further details about building settlements.`),
         ],
-        criticalSuccessDescription: `Establish settlement`,
-        successDescription: `Establish settlement if you reduce 1 Ability by 1`,
-        failureDescription: `Establish settlement if you reduce 1 Ability by 2`,
-        criticalFailureDescription: `Fail`,
+        summaries: {
+          criticalSuccessDescription: `Establish settlement`,
+          successDescription: `Establish settlement if you reduce 1 Ability by 1`,
+          failureDescription: `Establish settlement if you reduce 1 Ability by 2`,
+          criticalFailureDescription: `Fail`,
+        },
         establish() {
           let namer = Maker.tag("input", {value: `Outpost ${this.domainSheet.data.settlements.length}`});
 
-          this.log(
+          this.info(
             "🎉 You establish the settlement. What'll you name it?",
             namer,
             Maker.tag("button", "Do it!", {click: (event) => {
@@ -383,7 +372,7 @@ ActivityDecisionPanel.define("activity-decision-panel");
             {by: -cost, afterItems: [`Do not establish the settlement right now`], andThen: () => this.establish()});
         },
         criticalSuccess() {
-          this.log(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
+          this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
           this.establish();
         },
         success() {
@@ -392,7 +381,7 @@ ActivityDecisionPanel.define("activity-decision-panel");
         failure() {
           this.conditionalSuccess(2);
         },
-        criticalFailure() { this.log(`❌ You fail to establish the settlement`) },
+        criticalFailure() { this.warning(`❌ You fail to establish the settlement`) },
       }),
       new ActivitySheet({
         type: "leadership",
@@ -404,25 +393,27 @@ ActivityDecisionPanel.define("activity-decision-panel");
         ],
         abilities: ["Loyalty"],
         dc: "Group DC", // TODO make this work
-        criticalSuccessDescription: `Integrate; Claim Hex`,
-        successDescription: `Integrate; Reduce 1 Ability by 1`,
-        failureDescription: `Fail; Increase Unrest`,
-        criticalFailureDescription: `Fail forever; Increase Unrest by 2`,
+        summaries: {
+          criticalSuccessDescription: `Integrate; Claim Hex`,
+          successDescription: `Integrate; Reduce 1 Ability by 1`,
+          failureDescription: `Fail; Increase Unrest`,
+          criticalFailureDescription: `Fail forever; Increase Unrest by 2`,
+        },
         criticalSuccess() {
-          this.log(`🤝🏻 The group becomes part of your domain, granting the specific boon or advantage listed in that group’s entry.`);
-          this.log(`🗺️ If you haven’t already claimed the hex in which the group dwells, you immediately do so, gaining Domain XP and increasing Size by 1 (this affects all statistics determined by Size; see page 38). If the hex doesn’t share a border with your domain, it becomes a secondary territory and checks involving this location take a Control penalty.`);
+          this.info(`🤝🏻 The group becomes part of your domain, granting the specific boon or advantage listed in that group’s entry.`);
+          this.info(`🗺️ If you haven’t already claimed the hex in which the group dwells, you immediately do so, gaining Domain XP and increasing Size by 1 (this affects all statistics determined by Size; see page 38). If the hex doesn’t share a border with your domain, it becomes a secondary territory and checks involving this location take a Control penalty.`);
         },
         success() {
-          this.log(`🤝🏻 The group becomes part of your domain, granting the specific boon or advantage listed in that group’s entry.`);
-          this.log(`🗺️ You don’t claim the hex the group is in.`);
+          this.info(`🤝🏻 The group becomes part of your domain, granting the specific boon or advantage listed in that group’s entry.`);
+          this.warning(`🗺️ You don’t claim the hex the group is in.`);
           this.modOneAnd(`Reduce {ability} by 1 to integrate the group into your domain`);
         },
         failure() {
-          this.log(`❌ The group refuses to pledge to you at this time. You can attempt to get them to Pledge Fealty next turn.`);
+          this.warning(`❌ The group refuses to pledge to you at this time. You can attempt to get them to Pledge Fealty next turn.`);
           this.boost("Unrest");
         },
         criticalFailure() {
-          this.log(`🤬 The group refuses to pledge to you— furthermore, it will never Pledge Fealty to your domain, barring significant in-play changes or actions by the PCs (subject to the GM’s approval). The group’s potentially violent rebuff of your offer increases Unrest by 2.`);
+          this.error(`🤬 The group refuses to pledge to you— furthermore, it will never Pledge Fealty to your domain, barring significant in-play changes or actions by the PCs (subject to the GM’s approval). The group’s potentially violent rebuff of your offer increases Unrest by 2.`);
           this.boost({by: 2}, "Unrest");
         },
       }),
@@ -433,23 +424,25 @@ ActivityDecisionPanel.define("activity-decision-panel");
         description: "You organize the effort to tame the land.",
         preprompt: p(hexMods),
         difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
-        criticalSuccessDescription: `Build it`,
-        successDescription: `Build it if you Reduce 1 Ability by 1`,
-        failureDescription: `Build it if you Reduce 1 Ability by 2`,
-        criticalFailureDescription: `Fail`,
+        summaries: {
+          criticalSuccessDescription: `Build it`,
+          successDescription: `Build it if you Reduce 1 Ability by 1`,
+          failureDescription: `Build it if you Reduce 1 Ability by 2`,
+          criticalFailureDescription: `Fail`,
+        },
         criticalSuccess() {
-          this.log(`🚀 The whole domain rallies around this project.`);
+          this.info(`🚀 The whole domain rallies around this project.`);
         },
         success() {
-          this.log("😓 Construction is always costly.");
+          this.info("😓 Construction is always costly.");
           this.modOneAnd(`Reduce {ability} by {by} and build the feature`, {afterItems: [`Do not build`]});
         },
         failure() {
-          this.log("😰 Construction is unexpectedly difficult.");
+          this.warning("😰 Construction is unexpectedly difficult.");
           this.modOneAnd(`Reduce {ability} by {by} and build the feature`, {by: -2, afterItems: [`Do not build`]});
         },
         criticalFailure() {
-          this.log("❌ The construction process is a failure.");
+          this.error("❌ The construction process is a failure.");
         },
       }),
       new ActivitySheet({
@@ -458,21 +451,23 @@ ActivityDecisionPanel.define("activity-decision-panel");
         name: "Creative Solution",
         description: "You plan ahead to make the next action more successful.",
         preprompt: p(`You work with your domain’s scholars, thinkers, and practitioners of magical and mundane experimentation to come up with new ways to resolve issues when business as usual is just not working. Attempt a basic check.`),
-        criticalSuccessDescription: `Bank a Reroll+2 for this turn, and if you don't use it get XP`,
-        successDescription: `Bank a Reroll+2 for this turn`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `-1 penalty to Culture checks this + next turn`,
+        summaries: {
+          criticalSuccessDescription: `Bank a Reroll+2 for this turn, and if you don't use it get XP`,
+          successDescription: `Bank a Reroll+2 for this turn`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `-1 penalty to Culture checks this + next turn`,
+        },
         criticalSuccess() {
           this.success();
-          this.log(`⚙️ If you don’t use your Creative Solution by the end of this turn, you lose this benefit and gain 10 Domain XP instead.`);
+          this.info(`⚙️ If you don’t use your Creative Solution by the end of this turn, you lose this benefit and gain 10 Domain XP instead.`);
         },
         success() {
-          this.log(`🎉 You can call upon the solution to aid in resolving any Domain check made during the remainder of this turn. Do so when a check is rolled, but before you learn the result. Immediately reroll that check with a +2 circumstance bonus; you must take the new result.`);
+          this.info(`🎉 You can call upon the solution to aid in resolving any Domain check made during the remainder of this turn. Do so when a check is rolled, but before you learn the result. Immediately reroll that check with a +2 circumstance bonus; you must take the new result.`);
           this.domainSheet.addConsumable({name: "Creative Solution", action: "reroll", description: "Reroll +2"});
         },
-        failure() { this.log("❌ You spend time thinking the problem through, but no solution shows itself.") },
+        failure() { this.warning("❌ You spend time thinking the problem through, but no solution shows itself.") },
         criticalFailure() {
-          this.log(`Your scholars and thinkers are so frustrated that you take a –1 circumstance penalty to Culture checks until the end of the NEXT Domain turn.`)
+          this.error(`Your scholars and thinkers are so frustrated that you take a –1 circumstance penalty to Culture checks until the end of the NEXT Domain turn.`)
           this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
         },
       }),
@@ -485,21 +480,23 @@ ActivityDecisionPanel.define("activity-decision-panel");
           p(`This boosts the ability above the one you roll:`),
           ol(`Rolling Stability will increase Loyalty`, `Rolling Loyalty will increase Economy`, `Rolling Economy will increase Culture`, `Rolling Culture will increase Stability`),
         ],
-        criticalSuccessDescription: `Boost Ability by 2`,
-        successDescription: `Boost Ability by 1`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Unrest`,
+        summaries: {
+          criticalSuccessDescription: `Boost Ability by 2`,
+          successDescription: `Boost Ability by 1`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `Unrest`,
+        },
         criticalSuccess() {
-          this.log("🎁 You make good time and find plentiful resources!");
+          this.info("🎁 You make good time and find plentiful resources!");
           this.boost({by: 2}, this.aboveAbility);
         },
         success() {
-          this.log("🎉 A fruitful expedition");
+          this.info("🎉 A fruitful expedition");
           this.boost(this.aboveAbility);
         },
-        failure() { this.log("❌ Your expedition yields naught") },
+        failure() { this.warning("❌ Your expedition yields naught") },
         criticalFailure() {
-          this.log("💀 The expedition is a fiasco; some members do not return alive");
+          this.error("💀 The expedition is a fiasco; some members do not return alive");
           this.boost("Unrest");
         },
       }),
@@ -513,24 +510,26 @@ ActivityDecisionPanel.define("activity-decision-panel");
           p(`This boosts the ability below the one you roll:`),
           ol(`Rolling Culture will increase Economy`, `Rolling Economy will increase Loyalty`, `Rolling Loyalty will increase Stability`, `Rolling Stability will increase Culture`),
         ],
-        criticalSuccessDescription: `Boost Ability by 2`,
-        successDescription: `Boost Ability by 1`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Unrest`,
+        summaries: {
+          criticalSuccessDescription: `Boost Ability by 2`,
+          successDescription: `Boost Ability by 1`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `Unrest`,
+        },
         criticalSuccess() {
-          this.log(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
+          this.info(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
           this.boost({by: 2}, this.belowAbility);
         },
         success() {
-          this.log(`🎉 Your holiday is a success.`);
+          this.info(`🎉 Your holiday is a success.`);
           this.boost(this.belowAbility)
         },
         failure() {
-          this.log("❌ The holiday passes with little enthusiasm, but is still expensive.");
+          this.warning("❌ The holiday passes with little enthusiasm, but is still expensive.");
           this.modOneAnd(`Pay for the events with {ability}`);
         },
         criticalFailure() {
-          this.log("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate. A random ability is reduced.")
+          this.error("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate. A random ability is reduced.")
           this.reduce(Ability.random);
         },
       }),
@@ -544,24 +543,26 @@ ActivityDecisionPanel.define("activity-decision-panel");
           p(`When disaster strikes, you send out a call for help to another nation with whom you have diplomatic relations. The DC of this check is equal to the other group’s Negotiation DC +2 (see the sidebar on page 23).`),
         ],
         dc: "Group DC", // TODO make this work
-        criticalSuccessDescription: `Boost an Ability you pick by 2; +4 bonus to future roll`,
-        successDescription: `Boost an Ability you pick by 2`,
-        failureDescription: `Boost a random Ability by 1`,
-        criticalFailureDescription: `1d4 Unrest`,
+        summaries: {
+          criticalSuccessDescription: `Boost an Ability you pick by 2; +4 bonus to future roll`,
+          successDescription: `Boost an Ability you pick by 2`,
+          failureDescription: `Boost a random Ability by 1`,
+          criticalFailureDescription: `1d4 Unrest`,
+        },
         criticalSuccess() {
           this.success();
-          this.log(`🎁 In addition, your ally’s aid grants a +4 circumstance bonus to any one Domain check attempted during the remainder of this turn. You can choose to apply this bonus to any Domain check after the die is rolled, but must do so before the result is known.`);
+          this.info(`🎁 In addition, your ally’s aid grants a +4 circumstance bonus to any one Domain check attempted during the remainder of this turn. You can choose to apply this bonus to any Domain check after the die is rolled, but must do so before the result is known.`);
         },
         success() {
-          this.log(`🎉 Your ally sends the aid you need.`);
+          this.info(`🎉 Your ally sends the aid you need.`);
           this.modOneAnd(`Boost {ability} by 2`, {by: 2});
         },
         failure() {
-          this.log(`🥡 Your ally sends what aid they can.`);
+          this.warning(`🥡 Your ally sends what aid they can.`);
           this.boost(Ability.random);
         },
         criticalFailure() {
-          this.log(`💥 Your ally is tangled up in its own problems and is unable to assist you, is insulted by your request for aid, or might even have an interest in seeing your domain struggle against one of your ongoing events. Whatever the case, your pleas for aid make your domain look desperate. You gain no aid, but you do increase Unrest by 1d4.`);
+          this.error(`💥 Your ally is tangled up in its own problems and is unable to assist you, is insulted by your request for aid, or might even have an interest in seeing your domain struggle against one of your ongoing events. Whatever the case, your pleas for aid make your domain look desperate. You gain no aid, but you do increase Unrest by 1d4.`);
           this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
         },
       }),
@@ -574,25 +575,27 @@ ActivityDecisionPanel.define("activity-decision-panel");
           p(`You organize and encourage your citizens' efforts on bringing the domain together.`),
           p(`Depending on the ability used, this might take the form of a festival, competition, market day, circus, or other cooperative endeavor that brings people together. Perhaps your agents disperse through the citizenry to suppress dissent, or you hold a public trial. You could participate in baby-kissing and ribbon-cutting. Be creative!`),
         ],
-        criticalSuccessDescription: `Reduce Unrest; Gain Fame`,
-        successDescription: `Reduce Unrest`,
-        failureDescription: `Reduce Unrest; Reduce an Ability you pick by 1`,
-        criticalFailureDescription: `Reduce a random Ability by 1`,
+        summaries: {
+          criticalSuccessDescription: `Reduce Unrest; Gain Fame`,
+          successDescription: `Reduce Unrest`,
+          failureDescription: `Reduce Unrest; Reduce an Ability you pick by 1`,
+          criticalFailureDescription: `Reduce a random Ability by 1`,
+        },
         criticalSuccess() {
           this.success();
-          this.log("🗣️ People come from far and wide to join the festivities, and carry work back to their own lands.")
+          this.info("🗣️ People come from far and wide to join the festivities, and carry work back to their own lands.")
           this.addFame();
         },
         success() {
-          this.log(`🎉 The people enjoy the distraction.`);
+          this.info(`🎉 The people enjoy the distraction.`);
           this.reduce("Unrest");
         },
         failure() {
-          this.log(`💸 The people enjoy the distraction, but it's not cheap.`);
+          this.warning(`💸 The people enjoy the distraction, but it's not cheap.`);
           this.modOneAnd(`Pay with {ability}`, {andThen: () => this.reduce("Unrest")});
         },
         criticalFailure() {
-          this.log(`🔥 The merriment gets out of hand and riots ensue.`);
+          this.error(`🔥 The merriment gets out of hand and riots ensue.`);
           this.reduce(Ability.random);
         },
       }),
@@ -608,26 +611,28 @@ ActivityDecisionPanel.define("activity-decision-panel");
             andThen: (picked) => { activity.targetSettlement = picked },
           }),
         )},
-        criticalSuccessDescription: `Do a Civic Activity; Increase Stability or Loyalty by 1`,
-        successDescription: `Do a Civic Activity`,
-        failureDescription: `Do a Civic Activity; Increase Unrest`,
-        criticalFailureDescription: `Increase Unrest; Decrease Stability or Loyalty by 1`,
+        summaries: {
+          criticalSuccessDescription: `Do a Civic Activity; Increase Stability or Loyalty by 1`,
+          successDescription: `Do a Civic Activity`,
+          failureDescription: `Do a Civic Activity; Increase Unrest`,
+          criticalFailureDescription: `Increase Unrest; Decrease Stability or Loyalty by 1`,
+        },
         criticalSuccess() {
           this.success();
-          this.log(`👍🏻 Your vigilant oversight of this successful project inspires the domain.`);
+          this.info(`👍🏻 Your vigilant oversight of this successful project inspires the domain.`);
           this.boost(["Stability", "Loyalty"].random());
         },
         success() {
-          this.log(`🎉 You oversee the project to completion.`);
+          this.info(`🎉 You oversee the project to completion.`);
           this.addBonusActivity(this.targetSettlement);
         },
         failure() {
-          this.log(`😠 The project is completed, but the settlement is annoyed by your methods.`);
+          this.warning(`😠 The project is completed, but the settlement is annoyed by your methods.`);
           this.addBonusActivity(this.targetSettlement);
           this.boost("Unrest");
         },
         criticalFailure() {
-          this.log(`🤬 The citizenry revolt at your heavy-handedness and refuse to help.`);
+          this.error(`🤬 The citizenry revolt at your heavy-handedness and refuse to help.`);
           this.boost("Unrest");
           this.boost(["Stability", "Loyalty"].random());
         },
@@ -638,18 +643,20 @@ ActivityDecisionPanel.define("activity-decision-panel");
         name: "Train Lieutenant",
         description: "You work with an NPC leader to increase their capacity.",
         abilities: ["Loyalty"],
-        criticalSuccessDescription: `NPC Leader gets 2 activitys/turn, or success`,
-        successDescription: `Leader adds 2 activities to their repertiore`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Leader abandons their post`,
+        summaries: {
+          criticalSuccessDescription: `NPC Leader gets 2 activitys/turn, or success`,
+          successDescription: `Leader adds 2 activities to their repertiore`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `Leader abandons their post`,
+        },
         criticalSuccess() {
           let eligibleLeaders = this.domainSheet.data.leaders.filter(l => l.activitiesPerTurn < 2);
           if (eligibleLeaders.length > 0) {
-            this.log(`🧠 An apt pupil! They gain a second activity per turn.`);
+            this.info(`🧠 An apt pupil! They gain a second activity per turn.`);
             this.pickOne(eligibleLeaders, {
               format: (leader) => leader.name,
               andThen: (picked) => {
-                this.log(`${picked.name} can now do 2 activities per turn`);
+                this.info(`${picked.name} can now do 2 activities per turn`);
                 picked.activitiesPerTurn = 2;
                 this.domainSheet.leadersComponent.render();
 
@@ -658,14 +665,14 @@ ActivityDecisionPanel.define("activity-decision-panel");
           } else { this.success() }
         },
         success() {
-          this.log(`🤯 You teach them more about leadership. Add two actions to those available to them.`);
-          this.log(`🎗️ TODO we should actually track that.`);
+          this.info(`🤯 You teach them more about leadership. Add two actions to those available to them.`);
+          this.info(`🎗️ TODO we should actually track that.`);
         },
         failure() {
-          this.log(`😪 You might not be a great teacher or they might not be a good student, but this didn't work.`);
+          this.warning(`😪 You might not be a great teacher or they might not be a good student, but this didn't work.`);
         },
         criticalFailure() {
-          this.log(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
+          this.error(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
         },
       }),
       new ActivitySheet({
@@ -678,23 +685,25 @@ ActivityDecisionPanel.define("activity-decision-panel");
           p(`While the PCs can strike out themselves to deal with ongoing events, it’s often more efficient to Hire Adventurers. When you Hire Adventurers to help end an ongoing event, the DC is equal to your Control DC adjusted by the event’s level modifier.`),
           activity.modOneAnd(`Pay them with {ability}`, {prompt: "Before you roll, pay the mercs:"}),
         )},
-        criticalSuccessDescription: `Continuous Event ends`,
-        successDescription: `+2 bonus to end event`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Fail; Can't Hire Adventurers for this Event`,
+        summaries: {
+          criticalSuccessDescription: `Continuous Event ends`,
+          successDescription: `+2 bonus to end event`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `Fail; Can't Hire Adventurers for this Event`,
+        },
         criticalSuccess() {
-          this.log(`⚔️ You end the continuous event.`);
+          this.info(`⚔️ You end the continuous event.`);
         },
         success() {
-          this.log(`🔪 The continuous event doesn’t end, but you gain a +2 circumstance bonus to resolve the event during the next Event phase`);
+          this.info(`🔪 The continuous event doesn’t end, but you gain a +2 circumstance bonus to resolve the event during the next Event phase`);
           this.addConsumable({name: "Status: Hired Hands", description: "+2 Event Resolution (Circumstance bonus)"});
         },
         failure() {
-          this.log(`❌ You fail to end the continuous event`);
+          this.warning(`❌ You fail to end the continuous event`);
         },
         criticalFailure() {
           this.failure();
-          this.log(`🙊 Word spreads quickly through the region—you can no longer attempt to end this continuous event by Hiring Adventurers.`);
+          this.error(`🙊 Word spreads quickly through the region—you can no longer attempt to end this continuous event by Hiring Adventurers.`);
         },
       }),
       new ActivitySheet({
@@ -704,23 +713,25 @@ ActivityDecisionPanel.define("activity-decision-panel");
         description: "You use the mystic arts to forsee future events and prepare for them.",
         preprompt: p(`Your domain’s spellcasters read the omens and provide advice on how best to prepare for near-future events. Attempt a basic check.`),
         abilities: ["Culture"],
-        criticalSuccessDescription: `+2 bonus to resolve event`,
-        successDescription: `+1 bonus to resolve event`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `-1 penalty to resolve event`,
+        summaries: {
+          criticalSuccessDescription: `+2 bonus to resolve event`,
+          successDescription: `+1 bonus to resolve event`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `-1 penalty to resolve event`,
+        },
         criticalSuccess() {
-          this.log(`🧿 Gain a +2 circumstance bonus to the check to resolve the event.`);
+          this.info(`🧿 Gain a +2 circumstance bonus to the check to resolve the event.`);
           this.addConsumable({name: "Status: Prepared 2", description: "+2 Event Resolution (Circumstance bonus)"});
         },
         success() {
-          this.log(`🎴 Gain a +1 circumstance bonus to the check to resolve the event.`);
+          this.info(`🎴 Gain a +1 circumstance bonus to the check to resolve the event.`);
           this.addConsumable({name: "Status: Prepared 1", description: "+1 Event Resolution (Circumstance bonus)"});
         },
         failure() {
-          this.log(`❌ Your spellcasters divine no aid.`);
+          this.warning(`❌ Your spellcasters divine no aid.`);
         },
         criticalFailure() {
-          this.log(`💥 Your spellcasters provide inaccurate readings of the future. Take a -1 circumstance penalty to the check to resolve the event`);
+          this.error(`💥 Your spellcasters provide inaccurate readings of the future. Take a -1 circumstance penalty to the check to resolve the event`);
           this.addConsumable({name: "Status: Ill-Prepared", description: "-1 Event Resolution (Circumstance bonus)"});
         },
       }),
@@ -732,27 +743,29 @@ ActivityDecisionPanel.define("activity-decision-panel");
         // TODO limit to 1/turn
         abilities: ["Culture"],
         preprompt: p(`You encourage your domain’s artists to create and display a masterful work of art to bolster your domain’s reputation. Attempt a basic check; the result affects either Fame or Infamy (depending on the type of domain you’re running). Create a Masterpiece may be attempted only once per domain turn regardless of the number of leaders pursuing activities.`),
-        criticalSuccessDescription: `Gain Fame; Boost random Ability by 1`,
-        successDescription: `Gain Fame`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Fail; Lose Fame OR 1d4 Unrest`,
+        summaries: {
+          criticalSuccessDescription: `Gain Fame; Boost random Ability by 1`,
+          successDescription: `Gain Fame`,
+          failureDescription: `Fail`,
+          criticalFailureDescription: `Fail; Lose Fame OR 1d4 Unrest`,
+        },
         criticalSuccess() {
           this.success();
-          this.log(`💰 There is a constant stream of people coming to see it for themselves.`);
+          this.info(`💰 There is a constant stream of people coming to see it for themselves.`);
           this.boost(Ability.random);
         },
         success() {
-          this.log(`🗿 A stunning work of art is created, and people speak of it far and wide.`);
+          this.info(`🗿 A stunning work of art is created, and people speak of it far and wide.`);
           this.addFame();
         },
         failure() {
-          this.log(`❌ Your attempt to create a masterpiece fails`);
+          this.warning(`❌ Your attempt to create a masterpiece fails`);
         },
         criticalFailure() {
-          this.log(`💥 Not only does your attempt to create a masterpiece fail, it does so in a dramatic and humiliating way. Lose 1 Fame or Infamy point; if you have no Fame or Infamy points to lose, instead gain 1d4 Unrest.`);
+          this.error(`💥 Not only does your attempt to create a masterpiece fail, it does so in a dramatic and humiliating way. Lose 1 Fame or Infamy point; if you have no Fame or Infamy points to lose, instead gain 1d4 Unrest.`);
           let consumed = this.domainSheet.useConsumable({name: "Fame"});
           if (consumed) {
-            this.log("🤡 Fame reduced by 1");
+            this.error("🤡 Fame reduced by 1");
           } else {
             this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
           }

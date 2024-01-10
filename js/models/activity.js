@@ -194,12 +194,12 @@ export class Activity {
   }
 
   addFame() {
-    this.log("👩🏻‍🎤 Add fame");
+    this.info("👩🏻‍🎤 Add fame");
     this.domainSheet.addFame();
   }
 
   addBonusActivity(actor) {
-    this.log(`🛟 Added bonus activity for ${actor.name}`);
+    this.info(`🛟 Added bonus activity for ${actor.name}`);
     actor.bonusActivities += 1;
   }
 
