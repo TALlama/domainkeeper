@@ -385,7 +385,49 @@ export class Activity {
     type: "leadership",
     icon: "🚩",
     name: "Claim Hex",
-    abilities: ["A", "B"],
+    summary: "You bring the cleared hex into the domain.",
+    // TODO limit to 1/turn until level 4, then 2/turn until level 9, then 3/turn
+    description() {
+      return `
+        <p><strong>Required:</strong> You have Reconnoitered the hex to be claimed during hexploration. This hex must be adjacent to at least one hex that’s already part of your domain. If the hex to be claimed contains dangerous hazards or monsters, they must first be cleared out—either via standard adventuring or the Clear Hex activity.</p>
+        <p>Your surveyors fully explore the hex and attempt to add it into your domain.</p>
+      `
+    },
+    decisions: [
+      {
+        name: "Roll",
+        options: ["Economy", "Stability"]
+      },
+      {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Claim hex; Boost a random stat`,
+          success: `Claim hex`,
+          failure: `Fail`,
+          criticalFailure: `-1 Stability for rest of turn`,
+        }
+      }
+    ],
+    criticalSuccess() {
+      this.success();
+      let [ability, message] = [
+        ["Culture", "🎵 The speed of your occupation becomes a popular folk song around the domain."],
+        ["Economy", "🦌 A grand hunt in the new territory brings great wealth to the domain."],
+        ["Loyalty", "🎖️ The pioneers tell of your exploits and spread word of your deeds across the domain ."],
+        ["Stability", "🐴 The integration goes flawlessly thanks to your careful planning."],
+      ].random();
+      this.info(message);
+      this.boost(ability);
+    },
+    success() {
+      this.info(`🎉 You claim the hex and immediately add it to your territory, increasing Size by 1 (this affects all statistics determined by Size; see page 38).`);
+      this.boost("Size");
+    },
+    failure() { this.warning(`❌ You fail to claim the hex`) },
+    criticalFailure() {
+      this.error(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of your next turn.`);
+      this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
+    },
   }, {
     type: "civic",
     icon: "💰",
@@ -462,7 +504,7 @@ Eris.test("Activity", makeSure => {
   makeSure.it("pulls properties from the template", ({assert}) => {
     let activity = new Activity("Claim Hex");
     assert.equals(activity.name, "Claim Hex");
-    assert.equals(activity.abilities, ["A", "B"]);
+    assert.equals(activity.abilities, ["Economy", "Stability"]);
   });
 
   makeSure.describe("id", makeSure => {

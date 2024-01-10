@@ -17,7 +17,7 @@ export default class DomainActivityLog extends RxElement {
       this.newTurn();
       this.domainConcept();
       this.welcome();
-      this.newTurn();
+      this.newTurn(); // TODO this starts you off with two fame
     }
 
     let activityFinder = this.searchParams.get("activity");

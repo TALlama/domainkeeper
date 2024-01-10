@@ -313,40 +313,7 @@ ActivityDecisionPanel.define("activity-decision-panel");
         criticalFailure() { this.log("💀 You catastrophically fail to clear the hex and several workers lose their lives."); this.boost("Unrest") },
       }),
       new ActivitySheet({
-        type: "leadership",
-        icon: "🎏",
-        name: "Claim Hex",
-        description: "You bring the cleared hex into the domain.",
-        // TODO limit to 1/turn until level 4, then 2/turn until level 9, then 3/turn
-        preprompt: [
-          prereq(`You have Reconnoitered the hex to be claimed during hexploration. This hex must be adjacent to at least one hex that’s already part of your domain. If the hex to be claimed contains dangerous hazards or monsters, they must first be cleared out—either via standard adventuring or the Clear Hex activity.`),
-          p(`Your surveyors fully explore the hex and attempt to add it into your domain.`),
-        ],
-        abilities: ["Economy", "Stability"],
-        criticalSuccessDescription: `Claim hex; Boost a random stat`,
-        successDescription: `Claim hex`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `-1 Stability for rest of turn`,
-        criticalSuccess() {
-          this.success();
-          let [ability, message] = [
-            ["Culture", "🎵 The speed of your occupation becomes a popular folk song around the domain."],
-            ["Economy", "🦌 A grand hunt in the new territory brings great wealth to the domain."],
-            ["Loyalty", "🎖️ The pioneers tell of your exploits and spread word of your deeds across the domain ."],
-            ["Stability", "🐴 The integration goes flawlessly thanks to your careful planning."],
-          ].random();
-          this.log(message);
-          this.boost(ability);
-        },
-        success() {
-          this.log(`🎉 You claim the hex and immediately add it to your territory, increasing Size by 1 (this affects all statistics determined by Size; see page 38). Your occupation of the hex goes so smoothly that you can immediately attempt another Region activity.`);
-          this.boost("Size");
-        },
-        failure() { this.log(`❌ You fail to claim the hex`) },
-        criticalFailure() {
-          this.log(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of your next turn.`);
-          this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
-        },
+        
       }),
       new ActivitySheet({
         type: "leadership",
