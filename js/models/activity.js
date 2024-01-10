@@ -337,6 +337,7 @@ export class Activity {
     },
   }, {
     type: "leadership",
+    icon: "🚩",
     name: "Claim Hex",
     abilities: ["A", "B"],
   }, {

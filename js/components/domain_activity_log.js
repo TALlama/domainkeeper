@@ -4,7 +4,7 @@ import { Activity } from "../models/activity.js";
 import {RxElement} from "./rx_element.js";
 import {ActivitySheet} from "./activity_sheet.js";
 import {PickableGroup} from "./pickable_group.js";
-import {DomainActivityPicker} from "./domain_activity_picker.js";
+import {ActivityPicker} from "./activity_picker.js";
 import { debugJSON } from "../helpers.js";
 
 export default class DomainActivityLog extends RxElement {
@@ -18,6 +18,7 @@ export default class DomainActivityLog extends RxElement {
     
     this.domainConcept();
     this.welcome();
+    // TODO start turn 1
 
     let activityFinder = this.searchParams.get("activity");
     activityFinder && this.activity(new Activity({name: activityFinder}));
@@ -115,10 +116,8 @@ export default class DomainActivityLog extends RxElement {
   }
 
   doActivity(event, {actionTarget}) {
-    let activityName = actionTarget.dataset.activity;
-    let activity = document.createElement("activity-sheet")
-    activity.setAttribute("name", activityName);
-    activity && this.activity(activity);
+    let name = actionTarget.dataset.activity;
+    name && this.activity(new Activity({name}));
   }
 
   // TODO get currentActivity() { return this.entries.querySelector("activity-sheet") }
@@ -212,7 +211,6 @@ export default class DomainActivityLog extends RxElement {
     return `
       <aside class="status-banner">${this.renderStatusBanner()}</aside>
       <actor-sheet></actor-sheet>
-      <domain-activity-picker></domain-activity-picker>
       <ul class="consumables">${this.renderConsumables()}</ul>
       ${debugJSON(this.currentTurn)}
       <main class="entries">${this.renderEntries()}</main>`

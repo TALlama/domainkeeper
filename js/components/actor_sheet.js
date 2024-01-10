@@ -1,6 +1,7 @@
 import {Structure} from "../models/structure.js";
 
 import {RxElement} from "./rx_element.js";
+import {ActivityPicker} from "./activity_picker.js";
 import {StructureChip} from "./structure_chip.js";
 
 export class ActorSheet extends RxElement {
@@ -42,12 +43,18 @@ export class ActorSheet extends RxElement {
   }
 
   renderBody() {
-    if (!this.actor.isSettlement) { return `` }
+    let content = ``;
+
+    if (this.actor.isSettlement) {
+      content = `
+        <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
+        ${this.renderStructureControls()}`;
+    }
 
     return `<article>
-      <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
-      ${this.renderStructureControls()}
-    </article>`
+      ${content}
+      <activity-picker></activity-picker>
+    </article>`;
   }
 
   renderPowerup(powerup) {

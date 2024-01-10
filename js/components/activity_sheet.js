@@ -79,9 +79,6 @@ export class ActivitySheet extends RxElement {
       `<li class="log-entry ${entry.level}">${entry.html}</li>`
     ).join("");
   }
-
-  static get leadershipActivities() { return [] }
-  static get civicActivities() { return [] }
 }
 ActivitySheet.define("activity-sheet");
 
@@ -251,14 +248,6 @@ export class ActivitySheet extends RxElement {
     return this.pickOne([], {...options, beforeItems: Ability.all.map(ability =>
       this.pickOneItem(text(ability), {...options, andThen: this.modAndThen({...options, ability: ability})}),
     )});
-  }
-
-  // TODO should this be its own component?
-  button({disabled} = {}) {
-    return `<button title="${this.description}" data-action="doActivity" data-activity="${this.name}" ${disabled ? "disabled" : ""}>
-      <span class="icon">${this.icon}</span>
-      <span class="name">${this.name}</span>
-    </button>`
   }
 
   // TODO move to Activity
