@@ -22,10 +22,21 @@ export class ActivitySheet extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
+  get currentTurn() { return this.domainSheet.currentTurn }
   get actor() { return this.domainSheet.actor(this.activity.actorId) }
 
   get canCancel() { return this.mutableDecisionsCount == (this.activity.decisions || []).length }
   get mutableDecisionsCount() { return (this.activity.decisions || []).count(d => d.mutable) }
+
+  /////////////////////////////////////////////// Actions
+
+  cancelActivity() {
+    let entries = this.currentTurn.entries;
+    let ixThis = entries.findIndex(e => e.id == this.activity.id);
+    ixThis > -1 && entries.splice(ixThis, 1);
+  }
+
+  /////////////////////////////////////////////// Rendering
 
   render() {
     this.setAttribute("name", this.activity.name);
@@ -200,26 +211,6 @@ export class ActivitySheet extends RxElement {
               return html;
             }
   get difficulty() { return this.$(".prompt difficulty-class")?.total }
-
-  Maker.tag("small", this.criticalSuccessDescription)
-
-  cancel() {
-    let entries = this.domainSheet.data.turns.last().entries;
-    let ixThis = entries.findIndex(r => r == this.record);
-    entries.splice(ixThis, 1);
-    this.remove();
-  }
-  // TODO use the underlying Activity
-  get record() {
-    return this._record ||= reef.signal({
-      id: this.id,
-      type: this.type,
-      name: this.name,
-      usedAbility: this.usedAbility,
-      outcome: this.outcome,
-      log: [],
-    });
-  }
 
   pickOne(items, options) {
     let {prompt, appendTo, beforeItems, afterItems} = options;
