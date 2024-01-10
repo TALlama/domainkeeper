@@ -25,7 +25,8 @@ export class ActivitySheet extends RxElement {
   get currentTurn() { return this.domainSheet.currentTurn }
   get actor() { return this.domainSheet.actor(this.activity.actorId) }
 
-  get canCancel() { return this.mutableDecisionsCount == (this.activity.decisions || []).length }
+  get inCurrentTurn() { return this.currentTurn?.entries?.find(e => e.id === this.id) }
+  get canCancel() { return this.actor && this.inCurrentTurn && this.mutableDecisionsCount == (this.activity.decisions || []).length }
   get mutableDecisionsCount() { return (this.activity.decisions || []).count(d => d.mutable) }
 
   /////////////////////////////////////////////// Actions
