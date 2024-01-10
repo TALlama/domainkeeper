@@ -474,6 +474,44 @@ export class Activity {
         this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
       },
     }, {
+      type: "leadership",
+      icon: "🏃‍♂️",
+      name: "Abandon Hex",
+      summary: "You renounce the domain's claim to a hex.",
+      decisions: [{name: "Roll", options: ["Stability"]}, {name: "Outcome"}],
+      description() {
+        return `<p><strong>Requirement:</strong> The hex to be abandoned must be controlled.</p>
+          <p>After careful consideration, you decide that you would rather not hold onto a particular hex as part of your claimed territory. You renounce your claim to it and pull back any settlers or explorers.You can abandon more than one hex at a time, but each additional hex you abandon increases the DC of this check by 1.</p>
+          <p><strong>Special:</strong> The Unrest gained from abandoning a hex doubles if it includes a settlement. A settlement in an abandoned hex becomes a Freehold (page 41).</p>
+        `;
+      },
+      summaries: {
+        criticalSuccessDescription: `Abandon Hex; Economy boost`,
+        successDescription: `Abandon hex; Unrest`,
+        failureDescription: `Abandon hex; Unrest + 2; Possible Squatters event`,
+        criticalFailureDescription: `Abandon hex; Unrest +3; Definite Bandit Activity Event`,
+      },
+      criticalSuccess() {
+        this.success();
+        this.info(`⚱️ Settlers and explorers return and resettle elsewhere in your domain, bringing with them bits of salvage from the abandoned hexes.`)
+        this.boost("Economy"); // this is the old `Gain 1 RP per abandoned hex`
+      },
+      success() {
+        this.info(`🎉 You abandon the hex or hexes, decreasing Size by 1 per hex abandoned (this affects all statistics determined by Size; see page 38).`);
+        this.reduce("Size");
+        this.boost("Unrest");
+      },
+      failure() {
+        this.success();
+        this.warning(`😠 Some citizens become disgruntled refugees who refuse to leave the hex. Increase Unrest by add additional point and then attempt a DC 6 flat check. If you fail, the refugees become bandits, and during your next Event phase, you experience a Squatters event automatically in addition to any other event that might occur.`);
+        this.boost("Unrest");
+      },
+      criticalFailure() {
+        this.failure();
+        this.error(`🥷🏻 Automatically experience a Bandit Activity event instead of a Squatters event`);
+        this.boost("Unrest");
+      },
+    }, {
       type: "civic",
       icon: "💰",
       name: "Contribute",

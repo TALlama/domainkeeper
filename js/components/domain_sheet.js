@@ -181,7 +181,7 @@ class DomainSheet extends RxElement {
     if (actorId) { this.data.currentActorId = actorId }
   }
 
-  max(ability) { return 5 }
+  max(ability) { return 5 } // TODO unrest should not max at 5, and probably other stuff
 
   get leadershipActivitiesLeft() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
   get civicActivitiesLeft() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesLeft, 0) }
@@ -284,7 +284,7 @@ class DomainSheet extends RxElement {
     };
   }
 
-  info(message) { this.activityLog?.currentActivity?.log(message) }
+  info(message) { this.activityLog?.currentActivity?.info(message) }
 
   modify({by}, names) {
     names.forEach(name => {
