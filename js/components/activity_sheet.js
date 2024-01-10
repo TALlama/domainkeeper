@@ -40,6 +40,7 @@ export class ActivitySheet extends RxElement {
   /////////////////////////////////////////////// Rendering
 
   render() {
+    this.setAttributeBoolean("resolved", this.activity.resolved);
     this.setAttribute("name", this.activity.name);
     this.setAttribute("data-type", this.activity.type); // TODO make this just "type"
     this.setAttribute("data-outcome", this.activity.outcome); // TODO make this just "outcome"

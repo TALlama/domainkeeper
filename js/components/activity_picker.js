@@ -13,8 +13,26 @@ export class ActivityPicker extends RxElement {
   get isLeader() { return this.currentActor?.isLeader }
   get isSettlement() { return this.currentActor?.isSettlement }
   get previousActivityNames() { return (this.currentActor?.activitesTaken || []).map(a => a.name) }
+  get unresolvedActivity() { return this.currentTurn.entries.find(e => !e.resolved) }
+  get open() { return this.unresolvedActivity === undefined }
 
   render() {
+    return this.setAttributeBoolean("open")
+      ? this.renderOpen()
+      : this.renderClosed();
+  }
+
+  renderClosed() {
+    this.removeAttribute("open");
+
+    return `
+      <span class="todo">⌛ Complete the activity below before picking another activity.</span>
+      ${this.renderEndTurnButton()}`;
+  }
+
+  renderOpen() {
+    this.setAttribute("open", "");
+
     let type = this.isLeader ? "leadership" : (this.isSettlement ? "civic" : "none");
 
     return `

@@ -14,6 +14,11 @@ export class RxElement extends HTMLElement {
 
   fire(...args) { fire(this, ...args) }
 
+  setAttributeBoolean(name, present = this[name]) {
+    present ? this.setAttribute(name, "") : this.removeAttribute(name);
+    return present;
+  }
+
   get url() { return this._url ?? new URL(document.location) }
   get searchParams() { return this.url.searchParams }
 

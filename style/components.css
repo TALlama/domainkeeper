@@ -149,6 +149,10 @@
   }
 
   actor-sheet {
+    &:has(activity-picker[open]) {
+      box-shadow: 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg);
+    }
+
     h3 {
       display: flex;
       background-color: black;
@@ -223,6 +227,8 @@
   }
 
   activity-picker {
+    display: block;
+
     > .activities-list {
       display: grid;
       align-items: flex-end;
@@ -275,6 +281,7 @@
     border: 3px solid var(--bg);
     border-top-color: var(--outcome-bg);
     border-left-color: var(--outcome-bg);
+    position: relative;
     display: grid;
     grid-template-areas:
       "header     "
@@ -287,6 +294,10 @@
         "header      icon"
         "summary     icon"
         "body        body";
+    }
+
+    &:not([resolved]) {
+      box-shadow: 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg), 0 0 var(--external-margin) var(--color-selected-bg);
     }
 
     > header {
@@ -365,6 +376,10 @@
 
       > .description {
         padding: var(--internal-margin);
+
+        h1, h2, h3, h4, h5, h6, header {
+          margin-inline: calc(-1 * var(--internal-margin));
+        }
       }
 
       activity-decision-panel {

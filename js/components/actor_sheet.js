@@ -25,7 +25,7 @@ export class ActorSheet extends RxElement {
     return `<h3>
       All activities for the turn have been taken.
       <span class='badge'>0 activities left</span>
-    </h3>`
+    </h3>${this.renderBody()}`
   }
 
   renderHeader() {
@@ -46,7 +46,7 @@ export class ActorSheet extends RxElement {
   renderBody() {
     let content = ``;
 
-    if (this.actor.isSettlement) {
+    if (this.actor?.isSettlement) {
       content = `
         <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
         ${this.renderStructureControls()}`;
