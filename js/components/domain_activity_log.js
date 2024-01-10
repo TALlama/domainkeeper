@@ -11,6 +11,7 @@ export default class DomainActivityLog extends RxElement {
   connectedCallback() {
     reef.component(this, () => this.render());
     this.addEventListener("click", this);
+    this.addEventListener("domains:nudge", (event) => this.doNudge(event))
 
     // TODO do we need to reenact history?
     this.turnSummaries = []; // TODO can this go in the entries to get persisted?
@@ -124,6 +125,7 @@ export default class DomainActivityLog extends RxElement {
 
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
+  get currentActivity() { return this.currentTurn?.entries?.last() }
   get turn() { return this.turnSummaries.length; }
 
   turnSummary(turn = this.turn) {
@@ -206,6 +208,19 @@ export default class DomainActivityLog extends RxElement {
     activity.actorId ??= this.domainSheet.currentActor.id;
     this.currentTurn.entries.push(activity);
   }
+
+  /////////////////////////////////////////////// Event handling
+
+  doNudge(event) {
+    let activity = this.currentActivity;
+    if (!["Nudge", "Event"].includes(activity?.name)) {
+      activity = new Activity({name: "Nudge"})
+      this.activity(activity);
+    };
+    event.detail.complete(activity);
+  }
+
+  /////////////////////////////////////////////// Rendering
 
   render() {
     return `

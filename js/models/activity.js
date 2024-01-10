@@ -214,6 +214,7 @@ export class Activity {
   
   static get names() { return this._names ||= this.templates.map(s => s.name) }
   static get templates() { return this._templates ||= [{
+    type: "system",
     icon: "👑",
     actorId: "system",
     name: "Welcome, Domainkeeper",
@@ -227,6 +228,7 @@ export class Activity {
       <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
     `,
   }, {
+    type: "system",
     icon: "🌱",
     actorId: "system",
     name: "Domain Concept",
@@ -305,6 +307,13 @@ export class Activity {
         picked: (ability, {activity}) => activity.boost(ability),
       }];
     })(),
+  }, {
+    type: "system",
+    actorId: "system",
+    icon: "🔧",
+    name: "Nudge",
+    summary: "You tweaked something",
+    decisions: [],
   }, {
     type: "leadership",
     icon: "🧭",

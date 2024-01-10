@@ -3,6 +3,7 @@ import {Structure} from "../models/structure.js";
 import {RxElement} from "./rx_element.js";
 import {ActivityPicker} from "./activity_picker.js";
 import {StructureChip} from "./structure_chip.js";
+import { nudge } from "./event_helpers.js";
 
 export class ActorSheet extends RxElement {
   connectedCallback() {
@@ -81,7 +82,7 @@ export class ActorSheet extends RxElement {
     let nameInput = form?.querySelector(`input[name="name"]`);
     let structureName = nameInput?.value;
     if (structureName) {
-      // TODO log this
+      nudge(this, (activity) => activity.info(`🏦 Structure added: ${structureName}`));
       this.actor.powerups.push(new Structure(structureName));
       nameInput.value = "";
     }

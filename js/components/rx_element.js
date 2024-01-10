@@ -1,3 +1,5 @@
+import { fire } from "./event_helpers.js";
+
 export class RxElement extends HTMLElement {
   $ = this.querySelector;
   $$ = this.querySelectorAll;
@@ -9,6 +11,8 @@ export class RxElement extends HTMLElement {
       handler?.call(this, event, {actionTarget});
     }
   }
+
+  fire(...args) { fire(this, ...args) }
 
   get url() { return this._url ?? new URL(document.location) }
   get searchParams() { return this.url.searchParams }

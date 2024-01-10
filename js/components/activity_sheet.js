@@ -153,7 +153,6 @@ export class ActivityDecisionPanel extends RxElement {
 ActivityDecisionPanel.define("activity-decision-panel");
 
 /*
-export class ActivitySheet extends RxElement {
   // TODO move this to Activity
   get currentTurn() { return this.domainSheet.data.turns.last() }
   get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
@@ -792,64 +791,4 @@ export class ActivitySheet extends RxElement {
       }),
     ]
   }
-
-  // TODO move to Activity
-  static get civicActivities() {
-    let {p, ol} = Maker;
-
-    return [
-      new ActivitySheet({
-        type: "civic",
-        icon: "💰",
-        name: "Contribute",
-        description: "This settlement is hard at work.",
-        prompt: "",
-        possibleOutcomes: (ability) => ability.modOneAnd(`Increase {ability}`, {by: 1}),
-      }),
-      new ActivitySheet({
-        type: "civic",
-        icon: "🚧",
-        name: "Build Structure",
-        description: "This settlement has an idea!",
-        preprompt: (activity) => {return Maker.tag("div",
-          Maker.tag("h4", "Select a building"),
-          new PickableGroup({
-            options: new AvalableStructures().templates.toDictionary(structure => [structure.name, new StructureDescription(structure)]),
-            parts: [{class: "pick-structure repickable"}],
-          }),
-          p(`Add building's cost to the DC`),
-          activity.modOneAnd(`Pay with {by} {ability}`, {prompt: "Before you roll, supply building costs:"}),
-        )},
-        abilities: ["Economy"],
-        usedAbilitySet() { this.$(".pick-structure").classList.remove("repickable") },
-        structureName() { return this.$(".pick-structure input:checked")?.value || "Structure" },
-        criticalSuccessDescription: `Build it; Boost a random Ability by 1`,
-        successDescription: `Build it`,
-        failureDescription: `Fail`,
-        criticalFailureDescription: `Fail; Reduce a random Ability by 1`,
-        criticalSuccess() {
-          this.log("😂 Everyone rallies to help.");
-          this.boost(Ability.random);
-          this.success();
-        },
-        success() {
-          let structureName = this.structureName();
-          this.log(`🏛️ You built the ${this.structureName()}!`);
-          this.actor.powerups.push(new Structure(structureName));
-
-          this.log("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
-          this.log("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
-          this.log("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
-        },
-        failure() { this.log("❌ You fail to build the building") },
-        criticalFailure() {
-          this.log("💀 Some workers are killed in a construction accident");
-          this.reduce(Ability.random);
-          this.failure();
-        },
-      }),
-    ];
-  }
-}
-ActivitySheet.define("old-activity-sheet");
 */

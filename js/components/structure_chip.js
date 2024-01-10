@@ -1,4 +1,5 @@
 import {Structure} from "../models/structure.js";
+import { nudge } from "./event_helpers.js";
 
 import {RxElement} from "./rx_element.js";
 
@@ -56,7 +57,7 @@ export class StructureChip extends RxElement {
 
   destroyStructure(event) {
     if (confirm("Really destroy? There is no undo!")) {
-      // TODO log this
+      nudge(this, (activity) => activity.error(`💥 Structure destroyed: ${this.structure.name}`));
       this.hideDetails(event);
       this.actor.removePowerup(this.structure);
     }
