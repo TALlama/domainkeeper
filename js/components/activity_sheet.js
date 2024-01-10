@@ -1,4 +1,4 @@
-import {errorMessage, mod} from "../helpers.js";
+import {callOrReturn, errorMessage, mod} from "../helpers.js";
 
 import {Activity} from "../models/activity.js";
 
@@ -55,7 +55,7 @@ export class ActivitySheet extends RxElement {
       <span class="icon">${this.activity.icon}</span>
       <blockquote class="summary">${this.activity.summary}</blockquote>
       <section class="body">
-        <blockquote class="description">${this.activity.description || ""}</blockquote>
+        <blockquote class="description">${callOrReturn(this.activity.description || "", this)}</blockquote>
         ${this.renderDecisions()}
         <section class="log">
           <header>Log</header>
@@ -90,7 +90,10 @@ export class ActivityDecisionPanel extends RxElement {
     this.addEventListener("click", this);
   }
 
-  get activity() { return this.closest("activity-sheet")?.activity }
+  get activitySheet() { return this.closest("activity-sheet") }
+  get domainSheet() { return this.activitySheet?.domainSheet }
+
+  get activity() { return this.activitySheet?.activity }
   get decision() { return this.activity.decision(this.getAttribute("name")) }
 
   render() {
@@ -123,7 +126,7 @@ export class ActivityDecisionPanel extends RxElement {
     }
 
     return `
-      <div class="description">${decision.description || ""}</div>
+      <div class="description">${callOrReturn(decision.description || "", this, {decision, activity})}</div>
       <fieldset class='pickable-group'>
         ${decision.options.map(option => {
           let value = decision.saveValue(option);
@@ -265,41 +268,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
     ]
 
     return [
-      new ActivitySheet({
-        type: "leadership",
-        icon: "👷🏻‍♂️",
-        name: "Clear Hex",
-        description: "You lead the effort to clear out the dangers in an already-reconnoitered hex.",
-        abilities: ["Economy", "Stability"],
-        preprompt: [
-          p(`Engineers and mercenaries attempt to prepare a hex to serve as the site for a settlement, or they work to remove an existing improvement, a dangerous hazard, or an encounter.`),
-          ol(
-            `If you’re trying to prepare a hex for a settlement or demolish an improvement you previously built (or that was already present in the hex), use Economy.`,
-            `If you’re trying to remove a hazard or encounter, use Stability. The DC of this check is set by the highest level creature or hazard in the hex (as set by Table 10–5: DCs by Level, on page 503 of the Pathfinder Core Rulebook).`,
-            `If the hex is outside your domain, increase the DC by 2.`,
-            hexMods,
-          )],
-        difficultyClassOptions: {
-          selected: "Outside Domain",
-          options: JSON.stringify([
-            {name: "Outside Domain", value: 2},
-            ...hexDCOptions,
-          ]),
-        },
-        summaries: {
-          criticalSuccessDescription: `Clear hex and boost economy`,
-          successDescription: `Clear hex`,
-          failureDescription: `Fail`,
-          criticalFailureDescription: `Unrest`,
-        },
-        criticalSuccess() { this.success(); this.info("🐻 You brought back spoils!"); this.boost("Economy") },
-        success() { this.info("🎉 You successfully clear the hex.") },
-        failure() { this.warning("❌ You fail to clear the hex.") },
-        criticalFailure() { this.error("💀 You catastrophically fail to clear the hex and several workers lose their lives."); this.boost("Unrest") },
-      }),
-      new ActivitySheet({
-        
-      }),
       new ActivitySheet({
         type: "leadership",
         icon: "🏃‍♂️",

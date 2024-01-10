@@ -14,6 +14,10 @@ export function errorMessage(msg, ...consoleArgs) {
   return `<span class="internal-error">💥 ERROR: ${msg} 💥</span>`;
 }
 
+export function callOrReturn(value, bindTo, ...args) {
+  return value?.call ? value.call(bindTo, ...args) : value;
+}
+
 // TODO add tests
 export function withDiffs(newValues, baseline) {
   if (!baseline) { return newValues }

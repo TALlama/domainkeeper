@@ -1,12 +1,10 @@
-import { withDiffs } from "../helpers.js";
+import { callOrReturn, withDiffs } from "../helpers.js";
 
 import { addTransient } from "./utils.js";
 import { Ability } from "./abilities.js";
 import { Structure } from "./structure.js";
 import { AvalableStructures } from "../components/available_structures.js";
 import { StructureDescription } from "../components/structure_description.js";
-
-let callOrReturn = (value, bindTo, ...args) => { return value?.call ? value.call(bindTo, ...args) : value };
 
 class ActivityDecision {
   constructor(properties, activity) {
@@ -22,7 +20,9 @@ class ActivityDecision {
         saveAs: "ability",
         options: Ability.all,
         displayValue: (ability) => `<ability-roll ability="${ability}">${ability}</ability-roll>`,
-        description: `<difficulty-class base="${JSON.stringify(10)}"></difficulty-class>`,
+        description({decision}) {
+          return Maker.tag("difficulty-class", {base: this.domainSheet?.controlDC || 15, ...(decision?.difficultyClassOptions || {})}).outerHTML;
+        },
       },
       Outcome: {
         saveAs: "outcome",
@@ -215,151 +215,163 @@ export class Activity {
   static template(name) { return this.templates.find(s => s.name === name) }
   
   static get names() { return this._names ||= this.templates.map(s => s.name) }
-  static get templates() { return this._templates ||= [{
-    type: "system",
-    icon: "👑",
-    actorId: "system",
-    name: "Welcome, Domainkeeper",
-    summary: "You've got a new domain. Let's see how it goes.",
-    decisions: [],
-    description: () => `
-      <p>💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!</p>
-      <p>👑 Click the buttons above to do activities. You can cancel activities until you click buttons to roll or spend, so feel free to explore.</p>
-      <p>♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.</p>
-      <p>💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!</p>
-      <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
-    `,
-  }, {
-    type: "system",
-    icon: "🌱",
-    actorId: "system",
-    name: "Domain Concept",
-    summary: "Let's pick some starting stats",
-    description: () => `
-      <p>Use the buttons below to pick your stats, or allocate them as you like.</p>
-      <ol>
-        <li>Start each ability at 2</li>
-        <li>Heartland will boost one stat by 1</li>
-        <li>Charter will boost two different stats by 1 each</li>
-        <li>Government will boost three different stats by 1 each</li>
-      </ol>
-      <p>This should end with a 5/4/3/2 spread if you want to max one stat.</p>
-      <p>But maybe that makes things too hard or too easy! We ca adjust this!</p>
-    `,
-    decisions: (() => {
-      let boosts = {
-        // Heartlands
-        Forest: ["Culture"],
-        Swamp: ["Culture"],
-        Hill: ["Loyalty"],
-        Plain: ["Loyalty"],
-        Lake: ["Economy"],
-        River: ["Economy"],
-        Mountain: ["Stability"],
-        Ruins: ["Stability"],
-  
-        // Charters
-        Conquest: ["Loyalty"],
-        Expansion: ["Culture"],
-        Exploration: ["Stability"],
-        Grant: ["Economy"],
-        Open: [],
-  
-        // Governments
-        Despotism: ["Stability", "Economy"],
-        Feudalism: ["Stability", "Culture"],
-        Oligarchy: ["Loyalty", "Economy"],
-        Republic: ["Stability", "Loyalty"],
-        Thaumacracy: ["Economy", "Culture"],
-        Yeomanry: ["Loyalty", "Culture"],
-      };
-      let summaryValue = (option) => {
-        let abilities = boosts[option] || [];
-        return abilities.length === 0 ? `Free boost` : `Boost ${abilities.join(" and ")}`;
-      };
-      let picked = (option, {activity}) => activity.boost(...boosts[option]);
+  static get templates() {
+    let hexMods = `<p>Additional modifier based on the hex's worst terrain: Mountains: -4; Swamps: -3; Forests: -2; Hills: -1; Plains: -0.</p>`;
+    let hexDCOptions = [
+      {name: "Mountains", value: 4},
+      {name: "Swamps", value: 3},
+      {name: "Forests", value: 2},
+      {name: "Hills", value: 1},
+      {name: "Plains", value: 0},
+    ];
+    
+    return this._templates ||= [{
+      type: "system",
+      icon: "👑",
+      actorId: "system",
+      name: "Welcome, Domainkeeper",
+      summary: "You've got a new domain. Let's see how it goes.",
+      decisions: [],
+      description: () => `
+        <p>💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!</p>
+        <p>👑 Click the buttons above to do activities. You can cancel activities until you click buttons to roll or spend, so feel free to explore.</p>
+        <p>♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.</p>
+        <p>💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!</p>
+        <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
+      `,
+    }, {
+      type: "system",
+      icon: "🌱",
+      actorId: "system",
+      name: "Domain Concept",
+      summary: "Let's pick some starting stats",
+      description: () => `
+        <p>Use the buttons below to pick your stats, or allocate them as you like.</p>
+        <ol>
+          <li>Start each ability at 2</li>
+          <li>Heartland will boost one stat by 1</li>
+          <li>Charter will boost two different stats by 1 each</li>
+          <li>Government will boost three different stats by 1 each</li>
+        </ol>
+        <p>This should end with a 5/4/3/2 spread if you want to max one stat.</p>
+        <p>But maybe that makes things too hard or too easy! We ca adjust this!</p>
+      `,
+      decisions: (() => {
+        let boosts = {
+          // Heartlands
+          Forest: ["Culture"],
+          Swamp: ["Culture"],
+          Hill: ["Loyalty"],
+          Plain: ["Loyalty"],
+          Lake: ["Economy"],
+          River: ["Economy"],
+          Mountain: ["Stability"],
+          Ruins: ["Stability"],
+    
+          // Charters
+          Conquest: ["Loyalty"],
+          Expansion: ["Culture"],
+          Exploration: ["Stability"],
+          Grant: ["Economy"],
+          Open: [],
+    
+          // Governments
+          Despotism: ["Stability", "Economy"],
+          Feudalism: ["Stability", "Culture"],
+          Oligarchy: ["Loyalty", "Economy"],
+          Republic: ["Stability", "Loyalty"],
+          Thaumacracy: ["Economy", "Culture"],
+          Yeomanry: ["Loyalty", "Culture"],
+        };
+        let summaryValue = (option) => {
+          let abilities = boosts[option] || [];
+          return abilities.length === 0 ? `Free boost` : `Boost ${abilities.join(" and ")}`;
+        };
+        let picked = (option, {activity}) => activity.boost(...boosts[option]);
 
-      return [{
-        name: "Heartland",
-        saveAs: "heartland",
-        options: "Forest Swamp Hill Plain Lake River Mountain Ruins".split(" "),
-        picked,
-        summaryValue,
+        return [{
+          name: "Heartland",
+          saveAs: "heartland",
+          options: "Forest Swamp Hill Plain Lake River Mountain Ruins".split(" "),
+          picked,
+          summaryValue,
+        }, {
+          name: "Charter",
+          saveAs: "charter",
+          options: "Conquest Expansion Exploration Grant Open".split(" "),
+          picked,
+          summaryValue,
+        }, {
+          name: "Free Charter Boost",
+          saveAs: "freeCharterBoost",
+          options: Ability.all,
+          picked: (ability, {activity}) => activity.boost(ability),
+        }, {
+          name: "Government",
+          saveAs: "government",
+          options: "Despotism Feudalism Oligarchy Republic Thaumacracy Yeomanry".split(" "),
+          picked,
+          summaryValue,
+        }, {
+          name: "Free Government Boost",
+          saveAs: "freeGovernmentBoost",
+          options: Ability.all,
+          picked: (ability, {activity}) => activity.boost(ability),
+        }];
+      })(),
+    }, {
+      type: "system",
+      actorId: "system",
+      icon: "🗺️",
+      name: "Domain Summary",
+      summary: `A report on the state of your domain`,
+      decisions: [],
+      description() {
+        let lastSummary = this.domainSheet.previousTurn?.entries?.find(e => e.name === this.name);
+        let abilityScores = this.abilityScores = this.domainSheet.abilityScores;
+        let statScores = this.statScores = this.domainSheet.statScores;
+        
+        // TODO style
+        // TODO add smoothScroll action
+        return `
+          <p>💾 Domain saved</p>
+          <header>What Happened</header>
+          <div class="entries-summary">
+          ${(this.domainSheet.currentTurn?.entries || []).map(entry =>
+            `<a
+              href="#${entry.id}"
+              title="${entry.name}"
+              class="entry-summary icon-link"
+              data-type="${entry.type}"
+              data-used-ability="${entry.ability}"
+              data-outcome="${entry.outcome}"
+              data-action="smoothScroll"
+              >${entry.icon}</a>`
+          ).join("")}
+          </div>
+          <header>Stats Snapshot</header>
+          ${Maker.dl(withDiffs(abilityScores, lastSummary?.abilityScores), {class: "dl-oneline"}).outerHTML}
+          ${Maker.dl(withDiffs(statScores, lastSummary?.statScores), {class: "dl-oneline"}).outerHTML}
+        `;
+      },
+    }, {
+      type: "system",
+      actorId: "system",
+      icon: "🔧",
+      name: "Nudge",
+      summary: "You tweaked something",
+      decisions: [],
+    }, {
+      type: "leadership",
+      icon: "🧭",
+      name: "Reconnoiter Hex",
+      summary: "You hire a team to survey a particular hex.",
+      // TODO limit to after you've built an appropriate structure?
+      decisions: [{
+        name: "Roll",
+        options: ["Economy", "Stability"],
+        difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
       }, {
-        name: "Charter",
-        saveAs: "charter",
-        options: "Conquest Expansion Exploration Grant Open".split(" "),
-        picked,
-        summaryValue,
-      }, {
-        name: "Free Charter Boost",
-        saveAs: "freeCharterBoost",
-        options: Ability.all,
-        picked: (ability, {activity}) => activity.boost(ability),
-      }, {
-        name: "Government",
-        saveAs: "government",
-        options: "Despotism Feudalism Oligarchy Republic Thaumacracy Yeomanry".split(" "),
-        picked,
-        summaryValue,
-      }, {
-        name: "Free Government Boost",
-        saveAs: "freeGovernmentBoost",
-        options: Ability.all,
-        picked: (ability, {activity}) => activity.boost(ability),
-      }];
-    })(),
-  }, {
-    type: "system",
-    actorId: "system",
-    icon: "🗺️",
-    name: "Domain Summary",
-    summary: `A report on the state of your domain`,
-    decisions: [],
-    description() {
-      let lastSummary = this.domainSheet.previousTurn?.entries?.find(e => e.name === this.name);
-      let abilityScores = this.abilityScores = this.domainSheet.abilityScores;
-      let statScores = this.statScores = this.domainSheet.statScores;
-      
-      // TODO style
-      // TODO add smoothScroll action
-      return `
-        <p>💾 Domain saved</p>
-        <header>What Happened</header>
-        <div class="entries-summary">
-        ${(this.domainSheet.currentTurn?.entries || []).map(entry =>
-          `<a
-            href="#${entry.id}"
-            title="${entry.name}"
-            class="entry-summary icon-link"
-            data-type="${entry.type}"
-            data-used-ability="${entry.ability}"
-            data-outcome="${entry.outcome}"
-            data-action="smoothScroll"
-            >${entry.icon}</a>`
-        ).join("")}
-        </div>
-        <header>Stats Snapshot</header>
-        ${Maker.dl(withDiffs(abilityScores, lastSummary?.abilityScores), {class: "dl-oneline"}).outerHTML}
-        ${Maker.dl(withDiffs(statScores, lastSummary?.statScores), {class: "dl-oneline"}).outerHTML}
-      `;
-    },
-  }, {
-    type: "system",
-    actorId: "system",
-    icon: "🔧",
-    name: "Nudge",
-    summary: "You tweaked something",
-    decisions: [],
-  }, {
-    type: "leadership",
-    icon: "🧭",
-    name: "Reconnoiter Hex",
-    summary: "You hire a team to survey a particular hex.",
-    // TODO limit to after you've built an appropriate structure?
-    decisions: [
-      {name: "Roll", options: ["Economy", "Stability"]},
-      {
         name: "Outcome",
         summaries: {
           criticalSuccess: `Reconnoiter hex and boost stability`,
@@ -367,38 +379,72 @@ export class Activity {
           failure: `Fail`,
           criticalFailure: `Unrest`,
         },
-      }
-    ],
-    // TODO difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
-    criticalSuccess() {
-      this.success();
-      this.info("🗺️ The world feels a wee bit safer now.");
-      this.boost("Stability")
-    },
-    success() { this.info("🎉 You successfully reconnoiter the hex.") },
-    failure() { this.warning("❌ You fail to reconnoiter the hex.") },
-    criticalFailure() {
-      this.error(`💀 You catastrophically fail to reconnoiter the hex and several members of the party lose their lives.`);
-      this.boost("Unrest");
-    },
-  }, {
-    type: "leadership",
-    icon: "🚩",
-    name: "Claim Hex",
-    summary: "You bring the cleared hex into the domain.",
-    // TODO limit to 1/turn until level 4, then 2/turn until level 9, then 3/turn
-    description() {
-      return `
-        <p><strong>Required:</strong> You have Reconnoitered the hex to be claimed during hexploration. This hex must be adjacent to at least one hex that’s already part of your domain. If the hex to be claimed contains dangerous hazards or monsters, they must first be cleared out—either via standard adventuring or the Clear Hex activity.</p>
-        <p>Your surveyors fully explore the hex and attempt to add it into your domain.</p>
-      `
-    },
-    decisions: [
-      {
+      }],
+      criticalSuccess() {
+        this.success();
+        this.info("🗺️ The world feels a wee bit safer now.");
+        this.boost("Stability")
+      },
+      success() { this.info("🎉 You successfully reconnoiter the hex.") },
+      failure() { this.warning("❌ You fail to reconnoiter the hex.") },
+      criticalFailure() {
+        this.error(`💀 You catastrophically fail to reconnoiter the hex and several members of the party lose their lives.`);
+        this.boost("Unrest");
+      },
+    }, {
+      type: "leadership",
+      icon: "👷🏻‍♂️",
+      name: "Clear Hex",
+      summary: "You lead the effort to clear out the dangers in an already-reconnoitered hex.",
+      description() {
+        return `
+          <p>Engineers and mercenaries attempt to prepare a hex to serve as the site for a settlement, or they work to remove an existing improvement, a dangerous hazard, or an encounter.</p>
+          <ol>
+            <li>If you’re trying to prepare a hex for a settlement or demolish an improvement you previously built (or that was already present in the hex), use Economy.</li>
+            <li>If you’re trying to remove a hazard or encounter, use Stability. The DC of this check is set by the highest level creature or hazard in the hex (as set by Table 10–5: DCs by Level, on page 503 of the Pathfinder Core Rulebook).</li>
+            <li>If the hex is outside your domain, increase the DC by 2.</li>
+          </ol>
+          ${hexMods}`;
+      },
+      decisions: [{
+        name: "Roll",
+        options: ["Economy", "Stability"],
+        difficultyClassOptions: {
+          selected: "Outside Domain",
+          options: JSON.stringify([
+            {name: "Outside Domain", value: 2},
+            ...hexDCOptions,
+          ]),
+        },
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Clear hex and boost economy`,
+          success: `Clear hex`,
+          failure: `Fail`,
+          criticalFailure: `Unrest`,
+        }
+      }],
+      criticalSuccess() { this.success(); this.info("🐻 You brought back spoils!"); this.boost("Economy") },
+      success() { this.info("🎉 You successfully clear the hex.") },
+      failure() { this.warning("❌ You fail to clear the hex.") },
+      criticalFailure() { this.info("💀 You catastrophically fail to clear the hex and several workers lose their lives."); this.boost("Unrest") },
+    }, {
+      type: "leadership",
+      icon: "🚩",
+      name: "Claim Hex",
+      summary: "You bring the cleared hex into the domain.",
+      // TODO limit to 1/turn until level 4, then 2/turn until level 9, then 3/turn
+      description() {
+        return `
+          <p><strong>Required:</strong> You have Reconnoitered the hex to be claimed during hexploration. This hex must be adjacent to at least one hex that’s already part of your domain. If the hex to be claimed contains dangerous hazards or monsters, they must first be cleared out—either via standard adventuring or the Clear Hex activity.</p>
+          <p>Your surveyors fully explore the hex and attempt to add it into your domain.</p>
+        `
+      },
+      decisions: [{
         name: "Roll",
         options: ["Economy", "Stability"]
-      },
-      {
+      }, {
         name: "Outcome",
         summaries: {
           criticalSuccess: `Claim hex; Boost a random stat`,
@@ -406,91 +452,91 @@ export class Activity {
           failure: `Fail`,
           criticalFailure: `-1 Stability for rest of turn`,
         }
-      }
-    ],
-    criticalSuccess() {
-      this.success();
-      let [ability, message] = [
-        ["Culture", "🎵 The speed of your occupation becomes a popular folk song around the domain."],
-        ["Economy", "🦌 A grand hunt in the new territory brings great wealth to the domain."],
-        ["Loyalty", "🎖️ The pioneers tell of your exploits and spread word of your deeds across the domain ."],
-        ["Stability", "🐴 The integration goes flawlessly thanks to your careful planning."],
-      ].random();
-      this.info(message);
-      this.boost(ability);
-    },
-    success() {
-      this.info(`🎉 You claim the hex and immediately add it to your territory, increasing Size by 1 (this affects all statistics determined by Size; see page 38).`);
-      this.boost("Size");
-    },
-    failure() { this.warning(`❌ You fail to claim the hex`) },
-    criticalFailure() {
-      this.error(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of your next turn.`);
-      this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
-    },
-  }, {
-    type: "civic",
-    icon: "💰",
-    name: "Contribute",
-    summary: "This settlement is hard at work.",
-    decisions: [{
-      name: "Contribution",
-      saveAs: "contribution",
-      options: () => Ability.all,
-      picked: (ability, {activity}) => activity.boost(ability),
-    }],
-  }, {
-    type: "civic",
-    icon: "🚧",
-    name: "Build Structure",
-    summary: "Construct something in this settlement that will have long-term benefits",
-    description: () => `Add building's cost to the DC`,
-    decisions: [{
-      name: "Pick a structure",
-      description: "Choose a structure you want to build.",
-      saveAs: "structureName",
-      options: () => new AvalableStructures().names,
-      displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
-      mutable: (activity, decision) => activity.decision("Roll").mutable,
-    },
-    {
-      name: "Roll",
-      options: ["Economy"]
-    },
-    {
-      name: "Outcome",
-      summaries: {
-        criticalSuccess: `Build it; Boost a random Ability by 1`,
-        success: `Build it`,
-        failure: `Fail`,
-        criticalFailure: `Fail; Reduce a random Ability by 1`,
+      }],
+      criticalSuccess() {
+        this.success();
+        let [ability, message] = [
+          ["Culture", "🎵 The speed of your occupation becomes a popular folk song around the domain."],
+          ["Economy", "🦌 A grand hunt in the new territory brings great wealth to the domain."],
+          ["Loyalty", "🎖️ The pioneers tell of your exploits and spread word of your deeds across the domain ."],
+          ["Stability", "🐴 The integration goes flawlessly thanks to your careful planning."],
+        ].random();
+        this.info(message);
+        this.boost(ability);
       },
-    },
-    {
-      name: "Pay with",
-      saveAs: "paymentAbility",
-      options: () => Ability.all,
-    }],
-    criticalSuccess() {
-      this.info("😂 Everyone rallies to help.");
-      this.boost(Ability.random);
-      this.success();
-    },
-    success() {
-      this.info(`🏛️ You built the ${this.structureName}!`);
-      this.actor.powerups.push(new Structure(this.structureName));
+      success() {
+        this.info(`🎉 You claim the hex and immediately add it to your territory, increasing Size by 1 (this affects all statistics determined by Size; see page 38).`);
+        this.boost("Size");
+      },
+      failure() { this.warning(`❌ You fail to claim the hex`) },
+      criticalFailure() {
+        this.error(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of your next turn.`);
+        this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
+      },
+    }, {
+      type: "civic",
+      icon: "💰",
+      name: "Contribute",
+      summary: "This settlement is hard at work.",
+      decisions: [{
+        name: "Contribution",
+        saveAs: "contribution",
+        options: () => Ability.all,
+        picked: (ability, {activity}) => activity.boost(ability),
+      }],
+    }, {
+      type: "civic",
+      icon: "🚧",
+      name: "Build Structure",
+      summary: "Construct something in this settlement that will have long-term benefits",
+      description: () => `Add building's cost to the DC`,
+      decisions: [{
+        name: "Pick a structure",
+        description: "Choose a structure you want to build.",
+        saveAs: "structureName",
+        options: () => new AvalableStructures().names,
+        displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
+        mutable: (activity, decision) => activity.decision("Roll").mutable,
+      },
+      {
+        name: "Roll",
+        options: ["Economy"]
+      },
+      {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Build it; Boost a random Ability by 1`,
+          success: `Build it`,
+          failure: `Fail`,
+          criticalFailure: `Fail; Reduce a random Ability by 1`,
+        },
+      },
+      {
+        name: "Pay with",
+        saveAs: "paymentAbility",
+        options: () => Ability.all,
+      }],
+      criticalSuccess() {
+        this.info("😂 Everyone rallies to help.");
+        this.boost(Ability.random);
+        this.success();
+      },
+      success() {
+        this.info(`🏛️ You built the ${this.structureName}!`);
+        this.actor.powerups.push(new Structure(this.structureName));
 
-      this.info("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
-      this.info("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
-      this.info("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
-    },
-    failure() { this.warning("❌ You fail to build the building") },
-    criticalFailure() {
-      this.warning("💀 Some workers are killed in a construction accident");
-      this.reduce(Ability.random);
-      this.failure();
-    },
-  }]}
+        this.info("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
+        this.info("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
+        this.info("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
+      },
+      failure() { this.warning("❌ You fail to build the building") },
+      criticalFailure() {
+        this.warning("💀 Some workers are killed in a construction accident");
+        this.reduce(Ability.random);
+        this.failure();
+      },
+    }];
+  }
 }
 window.Activity = Activity;
 
