@@ -704,6 +704,44 @@ export class Activity {
         this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
       },
     }, {
+      type: "leadership",
+      icon: "👨🏻‍🌾",
+      name: "Work the Land",
+      summary: "You lead a party to harvest the bounty of this realm.",
+      description() { return `
+        <p>This boosts the ability above the one you roll:</p>
+        <ol>
+          <li>Rolling Stability will increase Loyalty</li>
+          <li>Rolling Loyalty will increase Economy</li>
+          <li>Rolling Economy will increase Culture</li>
+          <li>Rolling Culture will increase Stability</li>
+        </ol>`;
+      },
+      decisions: [{
+        name: "Roll",
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Boost Ability by 2`,
+          success: `Boost Ability by 1`,
+          failure: `Fail`,
+          criticalFailure: `Unrest`,
+        },
+      }],
+      criticalSuccess() {
+        this.info("🎁 You make good time and find plentiful resources!");
+        this.boost({by: 2}, Ability.previous(this.ability));
+      },
+      success() {
+        this.info("🎉 A fruitful expedition");
+        this.boost(Ability.previous(this.ability));
+      },
+      failure() { this.warning("❌ Your expedition yields naught") },
+      criticalFailure() {
+        this.error("💀 The expedition is a fiasco; some members do not return alive");
+        this.boost("Unrest");
+      },
+    }, {
       type: "civic",
       icon: "💰",
       name: "Contribute",

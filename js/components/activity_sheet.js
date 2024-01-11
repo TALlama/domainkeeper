@@ -256,38 +256,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
 
     return [
       new ActivitySheet({
-        
-      }),
-      new ActivitySheet({
-        type: "leadership",
-        icon: "👨🏻‍🌾",
-        name: "Work the Land",
-        description: "You lead a party to harvest the bounty of this realm.",
-        preprompt: [
-          p(`This boosts the ability above the one you roll:`),
-          ol(`Rolling Stability will increase Loyalty`, `Rolling Loyalty will increase Economy`, `Rolling Economy will increase Culture`, `Rolling Culture will increase Stability`),
-        ],
-        summaries: {
-          criticalSuccess: `Boost Ability by 2`,
-          success: `Boost Ability by 1`,
-          failure: `Fail`,
-          criticalFailure: `Unrest`,
-        },
-        criticalSuccess() {
-          this.info("🎁 You make good time and find plentiful resources!");
-          this.boost({by: 2}, this.aboveAbility);
-        },
-        success() {
-          this.info("🎉 A fruitful expedition");
-          this.boost(this.aboveAbility);
-        },
-        failure() { this.warning("❌ Your expedition yields naught") },
-        criticalFailure() {
-          this.error("💀 The expedition is a fiasco; some members do not return alive");
-          this.boost("Unrest");
-        },
-      }),
-      new ActivitySheet({
         type: "leadership",
         icon: "🎄",
         name: "Celebrate Holiday",
