@@ -254,44 +254,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
     )});
   }
 
-    return [
-        type: "leadership",
-        icon: "🚋",
-        name: "Train Lieutenant",
-        description: "You work with an NPC leader to increase their capacity.",
-        abilities: ["Loyalty"],
-        summaries: {
-          criticalSuccess: `NPC Leader gets 2 activitys/turn, or success`,
-          success: `Leader adds 2 activities to their repertiore`,
-          failure: `Fail`,
-          criticalFailure: `Leader abandons their post`,
-        },
-        criticalSuccess() {
-          let eligibleLeaders = this.domainSheet.data.leaders.filter(l => l.activitiesPerTurn < 2);
-          if (eligibleLeaders.length > 0) {
-            this.info(`🧠 An apt pupil! They gain a second activity per turn.`);
-            this.pickOne(eligibleLeaders, {
-              format: (leader) => leader.name,
-              andThen: (picked) => {
-                this.info(`${picked.name} can now do 2 activities per turn`);
-                picked.activitiesPerTurn = 2;
-                this.domainSheet.leadersComponent.render();
-
-              },
-            });
-          } else { this.success() }
-        },
-        success() {
-          this.info(`🤯 You teach them more about leadership. Add two actions to those available to them.`);
-          this.info(`🎗️ TODO we should actually track that.`);
-        },
-        failure() {
-          this.warning(`😪 You might not be a great teacher or they might not be a good student, but this didn't work.`);
-        },
-        criticalFailure() {
-          this.error(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
-        },
-      }),
       new ActivitySheet({
         type: "leadership",
         icon: "🛡️",

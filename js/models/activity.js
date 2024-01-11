@@ -134,6 +134,7 @@ class ActivityDecision {
   }
 
   get domainSheet() { return this.activity.domainSheet }
+  get actor() { return this.activity.actor }
 
   get dictionary() { return this.options.toDictionary(o => [this.saveValue(o), this.displayValue(o)]) }
   get optionValues() { return this.options.map(o => this.saveValue(o)) }
@@ -914,6 +915,46 @@ export class Activity {
         this.error(`🤬 The citizenry revolt at your heavy-handedness and refuse to help.`);
         this.boost("Unrest");
         this.reduce(["Stability", "Loyalty"].random());
+      },
+    }, {
+      type: "leadership",
+      icon: "🚋",
+      name: "Train Lieutenant",
+      summary: "You work with an NPC leader to increase their capacity.",
+      decisions: [{
+        name: "Trainee",
+        saveAs: "traineeId",
+        valueMethod: "trainee",
+        description: "Which leader will you be tutoring?",
+        options() { return this.domainSheet?.data?.leaders.filter(l => l.type === "NPC").filter(l => l !== this.actor) || [] },
+        saveValue(trainee) { return trainee?.id },
+        displayValue(trainee) { return trainee?.name },
+      }, {
+        name: "Roll",
+        options: ["Loyalty"],
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `NPC Leader gets 2 activitys/turn, or success`,
+          success: `Leader adds 2 activities to their repertiore`,
+          failure: `Fail`,
+          criticalFailure: `Leader abandons their post`,
+        },
+      }],
+      criticalSuccess() {
+        if (this.trainee.activitiesPerTurn < 2) {
+          this.info(`🧠 ${this.trainee.name} is an apt pupil! They can now perform ${++this.trainee.activitiesPerTurn} action${this.trainee.activitiesPerTurn == 1 ? "" : "s"} per turn.`);
+        } else { this.success() }
+      },
+      success() {
+        this.info(`🤯 You teach ${this.trainee.name} more about leadership. Add two actions to those available to them.`);
+        this.info(`🎗️ TODO we should actually track that.`);
+      },
+      failure() {
+        this.warning(`😪 You might not be a great teacher or they might not be a good student, but this didn't work.`);
+      },
+      criticalFailure() {
+        this.error(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
       },
     }, {
       type: "civic",
