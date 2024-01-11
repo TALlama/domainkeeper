@@ -44,7 +44,7 @@ class ActivityDecision {
         options: Ability.all,
         otherDisplayValues: {},
         abilityDisplayValue(ability) {
-          return `Reduce ${ability} by ${this.amount} to proceed`;
+          return this.amount < 0 ? `Boost ${ability} by ${Math.abs(this.amount)}` : `Reduce ${ability} by ${this.amount} to proceed`;
         },
         displayValue(payment) {
           return {
@@ -190,6 +190,7 @@ export class Activity {
     let {by} = abilities[0];
     by && abilities.shift();
     by ??= 1;
+    if (by < 0) { return this.reduce({by}, ...abilities) }
     abilities.forEach(ability => {
       this.domainSheet.boost({by}, ability);
       this.info(`📈 Boosted ${ability} by ${by} <small>, to ${this.domainSheet.data[ability.toLowerCase()]}</small>`);
@@ -200,6 +201,8 @@ export class Activity {
     let {by} = abilities[0];
     by && abilities.shift();
     by ??= -1;
+
+    if (by > 0) { return this.boost({by}, ...abilities) }
     abilities.forEach(ability => {
       this.domainSheet.boost({by}, ability);
       this.warning(`📉 Reduced ${ability} by ${Math.abs(by)} <small>, to ${this.domainSheet.data[ability.toLowerCase()]}</small>`);
@@ -782,6 +785,44 @@ export class Activity {
       criticalFailure() {
         this.error("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate. A random ability is reduced.")
         this.reduce(Ability.random);
+      },
+    }, {
+      type: "leadership",
+      icon: "🥺",
+      name: "Request Foreign Aid",
+      summary: "You entreat aid from a nation you already have diplomatic relations with.",
+      description() { return `
+        <p><strong>Requirement:</strong> You have diplomatic relations with the group you are requesting aid from</p>
+        <p>When disaster strikes, you send out a call for help to another nation with whom you have diplomatic relations. The DC of this check is equal to the other group’s Negotiation DC +2 (see the sidebar on page 23).</p>
+        `;
+      },
+      decisions: [{
+        name: "Roll",
+        dc: "Group DC", // TODO make this work
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Boost an Ability you pick by 2; +4 bonus to future roll`,
+          success: `Boost an Ability you pick by 2`,
+          failure: `Boost a random Ability by 1`,
+          criticalFailure: `1d4 Unrest`,
+        },
+      }],
+      criticalSuccess() {
+        this.success();
+        this.info(`🎁 In addition, your ally’s aid grants a +4 circumstance bonus to any one Domain check attempted during the remainder of this turn. You can choose to apply this bonus to any Domain check after the die is rolled, but must do so before the result is known.`);
+      },
+      success() {
+        this.info(`🎉 Your ally sends the aid you need.`);
+        this.requirePayment({name: "Benefit", amount: -2});
+      },
+      failure() {
+        this.warning(`🥡 Your ally sends what aid they can.`);
+        this.boost(Ability.random);
+      },
+      criticalFailure() {
+        this.error(`💥 Your ally is tangled up in its own problems and is unable to assist you, is insulted by your request for aid, or might even have an interest in seeing your domain struggle against one of your ongoing events. Whatever the case, your pleas for aid make your domain look desperate. You gain no aid, but you do increase Unrest by 1d4.`);
+        this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
       },
     }, {
       type: "civic",
