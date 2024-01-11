@@ -254,38 +254,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
     )});
   }
 
-      new ActivitySheet({
-        type: "leadership",
-        icon: "🛡️",
-        name: "Hire Adventurers",
-        description: "You pay people to tackle an ongoing event.",
-        abilities: ["Loyalty"],
-        preprompt: (activity) => {return Maker.tag("p",
-          p(`While the PCs can strike out themselves to deal with ongoing events, it’s often more efficient to Hire Adventurers. When you Hire Adventurers to help end an ongoing event, the DC is equal to your Control DC adjusted by the event’s level modifier.`),
-          activity.modOneAnd(`Pay them with {ability}`, {prompt: "Before you roll, pay the mercs:"}),
-        )},
-        summaries: {
-          criticalSuccess: `Continuous Event ends`,
-          success: `+2 bonus to end event`,
-          failure: `Fail`,
-          criticalFailure: `Fail; Can't Hire Adventurers for this Event`,
-        },
-        criticalSuccess() {
-          this.info(`⚔️ You end the continuous event.`);
-        },
-        success() {
-          this.info(`🔪 The continuous event doesn’t end, but you gain a +2 circumstance bonus to resolve the event during the next Event phase`);
-          this.addConsumable({name: "Status: Hired Hands", description: "+2 Event Resolution (Circumstance bonus)"});
-        },
-        failure() {
-          this.warning(`❌ You fail to end the continuous event`);
-        },
-        criticalFailure() {
-          this.failure();
-          this.error(`🙊 Word spreads quickly through the region—you can no longer attempt to end this continuous event by Hiring Adventurers.`);
-        },
-      }),
-      new ActivitySheet({
         type: "leadership",
         icon: "🔮",
         name: "Prognostication",
