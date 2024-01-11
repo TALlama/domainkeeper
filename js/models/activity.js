@@ -10,8 +10,11 @@ import { StructureDescription } from "../components/structure_description.js";
 
 class ActivityDecision {
   constructor(properties, activity) {
-    Object.defineProperty(this, "activity", {enumerable: false, value: activity});
-    addTransient(this, {value: {}});
+    addTransient(this, {value: {activity}});
+    Object.defineProperty(this, "activity", {enumerable: false,
+      get() { return this.transient.activity },
+      set(value) { this.transient.activity = value },
+    });
     Object.defineProperty(this, "options", {enumerable: true,
       get() { return callOrReturn(this.transient.options, this) || [] },
       set(value) { this.transient.options = value },
@@ -23,6 +26,10 @@ class ActivityDecision {
         saveAs: "ability",
         options: Ability.all,
         displayValue: (ability) => `<ability-roll ability="${ability}">${ability}</ability-roll>`,
+        optionDisableReason(ability) {
+          let usedBy = this.abilityAlreadyUsedBy(ability);
+          return usedBy.length ? `Already used or this activity this turn by ${usedBy.map(a => a.name).join(" & ")}` : null;
+        },
         description({decision}) {
           return Maker.tag("difficulty-class", {base: this.domainSheet?.controlDC || 15, ...(decision?.difficultyClassOptions || {})}).outerHTML;
         },
@@ -73,6 +80,7 @@ class ActivityDecision {
       unsaveValue(value) { return this.options.find(o => this.saveValue(o) === value) },
       displayValue: (value) => (this.displayValues || {})[value] || value,
       summaryValue: (value) => (this.summaries || {})[value],
+      optionDisableReason: (value) => null,
       mutable: () => !this.resolved,
       ...template,
       ...properties};
@@ -137,6 +145,8 @@ class ActivityDecision {
   get actor() { return this.activity.actor }
 
   get dictionary() { return this.options.toDictionary(o => [this.saveValue(o), this.displayValue(o)]) }
+  get enabledOptions() { return this.options.filter(o => !this.optionDisableReason(o)) }
+  get disabledOptions() { return this.options.filter(o => this.optionDisableReason(o)) }
   get optionValues() { return this.options.map(o => this.saveValue(o)) }
 
   get resolution() { return this.activity[this.saveAs] }
@@ -149,6 +159,10 @@ class ActivityDecision {
   set mutable(value) { this._mutable = value }
 
   get resolved() { return this.options.length === 0 || !!this.resolution }
+
+  abilityAlreadyUsedBy(ability) {
+    return this.activity.peerActivities().filter(a => a.ability === ability).map(a => a.actor);
+  }
 }
 
 export class Activity {
@@ -179,6 +193,9 @@ export class Activity {
   // TODO how can we do this without hitting the DOM?
   get domainSheet() { return document.querySelector("domain-sheet") }
   get actor() { return this.domainSheet.actor(this.actorId) }
+  get currentTurn() { return this.domainSheet.currentTurn }
+  
+  peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
 
   /////////////////////////////////////////////// Decisions & Resolution
 
@@ -1227,6 +1244,26 @@ Eris.test("Activity", makeSure => {
     makeSure.it("causes an exception if you try to set something that's not an option", ({assert}) => {
       let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
       assert.expectError(() => activity.color = "Yellow", "TypeError");
+    });
+
+    makeSure.describe("optionDisableReason allows you to mark options as disabled, and explain why", makeSure => {
+      let options = ["Red", "Green", "Blue"];
+      let optionDisableReason = (color) => color == "Red" ? "Too red" : null;
+
+      makeSure.it("by default, nothing is disabled", ({assert}) => {
+        let activity = makeActivity({name: "Color", options});
+        assert.equals(activity.decision("Color").optionDisableReason(options.random()), null);
+        assert.equals(activity.decision("Color").enabledOptions, options);
+        assert.equals(activity.decision("Color").disabledOptions, []);
+      });
+
+      makeSure.it("can disable any given option", ({assert}) => {
+        let activity = makeActivity({name: "Color", options, optionDisableReason});
+        assert.equals(activity.decision("Color").optionDisableReason("Red"), "Too red");
+        assert.equals(activity.decision("Color").optionDisableReason("Blue"), null);
+        assert.equals(activity.decision("Color").enabledOptions, ["Green", "Blue"]);
+        assert.equals(activity.decision("Color").disabledOptions, ["Red"]);
+      });
     });
 
     makeSure.describe("savedValue allows you to work with objects but save IDs", makeSure => {

@@ -1,12 +1,11 @@
-import {callOrReturn, errorMessage, mod} from "../helpers.js";
+import { callOrReturn, errorMessage, debugJSON } from "../helpers.js";
 
-import {Activity} from "../models/activity.js";
+import { Activity } from "../models/activity.js";
 
-import {RxElement} from "./rx_element.js";
-import {DifficultyClass} from "./difficulty_class.js";
-import {AbilityRoll} from "./ability_roll.js";
-
-import { debugJSON } from "../helpers.js";
+import { AbilityRoll } from "./ability_roll.js";
+import { blockedTooltip } from "./blocked_tooltip.js";
+import { DifficultyClass } from "./difficulty_class.js";
+import { RxElement } from "./rx_element.js";
 
 export class ActivitySheet extends RxElement {
   connectedCallback() {
@@ -132,12 +131,14 @@ export class ActivityDecisionPanel extends RxElement {
           let value = decision.saveValue(option);
           let name = `${activity.id}__${decision.name}`;
           let id = `${name}__${value}`;
-
-          return `<label class='btn pickable' for="${id}">
+          let whyDisabled = decision.optionDisableReason(option);
+          let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}">
             <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
             ${decision.displayValue(option)}
             ${this.renderSummary(activity, decision, option)}
-          </label>`
+          </label>`;
+
+          return blockedTooltip(whyDisabled, label);
         }).join("")}
       </fieldset>`;
   }
@@ -156,12 +157,3 @@ export class ActivityDecisionPanel extends RxElement {
   }
 }
 ActivityDecisionPanel.define("activity-decision-panel");
-
-/*
-  // TODO move this to Activity
-  get currentTurn() { return this.domainSheet.data.turns.last() }
-  get peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
-  get peerActivityAbilityUsers() { return this.peerActivities.toDictionary(a => [a.usedAbility, this.domainSheet.actor(a.actorId)]) }
-
-      {class: this.peerActivityAbilityUsers[ability] ? "looks-disabled" : ""},
-*/
