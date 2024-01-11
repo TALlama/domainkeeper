@@ -22,6 +22,8 @@ export class StructureDescription extends RxElement {
     return this.domainSheet.actors.find(a => a.powerup(structureId));
   }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     return `
       <span class="name">${this.structure.name}</span>

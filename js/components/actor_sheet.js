@@ -15,6 +15,8 @@ export class ActorSheet extends RxElement {
   get currentTurn() { return this.domainSheet.currentTurn }
   get actor() { return this.domainSheet.currentActor }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     if (!this.actor) { return this.renderNoActor() }
 

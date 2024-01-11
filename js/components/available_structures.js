@@ -16,6 +16,8 @@ export class AvalableStructures extends RxElement {
   }
   get names() { return this.templates.map(t => t.name) }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     return `
       <datalist id="available-structures">

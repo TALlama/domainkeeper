@@ -18,6 +18,8 @@ export class StructureChip extends RxElement {
     return this.domainSheet.actors.find(a => a.powerup(structureId));
   }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     return `
       ${this.structure.name}

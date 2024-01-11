@@ -28,14 +28,6 @@ export class ActivitySheet extends RxElement {
   get canCancel() { return this.actor && this.inCurrentTurn && this.mutableDecisionsCount == (this.activity.decisions || []).length }
   get mutableDecisionsCount() { return (this.activity.decisions || []).count(d => d.mutable) }
 
-  /////////////////////////////////////////////// Actions
-
-  cancelActivity() {
-    let entries = this.currentTurn.entries;
-    let ixThis = entries.findIndex(e => e.id == this.activity.id);
-    ixThis > -1 && entries.splice(ixThis, 1);
-  }
-
   /////////////////////////////////////////////// Rendering
 
   render() {
@@ -80,6 +72,14 @@ export class ActivitySheet extends RxElement {
       `<li class="log-entry ${entry.level}">${entry.html}</li>`
     ).join("");
   }
+  
+  /////////////////////////////////////////////// Event Handling
+
+  cancelActivity() {
+    let entries = this.currentTurn.entries;
+    let ixThis = entries.findIndex(e => e.id == this.activity.id);
+    ixThis > -1 && entries.splice(ixThis, 1);
+  }
 }
 ActivitySheet.define("activity-sheet");
 
@@ -94,6 +94,8 @@ export class ActivityDecisionPanel extends RxElement {
 
   get activity() { return this.activitySheet?.activity }
   get decision() { return this.activity.decision(this.getAttribute("name")) }
+
+  /////////////////////////////////////////////// Rendering
 
   render() {
     let activity = this.activity;
@@ -148,6 +150,8 @@ export class ActivityDecisionPanel extends RxElement {
     return summary ? `<small class="metadata">${summary}</small>` : ``;
   }
 
+  /////////////////////////////////////////////// Event Handling
+  
   doPick(event) {
     this.decision.resolution = event.target.value;
   }

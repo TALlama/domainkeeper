@@ -16,6 +16,8 @@ export class ActivityPicker extends RxElement {
   get unresolvedActivity() { return this.currentTurn.entries.find(e => !e.resolved) }
   get open() { return this.unresolvedActivity === undefined }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     return this.setAttributeBoolean("open")
       ? this.renderOpen()

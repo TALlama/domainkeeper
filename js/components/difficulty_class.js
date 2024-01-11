@@ -38,6 +38,8 @@ export class DifficultyClass extends RxElement {
   checkOption(optionName) { this.findOption(optionName).checked = true }
   uncheckOption(optionName) { this.findOption(optionName).checked = false }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     return `
       <article class="mods">

@@ -23,6 +23,8 @@ export class AbilityRoll extends RxElement {
   get usedBonuses() { return this.bonuses.slice(0, 1) }
   get unusedBonuses() { return this.bonuses.slice(1) }
 
+  /////////////////////////////////////////////// Rendering
+
   render() {
     return `
       <span class="ability">${this.ability}</span>
@@ -41,6 +43,8 @@ export class AbilityRoll extends RxElement {
     return `<li>${string}</li>`;
   }
 
+  /////////////////////////////////////////////// Event Handling
+  
   handleEvent(event) { this.roll() }
 
   roll() {

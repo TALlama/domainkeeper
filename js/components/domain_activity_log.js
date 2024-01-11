@@ -161,17 +161,6 @@ export default class DomainActivityLog extends RxElement {
     this.currentTurn.entries.push(activity);
   }
 
-  /////////////////////////////////////////////// Event handling
-
-  doNudge(event) {
-    let activity = this.currentActivity;
-    if (!["Nudge", "Event"].includes(activity?.name)) {
-      activity = new Activity({name: "Nudge"})
-      this.activity(activity);
-    };
-    event.detail.complete(activity);
-  }
-
   /////////////////////////////////////////////// Rendering
 
   render() {
@@ -219,6 +208,17 @@ export default class DomainActivityLog extends RxElement {
       <div class="turn-marker"><span class="turn-name">${turn.name || `Turn ${turn.number}`}<span></div>
       ${entries.map(entry => `<activity-sheet key="${entry.id}" id="${entry.id}" activity-id="${entry.id}"></activity-sheet>`).reverse().join("")}
     `;
+  }
+
+  /////////////////////////////////////////////// Event handling
+
+  doNudge(event) {
+    let activity = this.currentActivity;
+    if (!["Nudge", "Event"].includes(activity?.name)) {
+      activity = new Activity({name: "Nudge"})
+      this.activity(activity);
+    };
+    event.detail.complete(activity);
   }
 }
 DomainActivityLog.define("domain-activity-log");
