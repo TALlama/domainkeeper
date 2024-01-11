@@ -995,6 +995,39 @@ export class Activity {
         this.error(`🙊 Word spreads quickly through the region—you can no longer attempt to end this continuous event by Hiring Adventurers.`);
       },
     }, {
+      type: "leadership",
+      icon: "🔮",
+      name: "Prognostication",
+      summary: "You use the mystic arts to forsee future events and prepare for them.",
+      description() { return `<p>Your domain’s spellcasters read the omens and provide advice on how best to prepare for near-future events. Attempt a basic check.</p>` },
+      decisions: [{
+        name: "Roll",
+        options: ["Culture"],
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `+2 bonus to resolve event`,
+          success: `+1 bonus to resolve event`,
+          failure: `Fail`,
+          criticalFailure: `-1 penalty to resolve event`,
+        },
+      }],
+      criticalSuccess() {
+        this.info(`🧿 Gain a +2 circumstance bonus to the check to resolve the event.`);
+        this.addConsumable({name: "Status: Prepared 2", description: "+2 Event Resolution (Circumstance bonus)"});
+      },
+      success() {
+        this.info(`🎴 Gain a +1 circumstance bonus to the check to resolve the event.`);
+        this.addConsumable({name: "Status: Prepared 1", description: "+1 Event Resolution (Circumstance bonus)"});
+      },
+      failure() {
+        this.warning(`❌ Your spellcasters divine no aid.`);
+      },
+      criticalFailure() {
+        this.error(`💥 Your spellcasters provide inaccurate readings of the future. Take a -1 circumstance penalty to the check to resolve the event`);
+        this.addConsumable({name: "Status: Ill-Prepared", description: "-1 Event Resolution (Circumstance bonus)"});
+      },
+    }, {
       type: "civic",
       icon: "💰",
       name: "Contribute",

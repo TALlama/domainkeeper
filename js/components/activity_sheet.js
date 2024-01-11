@@ -255,35 +255,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
   }
 
         type: "leadership",
-        icon: "🔮",
-        name: "Prognostication",
-        description: "You use the mystic arts to forsee future events and prepare for them.",
-        preprompt: p(`Your domain’s spellcasters read the omens and provide advice on how best to prepare for near-future events. Attempt a basic check.`),
-        abilities: ["Culture"],
-        summaries: {
-          criticalSuccess: `+2 bonus to resolve event`,
-          success: `+1 bonus to resolve event`,
-          failure: `Fail`,
-          criticalFailure: `-1 penalty to resolve event`,
-        },
-        criticalSuccess() {
-          this.info(`🧿 Gain a +2 circumstance bonus to the check to resolve the event.`);
-          this.addConsumable({name: "Status: Prepared 2", description: "+2 Event Resolution (Circumstance bonus)"});
-        },
-        success() {
-          this.info(`🎴 Gain a +1 circumstance bonus to the check to resolve the event.`);
-          this.addConsumable({name: "Status: Prepared 1", description: "+1 Event Resolution (Circumstance bonus)"});
-        },
-        failure() {
-          this.warning(`❌ Your spellcasters divine no aid.`);
-        },
-        criticalFailure() {
-          this.error(`💥 Your spellcasters provide inaccurate readings of the future. Take a -1 circumstance penalty to the check to resolve the event`);
-          this.addConsumable({name: "Status: Ill-Prepared", description: "-1 Event Resolution (Circumstance bonus)"});
-        },
-      }),
-      new ActivitySheet({
-        type: "leadership",
         icon: "🎨",
         name: "Create A Masterpiece",
         description: "You use the mystic arts to forsee future events and prepare for them.",
