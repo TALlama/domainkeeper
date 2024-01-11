@@ -16,17 +16,37 @@
   }
 
   ability-roll {
-    display: inline-flex;
+    --modifier-width: 1.5rem;
+
+    display: inline-grid;
+    grid-template-areas:
+      "ability modifier"
+      "bonuses bonuses ";
+    grid-template-rows: 1rem 1fr;
+    grid-template-columns: 1fr var(--modifier-width);
+    
+    .ability {
+      grid-area: ability;
+    }
 
     .modifier {
+      grid-area: modifier;
       margin-left: auto;
     }
 
     .modifier-breakdown {
-      padding-top: var(--internal-margin);
+      grid-area: bonuses;
       font-size: var(--step--2);
+      align-self: start;
+      text-align: end;
+      display: none;
 
-      &:empty { display: none }
+      &:has(:nth-child(2)) { display: block }
+
+      .modifier-contribution {
+        display: inline-block;
+        width: var(--modifier-width);
+      }
     }
   }
 

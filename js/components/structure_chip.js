@@ -43,7 +43,7 @@ export class StructureChip extends RxElement {
   }
 
   renderBonus(bonus) {
-    return `+${bonus.value} to ${bonus.toActivity} using ${bonus.ability || "any ability"}`;
+    return `+${bonus.value} to ${bonus.activity} using ${bonus.ability || "any ability"}`;
   }
 
   renderDestroyButton() {

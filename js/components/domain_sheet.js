@@ -228,7 +228,7 @@ class DomainSheet extends RxElement {
   structure(structureId) { return this.structures.find(s => s.id === structureId) }
   get structures() { return this.actors.flatMap(a => a.powerups) }
 
-  findBonuses(pattern) { return this.bonuses.matches(pattern) }
+  findBonuses({ability, ...pattern}) { return this.bonuses.matches(pattern).filter(b => !b.ability || b.ability === ability).sortBy("-value") }
   get bonuses() { return this.structures.flatMap(s => (s.bonuses || []).map(b => { return {...b, structure: s}})) }
 
   addFame() {
@@ -322,8 +322,10 @@ class DomainSheet extends RxElement {
     let modifierValue = (modifier ? this.data[modifier.toLocaleLowerCase()] : 0);
     let levelValue = (level === false ? 0 : this.data.level);
 
-    let components = [[modifier, modifierValue], ["Level", levelValue], ["Unrest", this.unrestModifier]];
+    let components = [[modifier, modifierValue]];
     itemBonus && components.push(["Item", itemBonus]); // TODO it'd be nice to name the source
+    components.push(["Level", levelValue]);
+    components.push(["Unrest", this.unrestModifier]);
     let modifierTotal = 0;
 
     let header = Maker.tag("h6");
