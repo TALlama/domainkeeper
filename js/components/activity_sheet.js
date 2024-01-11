@@ -260,32 +260,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
       }),
       new ActivitySheet({
         type: "leadership",
-        icon: "💡",
-        name: "Creative Solution",
-        description: "You plan ahead to make the next action more successful.",
-        preprompt: p(`You work with your domain’s scholars, thinkers, and practitioners of magical and mundane experimentation to come up with new ways to resolve issues when business as usual is just not working. Attempt a basic check.`),
-        summaries: {
-          criticalSuccess: `Bank a Reroll+2 for this turn, and if you don't use it get XP`,
-          success: `Bank a Reroll+2 for this turn`,
-          failure: `Fail`,
-          criticalFailure: `-1 penalty to Culture checks this + next turn`,
-        },
-        criticalSuccess() {
-          this.success();
-          this.info(`⚙️ If you don’t use your Creative Solution by the end of this turn, you lose this benefit and gain 10 Domain XP instead.`);
-        },
-        success() {
-          this.info(`🎉 You can call upon the solution to aid in resolving any Domain check made during the remainder of this turn. Do so when a check is rolled, but before you learn the result. Immediately reroll that check with a +2 circumstance bonus; you must take the new result.`);
-          this.domainSheet.addConsumable({name: "Creative Solution", action: "reroll", description: "Reroll +2"});
-        },
-        failure() { this.warning("❌ You spend time thinking the problem through, but no solution shows itself.") },
-        criticalFailure() {
-          this.error(`Your scholars and thinkers are so frustrated that you take a –1 circumstance penalty to Culture checks until the end of the NEXT Domain turn.`)
-          this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
-        },
-      }),
-      new ActivitySheet({
-        type: "leadership",
         icon: "👨🏻‍🌾",
         name: "Work the Land",
         description: "You lead a party to harvest the bounty of this realm.",
