@@ -253,42 +253,4 @@ ActivityDecisionPanel.define("activity-decision-panel");
       this.pickOneItem(text(ability), {...options, andThen: this.modAndThen({...options, ability: ability})}),
     )});
   }
-
-        type: "leadership",
-        icon: "🎨",
-        name: "Create A Masterpiece",
-        description: "You use the mystic arts to forsee future events and prepare for them.",
-        // TODO limit to 1/turn
-        abilities: ["Culture"],
-        preprompt: p(`You encourage your domain’s artists to create and display a masterful work of art to bolster your domain’s reputation. Attempt a basic check; the result affects either Fame or Infamy (depending on the type of domain you’re running). Create a Masterpiece may be attempted only once per domain turn regardless of the number of leaders pursuing activities.`),
-        summaries: {
-          criticalSuccess: `Gain Fame; Boost random Ability by 1`,
-          success: `Gain Fame`,
-          failure: `Fail`,
-          criticalFailure: `Fail; Lose Fame OR 1d4 Unrest`,
-        },
-        criticalSuccess() {
-          this.success();
-          this.info(`💰 There is a constant stream of people coming to see it for themselves.`);
-          this.boost(Ability.random);
-        },
-        success() {
-          this.info(`🗿 A stunning work of art is created, and people speak of it far and wide.`);
-          this.addFame();
-        },
-        failure() {
-          this.warning(`❌ Your attempt to create a masterpiece fails`);
-        },
-        criticalFailure() {
-          this.error(`💥 Not only does your attempt to create a masterpiece fail, it does so in a dramatic and humiliating way. Lose 1 Fame or Infamy point; if you have no Fame or Infamy points to lose, instead gain 1d4 Unrest.`);
-          let consumed = this.domainSheet.useConsumable({name: "Fame"});
-          if (consumed) {
-            this.error("🤡 Fame reduced by 1");
-          } else {
-            this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
-          }
-        },
-      }),
-    ]
-  }
 */
