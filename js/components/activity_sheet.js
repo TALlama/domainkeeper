@@ -256,39 +256,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
 
     return [
         type: "leadership",
-        icon: "🎪",
-        name: "Quell Unrest",
-        description: "You entertain the populace.",
-        preprompt: [
-          p(`You organize and encourage your citizens' efforts on bringing the domain together.`),
-          p(`Depending on the ability used, this might take the form of a festival, competition, market day, circus, or other cooperative endeavor that brings people together. Perhaps your agents disperse through the citizenry to suppress dissent, or you hold a public trial. You could participate in baby-kissing and ribbon-cutting. Be creative!`),
-        ],
-        summaries: {
-          criticalSuccess: `Reduce Unrest; Gain Fame`,
-          success: `Reduce Unrest`,
-          failure: `Reduce Unrest; Reduce an Ability you pick by 1`,
-          criticalFailure: `Reduce a random Ability by 1`,
-        },
-        criticalSuccess() {
-          this.success();
-          this.info("🗣️ People come from far and wide to join the festivities, and carry work back to their own lands.")
-          this.addFame();
-        },
-        success() {
-          this.info(`🎉 The people enjoy the distraction.`);
-          this.reduce("Unrest");
-        },
-        failure() {
-          this.warning(`💸 The people enjoy the distraction, but it's not cheap.`);
-          this.modOneAnd(`Pay with {ability}`, {andThen: () => this.reduce("Unrest")});
-        },
-        criticalFailure() {
-          this.error(`🔥 The merriment gets out of hand and riots ensue.`);
-          this.reduce(Ability.random);
-        },
-      }),
-      new ActivitySheet({
-        type: "leadership",
         icon: "👀",
         name: "Take Charge",
         description: "You visit a settlement to ensure vital work gets done.",
