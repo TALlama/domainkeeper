@@ -789,11 +789,10 @@ export class Activity {
       },
       failure() {
         this.warning("❌ The holiday passes with little enthusiasm, but is still expensive.");
-        this.modOneAnd(`Pay for the events with {ability}`);
       },
       criticalFailure() {
-        this.error("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate. A random ability is reduced.")
-        this.reduce(Ability.random);
+        this.error("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate..")
+        this.boost("Unrest");
       },
     }, {
       type: "leadership",

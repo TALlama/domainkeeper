@@ -3,7 +3,6 @@ import { Activity } from "../models/activity.js";
 
 import {RxElement} from "./rx_element.js";
 import {ActivitySheet} from "./activity_sheet.js";
-import {PickableGroup} from "./pickable_group.js";
 import {ActivityPicker} from "./activity_picker.js";
 import { debugJSON } from "../helpers.js";
 
