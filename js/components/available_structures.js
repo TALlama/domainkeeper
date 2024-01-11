@@ -1,6 +1,6 @@
-import {Structure} from "../models/structure.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
+import { RxElement } from "./rx_element.js";
 
 export class AvalableStructures extends RxElement {
   connectedCallback() {

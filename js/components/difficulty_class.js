@@ -1,5 +1,6 @@
-import {mod} from "../helpers.js";
-import {RxElement} from "./rx_element.js";
+import { mod } from "../helpers.js";
+
+import { RxElement } from "./rx_element.js";
 
 export class DifficultyClass extends RxElement {
   connectedCallback() {

@@ -1,7 +1,7 @@
-import {Structure} from "../models/structure.js";
-import { nudge } from "./event_helpers.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
+import { nudge } from "./event_helpers.js";
+import { RxElement } from "./rx_element.js";
 
 export class StructureChip extends RxElement {
   connectedCallback() {

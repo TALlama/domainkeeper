@@ -2,8 +2,8 @@ import { callOrReturn, errorMessage, debugJSON } from "../helpers.js";
 
 import { Activity } from "../models/activity.js";
 
-import { AbilityRoll } from "./ability_roll.js";
 import { blockedTooltip } from "./blocked_tooltip.js";
+import { AbilityRoll } from "./ability_roll.js";
 import { DifficultyClass } from "./difficulty_class.js";
 import { RxElement } from "./rx_element.js";
 

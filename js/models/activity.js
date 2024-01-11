@@ -1,8 +1,8 @@
 import { callOrReturn, withDiffs } from "../helpers.js";
 
 import { addTransient } from "./utils.js";
-import { Actor } from "./actor.js";
 import { Ability } from "./abilities.js";
+import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
 
 import { AvalableStructures } from "../components/available_structures.js";

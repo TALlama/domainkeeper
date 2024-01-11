@@ -1,10 +1,10 @@
 import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 
-import {RxElement} from "./rx_element.js";
-import {ActivitySheet} from "./activity_sheet.js";
-import {ActivityPicker} from "./activity_picker.js";
 import { debugJSON } from "../helpers.js";
+import { ActivitySheet } from "./activity_sheet.js";
+import { ActivityPicker } from "./activity_picker.js";
+import { RxElement } from "./rx_element.js";
 
 export default class DomainActivityLog extends RxElement {
   connectedCallback() {

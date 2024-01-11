@@ -1,6 +1,6 @@
-import {RxElement} from "./rx_element.js";
-import {ActivitySheet} from "./activity_sheet.js";
-import {blockedTooltip} from "./blocked_tooltip.js";
+import { blockedTooltip } from "./blocked_tooltip.js";
+import { ActivitySheet } from "./activity_sheet.js";
+import { RxElement } from "./rx_element.js";
 
 export class ActivityPicker extends RxElement {
   connectedCallback() {

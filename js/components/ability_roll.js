@@ -1,5 +1,5 @@
 import { mod } from "../helpers.js";
-import {RxElement} from "./rx_element.js";
+import { RxElement } from "./rx_element.js";
 
 export class AbilityRoll extends RxElement {
   connectedCallback() {
@@ -44,8 +44,6 @@ export class AbilityRoll extends RxElement {
   handleEvent(event) { this.roll() }
 
   roll() {
-    // TODO add item bonuses
-    // TODO dynamic DCs
     this.domainSheet.roll({modifier: this.ability, itemBonus: this.itemBonus, dc: this.difficultyClass});
   }
 }

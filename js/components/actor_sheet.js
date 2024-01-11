@@ -1,9 +1,9 @@
-import {Structure} from "../models/structure.js";
+import { Structure } from "../models/structure.js";
 
-import {RxElement} from "./rx_element.js";
-import {ActivityPicker} from "./activity_picker.js";
-import {StructureChip} from "./structure_chip.js";
 import { nudge } from "./event_helpers.js";
+import { ActivityPicker } from "./activity_picker.js";
+import { RxElement } from "./rx_element.js";
+import { StructureChip } from "./structure_chip.js";
 
 export class ActorSheet extends RxElement {
   connectedCallback() {

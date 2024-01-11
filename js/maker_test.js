@@ -1,4 +1,4 @@
-import {Eris} from "./eris.js";
+import { Eris } from "./eris.js";
 
 Eris.test("Maker", maker => {
   maker.letElement("attached", () => Maker.tag("div", {class: "debug", appendTo: document.body}));
