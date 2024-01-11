@@ -254,47 +254,9 @@ ActivityDecisionPanel.define("activity-decision-panel");
     )});
   }
 
-  // TODO move to Activity
-  static get leadershipActivities() {
-    let {p, ol} = Maker;
-    let {tagged, prereq, special} = ActivitySheet;
-    let hexMods = `Additional Modifier: Mountains: -4; Swamps: -3; Forests: -2; Hills: -1; Plains: -0. `;
-    let hexDCOptions = [
-      {name: "Mountains", value: 4},
-      {name: "Swamps", value: 3},
-      {name: "Forests", value: 2},
-      {name: "Hills", value: 1},
-      {name: "Plains", value: 0},
-    ]
-
     return [
       new ActivitySheet({
-        type: "leadership",
-        icon: "🛣️",
-        name: "Build Infrastructure",
-        description: "You organize the effort to tame the land.",
-        preprompt: p(hexMods),
-        difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
-        summaries: {
-          criticalSuccess: `Build it`,
-          success: `Build it if you Reduce 1 Ability by 1`,
-          failure: `Build it if you Reduce 1 Ability by 2`,
-          criticalFailure: `Fail`,
-        },
-        criticalSuccess() {
-          this.info(`🚀 The whole domain rallies around this project.`);
-        },
-        success() {
-          this.info("😓 Construction is always costly.");
-          this.modOneAnd(`Reduce {ability} by {by} and build the feature`, {afterItems: [`Do not build`]});
-        },
-        failure() {
-          this.warning("😰 Construction is unexpectedly difficult.");
-          this.modOneAnd(`Reduce {ability} by {by} and build the feature`, {by: -2, afterItems: [`Do not build`]});
-        },
-        criticalFailure() {
-          this.error("❌ The construction process is a failure.");
-        },
+        
       }),
       new ActivitySheet({
         type: "leadership",

@@ -42,7 +42,17 @@ class ActivityDecision {
       },
       Payment: {
         options: Ability.all,
-        displayValue(ability) { return `Reduce ${ability} by ${this.amount} to integrate the group`},
+        otherDisplayValues: {},
+        abilityDisplayValue(ability) {
+          return `Reduce ${ability} by ${this.amount} to proceed`;
+        },
+        displayValue(payment) {
+          return {
+            abandoned: `Abandon the attempt and pay nothing`,
+            free: `No payment was necessary`,
+            ...this.otherDisplayValues,
+          }[payment] || this.abilityDisplayValue(payment);
+        },
         amount: 1,
         abilityPaid(ability, {activity, decision}) {},
         nonAbilityPaid(payment, {activity, decision}) {},
@@ -212,7 +222,23 @@ export class Activity {
   }
 
   requirePayment(properties = {}) {
-    this.decisions.push(new ActivityDecision({template: "Payment", ...properties}, this));
+    let decision = this.decision("Payment");
+    if (decision) {
+      Object.assign(decision, properties);
+    } else {
+      this.decisions.push(new ActivityDecision({template: "Payment", ...properties}, this));
+    }
+  }
+
+  abandonPayment() {
+    this.decision("Payment").resolution = "abandoned";
+  }
+
+  skipPayment() {
+    let payment = this.decision("Payment");
+    payment.amount = 0;
+    payment.options = [...payment.options, "free"];
+    payment.resolution = "free";
   }
 
   /////////////////////////////////////////////// Logging
@@ -551,11 +577,6 @@ export class Activity {
       }, {
         name: "Payment",
         options: [...Ability.all, "abandoned"],
-        displayValue(ability) {
-          return {
-            abandoned: `Abandon the attempt and pay nothing`,
-            free: `Volunteers pick up the tab`,
-          }[ability] || `Reduce ${ability} by ${this.amount} and establish the settlement`},
         abilityPaid(ability, {activity}) { activity.establish() },
         nonAbilityPaid(payment, {activity}) {
           if (payment === "abandoned") {
@@ -570,26 +591,13 @@ export class Activity {
         this.info(`🎉 You establish the settlement of ${name}`);
         this.domainSheet.data.settlements.push(new Actor({type: "Village", name: name}));
       },
-      conditionalSuccess(cost) {
-        this.decision("Payment").amount = cost;
-      },
       criticalSuccess() {
         this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
-
-        let payment = this.decision("Payment");
-        payment.amount = 0;
-        payment.options.push("free");
-        payment.resolution = "free";
+        this.skipPayment();
       },
-      success() {
-        this.conditionalSuccess(1);
-      },
-      failure() {
-        this.conditionalSuccess(2);
-      },
-      criticalFailure() {
-        this.decision("Payment").resolution = "abandoned";
-      },
+      success() { this.requirePayment() },
+      failure() { this.requirePayment({amount: 2}) },
+      criticalFailure() { this.abandonPayment() },
     }, {
       type: "leadership",
       icon: "🧎🏻‍♂️",
@@ -627,6 +635,43 @@ export class Activity {
       criticalFailure() {
         this.error(`🤬 The group refuses to pledge to you— furthermore, it will never Pledge Fealty to your domain, barring significant in-play changes or actions by the PCs (subject to the GM’s approval). The group’s potentially violent rebuff of your offer increases Unrest by 2.`);
         this.boost({by: 2}, "Unrest");
+      },
+    }, {
+      type: "leadership",
+      icon: "🛣️",
+      name: "Build Infrastructure",
+      summary: "You organize the effort to tame the land.",
+      description() { return hexMods },
+      decisions: [{
+        name: "Roll",
+        difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Build it`,
+          success: `Build it if you Reduce 1 Ability by 1`,
+          failure: `Build it if you Reduce 1 Ability by 2`,
+          criticalFailure: `Fail`,
+        },
+      }, {
+        name: "Payment",
+        options: [...Ability.all, "abandoned"],
+      }],
+      criticalSuccess() {
+        this.info(`🚀 The whole domain rallies around this project, and it is complete without cost.`);
+        this.skipPayment();
+      },
+      success() {
+        this.info("😓 Construction is always costly.");
+        this.requirePayment();
+      },
+      failure() {
+        this.warning("😰 Construction is unexpectedly difficult.");
+        this.requirePayment({amount: 2});
+      },
+      criticalFailure() {
+        this.error("❌ The construction process is a failure.");
+        this.abandonPayment();
       },
     }, {
       type: "civic",
