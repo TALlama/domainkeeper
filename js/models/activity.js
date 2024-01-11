@@ -17,6 +17,7 @@ class ActivityDecision {
       set(value) { this.transient.options = value },
     });
 
+    let templateName = properties.template || properties.name || properties;
     let template = {
       Roll: {
         saveAs: "ability",
@@ -39,9 +40,25 @@ class ActivityDecision {
           activity[outcome]?.call(activity);
         }
       },
-    }[properties.template || properties.name || properties] || {};
+      Payment: {
+        options: Ability.all,
+        displayValue(ability) { return `Reduce ${ability} by ${this.amount} to integrate the group`},
+        amount: 1,
+        abilityPaid(ability, {activity, decision}) {},
+        nonAbilityPaid(payment, {activity, decision}) {},
+        picked(payment, {activity, decision}) {
+          if (Ability.all.includes(payment)) {
+            activity.reduce({by: -decision.amount}, payment);
+            decision.abilityPaid(payment, {activity, decision});
+          } else {
+            decision.nonAbilityPaid(payment, {activity, decision});
+          }
+        },
+      },
+    }[templateName] || {};
     let props = {
-      saveAs: (template.name || properties.name || properties).toLowerCase(),
+      name: templateName,
+      saveAs: templateName.toLowerCase(),
       saveValue: (value) => value,
       displayValue: (value) => (this.displayValues || {})[value] || value,
       summaryValue: (value) => (this.summaries || {})[value],
@@ -192,6 +209,10 @@ export class Activity {
   addBonusActivity(actor) {
     this.info(`🛟 Added bonus activity for ${actor.name}`);
     actor.bonusActivities += 1;
+  }
+
+  requirePayment(properties = {}) {
+    this.decisions.push(new ActivityDecision({template: "Payment", ...properties}, this));
   }
 
   /////////////////////////////////////////////// Logging
@@ -535,14 +556,11 @@ export class Activity {
             abandoned: `Abandon the attempt and pay nothing`,
             free: `Volunteers pick up the tab`,
           }[ability] || `Reduce ${ability} by ${this.amount} and establish the settlement`},
-        amount: 1,
-        picked: (payment, {activity, decision}) => {
+        abilityPaid(ability, {activity}) { activity.establish() },
+        nonAbilityPaid(payment, {activity}) {
           if (payment === "abandoned") {
             activity.warning("🚫 You do not establish a settlement");
           } else if (payment === "free") {
-            activity.establish();
-          } else {
-            activity.reduce({by: -decision.amount}, payment);
             activity.establish();
           }
         },
@@ -571,6 +589,44 @@ export class Activity {
       },
       criticalFailure() {
         this.decision("Payment").resolution = "abandoned";
+      },
+    }, {
+      type: "leadership",
+      icon: "🧎🏻‍♂️",
+      name: "Pledge of Fealty",
+      summary: "You diplomatically invite another group to join the domain.",
+      description() { return `
+        <p>When your representatives encounter freeholders, refugees, independent groups, or other bands of individuals gathered in the wilderness who aren’t already part of a nation, you can offer them a place in your domain, granting them the benefits of protection, security, and prosperity in exchange for their fealty. The benefits granted to your domain can vary wildly, but often manifest as one-time boons to your commodities or unique bonuses against certain types of events. The adventure text in this campaign offers numerous examples of groups who could accept a Pledge of Fealty. Certain groups will respond better (or worse) to specific approaches. The DC is the group’s Negotiation DC (see the sidebar on page 23).</p>
+      `},
+      decisions: [{
+        name: "Roll",
+        options: ["Loyalty"],
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Integrate; Claim Hex`,
+          success: `Integrate; Reduce 1 Ability by 1`,
+          failure: `Fail; Increase Unrest`,
+          criticalFailure: `Fail forever; Increase Unrest by 2`,
+        },
+      }],
+      dc: "Group DC", // TODO make this work
+      criticalSuccess() {
+        this.info(`🤝🏻 The group becomes part of your domain, granting the specific boon or advantage listed in that group’s entry.`);
+        this.info(`🗺️ If you haven’t already claimed the hex in which the group dwells, you immediately do so, gaining Domain XP and increasing Size by 1 (this affects all statistics determined by Size; see page 38). If the hex doesn’t share a border with your domain, it becomes a secondary territory and checks involving this location take a Control penalty.`);
+      },
+      success() {
+        this.info(`🤝🏻 The group becomes part of your domain, granting the specific boon or advantage listed in that group’s entry.`);
+        this.warning(`🗺️ You don’t claim the hex the group is in.`);
+        this.requirePayment();
+      },
+      failure() {
+        this.warning(`❌ The group refuses to pledge to you at this time. You can attempt to get them to Pledge Fealty next turn.`);
+        this.boost("Unrest");
+      },
+      criticalFailure() {
+        this.error(`🤬 The group refuses to pledge to you— furthermore, it will never Pledge Fealty to your domain, barring significant in-play changes or actions by the PCs (subject to the GM’s approval). The group’s potentially violent rebuff of your offer increases Unrest by 2.`);
+        this.boost({by: 2}, "Unrest");
       },
     }, {
       type: "civic",
