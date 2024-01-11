@@ -70,6 +70,7 @@ class ActivityDecision {
       name: templateName,
       saveAs: templateName.toLowerCase(),
       saveValue: (value) => value,
+      unsaveValue(value) { return this.options.find(o => this.saveValue(o) === value) },
       displayValue: (value) => (this.displayValues || {})[value] || value,
       summaryValue: (value) => (this.summaries || {})[value],
       mutable: () => !this.resolved,
@@ -77,13 +78,10 @@ class ActivityDecision {
       ...properties};
     Object.assign(this, props);
 
-    this.displayValues ||= this.options.toDictionary(o => [o, this.displayValue(o)]);
-    this.summaries ||= this.options.toDictionary(o => [o, this.summaryValue(o)]);
-
     this.#addSaveAsProperty(activity, props.saveAs);
-    this.#addValueProperty(activity, `${props.saveAs}Value`);
-    this.#addDisplayProperty(activity, `${props.saveAs}Display`);
-    this.#addSummaryProperty(activity, `${props.saveAs}Summary`);
+    this.#addValueProperty(activity, props.valueMethod || `${props.saveAs}Value`);
+    this.#addDisplayProperty(activity, props.displayMethod || `${props.saveAs}Display`);
+    this.#addSummaryProperty(activity, props.summaryMethod || `${props.saveAs}Summary`);
   }
 
   #addSaveAsProperty(activity, saveAs) {
@@ -94,7 +92,8 @@ class ActivityDecision {
       enumerable: true,
       get() { return activity.transient[`_${saveAs}`] },
       set(value) {
-        if (![...decision.options, null, undefined].includes(value)) {
+        let validOptions = decision.optionValues;
+        if (validOptions.length && ![...validOptions, null, undefined].includes(value)) {
           throw TypeError(`Canot set ${saveAs} to ${value}; try one of ${JSON.stringify(decision.options)}`)
         }
         if (activity.transient[`_${saveAs}`] === value) { return }
@@ -110,8 +109,8 @@ class ActivityDecision {
 
     Object.defineProperty(activity, saveAsValue, {
       configurable: true,
-      get() { return decision.saveValue(decision.resolution) },
-      set(value) { decision.resolution = decision.options.find(option => decision.saveValue(option) === value) },
+      get() { return decision.unsaveValue(decision.resolution) },
+      set(value) { decision.resolution = decision.saveValue(value) },
     });
   }
 
@@ -134,10 +133,16 @@ class ActivityDecision {
     });
   }
 
+  get domainSheet() { return this.activity.domainSheet }
+
   get dictionary() { return this.options.toDictionary(o => [this.saveValue(o), this.displayValue(o)]) }
+  get optionValues() { return this.options.map(o => this.saveValue(o)) }
 
   get resolution() { return this.activity[this.saveAs] }
   set resolution(value) { this.activity[this.saveAs] = value }
+
+  get resolutionValue() { return this.unsaveValue(this.resolution) }
+  set resolutionValue(value) { this.resolution = this.saveValue(value) }
 
   get mutable() { return callOrReturn(this._mutable, this.activity, this.activity, this) }
   set mutable(value) { this._mutable = value }
@@ -592,7 +597,10 @@ export class Activity {
       establish() {
         let name = prompt("What will you name the settlement?");
         this.info(`🎉 You establish the settlement of ${name}`);
-        this.domainSheet.data.settlements.push(new Actor({type: "Village", name: name}));
+
+        let settlement = new Actor({type: "Village", name: name});
+        this.settlementId = settlement.id;
+        this.domainSheet.data.settlements.push(settlement);
       },
       criticalSuccess() {
         this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
@@ -865,6 +873,49 @@ export class Activity {
         this.reduce(Ability.random);
       },
     }, {
+      type: "leadership",
+      icon: "👀",
+      name: "Take Charge",
+      summary: "You visit a settlement to ensure vital work gets done.",
+      decisions: [{
+        name: "Settlement",
+        saveAs: "settlementId",
+        valueMethod: "settlement",
+        description: "Which settlement will get your attention - and an extra action?",
+        options() { return this.domainSheet?.data?.settlements || [] },
+        saveValue(settlement) { return settlement?.id },
+        displayValue(settlement) { return settlement?.name },
+      }, {
+        name: "Roll",
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Do a Civic Activity; Increase Stability or Loyalty by 1`,
+          success: `Do a Civic Activity`,
+          failure: `Do a Civic Activity; Increase Unrest`,
+          criticalFailure: `Increase Unrest; Decrease Stability or Loyalty by 1`,
+        },  
+      }],
+      criticalSuccess() {
+        this.success();
+        this.info(`👍🏻 Your vigilant oversight of this successful project inspires the domain.`);
+        this.boost(["Stability", "Loyalty"].random());
+      },
+      success() {
+        this.info(`🎉 You oversee the project to completion.`);
+        this.addBonusActivity(this.settlement);
+      },
+      failure() {
+        this.warning(`😠 The project is completed, but the settlement is annoyed by your methods.`);
+        this.addBonusActivity(this.settlement);
+        this.boost("Unrest");
+      },
+      criticalFailure() {
+        this.error(`🤬 The citizenry revolt at your heavy-handedness and refuse to help.`);
+        this.boost("Unrest");
+        this.reduce(["Stability", "Loyalty"].random());
+      },
+    }, {
       type: "civic",
       icon: "💰",
       name: "Contribute",
@@ -941,7 +992,7 @@ Eris.test("Activity", makeSure => {
   makeSure.it("pulls properties from the template", ({assert}) => {
     let activity = new Activity("Claim Hex");
     assert.equals(activity.name, "Claim Hex");
-    assert.equals(activity.abilities, ["Economy", "Stability"]);
+    assert.equals(activity.decision("Roll").options, ["Economy", "Stability"]);
   });
 
   makeSure.describe("id", makeSure => {
@@ -1032,25 +1083,37 @@ Eris.test("Activity", makeSure => {
       makeSure.it("by default, uses the value itself", ({assert}) => {
         let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
         assert.equals(activity.decision("Color").saveValue("Red"), "Red");
+        assert.equals(activity.decision("Color").unsaveValue("Red"), "Red");
       });
 
       makeSure.it("can be set via property", ({assert}) => {
         let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], saveValue});
         assert.equals(activity.decision("Color").saveValue("Red"), "r");
+        assert.equals(activity.decision("Color").unsaveValue("r"), "Red");
         assert.jsonEquals(activity.decision("Color").dictionary, {r: "Red", g: "Green", b: "Blue"});
       });
 
       makeSure.it("exposes an accessor for the current save value", ({assert}) => {
         let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], saveValue});
+        let decision = activity.decision("Color");
         
-        assert.equals(activity.colorValue, null);
+        assert.equals(activity.colorValue, undefined);
+        assert.equals(decision.resolution, undefined);
+        assert.equals(decision.resolutionValue, undefined);
         
-        activity.color = "Red";
-        assert.equals(activity.colorValue, "r");
+        //setting via the saveAs property
+        activity.color = "r";
+        assert.equals(activity.color, "r");
+        assert.equals(decision.resolution, "r");
+        assert.equals(activity.colorValue, "Red");
+        assert.equals(decision.resolutionValue, "Red");
 
-        activity.colorValue = "g";
-        assert.equals(activity.color, "Green");
-        assert.equals(activity.colorValue, "g");
+        //setting via the saveAsValue property
+        activity.colorValue = "Green";
+        assert.equals(activity.color, "g");
+        assert.equals(decision.resolution, "g");
+        assert.equals(activity.colorValue, "Green");
+        assert.equals(decision.resolutionValue, "Green");
       });
     });
 
@@ -1101,7 +1164,6 @@ Eris.test("Activity", makeSure => {
       makeSure.it("can be set via property, using a function", ({assert}) => {
         let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], summaryValue});
         assert.equals(activity.decision("Color").summaryValue("Red"), "Like a fire truck");
-        assert.jsonEquals(activity.decision("Color").summaries, summaries);
       });
 
       makeSure.it("can be set via property, using a dictionary", ({assert}) => {

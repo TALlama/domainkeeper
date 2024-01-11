@@ -113,7 +113,7 @@ export class ActivityDecisionPanel extends RxElement {
   }
 
   renderResolved(activity, decision) {
-    return `<span class="picked">${decision.displayValue(decision.resolution)}</span>`;
+    return `<span class="picked">${decision.displayValue(decision.resolutionValue)}</span>`;
   }
 
   renderUndoLink(css="") {
@@ -255,44 +255,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
   }
 
     return [
-        type: "leadership",
-        icon: "👀",
-        name: "Take Charge",
-        description: "You visit a settlement to ensure vital work gets done.",
-        preprompt: (activity) => {return Maker.tag("div",
-          activity.pickOne(activity.domainSheet.data.settlements, {
-            prompt: "Which settlement will you travel to?",
-            format: (settlement) => settlement.name,
-            andThen: (picked) => { activity.targetSettlement = picked },
-          }),
-        )},
-        summaries: {
-          criticalSuccess: `Do a Civic Activity; Increase Stability or Loyalty by 1`,
-          success: `Do a Civic Activity`,
-          failure: `Do a Civic Activity; Increase Unrest`,
-          criticalFailure: `Increase Unrest; Decrease Stability or Loyalty by 1`,
-        },
-        criticalSuccess() {
-          this.success();
-          this.info(`👍🏻 Your vigilant oversight of this successful project inspires the domain.`);
-          this.boost(["Stability", "Loyalty"].random());
-        },
-        success() {
-          this.info(`🎉 You oversee the project to completion.`);
-          this.addBonusActivity(this.targetSettlement);
-        },
-        failure() {
-          this.warning(`😠 The project is completed, but the settlement is annoyed by your methods.`);
-          this.addBonusActivity(this.targetSettlement);
-          this.boost("Unrest");
-        },
-        criticalFailure() {
-          this.error(`🤬 The citizenry revolt at your heavy-handedness and refuse to help.`);
-          this.boost("Unrest");
-          this.boost(["Stability", "Loyalty"].random());
-        },
-      }),
-      new ActivitySheet({
         type: "leadership",
         icon: "🚋",
         name: "Train Lieutenant",
