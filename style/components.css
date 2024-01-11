@@ -15,6 +15,21 @@
     --subheader-bg: lightgrey;
   }
 
+  ability-roll {
+    display: inline-flex;
+
+    .modifier {
+      margin-left: auto;
+    }
+
+    .modifier-breakdown {
+      padding-top: var(--internal-margin);
+      font-size: var(--step--2);
+
+      &:empty { display: none }
+    }
+  }
+
   domain-sheet {
     position: sticky;
     top: 0;
@@ -400,19 +415,6 @@
             --vertical-margin: 0;
           }
         }
-      }
-    }
-
-    .pick-ability {
-      .modifier {
-        margin-left: var(--internal-margin);
-      }
-
-      .modifier-breakdown {
-        padding-top: var(--internal-margin);
-        font-size: var(--step--2);
-
-        &:empty { display: none }
       }
     }
 
