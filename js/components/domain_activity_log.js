@@ -88,7 +88,7 @@ export default class DomainActivityLog extends RxElement {
 
   newTurn(name) {
     this.domainSheet.saveData();
-    this.currentTurn && this.domainSummaryEntry();
+    this.currentTurn && this.domainSummary();
     
     this.resetTurn();
     this.domainSheet.addFame();
@@ -116,49 +116,13 @@ export default class DomainActivityLog extends RxElement {
   get currentTurn() { return this.domainSheet.currentTurn }
   get currentActivity() { return this.currentTurn?.entries?.last() }
 
-  ruin() {
-    return; // TODO fix
+  ruin() { this.activity(new Activity({name: "Ruin"})) }
+  domainSummary() { this.activity(new Activity({name: "Domain Summary", lastSummary})) }
 
-    let activity = new ActivitySheet({
-      icon: "😢",
-      name: "Ruin",
-      description: "If Unrest is too high, random stats get reduced",
-      prompt: "",
-      possibleOutcomes: "",
-    });
-
-    let doRuin = (threshold) => {
-      if (activity.domainSheet.data.unrest >= threshold) {
-        activity.log(`🤬 Unrest is higher than ${threshold}.`);
-        let ability = Ability.random;
-        activity.log({
-          "Culture": "💸 Corruption is rampant, and no one trusts the domain.",
-          "Economy": "🥷🏻 Crime is everywhere, making it hard on honest citizens.",
-          "Loyalty": "🧟‍♂️ Decay pervades the domain; only fools would depend on tomorrow.",
-          "Stability": "🧟‍♂️ Strife pits neighbors against each other, and everyone is on edge.",
-        }[ability]);
-        activity.reduce(ability);
-      } else {
-        activity.log(`😌 Unrest is not ${threshold} or higher.`);
-      }
-    }
-
-    doRuin(5);
-    doRuin(10);
-    doRuin(15);
-
-    this.activity(activity);
-  }
-
-  domainSummaryEntry() {
-    let lastSummary = null; // TODO fix
-
-    this.activity(new Activity({name: "Domain Summary", lastSummary}));
-
-  }
   activity(activity) {
     activity.actorId ??= this.domainSheet.currentActor.id;
     this.currentTurn.entries.push(activity);
+    activity.added && activity.added();
   }
 
   /////////////////////////////////////////////// Rendering

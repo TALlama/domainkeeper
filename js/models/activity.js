@@ -419,6 +419,39 @@ export class Activity {
         `;
       },
     }, {
+      icon: "😢",
+      name: "Ruin",
+      summary: "If Unrest is too high, random stats get reduced",
+      decisions: [5, 10, 15].map(threshold => {
+        return {
+          name: `Threshold ${threshold}`,
+          options: ["Unmet", "Met"],
+          threshold,
+          saveAs: `ruin${threshold}`,
+          picked(metOrNot, {activity}) {
+            if (metOrNot === "Met") {
+              activity.error(`🤬 Unrest is higher than ${threshold}.`);
+              let ability = Ability.random;
+              activity.error({
+                "Culture": "💸 Corruption is rampant, and no one trusts the domain.",
+                "Economy": "🥷🏻 Crime is everywhere, making it hard on honest citizens.",
+                "Loyalty": "🧟‍♂️ Decay pervades the domain; only fools would depend on tomorrow.",
+                "Stability": "🧟‍♂️ Strife pits neighbors against each other, and everyone is on edge.",
+              }[ability]);
+              activity.reduce(ability);
+            } else {
+              activity.info(`😌 Unrest is not ${threshold} or higher.`);
+            }
+          },
+        };
+      }),
+      added() {
+        let unrest = this.domainSheet.data.unrest;
+        this.decisions.forEach(decision => {
+          decision.resolution = unrest >= decision.threshold ? "Met" : "Unmet";
+        });
+      },
+    }, {
       type: "system",
       actorId: "system",
       icon: "🔧",
