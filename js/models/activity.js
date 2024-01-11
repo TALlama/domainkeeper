@@ -742,6 +742,48 @@ export class Activity {
         this.boost("Unrest");
       },
     }, {
+      type: "leadership",
+      icon: "🎄",
+      name: "Celebrate Holiday",
+      summary: "You organize a festival where the populace can enjoy themselves.",
+      description() { return `
+        <p>You declare a day of celebration. Holidays may be religious, historical, martial, or simply festive, but all relieve your citizens from their labors and give them a chance to make merry at the domain’s expense.</p>
+        <p>This boosts the ability below the one you roll:</p>
+        <ol>
+          <li>Rolling Culture will increase Economy</li>
+          <li>Rolling Economy will increase Loyalty</li>
+          <li>Rolling Loyalty will increase Stability</li>
+          <li>Rolling Stability will increase Culture</li>
+        </ol>`;
+      },
+      decisions: [{
+        name: "Roll",
+      }, {
+        name: "Outcome",
+        summaries: {
+          criticalSuccess: `Boost Ability by 2`,
+          success: `Boost Ability by 1`,
+          failure: `Fail`,
+          criticalFailure: `Unrest`,
+        },
+      }],
+      criticalSuccess() {
+        this.info(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
+        this.boost({by: 2}, Ability.next(this.ability));
+      },
+      success() {
+        this.info(`🎉 Your holiday is a success.`);
+        this.boost(Ability.next(this.ability))
+      },
+      failure() {
+        this.warning("❌ The holiday passes with little enthusiasm, but is still expensive.");
+        this.modOneAnd(`Pay for the events with {ability}`);
+      },
+      criticalFailure() {
+        this.error("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate. A random ability is reduced.")
+        this.reduce(Ability.random);
+      },
+    }, {
       type: "civic",
       icon: "💰",
       name: "Contribute",

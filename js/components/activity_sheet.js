@@ -255,40 +255,6 @@ ActivityDecisionPanel.define("activity-decision-panel");
   }
 
     return [
-      new ActivitySheet({
-        type: "leadership",
-        icon: "🎄",
-        name: "Celebrate Holiday",
-        description: "You organize a festival where the populace can enjoy themselves.",
-        preprompt: [
-          p(`You declare a day of celebration. Holidays may be religious, historical, martial, or simply festive, but all relieve your citizens from their labors and give them a chance to make merry at the domain’s expense.`),
-          p(`This boosts the ability below the one you roll:`),
-          ol(`Rolling Culture will increase Economy`, `Rolling Economy will increase Loyalty`, `Rolling Loyalty will increase Stability`, `Rolling Stability will increase Culture`),
-        ],
-        summaries: {
-          criticalSuccess: `Boost Ability by 2`,
-          success: `Boost Ability by 1`,
-          failure: `Fail`,
-          criticalFailure: `Unrest`,
-        },
-        criticalSuccess() {
-          this.info(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
-          this.boost({by: 2}, this.belowAbility);
-        },
-        success() {
-          this.info(`🎉 Your holiday is a success.`);
-          this.boost(this.belowAbility)
-        },
-        failure() {
-          this.warning("❌ The holiday passes with little enthusiasm, but is still expensive.");
-          this.modOneAnd(`Pay for the events with {ability}`);
-        },
-        criticalFailure() {
-          this.error("🃏 Your festival days are poorly organized, and the citizens actively mock your failed attempt to celebrate. A random ability is reduced.")
-          this.reduce(Ability.random);
-        },
-      }),
-      new ActivitySheet({
         type: "leadership",
         icon: "🥺",
         name: "Request Foreign Aid",
