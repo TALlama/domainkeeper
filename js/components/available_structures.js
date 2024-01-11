@@ -8,7 +8,7 @@ export class AvalableStructures extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
-  get domainLevel() { return this.domainSheet.data.level }
+  get domainLevel() { return this.domainSheet?.data?.level || 0 }
 
   get templates() {
     let level = this.domainLevel;
