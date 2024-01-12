@@ -13,7 +13,7 @@ export class ActivityPicker extends RxElement {
   get isLeader() { return this.currentActor?.isLeader }
   get isSettlement() { return this.currentActor?.isSettlement }
   get previousActivityNames() { return (this.currentActor?.activitesTaken || []).map(a => a.name) }
-  get unresolvedActivity() { return this.currentTurn.entries.find(e => !e.resolved) }
+  get unresolvedActivity() { return this.currentTurn.activities.find(e => !e.resolved) }
   get open() { return this.unresolvedActivity === undefined }
 
   /////////////////////////////////////////////// Rendering

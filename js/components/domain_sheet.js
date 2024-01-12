@@ -89,14 +89,14 @@ class DomainSheet extends RxElement {
       saved[key] = saved[key].map(attrs => new Actor(attrs));
     });
     saved.turns.forEach(turn => {
-      turn.entries = turn.entries.map(attrs => new Activity(attrs));
+      turn.activities = turn.activities.map(attrs => new Activity(attrs));
     })
 
     return saved;
   }
 
   get activityLog() { return document.querySelector("domain-activity-log") }
-  get activities() { return this.data.turns.flatMap(t => t.entries) }
+  get activities() { return this.data.turns.flatMap(t => t.activities) }
   activity(activityId) { return this.activities.find(a => a.id === activityId) }
   activitiesWhere(pattern) { return this.activities.matches(pattern) }
 

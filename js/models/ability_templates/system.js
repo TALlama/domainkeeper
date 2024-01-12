@@ -137,7 +137,7 @@ export var systemTemplates = [{
   summary: `A report on the state of your domain`,
   decisions: [],
   description() {
-    let lastSummary = this.domainSheet.previousTurn?.entries?.find(e => e.name === this.name);
+    let lastSummary = this.domainSheet.previousTurn?.activities?.find(e => e.name === this.name);
     let abilityScores = this.abilityScores = this.domainSheet.abilityScores;
     let statScores = this.statScores = this.domainSheet.statScores;
     
@@ -146,17 +146,17 @@ export var systemTemplates = [{
     return `
       <p>💾 Domain saved</p>
       <header>What Happened</header>
-      <div class="entries-summary">
-      ${(this.domainSheet.currentTurn?.entries || []).map(entry =>
+      <div class="activity-summary">
+      ${(this.domainSheet.currentTurn?.activities || []).map(activity =>
         `<a
-          href="#${entry.id}"
-          title="${entry.name}"
-          class="entry-summary icon-link"
-          data-type="${entry.type}"
-          data-used-ability="${entry.ability}"
-          data-outcome="${entry.outcome}"
+          href="#${activity.id}"
+          title="${activity.name}"
+          class="activity-summary icon-link"
+          data-type="${activity.type}"
+          data-used-ability="${activity.ability}"
+          data-outcome="${activity.outcome}"
           data-action="smoothScroll"
-          >${entry.icon}</a>`
+          >${activity.icon}</a>`
       ).join("")}
       </div>
       <header>Stats Snapshot</header>

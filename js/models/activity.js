@@ -38,7 +38,7 @@ export class Activity {
   get actor() { return this.domainSheet.actor(this.actorId) }
   get currentTurn() { return this.domainSheet.currentTurn }
   
-  peerActivities() { return this.currentTurn.entries.filter(e => e.name === this.name) || [] }
+  peerActivities() { return this.currentTurn.activities.filter(e => e.name === this.name) || [] }
 
   /////////////////////////////////////////////// Decisions & Resolution
 

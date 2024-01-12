@@ -271,12 +271,12 @@
       }
     }
 
-    .entries {
+    .activities {
       display: flex;
       flex-direction: column;
       gap: var(--external-margin);
 
-      &.entries---summary-spotlight activity-sheet {
+      &.activities---summary-spotlight activity-sheet {
         border-top-width: 0;
         border-left-width: 0;
 
@@ -284,7 +284,7 @@
       }
     }
 
-    details .entries {
+    details .activities {
       margin-top: var(--external-margin);
     }
   }
@@ -482,10 +482,6 @@
         &.error { --level-color: red }
       }
     }
-
-    + .entry {
-      margin-top: var(--external-margin);
-    }
   }
 
   structure-description {
@@ -551,12 +547,12 @@
     &.diff-positive { color: green }
   }
 
-  .entries-summary {
+  .activity-summary {
     display: flex;
     flex-wrap: wrap;
   }
 
-  .entry-summary {
+  .activity-summary {
     --bg: lightgray;
     --outcome-bg: var(--bg);
     --type-bg: var(--bg);

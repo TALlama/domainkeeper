@@ -22,7 +22,7 @@ export class ActivitySheet extends RxElement {
   get currentTurn() { return this.domainSheet.currentTurn }
   get actor() { return this.domainSheet.actor(this.activity.actorId) }
 
-  get inCurrentTurn() { return this.currentTurn?.entries?.find(e => e.id === this.id) }
+  get inCurrentTurn() { return this.currentTurn?.activities?.find(e => e.id === this.id) }
   get canCancel() { return this.actor && this.inCurrentTurn && this.mutableDecisionsCount == (this.activity.decisions || []).length }
   get mutableDecisionsCount() { return (this.activity.decisions || []).count(d => d.mutable) }
 
@@ -74,9 +74,9 @@ export class ActivitySheet extends RxElement {
   /////////////////////////////////////////////// Event Handling
 
   cancelActivity() {
-    let entries = this.currentTurn.entries;
-    let ixThis = entries.findIndex(e => e.id == this.activity.id);
-    ixThis > -1 && entries.splice(ixThis, 1);
+    let activities = this.currentTurn.activities;
+    let ixThis = activities.findIndex(e => e.id == this.activity.id);
+    ixThis > -1 && activities.splice(ixThis, 1);
   }
 }
 ActivitySheet.define("activity-sheet");

@@ -33,7 +33,7 @@ export default class DomainActivityLog extends RxElement {
     delete this.domainSheet.data.currentActorId; // TODO move that into turn
     this.domainSheet.data.leaders.forEach(l => l.rollInitiative()); // TODO this too
     let turns = this.domainSheet.data.turns;
-    let newTurn = {number: turns.length, entries: []};
+    let newTurn = {number: turns.length, activities: []};
     if (turns.length === 0) { newTurn.name = "Domain creation" }
     turns.push(newTurn);
   }
@@ -82,18 +82,16 @@ export default class DomainActivityLog extends RxElement {
     name && this.activity(new Activity({name}));
   }
 
-  // TODO get currentActivity() { return this.entries.querySelector("activity-sheet") }
-
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
-  get currentActivity() { return this.currentTurn?.entries?.last() }
+  get currentActivity() { return this.currentTurn?.activities?.last() }
 
-  ruin() { this.activity(new Activity({name: "Ruin"})) }
+  ruin() { this.currentTurn.number === 0 || this.activity(new Activity({name: "Ruin"})) }
   domainSummary() { this.activity(new Activity({name: "Domain Summary"})) }
 
   activity(activity) {
     activity.actorId ??= this.domainSheet.currentActor.id;
-    this.currentTurn.entries.push(activity);
+    this.currentTurn.activities.push(activity);
     activity.added && activity.added();
   }
 
@@ -138,17 +136,17 @@ export default class DomainActivityLog extends RxElement {
   renderTurns() { return this.domainSheet.data.turns.map(turn => this.renderTurn(turn)).reverse().join("") }
 
   renderTurn(turn) {
-    let activities = turn.entries;
+    let activities = turn.activities;
     let summary = activities.find(a => a.name === "Domain Summary");
 
     return `
     <article class="turn">
       <div class="turn-marker"><span class="turn-name">${turn.name || `Turn ${turn.number}`}<span></div>
-      ${summary ? `<main class="entries entries---summary-spotlight">${this.renderActivity(summary)}</main>` : ""}
+      ${summary ? `<main class="activities activities---summary-spotlight">${this.renderActivity(summary)}</main>` : ""}
 
       <details ${turn === this.currentTurn ? "open" : ""}>
         <summary>${activities.length} activities</summary>
-        <main class="entries">
+        <main class="activities">
           ${activities.map(activity => activity === summary ? "" : this.renderActivity(activity)).reverse().join("")}
         </main>
       </details>
