@@ -3,9 +3,7 @@ import { withDiffs } from "../../helpers.js";
 import { Ability } from "../abilities.js";
 
 export var systemTemplates = [{
-  type: "system",
   icon: "👑",
-  actorId: "system",
   name: "Welcome, Domainkeeper",
   summary: "You've got a new domain. Let's see how it goes.",
   decisions: [],
@@ -17,9 +15,7 @@ export var systemTemplates = [{
     <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
   `,
 }, {
-  type: "system",
   icon: "🌱",
-  actorId: "system",
   name: "Domain Concept",
   summary: "Let's pick some starting stats",
   description: () => `
@@ -97,8 +93,6 @@ export var systemTemplates = [{
     }];
   })(),
 }, {
-  type: "system",
-  actorId: "system",
   icon: "💥",
   name: "Event",
   summary: `Time marches on`,
@@ -130,8 +124,6 @@ export var systemTemplates = [{
     },
   }],
 }, {
-  type: "system",
-  actorId: "system",
   icon: "🗺️",
   name: "Domain Summary",
   summary: `A report on the state of your domain`,
@@ -198,10 +190,8 @@ export var systemTemplates = [{
     });
   },
 }, {
-  type: "system",
-  actorId: "system",
   icon: "🔧",
   name: "Nudge",
   summary: "You tweaked something",
   decisions: [],
-}];
+}].map(a => { return {type: "system", actorId: "system", ...a}});

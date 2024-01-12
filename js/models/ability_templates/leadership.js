@@ -11,7 +11,6 @@ let hexDCOptions = [
 ];
 
 export var leadershipTemplates = [{
-  type: "leadership",
   icon: "🧭",
   name: "Reconnoiter Hex",
   summary: "You hire a team to survey a particular hex.",
@@ -41,7 +40,6 @@ export var leadershipTemplates = [{
     this.boost("Unrest");
   },
 }, {
-  type: "leadership",
   icon: "👷🏻‍♂️",
   name: "Clear Hex",
   summary: "You lead the effort to clear out the dangers in an already-reconnoitered hex.",
@@ -79,7 +77,6 @@ export var leadershipTemplates = [{
   failure() { this.warning("❌ You fail to clear the hex.") },
   criticalFailure() { this.info("💀 You catastrophically fail to clear the hex and several workers lose their lives."); this.boost("Unrest") },
 }, {
-  type: "leadership",
   icon: "🚩",
   name: "Claim Hex",
   summary: "You bring the cleared hex into the domain.",
@@ -123,7 +120,6 @@ export var leadershipTemplates = [{
     this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
   },
 }, {
-  type: "leadership",
   icon: "🏃‍♂️",
   name: "Abandon Hex",
   summary: "You renounce the domain's claim to a hex.",
@@ -166,7 +162,6 @@ export var leadershipTemplates = [{
     this.boost("Unrest");
   },
 }, {
-  type: "leadership",
   icon: "🏙️",
   name: "Establish Settlement",
   summary: "You coordinate the group that founds a new settlement.",
@@ -213,7 +208,6 @@ export var leadershipTemplates = [{
   failure() { this.requirePayment({amount: 2}) },
   criticalFailure() { this.abandonPayment() },
 }, {
-  type: "leadership",
   icon: "🧎🏻‍♂️",
   name: "Pledge of Fealty",
   summary: "You diplomatically invite another group to join the domain.",
@@ -251,7 +245,6 @@ export var leadershipTemplates = [{
     this.boost({by: 2}, "Unrest");
   },
 }, {
-  type: "leadership",
   icon: "🛣️",
   name: "Build Infrastructure",
   summary: "You organize the effort to tame the land.",
@@ -288,7 +281,6 @@ export var leadershipTemplates = [{
     this.abandonPayment();
   },
 }, {
-  type: "leadership",
   icon: "💡",
   name: "Creative Solution",
   summary: "You plan ahead to make the next action more successful.",
@@ -318,7 +310,6 @@ export var leadershipTemplates = [{
     this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
   },
 }, {
-  type: "leadership",
   icon: "👨🏻‍🌾",
   name: "Work the Land",
   summary: "You lead a party to harvest the bounty of this realm.",
@@ -356,7 +347,6 @@ export var leadershipTemplates = [{
     this.boost("Unrest");
   },
 }, {
-  type: "leadership",
   icon: "🎄",
   name: "Celebrate Holiday",
   summary: "You organize a festival where the populace can enjoy themselves.",
@@ -397,7 +387,6 @@ export var leadershipTemplates = [{
     this.boost("Unrest");
   },
 }, {
-  type: "leadership",
   icon: "🥺",
   name: "Request Foreign Aid",
   summary: "You entreat aid from a nation you already have diplomatic relations with.",
@@ -435,7 +424,6 @@ export var leadershipTemplates = [{
     this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
   },
 }, {
-  type: "leadership",
   icon: "🎪",
   name: "Quell Unrest",
   summary: "You entertain the populace.",
@@ -475,7 +463,6 @@ export var leadershipTemplates = [{
     this.reduce(Ability.random);
   },
 }, {
-  type: "leadership",
   icon: "👀",
   name: "Take Charge",
   summary: "You visit a settlement to ensure vital work gets done.",
@@ -518,7 +505,6 @@ export var leadershipTemplates = [{
     this.reduce(["Stability", "Loyalty"].random());
   },
 }, {
-  type: "leadership",
   icon: "🚋",
   name: "Train Lieutenant",
   summary: "You work with an NPC leader to increase their capacity.",
@@ -558,7 +544,6 @@ export var leadershipTemplates = [{
     this.error(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
   },
 }, {
-  type: "leadership",
   icon: "🛡️",
   name: "Hire Adventurers",
   summary: "You pay people to tackle an ongoing event.",
@@ -596,7 +581,6 @@ export var leadershipTemplates = [{
     this.error(`🙊 Word spreads quickly through the region—you can no longer attempt to end this continuous event by Hiring Adventurers.`);
   },
 }, {
-  type: "leadership",
   icon: "🔮",
   name: "Prognostication",
   summary: "You use the mystic arts to forsee future events and prepare for them.",
@@ -629,7 +613,6 @@ export var leadershipTemplates = [{
     this.addConsumable({name: "Status: Ill-Prepared", description: "-1 Event Resolution (Circumstance bonus)"});
   },
 }, {
-  type: "leadership",
   icon: "🎨",
   name: "Create A Masterpiece",
   summary: "You use the mystic arts to forsee future events and prepare for them.",
@@ -669,4 +652,4 @@ export var leadershipTemplates = [{
       this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
     }
   },
-}];
+}].map(a => { return {type: "leadership", ...a}});

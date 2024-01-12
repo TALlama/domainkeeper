@@ -5,7 +5,6 @@ import { AvalableStructures } from "../../components/available_structures.js";
 import { StructureDescription } from "../../components/structure_description.js";
 
 export var civicTemplates = [{
-  type: "civic",
   icon: "💰",
   name: "Contribute",
   summary: "This settlement is hard at work.",
@@ -16,7 +15,6 @@ export var civicTemplates = [{
     picked: (ability, {activity}) => activity.boost(ability),
   }],
 }, {
-  type: "civic",
   icon: "🚧",
   name: "Build Structure",
   summary: "Construct something in this settlement that will have long-term benefits",
@@ -65,4 +63,4 @@ export var civicTemplates = [{
     this.reduce(Ability.random);
     this.failure();
   },
-}];
+}].map(a => { return {type: "civic", ...a}});
