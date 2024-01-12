@@ -33,4 +33,14 @@
     dt { text-align: end; grid-column: span 2 }
     dt::after { content: ":"; padding-inline-end: var(--internal-margin); }
   }
+
+  .animation---buldge {
+    animation: 1s bulge;
+  }
+
+  @keyframes bulge {
+    0%   { transform: scaleX(1.00) }
+    50%  { transform: scaleX(1.05) }
+    100% { transform: scaleX(1.00) }
+  }
 }

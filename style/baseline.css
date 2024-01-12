@@ -96,7 +96,7 @@
 
   @keyframes internal-error-pulse {
       0% {background-color: #a30503;}
-    100% {background-color: #c30503;}
+    100% {background-color: #ff0400;}
   }
 
 

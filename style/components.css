@@ -2,9 +2,9 @@
   :root {
     --color-selected-bg: hsl(120, 90%, 90%);
 
+    --color-system-bg: black;
     --color-leadership-bg: orange;
     --color-civic-bg: lightblue;
-    --color-event-bg: red;
 
     --color-critical-success-bg: lch(65% 55 150);
     --color-success-bg: lch(86% 55 190);
@@ -219,7 +219,7 @@
 
     > .status-banner {
       font-size: var(--step-5);
-      background-color: var(--color-event-bg);
+      background-color: red;
       padding: var(--internal-margin);
 
       &:empty {
@@ -332,14 +332,13 @@
     --outcome-bg: var(--bg);
     --summary-bg: var(--subheader-bg);
 
-    &[data-type="leadership"] { --bg: var(--color-leadership-bg); }
-    &[data-type="civic"] { --bg: var(--color-civic-bg); }
-    &.event { --bg: var(--color-event-bg) }
+    &[type="leadership"] { --bg: var(--color-leadership-bg); }
+    &[type="civic"] { --bg: var(--color-civic-bg); }
 
-    &[data-outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
-    &[data-outcome="success"] { --outcome-bg: var(--color-success-bg); }
-    &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
-    &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
+    &[outcome="criticalSuccess"] { --outcome-bg: var(--color-critical-success-bg); }
+    &[outcome="success"] { --outcome-bg: var(--color-success-bg); }
+    &[outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
+    &[outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
     border: 3px solid var(--bg);
     border-top-color: var(--outcome-bg);
@@ -567,6 +566,7 @@
     &[data-outcome="failure"] { --outcome-bg: var(--color-failure-bg); }
     &[data-outcome="criticalFailure"] { --outcome-bg: var(--color-critical-failure-bg); }
 
+    &[data-type="system"] { --type-bg: var(--color-system-bg); }
     &[data-type="leadership"] { --type-bg: var(--color-leadership-bg); }
     &[data-type="civic"] { --type-bg: var(--color-civic-bg); }
   }

@@ -1,6 +1,7 @@
 import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 
+import { bulge } from "./animations.js";
 import { debugJSON } from "../helpers.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { ActivityPicker } from "./activity_picker.js";
@@ -166,6 +167,20 @@ export default class DomainActivityLog extends RxElement {
       this.activity(activity);
     };
     event.detail.complete(activity);
+  }
+
+  smoothScroll(event) {
+    let id = event.target.closest("[href^='#']").getAttribute("href").substr(1);
+    let scrollTarget = document.getElementById(id);
+    if (!scrollTarget) { return }
+
+    let details = event.target.closest(".turn").querySelector(".turn > details");
+    details.open = true;
+
+    setTimeout(() => {
+      scrollTarget.scrollIntoView({behavior: "smooth", block: "nearest"});
+      bulge(scrollTarget);
+    }, 0);
   }
 }
 DomainActivityLog.define("domain-activity-log");

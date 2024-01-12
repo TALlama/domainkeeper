@@ -14,8 +14,10 @@ export class RxElement extends HTMLElement {
 
   fire(...args) { fire(this, ...args) }
 
-  setAttributeBoolean(name, present = this[name]) {
-    present ? this.setAttribute(name, "") : this.removeAttribute(name);
+  setAttributeBoolean(name, options = {}) {
+    let value = options.value ?? "";
+    let present = value || (options.if ?? this[name]);
+    present ? this.setAttribute(name, value) : this.removeAttribute(name);
     return present;
   }
 
