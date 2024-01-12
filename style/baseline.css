@@ -10,7 +10,11 @@
     --step-4: clamp(1.555rem, -0.0938rem + 3.2977vw, 2.4413rem);
     --step-5: clamp(1.8663rem, -0.3396rem + 4.4116vw, 3.0519rem);
 
+    --text-color: black;
+    --text-color-muted: hsl(0, 0%, 35%);
+
     font-size: var(--step-0);
+    color: var(--text-color);
   }
 
   a {

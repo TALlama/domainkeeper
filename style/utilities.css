@@ -23,7 +23,7 @@
 
   .metadata {
     font-size: var(--step--1);
-    color: hsl(0, 0%, 35%);
+    color: var(--text-color-muted);
   }
 
   dl.dl-oneline {

@@ -50,12 +50,30 @@
     }
   }
 
+  @property --unrest-percent {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 0%;
+  }
+
+  @property --unrest-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: white;
+  }
+
   domain-sheet {
     position: sticky;
     top: 0;
     padding-top: 0;
     max-height: 100vh;
     overflow: hidden;
+
+    --unrest-base-color: hsl(0, 100%, 80%, calc(1.5 * var(--unrest-percent)));
+    --unrest-color: hsl(0, 100%, 80%, var(--unrest-percent));
+    background: linear-gradient(to right, var(--unrest-base-color), var(--unrest-color) var(--unrest-percent, 0%), white 0 100%);
+    transition: --unrest-percent 1s, --unrest-color 500ms;
+    transition-timing-function: cubic-bezier(0.000, 0.75, 0.75, 1.5);
 
     @media screen {
       border-right: 3px solid black;
@@ -74,6 +92,7 @@
       background: var(--header-bg);
       border-bottom: 1px solid var(--header-bg);
       padding: var(--internal-margin);
+      padding-right: var(--small-margin);
       margin: var(--internal-margin) 0 0;
       font-size: var(--step--1);
 
@@ -96,18 +115,40 @@
 
     .abilities, .stats {
       font-size: var(--step-1);
+      display: grid;
+      gap: var(--internal-margin);
+    }
+
+    .stats {
+      grid-template-columns: 1fr 1fr;
+
+      :last-child { grid-column: 1 / -1; }
     }
 
     .stats {
       border-top: 1px solid black;
+      margin-top: var(--external-margin);
+      padding-top: var(--internal-margin);
     }
 
     .abilities .ability, .stats .stat {
       display: grid;
-      grid-template-columns: 4ch 1fr auto;
+      grid-template-columns: 1fr auto;
       padding-inline-end: var(--internal-margin);
+      justify-items: end;
 
-      label { grid-column: 2; }
+      .icon-link {
+        font-size: var(--step--2);
+        align-self: center;
+      }
+
+      label {
+        grid-column: 2;
+      }
+
+      .gauge {
+        grid-column: 1 / -1;
+      }
     }
 
     .ability-roll {
@@ -141,12 +182,7 @@
       text-align: end;
       font-size: var(--step-0);
       border: none;
-    }
-  }
-
-  @media (width < 1250px) {
-    domain-sheet .abilities {
-      label { display: inline-grid; margin-bottom: var(--external-margin) }
+      background: transparent;
     }
   }
 
@@ -190,9 +226,19 @@
 
     h3 {
       display: flex;
+      align-items: baseline;
       background-color: black;
       color: white;
       padding: var(--internal-margin);
+
+      small {
+        margin-inline: var(--internal-margin);
+        padding: var(--small-margin) var(--internal-margin);
+        background-color: white;
+        color: var(--text-color);
+        font-weight: 600;
+        font-size: var(--step--2);
+      }
 
       .badge {
         margin-left: auto;

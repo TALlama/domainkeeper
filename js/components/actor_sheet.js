@@ -36,6 +36,7 @@ export class ActorSheet extends RxElement {
     return `
       <h3>
         ${this.actor.name} is up!
+        <small>${this.actor.type}</small>
         <span class='badge'>
           ${activitx(this.actor.activitiesLeft)} left
           <a href="#" data-action="doAddBonusActivity">+</a>

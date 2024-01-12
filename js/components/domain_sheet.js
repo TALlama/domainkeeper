@@ -114,14 +114,15 @@ class DomainSheet extends RxElement {
     this.fillName();
     this.fillLeaders();
     this.fillSettlements();
+    this.updateCssProperties();
 
     Ability.all.forEach(ability => {
       let key = ability.toLocaleLowerCase();
 
       Maker.tag("article", {class: "ability", appendTo: this.abilitiesList},
-        Maker.tag("a", {href: "#", class: "ability-roll", "data-ability": ability}, "🎲"),
+        Maker.tag("a", {href: "#", class: "ability-roll icon-link", "data-ability": ability}, "🎲"),
         Maker.tag("label", ability, {for: `domain-${ability}`}),
-        Maker.tag("span", {
+        Maker.tag("span", {class: "gauge",
           rx: () => `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" max="${this.max(key)}" /> / ${this.max(key)}`,
           change: (event) => { nudgeValue(this, ability, this.data, key, event.target.value) },
         }));
@@ -129,15 +130,19 @@ class DomainSheet extends RxElement {
 
     "Unrest Size XP Level".split(" ").forEach((stat) => {
       let key = stat.toLocaleLowerCase();
-      let attrs = {Level: `min="1" max="20"`}[stat] || `min="0"`;
 
-      Maker.tag("article", {class: "stat", appendTo: this.statsList,
-        rx: () => `<label for="domain-${stat}">${stat}</label><input type="number" id="domain-${stat}" @value="${this.data[key]}" data-in="${stat}" ${attrs} />`,
-        change: (event) => nudgeValue(this, stat, this.data, key, event.target.value),
+      Maker.tag("article", {class: `stat stat---${stat.toLocaleLowerCase()}`, appendTo: this.statsList,
+        rx: () => `<label for="domain-${stat}">${stat}</label><input type="number" id="domain-${stat}" class="gauge" @value="${this.data[key]}" data-in="${stat}" min="${this.min(stat)}" max="${this.max(stat)}" />`,
+        change: (event) => {
+          let value = event.target.value;
+          nudgeValue(this, stat, this.data, key, value);
+          this.style.setProperty(`--${key}-value`, value);
+          this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(key)}%`);
+        },
       });
     })
-    Maker.tag("article", {class: "stat", appendTo: this.statsList,
-      rx: () => `<label for="domain-control-dc">Control DC</label><input type="number" id="domain-control-dc" @value="${this.controlDC}" readonly />`
+    Maker.tag("article", {class: "stat stat---domain-control-dc", appendTo: this.statsList,
+      rx: () => `<label for="domain-control-dc">Control DC</label><input type="number" id="domain-control-dc" class="gauge" @value="${this.controlDC}" readonly />`
     });
   }
 
@@ -157,14 +162,14 @@ class DomainSheet extends RxElement {
 
   fillLeaders() {
     this.leadersComponent ||= reef.component(this.$(".leaders-section"), () =>
-      `<h4>Leaders <span class="badge">${this.activitx(this.leadershipActivitiesLeft)} left</span></h4>
+      `<h4>Leaders <span class="badge" title="${this.activitx(this.leadershipActivitiesLeft)} left">${this.leadershipActivitiesLeft}</span></h4>
       <ul class="actors leaders list-unstyled">${this.actorList(this.data.leaders.sort((a, b) => a.initiative - b.initiative))}</ul>`
     );
   }
 
   fillSettlements() {
     this.settlementsComponent ||= reef.component(this.$(".settlements-section"), () =>
-      `<h4>Settlements <span class="badge">${this.activitx(this.civicActivitiesLeft)} left</span></h4>
+      `<h4>Settlements <span class="badge" title="${this.activitx(this.civicActivitiesLeft)} left">${this.civicActivitiesLeft}</span></h4>
       <ul class="actors settlements list-unstyled">${this.actorList(this.data.settlements)}</ul>`
     );
   }
@@ -176,11 +181,20 @@ class DomainSheet extends RxElement {
 
       return `<li id="${actor.id}" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
         ${actor.name}
-        <span class="metadata">${actor.type}</span>
-        <span class="badge">${actor.activitiesLeft}</span>
+        <span class="badge" title="${this.activitx(actor.activitiesLeft)} left">${actor.activitiesLeft}</span>
         </div>
       </li>`;
     }).join("");
+  }
+
+  updateCssProperties() {
+    [...Ability.all, ..."Unrest Size XP Level".split(" ")].forEach(name => {
+      let key = name.toLocaleLowerCase();
+      let value = this.data[key];
+
+      this.style.setProperty(`--${key}-value`, value);
+      this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(key)}%`);
+    });
   }
 
   setCurrentActor(event) {
@@ -188,12 +202,21 @@ class DomainSheet extends RxElement {
     if (actorId) { this.data.currentActorId = actorId }
   }
 
+  min(stat) {
+    stat = stat.toLocaleLowerCase();
+
+    if ("level size".split(" ").includes(stat)) { return 1 }
+    return 0;
+  }
+
   max(stat) {
     stat = stat.toLocaleLowerCase();
 
     if (Ability.all.map(a => a.toLocaleLowerCase()).includes(stat)) { return 5 }
     if ("unrest level".split(" ").includes(stat)) { return 20 }
-    return 999;
+    if ("xp".split(" ").includes(stat)) { return 1000 }
+    if ("size".split(" ").includes(stat)) { return 200 }
+    return 99999;
   }
 
   get leadershipActivitiesLeft() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
