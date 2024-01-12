@@ -34,13 +34,15 @@
     dt::after { content: ":"; padding-inline-end: var(--internal-margin); }
   }
 
-  .animation---buldge {
-    animation: 1s bulge;
+  .animation---twist {
+    animation: 800ms twist;
+    animation-timing-function: ease-in-out;
   }
 
-  @keyframes bulge {
-    0%   { transform: scaleX(1.00) }
-    50%  { transform: scaleX(1.05) }
-    100% { transform: scaleX(1.00) }
+  @keyframes twist {
+    0%   { rotate:  0deg }
+    10%  { rotate: -1deg }
+    50%  { rotate:  1deg }
+    100% { rotate:  0deg }
   }
 }

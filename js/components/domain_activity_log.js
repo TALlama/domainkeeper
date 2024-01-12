@@ -1,7 +1,7 @@
 import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 
-import { bulge } from "./animations.js";
+import { twist } from "./animations.js";
 import { debugJSON } from "../helpers.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { ActivityPicker } from "./activity_picker.js";
@@ -94,6 +94,7 @@ export default class DomainActivityLog extends RxElement {
     activity.actorId ??= this.domainSheet.currentActor.id;
     this.currentTurn.activities.push(activity);
     activity.added && activity.added();
+    setTimeout(() => twist(document.getElementById(activity.id)), 100);
   }
 
   /////////////////////////////////////////////// Rendering
@@ -179,7 +180,7 @@ export default class DomainActivityLog extends RxElement {
 
     setTimeout(() => {
       scrollTarget.scrollIntoView({behavior: "smooth", block: "nearest"});
-      bulge(scrollTarget);
+      twist(scrollTarget);
     }, 0);
   }
 }

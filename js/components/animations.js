@@ -1,7 +1,6 @@
-export function bulge(el) {
-  addAnimationClass(el, "animation---buldge");
+export function twist(el) {
+  addAnimationClass(el, "animation---twist");
 }
-window.bulge = bulge;
 
 export function addAnimationClass(el, className) {
   el.addEventListener("animationend", (event) => {
