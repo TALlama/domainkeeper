@@ -242,22 +242,50 @@
       }
     }
 
-    > .entries {
+    .turns {
+      display: flex;
+      flex-direction: column;
+      gap: var(--external-margin);
+    }
+
+    .turn {
+      border-left: 3px solid black;
+      padding-left: var(--external-margin);
+
+      .turn-marker {
+        display: flex;
+        background: black;
+        color: white;
+        justify-content: center;
+        margin-left: calc(-1 * var(--external-margin));
+  
+        .turn-name {
+          padding: var(--internal-margin);
+        }
+      }
+
+      summary {
+        padding: var(--internal-margin);
+        background: var(--subheader-bg);
+        margin: 0 0 0 calc(-1 * var(--external-margin));
+      }
+    }
+
+    .entries {
       display: flex;
       flex-direction: column;
       gap: var(--external-margin);
 
-      > .turn-marker {
-        display: flex;
-        background: linear-gradient(to bottom, transparent, transparent 45%, grey 50%, transparent 55%, transparent);
-        justify-content: center;
-        margin: calc(2 * var(--external-margin)) 0;
+      &.entries---summary-spotlight activity-sheet {
+        border-top-width: 0;
+        border-left-width: 0;
 
-        > .turn-name {
-          background: white;
-          padding: var(--internal-margin);
-        }
+        margin-left: calc(-1 * var(--external-margin));
       }
+    }
+
+    details .entries {
+      margin-top: var(--external-margin);
     }
   }
 

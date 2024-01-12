@@ -43,8 +43,7 @@ export var civicTemplates = [{
     },
   },
   {
-    name: "Pay with",
-    saveAs: "paymentAbility",
+    name: "Payment",
     options: () => Ability.all,
   }],
   criticalSuccess() {

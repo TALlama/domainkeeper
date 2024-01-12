@@ -59,12 +59,12 @@ export default class DomainActivityLog extends RxElement {
   }
 
   newTurn(name) {
-    this.domainSheet.saveData();
     this.currentTurn && this.domainSummary();
     
     this.resetTurn();
     this.domainSheet.addFame();
     this.ruin();
+    this.domainSheet.saveData();
   }
 
   reroll(event) {
@@ -105,7 +105,7 @@ export default class DomainActivityLog extends RxElement {
       <actor-sheet></actor-sheet>
       <ul class="consumables">${this.renderConsumables()}</ul>
       ${debugJSON(this.currentTurn)}
-      <main class="entries">${this.renderEntries()}</main>`
+      <main class="turns">${this.renderTurns()}</main>`
   }
 
   renderStatusBanner() {
@@ -135,15 +135,28 @@ export default class DomainActivityLog extends RxElement {
     ).join("");
   }
 
-  renderEntries() { return this.domainSheet.data.turns.map(turn => this.renderTurn(turn)).reverse().join("") }
+  renderTurns() { return this.domainSheet.data.turns.map(turn => this.renderTurn(turn)).reverse().join("") }
 
   renderTurn(turn) {
-    let entries = turn.entries;
+    let activities = turn.entries;
+    let summary = activities.find(a => a.name === "Domain Summary");
 
     return `
+    <article class="turn">
       <div class="turn-marker"><span class="turn-name">${turn.name || `Turn ${turn.number}`}<span></div>
-      ${entries.map(entry => `<activity-sheet key="${entry.id}" id="${entry.id}" activity-id="${entry.id}"></activity-sheet>`).reverse().join("")}
-    `;
+      ${summary ? `<main class="entries entries---summary-spotlight">${this.renderActivity(summary)}</main>` : ""}
+
+      <details ${turn === this.currentTurn ? "open" : ""}>
+        <summary>${activities.length} activities</summary>
+        <main class="entries">
+          ${activities.map(activity => activity === summary ? "" : this.renderActivity(activity)).reverse().join("")}
+        </main>
+      </details>
+    </article>`;
+  }
+
+  renderActivity(activity) {
+    return `<activity-sheet key="${activity.id}" id="${activity.id}" activity-id="${activity.id}"></activity-sheet>`
   }
 
   /////////////////////////////////////////////// Event handling
