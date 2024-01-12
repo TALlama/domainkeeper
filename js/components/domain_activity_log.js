@@ -10,7 +10,7 @@ export default class DomainActivityLog extends RxElement {
   connectedCallback() {
     reef.component(this, () => this.render());
     this.addEventListener("click", this);
-    this.addEventListener("domains:nudge", (event) => this.doNudge(event))
+    document.addEventListener("domains:nudge", (event) => this.doNudge(event))
 
     if (!this.currentTurn) {
       this.newTurn();

@@ -3,7 +3,14 @@ import { Activity } from "../models/activity.js";
 import { Actor } from "../models/actor.js";
 import { Structure } from "../models/structure.js";
 
+import { nudge } from "./event_helpers.js";
 import { RxElement } from "./rx_element.js";
+
+let nudgeValue = function(el, name, data, key, newValue) {
+  let was = data[key];
+  nudge(el, (activity) => activity.info(`💹 ${name} updated to ${newValue}<span class="metadata">, from ${was}</span>`));
+  data[key] = Number(newValue)
+}
 
 class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }
@@ -116,7 +123,7 @@ class DomainSheet extends RxElement {
         Maker.tag("label", ability, {for: `domain-${ability}`}),
         Maker.tag("span", {
           rx: () => `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" max="${this.max(key)}" /> / ${this.max(key)}`,
-          change: (event) => this.data[key] = Number(event.target.value),
+          change: (event) => { nudgeValue(this, ability, this.data, key, event.target.value) },
         }));
     });
 
@@ -126,7 +133,7 @@ class DomainSheet extends RxElement {
 
       Maker.tag("article", {class: "stat", appendTo: this.statsList,
         rx: () => `<label for="domain-${stat}">${stat}</label><input type="number" id="domain-${stat}" @value="${this.data[key]}" data-in="${stat}" ${attrs} />`,
-        change: (event) => this.data[key] = Number(event.target.value),
+        change: (event) => nudgeValue(this, stat, this.data, key, event.target.value),
       });
     })
     Maker.tag("article", {class: "stat", appendTo: this.statsList,
