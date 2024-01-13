@@ -138,18 +138,18 @@ export var systemTemplates = [{
     return `
       <p>💾 Domain saved</p>
       <header>What Happened</header>
-      <div class="activity-summary">
-      ${(this.domainSheet.currentTurn?.activities || []).map(activity =>
-        `<a
-          href="#${activity.id}"
-          title="${activity.name}"
-          class="activity-summary icon-link"
-          data-type="${activity.type}"
-          data-used-ability="${activity.ability}"
-          data-outcome="${activity.outcome}"
-          data-action="smoothScroll"
-          >${activity.icon}</a>`
-      ).join("")}
+      <div class="activity-summaries">
+        ${(this.domainSheet.currentTurn?.activities || []).map(activity =>
+          `<a
+            href="#${activity.id}"
+            title="${activity.name}"
+            class="activity-summary icon-link"
+            data-type="${activity.type}"
+            data-used-ability="${activity.ability}"
+            data-outcome="${activity.outcome}"
+            data-action="smoothScroll"
+            >${activity.icon}</a>`
+        ).join("")}
       </div>
       <header>Stats Snapshot</header>
       ${Maker.dl(withDiffs(abilityScores, lastSummary?.abilityScores), {class: "dl-oneline"}).outerHTML}

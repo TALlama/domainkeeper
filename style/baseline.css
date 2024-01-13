@@ -37,8 +37,8 @@
   }
 
   button, .btn {
-    --_button-bg: hsl(0, 0%, 80%);
-    --_button-color: hsl(0, 0%, 0%);
+    --_button-bg: hsl(0, 0%, 90%);
+    --_button-color: var(--text-color);
     --_button-border-color: var(--button-color, var(--_button-color));
     background-color: var(--button-bg, var(--_button-bg));
     color: var(--button-color, var(--_button-color));
@@ -51,8 +51,8 @@
 
     &[disabled], &.looks-disabled {
       --button-bg: white;
-      --button-color: hsl(0, 0%, 60%);
-      --button-border-color: hsl(0, 0%, 80%);
+      --button-color: var(--text-color-muted);
+      --button-border-color: var(--text-color-muted);
     }
 
     &:has(> .icon) {
