@@ -1,3 +1,5 @@
+import { displayBonus } from "../helpers.js";
+
 import { Structure } from "../models/structure.js";
 
 import { RxElement } from "./rx_element.js";
@@ -30,7 +32,7 @@ export class StructureDescription extends RxElement {
       <ul class="traits list-unstyled list-inline">${(this.structure.traits || []).map(t => `<li><span class='badge'>${t}</span></li>`).join("")}</ul>
       <span class="level">Lvl ${this.structure.level}</span>
       <div class="structure">${this.structure.description || ""}</div>
-      <ul class="bonuses list-unstyled">${(this.structure.bonuses || []).map(b => `<li><span class='bonus'>${JSON.stringify(b)}</span></li>`).join("")}</ul>
+      <ul class="bonuses list-unstyled">${(this.structure.bonuses || []).map(b => `<li><span class='bonus'>${displayBonus(b)}</span></li>`).join("")}</ul>
       <div class="effects">${this.structure.effects || ""}</div>`;
   }
 }

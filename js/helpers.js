@@ -4,6 +4,9 @@ export function prettyJSON(value) { return JSON.stringify(value, (key, value) =>
 export function debugJSON(value) { return `<code class="debug"><pre>${prettyJSON(value)?.escapeHtml()}</pre></code>` }
 
 export function mod(value) { return value < 0 ? value.toString() : `+${value}` }
+export function displayBonus(bonus) {
+  return `+${bonus.value} to ${bonus.activity} using ${bonus.ability || "any ability"}`;
+}
 
 export function taggedLi(tag, ...parts) { return Maker.tag("li", Maker.tag("strong", `${tag} `), ...parts).outerHTML }
 taggedLi.requirements = (...parts) => taggedLi("Requirements", ...parts);

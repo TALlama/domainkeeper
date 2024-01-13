@@ -26,12 +26,10 @@ export var civicTemplates = [{
     options: () => new AvalableStructures().names,
     displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
     mutable: (activity, decision) => activity.decision("Roll").mutable,
-  },
-  {
+  }, {
     name: "Roll",
     options: ["Economy"]
-  },
-  {
+  }, {
     name: "Outcome",
     summaries: {
       criticalSuccess: `Build it; Boost a random Ability by 1`,
@@ -39,8 +37,7 @@ export var civicTemplates = [{
       failure: `Fail`,
       criticalFailure: `Fail; Reduce a random Ability by 1`,
     },
-  },
-  {
+  }, {
     name: "Payment",
     options: () => Ability.all,
   }],

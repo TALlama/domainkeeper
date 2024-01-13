@@ -768,5 +768,5 @@ export class Structure {
       // TODO bonuses: [{activity: "…", ability: "Loyalty", value: 1}], // WAS +1 item bonus to Go Fishing, and to Establish Trade Agreement and Rest and Relax using Boating
       effects: `A waterfront must be constructed next to a Water Border. A settlement with at least 1 waterfront increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement; this bonus stacks with similar bonuses in the settlement.`,
     },
-  ] }
+  ].sortBy("name").sortBy("level") }
 }
