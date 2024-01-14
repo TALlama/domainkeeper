@@ -54,7 +54,7 @@ export class ActivityPicker extends RxElement {
   renderActivityButton(available, leftOfType) {
     return available.map(activity => {
       let whyDisabled = null;
-      if (this.previousActivityNames.includes(activity.name)) {
+      if (activity.type === "leadership" && this.previousActivityNames.includes(activity.name)) {
         whyDisabled = `${this.currentActor.name} has already done this activity this turn`;
       } else if (leftOfType <= 0) {
         whyDisabled = `The domain has used all its activites for this turn`;
