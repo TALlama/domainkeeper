@@ -32,6 +32,13 @@ export var civicTemplates = [{
     saveAs: "structureName",
     options: () => new AvalableStructures().names,
     groupOptionsBy: structureName => `Level ${Structure.template(structureName).level}`,
+    optionDisableReason(structureName) {
+      let alreadyBuilt = this.actor.powerups.matches({templateName: structureName});
+      if (alreadyBuilt.length === 0) { return null }
+
+      let limit = alreadyBuilt[0].limit;
+      return alreadyBuilt.length >= limit ? `${this.actor.name} already has ${alreadyBuilt.length} structure${limit === 1 ? "" : "s"} of type "${structureName}"` : null;
+    },
     displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
     picked(structureName) { this.decision("Roll").difficultyClassOptions.base = Structure.template(structureName)?.dc },
     mutable: (activity, decision) => activity.decision("Roll").mutable,

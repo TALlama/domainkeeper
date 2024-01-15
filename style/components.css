@@ -630,6 +630,10 @@
           font-weight: 600;
         }
       }
+
+      > .info {
+        margin-top: var(--internal-margin);
+      }
     }
 
     /* when in the modal */

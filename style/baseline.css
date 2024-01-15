@@ -32,6 +32,19 @@
     padding-left: 1em;
   }
 
+  dl {
+    dt { font-weight: 600; }
+
+    &.dl-horizontal {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: var(--internal-margin);
+
+      dt { grid-column: 1 }
+      dd { grid-column: 2 }
+    }
+  }
+
   p {
     margin: var(--external-margin) 0;
   }

@@ -21,6 +21,8 @@ export class Structure {
   prebuild({settlement, structure, activity}) {}
   built({settlement, structure, activity}) {}
 
+  info() { return {Limit: this.limit} }
+
   static add({structureName, settlement, activity, built}) {
     let structure = new Structure(structureName);
     structure.prebuild({settlement, structure, activity});
@@ -930,6 +932,7 @@ export class Structure {
         template.bonuses ??= [];
         template.effects ??= ``;
         template.dc ??= (template.level || 99) * 2 + 10;
+        template.limit ??= 1;
 
         return template;
       })

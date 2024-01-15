@@ -38,6 +38,7 @@ export class StructureDescription extends RxElement {
         <ul class="bonuses list-unstyled">${(this.structure.bonuses || []).map(b => `<li><span class='bonus'>${displayBonus(b)}</span></li>`).join("")}</ul>
         <div class="description">${this.structure.description || ""}</div>
         <div class="effects">${this.structure.effects || ""}</div>
+        ${Maker.dl(this.structure.info(), {class: "info dl-horizontal"}).outerHTML}
       </div>`;
   }
 }
