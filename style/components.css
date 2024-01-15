@@ -442,6 +442,8 @@
 
           max-height: clamp(10em, 30vh, 30em);
           overflow: scroll;
+
+          structure-description .dc { display: inline }
         }
 
         header structure-description {
@@ -540,52 +542,81 @@
     gap: var(--internal-margin);
     grid-template-columns: 1fr auto;
     grid-template-areas:
-      "name        name"
-      "traits      level"
-      "description description"
-      "bonuses     bonuses"
-      "effects     effects";
+      "name    stats"
+      "traits  traits"
+      "body    body";
+    font-weight: 400;
     
-      font-weight: 400;
-    
-    > .name {
+    > .header {
       grid-area: name;
       font-weight: 600;
+
+      .template-name {
+        margin-left: 1em;
+        color: var(--text-color-muted);
+        
+        &:before { content: "(" }
+        &:after { content: ")" }
+      }
     }
 
-    > .level {
-      grid-area: level;
+    > .stats {
+      grid-area: stats;
       font-size: var(--step--1);
-    }
-    > .traits {
-      grid-area: traits;
+      text-align: end;
+
       display: flex;
-      flex-wrap: wrap;
       gap: var(--internal-margin);
 
-      &:empty { display: none }
+      > .dc { display: none }
     }
 
-    > .description {
-      grid-area: description;
-
-      &:empty { display: none }
-    }
-    > .bonuses {
-      grid-area: bonuses;
-
-      &:empty { display: none }
+    trait-list {
+      grid-area: traits;
     }
 
-    > .effects {
-      grid-area: effects;
+    > .body {
+      grid-area: body;
 
-      &:empty { display: none }
+      > .description {
+        &:empty { display: none }
 
-      &:before {
-        content: "Effects: ";
-        font-weight: 600;
+        &:not(:empty) + .effects:not(:empty) {
+          margin-top: var(--internal-margin);
+        }
       }
+
+      > .bonuses {
+        float: inline-end;
+        margin-inline-start: var(--internal-margin);
+        margin-block-end: var(--internal-margin);
+        max-width: 40%;
+
+        li {
+          padding-left: 3ch;
+          text-indent: -3ch;
+
+          & + li {
+            margin-top: var(--internal-margin);
+          }
+        }
+
+        &:empty { display: none }
+      }
+
+      > .effects {
+        &:empty { display: none }
+
+        &:before {
+          content: "Effects: ";
+          font-weight: 600;
+        }
+      }
+    }
+
+    /* when in the modal */
+    .structure-details & {
+      .name { display: none }
     }
   }
 
@@ -654,6 +685,12 @@
     margin: var(--external-margin) 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(var(--min-item-width), 1fr));
+
+    .option-group {
+      grid-column: 1 / -1;
+      margin-block: var(--external-margin) 0;
+      padding: var(--internal-margin) calc(2 * var(--internal-margin));
+    }
 
     :is(label.pickable) {
       &:has(input:checked), &:hover {

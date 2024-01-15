@@ -28,12 +28,20 @@ export class StructureDescription extends RxElement {
 
   render() {
     return `
-      <span class="name">${this.structure.name}</span>
+      <div class="header">
+        <span class="name">${this.structure.name}</span>
+        ${this.structure.name === this.structure.templateName ? "" : `<span class="template-name">${this.structure.templateName}</span>`}
+      </div>
       <ul class="traits list-unstyled list-inline">${(this.structure.traits || []).map(t => `<li><span class='badge'>${t}</span></li>`).join("")}</ul>
-      <span class="level">Lvl ${this.structure.level}</span>
-      <div class="structure">${this.structure.description || ""}</div>
-      <ul class="bonuses list-unstyled">${(this.structure.bonuses || []).map(b => `<li><span class='bonus'>${displayBonus(b)}</span></li>`).join("")}</ul>
-      <div class="effects">${this.structure.effects || ""}</div>`;
+      <div class="stats">
+        <span class="level">Lvl ${this.structure.level}</span>
+        <span class="dc">DC ${this.structure.dc}</span>
+      </div>
+      <div class="body">
+        <ul class="bonuses list-unstyled">${(this.structure.bonuses || []).map(b => `<li><span class='bonus'>${displayBonus(b)}</span></li>`).join("")}</ul>
+        <div class="description">${this.structure.description || ""}</div>
+        <div class="effects">${this.structure.effects || ""}</div>
+      </div>`;
   }
 }
 StructureDescription.define("structure-description");

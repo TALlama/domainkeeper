@@ -31,6 +31,7 @@ export var civicTemplates = [{
     description: "Choose a structure you want to build.",
     saveAs: "structureName",
     options: () => new AvalableStructures().names,
+    groupOptionsBy: structureName => `Level ${Structure.template(structureName).level}`,
     displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
     mutable: (activity, decision) => activity.decision("Roll").mutable,
   }, {

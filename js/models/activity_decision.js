@@ -78,6 +78,7 @@ export class ActivityDecision {
       displayValue: (value) => (this.displayValues || {})[value] || value,
       displayResolvedValue: (value) => this.displayValue(value),
       summaryValue: (value) => (this.summaries || {})[value],
+      groupOptionsBy: (value) => "",
       optionDisableReason: (value) => null,
       mutable: () => !this.resolved,
       ...template,
@@ -157,6 +158,8 @@ export class ActivityDecision {
   get enabledOptions() { return this.options.filter(o => !this.optionDisableReason(o)) }
   get disabledOptions() { return this.options.filter(o => this.optionDisableReason(o)) }
   get optionValues() { return this.options.map(o => this.saveValue(o)) }
+  get groupedOptions() { return this.options.groupBy(this.groupOptionsBy) }
+  set groupedOptions(v) { /* ignore */}
 
   get resolution() { return this.activity[this.saveAs] }
   set resolution(value) { this.activity[this.saveAs] = value }

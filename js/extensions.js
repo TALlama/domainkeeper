@@ -2,6 +2,7 @@ import { Eris } from "./eris.js";
 
 /* Array extensions */
 Array.prototype.random = Array.prototype.random || function() { return this[Math.floor((Math.random()*this.length))] };
+Array.prototype.shuffle = Array.prototype.shuffle || function() { return this.sortBy(o => Math.random()) };
 Array.prototype.first = Array.prototype.first || function() { return this[0] }
 Array.prototype.last = Array.prototype.last || function() { return this[this.length - 1] }
 Array.prototype.count = Array.prototype.count || function(fn) { return this.filter(fn).length }
@@ -22,6 +23,14 @@ Array.prototype.sortBy = Array.prototype.sortBy || function(attr) {
     return aVal > bVal ? 1 : -1;
   })
 };
+Array.prototype.groupBy = Array.prototype.groupBy || function(attr) {
+  return this.reduce((grouped, item, index, arr) => {
+    let key = attr.call ? attr(item, index, arr) : item[attr];
+    grouped[key] ??= [];
+    grouped[key].push(item);
+    return grouped;
+  }, {});
+}
 Array.prototype.matches = Array.prototype.matches || function(pattern) {
   return this.filter(object =>
     Object.keys(pattern).reduce((all, key) => all && (pattern[key] === object[key]), true)
@@ -96,7 +105,18 @@ Eris.test("Array extensions", array => {
     fn.it("sorts by the function's returned value", ({assert}) => {
       assert.jsonEquals([{n: 5}, {n: 2}, {n: 9}].sortBy(o => o.n), [{n: 2}, {n: 5}, {n: 9}]);
     })
-  })
+  });
+  array.describe("groupBy", fn => {
+    fn.it("sorts by the named attribute", ({assert}) => {
+      assert.jsonEquals([{n: 2, id: 1}, {n: 1, id: 2}, {n: 2, id: 3}].groupBy("n"),
+        {2: [{n: 2, id: 1}, {n: 2, id: 3}], 1: [{n: 1, id: 2}]});
+    })
+    fn.it("sorts by the function's returned value", ({assert}) => {
+      assert.jsonEquals([{n: 2, id: 1}, {n: 1, id: 2}, {n: 2, id: 3}].groupBy(o => o.n), 
+      {2: [{n: 2, id: 1}, {n: 2, id: 3}], 1: [{n: 1, id: 2}]});
+    })
+  });
+
   array.describe("matches", fn => {
     fn.it("finds objects that match", ({assert}) => {
       let arr = [

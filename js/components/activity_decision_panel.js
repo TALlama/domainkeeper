@@ -51,18 +51,21 @@ export class ActivityDecisionPanel extends RxElement {
     return `
       <div class="description">${callOrReturn(decision.description || "", this, {decision, activity})}</div>
       <fieldset class='pickable-group'>
-        ${decision.options.map(option => {
-          let value = decision.saveValue(option);
-          let name = `${activity.id}__${decision.name}`;
-          let id = `${name}__${value}`;
-          let whyDisabled = decision.optionDisableReason(option);
-          let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}">
-            <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
-            ${decision.displayValue(option)}
-            ${this.renderSummary(activity, decision, option)}
-          </label>`;
+        ${Object.entries(decision.groupedOptions).flatMap(([group, options]) => {
+          let header = group ? `<header class='option-group'>${group}</header>` : "";
+          return [header, ...options.map(option => {
+            let value = decision.saveValue(option);
+            let name = `${activity.id}__${decision.name}`;
+            let id = `${name}__${value}`;
+            let whyDisabled = decision.optionDisableReason(option);
+            let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}">
+              <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
+              ${decision.displayValue(option)}
+              ${this.renderSummary(activity, decision, option)}
+            </label>`;
 
-          return blockedTooltip(whyDisabled, label);
+            return blockedTooltip(whyDisabled, label);
+          })];
         }).join("")}
       </fieldset>`;
   }
