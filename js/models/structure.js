@@ -926,7 +926,7 @@ export class Structure {
         template.description ??= ``;
         template.bonuses ??= [];
         template.effects ??= ``;
-        template.dc ??= (template.level || 99) + 13;
+        template.dc ??= (template.level || 99) * 2 + 10;
 
         return template;
       })

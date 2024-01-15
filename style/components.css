@@ -460,9 +460,9 @@
 
           max-height: clamp(10em, 30vh, 30em);
           overflow: scroll;
-
-          structure-description .dc { display: inline }
         }
+
+        structure-description .dc { display: inline }
 
         header structure-description {
           background: var(--color-selected-bg);

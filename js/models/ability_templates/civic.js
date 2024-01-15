@@ -28,15 +28,19 @@ export var civicTemplates = [{
   description: () => `Add building's cost to the DC`,
   decisions: [{
     name: "Pick a structure",
-    description: "Choose a structure you want to build.",
+    description() { return "Choose a structure you want to build." },
     saveAs: "structureName",
     options: () => new AvalableStructures().names,
     groupOptionsBy: structureName => `Level ${Structure.template(structureName).level}`,
     displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
+    picked(structureName) { this.decision("Roll").difficultyClassOptions.base = Structure.template(structureName)?.dc },
     mutable: (activity, decision) => activity.decision("Roll").mutable,
   }, {
+    name: "Payment",
+    options: () => Ability.all,
+  }, {
     name: "Roll",
-    options: ["Economy"]
+    options: ["Economy"],
   }, {
     name: "Outcome",
     summaries: {
@@ -45,9 +49,6 @@ export var civicTemplates = [{
       failure: `Fail`,
       criticalFailure: `Fail; Reduce a random Ability by 1`,
     },
-  }, {
-    name: "Payment",
-    options: () => Ability.all,
   }],
   criticalSuccess() {
     this.info("😂 Everyone rallies to help.");

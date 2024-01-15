@@ -27,8 +27,11 @@ export class ActivityDecision {
           return usedBy.length ? `Already used or this activity this turn by ${usedBy.map(a => a.name).join(" & ")}` : null;
         },
         description(context) { return context.decision.difficultyClass(context) },
+        difficultyClassOptions: {},
         difficultyClass({decision}) {
-          return Maker.tag("difficulty-class", {base: this.domainSheet?.controlDC || 15, ...(decision?.difficultyClassOptions || {})}).outerHTML;
+          let dcOpts = decision?.difficultyClassOptions || {};
+          dcOpts.base ??= this.domainSheet?.controlDC || 15;
+          return Maker.tag("difficulty-class", dcOpts).outerHTML;
         },
       },
       Outcome: {
