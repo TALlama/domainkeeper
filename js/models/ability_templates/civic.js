@@ -10,10 +10,17 @@ export var civicTemplates = [{
   summary: "This settlement is hard at work.",
   decisions: [{
     name: "Contribution",
+    template: "Payment",
     saveAs: "contribution",
-    options: () => Ability.all,
-    picked: (ability, {activity}) => activity.boost(ability),
   }],
+  added() {
+    this.decision("Contribution").amount = {
+      Village: -1,
+      Town: -2,
+      City: -3,
+      Metropolis: -4,
+    }[this.actor.type] || -1;
+  },
 }, {
   icon: "🚧",
   name: "Build Structure",
