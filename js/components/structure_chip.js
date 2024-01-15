@@ -35,6 +35,7 @@ export class StructureChip extends RxElement {
       <structure-description structure-id="${structure.id}"></structure-description>
 
       <section slot="footer">
+        <button data-action="rename">Rename</button>
         ${this.renderDestroyButton()}
         <button data-action="hideDetails">Close</button>
       </section>
@@ -55,6 +56,13 @@ export class StructureChip extends RxElement {
       nudge(this, (activity) => activity.error(`💥 Structure destroyed: ${this.structure.name}`));
       this.hideDetails(event);
       this.actor.removePowerup(this.structure);
+    }
+  }
+
+  rename(event) {
+    let newName = prompt("What would you like to name this structure?");
+    if (newName) {
+      this.structure.name = newName;
     }
   }
 }
