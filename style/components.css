@@ -15,6 +15,24 @@
     --subheader-bg: hsl(0, 0%, 90%);
   }
 
+  trait-list {
+    display: block;
+
+    ul {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--internal-margin) var(--small-margin);
+    }
+
+    li .badge {
+      border-width: 0;
+      border-radius: 0;
+      background-color: lightgreen;
+      padding: var(--small-margin) var(--small-margin);
+    }
+  }
+
   ability-roll {
     --modifier-width: 1.5rem;
 
@@ -256,8 +274,8 @@
       border: 1px solid var(--text-color);
       padding: var(--internal-margin);
 
-      .powerups {
-        li {
+      > .powerups {
+        > li {
           border: 1px solid var(--text-color);
           padding: var(--internal-margin);
         }

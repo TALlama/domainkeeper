@@ -3,6 +3,7 @@ import { displayBonus } from "../helpers.js";
 import { Structure } from "../models/structure.js";
 
 import { RxElement } from "./rx_element.js";
+import { TraitList } from "./trait_list.js";
 
 export class StructureDescription extends RxElement {
   constructor(structure) {
@@ -19,10 +20,6 @@ export class StructureDescription extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
-  get actor() {
-    let structureId = this.structure.id;
-    return this.domainSheet.actors.find(a => a.powerup(structureId));
-  }
 
   /////////////////////////////////////////////// Rendering
 
@@ -32,7 +29,7 @@ export class StructureDescription extends RxElement {
         <span class="name">${this.structure.name}</span>
         ${this.structure.name === this.structure.templateName ? "" : `<span class="template-name">${this.structure.templateName}</span>`}
       </div>
-      <ul class="traits list-unstyled list-inline">${(this.structure.traits || []).map(t => `<li><span class='badge'>${t}</span></li>`).join("")}</ul>
+      ${TraitList.el(...this.structure.traits || [])}
       <div class="stats">
         <span class="level">Lvl ${this.structure.level}</span>
         <span class="dc">DC ${this.structure.dc}</span>

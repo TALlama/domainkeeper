@@ -4,6 +4,7 @@ import { Structure } from "../models/structure.js";
 
 import { nudge } from "./event_helpers.js";
 import { RxElement } from "./rx_element.js";
+import { TraitList } from "./trait_list.js";
 
 export class StructureChip extends RxElement {
   connectedCallback() {
@@ -31,13 +32,7 @@ export class StructureChip extends RxElement {
 
   renderDialog(structure = this.structure) {
     return `<sl-dialog label="${structure.name}" class="structure-details">
-      <ul class='traits list-unstyled list-inline' style="background: lightgrey; padding: .5rem; gap: .5rem">
-        ${(structure.traits || []).map(t => `<span class="badge">${t}</span>`).join("")}
-      </ul>
-      <p class="description">${structure.description}</p>
-      <ul class="bonuses">${(structure.bonuses || []).map(b => `<li>${displayBonus(b)}</li>`).join("")}</ul>
-      <hr/>
-      <p class="effects">${structure.effects}</p>
+      <structure-description structure-id="${structure.id}"></structure-description>
 
       <section slot="footer">
         ${this.renderDestroyButton()}
