@@ -18,6 +18,18 @@ export class Structure {
   prebuild({settlement, structure, activity}) {}
   built({settlement, structure, activity}) {}
 
+  static add({structureName, settlement, activity, built}) {
+    let structure = new Structure(structureName);
+    structure.prebuild({settlement, structure, activity});
+    activity.structureId = structure.id;
+
+    settlement.powerups.push(structure);
+    built && built({structure, settlement, activity, fullName: `${structure.name}${structure.name === structureName ? "" : `, a ${structureName}`}`});
+    structure.built({settlement, structure, activity});
+
+    return structure;
+  }
+
   /////////////////////////////////////////////// Templates
 
   static addTrait(to, ...traits) { to.traits = [...(to.traits || []), ...traits] }

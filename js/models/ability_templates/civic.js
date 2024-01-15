@@ -55,12 +55,13 @@ export var civicTemplates = [{
     this.success();
   },
   success() {
-    this.info(`🏛️ You built the ${this.structureName}!`);
-    this.actor.powerups.push(new Structure(this.structureName));
-
-    this.info("📈 If there are now 2+ buildings in the settlement, it's a town. Get Milestone XP!");
-    this.info("📈 If there are now 4+ buildings in the settlement, it's a city. Get Milestone XP!");
-    this.info("📈 If there are now 8+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
+    Structure.add({structureName: this.structureName, settlement: this.actor, activity: this,
+      built({activity, fullName}) { activity.info(`🏛️ You built the ${fullName}!`) },
+    });
+    
+    this.info("📈 If there are now 4+ buildings in the settlement, it's a town. Get Milestone XP!");
+    this.info("📈 If there are now 8+ buildings in the settlement, it's a city. Get Milestone XP!");
+    this.info("📈 If there are now 16+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
   },
   failure() { this.warning("❌ You fail to build the building") },
   criticalFailure() {

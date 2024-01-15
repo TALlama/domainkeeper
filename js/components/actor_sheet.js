@@ -85,8 +85,9 @@ export class ActorSheet extends RxElement {
     let nameInput = form?.querySelector(`input[name="name"]`);
     let structureName = nameInput?.value;
     if (structureName) {
-      nudge(this, (activity) => activity.info(`🏦 Structure added: ${structureName}`));
-      this.actor.powerups.push(new Structure(structureName));
+      nudge(this, activity => Structure.add({structureName: structureName, settlement: this.actor, activity,
+        built({fullName}) { activity.info(`🏦 Structure added: ${structureName}`) },
+      }));
       nameInput.value = "";
     }
   }
