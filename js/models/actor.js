@@ -1,5 +1,23 @@
+import { addTransient } from "./utils.js";
+import { Structure } from "./structure.js";
+
+let powerupClasses = {
+  structure: Structure,
+};
+function makePowerup(properties, actor) {
+  return properties.constructor === Object
+    ? new powerupClasses[(properties.type || "Structure").toLowerCase()](properties, actor)
+    : properties;
+}
+
 export class Actor {
   constructor(properties) {
+    addTransient(this, {value: {}});
+    Object.defineProperty(this, "powerups", {enumerable: true,
+      get() { return this.transient.powerups },
+      set(value) { this.transient.powerups = value.map(v => makePowerup(v, this)) },
+    });
+
     Object.assign(this, properties);
     this.id ??= `leader-${this.name}-${crypto.randomUUID()}`;
     this.activitiesPerTurn ??= this.type == "PC" ? 2 : 1;

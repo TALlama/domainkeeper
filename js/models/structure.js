@@ -5,12 +5,15 @@
 /********************************************************************************/
 
 export class Structure {
-  constructor(templateName, properties) {
+  constructor(properties) {
+    let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.templateName, properties];
+
     Object.assign(this, Structure.template(templateName));
     Object.assign(this, properties);
 
     this.id ??= `structure-${templateName}-${crypto.randomUUID()}`;
     this.templateName ??= templateName;
+    this.type ??= "structure";
     // TODO default limit is 1; if limit > 1 it's repeatable up to that many times per settlement
     // TODO some stuff should take more than one turn to build…
   }
@@ -142,7 +145,7 @@ export class Structure {
       effects: [riverRoads, `A settlement with at least 1 port increases its effective level by 2 for the purposes of determining what level of items can be purchased in that settlement.`].join("\n"),
     }];
     let financials = [{
-      name: `Bank`, // TODO weird that the bank is here but the mint is economy
+      name: `Bank`,
       level: 5,
       traits: ["Building"],
       description: `A bank is a secure building for storing valuables, granting loans, and collecting and transferring deposits.`,

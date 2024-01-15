@@ -123,7 +123,10 @@ class DomainSheet extends RxElement {
         Maker.tag("a", {href: "#", class: "ability-roll icon-link", "data-ability": ability}, "🎲"),
         Maker.tag("label", ability, {for: `domain-${ability}`}),
         Maker.tag("span", {class: "gauge",
-          rx: () => `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" max="${this.max(key)}" /> / ${this.max(key)}`,
+          rx: () => {
+            let max = this.max(ability);
+            return `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" max="${max}" /> / ${max}`;
+          },
           change: (event) => { nudgeValue(this, ability, this.data, key, event.target.value) },
         }));
     });
@@ -193,7 +196,7 @@ class DomainSheet extends RxElement {
       let value = this.data[key];
 
       this.style.setProperty(`--${key}-value`, value);
-      this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(key)}%`);
+      this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(name)}%`);
     });
   }
 
@@ -210,6 +213,10 @@ class DomainSheet extends RxElement {
   }
 
   max(stat) {
+    return this.maxBase(stat) + this.bonuses.matches({max: stat}).reduce((t, p) => t + p.value, 0);
+  }
+
+  maxBase(stat) {
     stat = stat.toLocaleLowerCase();
 
     if (Ability.all.map(a => a.toLocaleLowerCase()).includes(stat)) { return 5 }
