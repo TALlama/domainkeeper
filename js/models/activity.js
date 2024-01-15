@@ -12,6 +12,8 @@ export class Activity {
   constructor(properties) {
     this.log = [];
     addTransient(this, {value: {}});
+    this.transient.currentTurn = properties.currentTurn;
+    delete properties.currentTurn;
 
     let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.name, properties];
     props = {
@@ -36,7 +38,7 @@ export class Activity {
   // TODO how can we do this without hitting the DOM?
   get domainSheet() { return document.querySelector("domain-sheet") }
   get actor() { return this.domainSheet.actor(this.actorId) }
-  get currentTurn() { return this.domainSheet.currentTurn }
+  get currentTurn() { return this.transient.currentTurn ?? this.domainSheet.currentTurn }
   
   peerActivities() { return this.currentTurn.activities.filter(e => e.name === this.name) || [] }
 
