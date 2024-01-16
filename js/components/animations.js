@@ -3,6 +3,8 @@ export function twist(el) {
 }
 
 export function addAnimationClass(el, className) {
+  if (!el) { return }
+
   el.addEventListener("animationend", (event) => {
     let {animationName} = event;
     el.classList.remove(className);

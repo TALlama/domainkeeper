@@ -269,7 +269,7 @@ class DomainSheet extends RxElement {
   get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
 
   structure(structureId) { return this.structures.find(s => s.id === structureId) }
-  get structures() { return this.actors.flatMap(a => a.powerups) }
+  get structures() { return this.actors.flatMap(a => a.powerups.matches({type: Structure.type})) }
 
   findBonuses({ability, ...pattern}) { return this.bonuses.matches(pattern).filter(b => !b.ability || b.ability === ability).sortBy("-value") }
   get bonuses() { return this.structures.flatMap(s => (s.bonuses || []).map(b => { return {...b, structure: s}})) }

@@ -40,7 +40,11 @@ export class Activity {
   get actor() { return this.domainSheet.actor(this.actorId) }
   get currentTurn() { return this.transient.currentTurn ?? this.domainSheet.currentTurn }
   
-  peerActivities() { return this.currentTurn.activities.filter(e => e.name === this.name) || [] }
+  peerActivities() {
+    return "civic system".split(" ").includes(this.type)
+      ? []
+      : (this.currentTurn.activities || []).filter(e => e.name === this.name) || [];
+  }
 
   /////////////////////////////////////////////// Decisions & Resolution
 
@@ -161,6 +165,31 @@ Eris.test("Activity", makeSure => {
     makeSure.it("accepts a function parameter", ({assert}) => {
       let activity = new Activity({name: "Dance", description: () => "etcetc"});
       assert.equals(activity.description, "etcetc");
+    });
+  });
+
+  makeSure.describe("peerActivities()", makeSure => {
+    makeSure.it("returns no items if the turn is empty", ({assert}) => {
+      let activity = new Activity({name: "Dance", currentTurn: {}});
+      assert.equals(activity.peerActivities(), []);
+    });
+    makeSure.it("for leadership activities, returns the items from the turn's entries (leaders focus then move on)", ({assert}) => {
+      let currentTurn = {activities: [
+        {name: "Dance", id: "a"},
+        {name: "Dance", id: "b"},
+        {name: "Revolution", id: "c"},
+      ]};
+      let activity = new Activity({name: "Dance", type: "leadership", currentTurn});
+      assert.equals(activity.peerActivities().map(a => a.id), ["a", "b"]);
+    });
+    makeSure.it("for civic activities, returns no items ever (cities can distribute focus)", ({assert}) => {
+      let currentTurn = {activities: [
+        {name: "Dance", id: "a"},
+        {name: "Dance", id: "b"},
+        {name: "Revolution", id: "c"},
+      ]};
+      let activity = new Activity({name: "Dance", type: "civic", currentTurn});
+      assert.equals(activity.peerActivities(), []);
     });
   });
 
