@@ -251,19 +251,11 @@
 
     h3 {
       display: flex;
+      gap: var(--external-margin);
       align-items: baseline;
       background-color: var(--text-color);
       color: white;
       padding: var(--internal-margin);
-
-      small {
-        margin-inline: var(--internal-margin);
-        padding: var(--small-margin) var(--internal-margin);
-        background-color: white;
-        color: var(--text-color);
-        font-weight: 600;
-        font-size: var(--step--2);
-      }
 
       .badge {
         margin-left: auto;

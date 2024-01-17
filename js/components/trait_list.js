@@ -20,6 +20,9 @@ export class TraitList extends RxElement {
 
   static tooltipFor(trait) {
     return {
+      PC: "A player character, run by a real-world human",
+      NPC: "A non-player character, run by the GM",
+
       Building: "A collection of indoor sites",
       Yard: "Primarily an outdoor site",
       Infrastructure: "Benefits a whole settlement without occupying space",

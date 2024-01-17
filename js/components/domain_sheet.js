@@ -79,15 +79,15 @@ class DomainSheet extends RxElement {
     saved.xp ??= 0;
     saved.level ??= 1;
     saved.leaders ??= [
-      {type: "PC", name: "Seth"},
-      {type: "PC", name: "Ben"},
-      {type: "PC", name: "David"},
-      {type: "PC", name: "Morgan"},
-      {type: "PC", name: "Joe"},
-      {type: "NPC", name: "Bertie", activitiesPerTurn: 1},
+      {traits: "PC".split(" "), name: "Seth"},
+      {traits: "PC".split(" "), name: "Ben"},
+      {traits: "PC".split(" "), name: "David"},
+      {traits: "PC".split(" "), name: "Morgan"},
+      {traits: "PC".split(" "), name: "Joe"},
+      {traits: "NPC".split(" "), name: "Bertie", activitiesPerTurn: 1},
     ];
     saved.settlements ??= [
-      {type: "Village", name: "Capital", activitiesPerTurn: 1, powerups: [new Structure("Town Hall")]},
+      {traits: "Village".split(" "), name: "Capital", activitiesPerTurn: 1, powerups: [new Structure("Town Hall")]},
     ]
     saved.consumables ??= {};
     saved.turns ??= [];

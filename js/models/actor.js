@@ -20,9 +20,10 @@ export class Actor {
 
     Object.assign(this, properties);
     this.id ??= `leader-${this.name}-${crypto.randomUUID()}`;
-    this.activitiesPerTurn ??= this.type == "PC" ? 2 : 1;
     this.initiative ??= this.rollInitiative();
+    this.traits ??= [];
     this.powerups ??= [];
+    this.activitiesPerTurn ??= this.traits.includes("PC") ? 2 : 1;
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }

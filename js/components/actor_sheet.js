@@ -4,6 +4,7 @@ import { nudge } from "./event_helpers.js";
 import { ActivityPicker } from "./activity_picker.js";
 import { RxElement } from "./rx_element.js";
 import { StructureChip } from "./structure_chip.js";
+import { TraitList } from "./trait_list.js";
 
 export class ActorSheet extends RxElement {
   connectedCallback() {
@@ -36,7 +37,7 @@ export class ActorSheet extends RxElement {
     return `
       <h3>
         ${this.actor.name} is up!
-        <small>${this.actor.type}</small>
+        ${TraitList.el(...this.actor.traits)}
         <span class='badge'>
           ${activitx(this.actor.activitiesLeft)} left
           <a href="#" data-action="doAddBonusActivity">+</a>
