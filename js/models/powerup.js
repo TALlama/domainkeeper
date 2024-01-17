@@ -2,6 +2,7 @@ import { Eris } from "../eris.js";
 
 import { makeId } from "./with_id.js";
 import { withTemplates } from "./with_templates.js";
+import { withTraits } from "./with_traits.js";
 
 export class Powerup {
   constructor(properties) {
@@ -16,12 +17,6 @@ export class Powerup {
 
   setup({actor, powerup, activity}) {}
   added({actor, powerup, activity}) {}
-
-  addTrait(name) { if (!this.traits.includes(name)) { this.traits.push(name)} }
-  removeTrait(name) {
-    let ix = this.traits.indexOf(name);
-    if (ix > -1) { this.traits.splice(ix, 1) }
-  }
 
   static add({type, templateName, actor, activity, setup, added, makeContext}) {
     let powerup = new type(templateName);
@@ -38,7 +33,8 @@ export class Powerup {
     return powerup;
   }
 }
-withTemplates(Powerup, () => [])
+withTemplates(Powerup, () => []);
+withTraits(Powerup);
 
 Eris.test("Powerups", makeSure => {
   class ColorPowerup extends Powerup {

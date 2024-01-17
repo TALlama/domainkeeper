@@ -1,5 +1,6 @@
 import { addTransient } from "./utils.js";
 import { makeId } from "./with_id.js";
+import { withTraits } from "./with_traits.js";
 import { Structure } from "./structure.js";
 
 let powerupClasses = {
@@ -30,8 +31,8 @@ export class Actor {
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet?.data?.turns?.last() }
 
-  get isLeader() { return this.domainSheet.data.leaders.find(l => l.id == this.id) }
-  get isSettlement() { return this.domainSheet.data.settlements.find(l => l.id == this.id) }
+  get isLeader() { return this.hasTrait("PC", "NPC") }
+  get isSettlement() { return this.hasTrait("Village", "Town", "City", "Metropolis") }
 
   // Activities
 
@@ -61,3 +62,4 @@ export class Actor {
 
   rollInitiative() { return this.initiative = Number((Math.random() * 20).toFixed()) }
 }
+withTraits(Actor);
