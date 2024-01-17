@@ -1,8 +1,26 @@
 import { RxElement } from "./rx_element.js";
 
 export class TraitList extends RxElement {
+  static observedAttributes = ["traits"];
+
   connectedCallback() {
+    this.addItems();
     this.addTooltips();
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === "traits") {
+      this.addItems();
+      this.addTooltips();
+    }
+  }
+
+  addItems(items = this.getAttribute("traits")) {
+    if (!items) { return }
+
+    let list = this.$("ul") || Maker.tag("ul", {class: "traits list-unstyled list-inline", appendTo: this});
+    list.innerHTML = "";
+    items.split(",").forEach(i => Maker.tag("li", Maker.tag("span", {class: "badge"}, i.trim()), {class: "trait", appendTo: list}));
   }
 
   addTooltips() {
@@ -39,10 +57,8 @@ export class TraitList extends RxElement {
     }[trait];
   }
 
-  static el(...items) {
-    return `<trait-list>
-      <ul class="traits list-unstyled list-inline">${items.map(i => `<li key=${i} class="trait"><span class='badge'>${i}</span></li>`).join("")}</ul>
-    </trait-list>`;
+  static el(...traits) {
+    return `<trait-list traits="${traits.join(", ")}"></trait-list>`;
   }
 }
 TraitList.define("trait-list");
