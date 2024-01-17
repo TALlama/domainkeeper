@@ -1,4 +1,5 @@
 import { addTransient } from "./utils.js";
+import { makeId } from "./with_id.js";
 import { Structure } from "./structure.js";
 
 let powerupClasses = {
@@ -19,7 +20,7 @@ export class Actor {
     });
 
     Object.assign(this, properties);
-    this.id ??= `leader-${this.name}-${crypto.randomUUID()}`;
+    this.id ??= makeId(`leader`, this.name);
     this.initiative ??= this.rollInitiative();
     this.traits ??= [];
     this.powerups ??= [];

@@ -1,13 +1,14 @@
 import { Eris } from "../eris.js";
 
 import { addTransient } from "./utils.js";
+import { withTemplates } from "./with_templates.js";
+import { makeId } from "./with_id.js";
 import { Ability } from "./abilities.js";
 import { ActivityDecision } from "./activity_decision.js";
 
 import { civicTemplates } from "./ability_templates/civic.js";
 import { leadershipTemplates } from "./ability_templates/leadership.js";
 import { systemTemplates } from "./ability_templates/system.js";
-import { withTemplates } from "./with_templates.js";
 
 export class Activity {
   constructor(properties) {
@@ -23,7 +24,7 @@ export class Activity {
       this[prop] && this[prop].call && (this[prop] = this[prop]())
     );
 
-    this.id ||= `activity-${this.name}-${crypto.randomUUID()}`;
+    this.id ||= makeId(`activity`, this.name);
 
     Object.defineProperty(this, `callbacksEnabled`, {get() {return true}});
   }

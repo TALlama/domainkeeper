@@ -121,6 +121,7 @@ export class ErisAssertions {
   defined(actual) { this.true(actual !== null && actual !== undefined, `❌ Expected ${JSON.stringify(actual)} to be defined`) }
   equals(actual, expected) { this.true(Array.eql(actual, expected) || actual === expected, `❌ Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`) }
   jsonEquals(actual, expected) { this.equals(JSON.stringify(actual), JSON.stringify(expected), `❌ Expected ${JSON.stringify(expected)} but got ${JSON.stringify(actual)}`) }
+  matchesRegex(actual, expected) { let match = actual.match(expected); this.reporter.tick(match, `❌ Expected "${actual}" to match ${expected}, but it did not`, `"✅ ${actual} matched pattern ${expected}"`) }
   includedIn(actual, expectedIn) { this.true(expectedIn.includes(actual), `❌ Expected ${JSON.stringify(actual)} to be in ${JSON.stringify(expectedIn)}`) }
   expectError(callback, errorClass) {
     try { callback(); this.true(false, `❌ Expected error of type ${errorClass}, but nothing was thrown`)}

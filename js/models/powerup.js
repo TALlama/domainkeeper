@@ -1,4 +1,6 @@
 import { Eris } from "../eris.js";
+
+import { makeId } from "./with_id.js";
 import { withTemplates } from "./with_templates.js";
 
 export class Powerup {
@@ -6,7 +8,7 @@ export class Powerup {
     let {templateName} = this.init(properties);
 
     this.type ??= this.constructor.type;
-    this.id ??= `${this.type}-${templateName}-${crypto.randomUUID()}`;
+    this.id ??= makeId(this.type, templateName);
     this.name ??= templateName;
     this.templateName ??= templateName;
     this.traits ??= [];
