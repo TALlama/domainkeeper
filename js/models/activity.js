@@ -7,6 +7,7 @@ import { ActivityDecision } from "./activity_decision.js";
 import { civicTemplates } from "./ability_templates/civic.js";
 import { leadershipTemplates } from "./ability_templates/leadership.js";
 import { systemTemplates } from "./ability_templates/system.js";
+import { withTemplates } from "./with_templates.js";
 
 export class Activity {
   constructor(properties) {
@@ -15,19 +16,13 @@ export class Activity {
     this.transient.currentTurn = properties.currentTurn;
     delete properties.currentTurn;
 
-    let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.name, properties];
-    props = {
-      decisions: [{name: "Roll"}, {name: "Outcome"}],
-      ...Activity.template(templateName),
-      ...props};
-    Object.assign(this, props);
+    this.init(properties, {decisions: [{name: "Roll"}, {name: "Outcome"}]});
 
     // evaluate the template's lazy-loaded properties
     "description".split(" ").forEach(prop =>
       this[prop] && this[prop].call && (this[prop] = this[prop]())
     );
 
-    this.name ||= templateName;
     this.id ||= `activity-${this.name}-${crypto.randomUUID()}`;
 
     Object.defineProperty(this, `callbacksEnabled`, {get() {return true}});
@@ -125,14 +120,9 @@ export class Activity {
   
   /////////////////////////////////////////////// Templates
 
-  static template(name) { return this.templates.find(s => s.name === name) }
-  
   static get names() { return this._names ||= this.templates.map(s => s.name) }
-  static get templates() {
-    return this._templates ||= [...systemTemplates, ...leadershipTemplates, ...civicTemplates];
-  }
 }
-window.Activity = Activity;
+withTemplates(Activity, () => [...systemTemplates, ...leadershipTemplates, ...civicTemplates]);
 
 Eris.test("Activity", makeSure => {
   makeSure.it("remembers the properties given to it", ({assert}) => {

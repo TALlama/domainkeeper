@@ -1,10 +1,9 @@
 import { Eris } from "../eris.js";
+import { withTemplates } from "./with_templates.js";
 
 export class Powerup {
   constructor(properties) {
-    let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.templateName, properties];
-
-    Object.assign(this, {...this.constructor.template(templateName), ...props});
+    let {templateName} = this.init(properties);
 
     this.type ??= this.constructor.type;
     this.id ??= `${this.type}-${templateName}-${crypto.randomUUID()}`;
@@ -36,21 +35,34 @@ export class Powerup {
 
     return powerup;
   }
-
-  static template(templateName) { return this.templates.find(t => t.name === templateName) || {} }
-  static get templates() { return [] }
 }
+withTemplates(Powerup, () => [])
 
 Eris.test("Powerups", makeSure => {
+  class ColorPowerup extends Powerup {
+    setup() { this.l = 0.2126*this.r + 0.7152*this.g + 0.0722*this.b; }
+    added() { this.pl = 0.299*this.r + 0.587*this.g + 0.114*this.b; }
+
+    get rgb() { return `rgb(${this.r}, ${this.g}, ${this.b})` }
+
+    static get templates() {
+      return [{name: "red", r: 255, g: 0, b: 0}, {name: "green", r: 0, g: 255, b: 0}, {name: "blue", r: 0, g: 0, b: 255}];
+    }
+  }
+
   makeSure.describe("creation", makeSure => {
-    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup("Cool").name, "Cool"));
-    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup("Cool").templateName, "Cool"));
+    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup("red").name, "red"));
+    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup("red").templateName, "red"));
 
-    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup({name: "Cool", templateName: "Temp"}).name, "Cool"));
-    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup({name: "Cool", templateName: "Temp"}).templateName, "Temp"));
+    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup({name: "Danger", templateName: "red"}).name, "Danger"));
+    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup({name: "Danger", templateName: "red"}).templateName, "red"));
 
-    makeSure.it("auto-generates an id", ({assert}) => assert.defined(new Powerup("Cool").id));
-    makeSure.it("always has traits", ({assert}) => assert.equals(new Powerup("Cool").traits, []));
+    makeSure.it("auto-generates an id", ({assert}) => assert.defined(new Powerup("red").id));
+    makeSure.it("always has traits", ({assert}) => assert.equals(new Powerup("red").traits, []));
+
+    makeSure.it("finds the named template", ({assert}) => assert.equals(new ColorPowerup("red").rgb, "rgb(255, 0, 0)"));
+    makeSure.it("finds its property-named template", ({assert}) => assert.equals(new ColorPowerup({name: "red"}).rgb, "rgb(255, 0, 0)"));
+    makeSure.it("finds its name-overridden template", ({assert}) => assert.equals(new ColorPowerup({name: "Danger", templateName: "red"}).rgb, "rgb(255, 0, 0)"));
   });
 
   makeSure.describe("trait management", makeSure => {
@@ -75,15 +87,6 @@ Eris.test("Powerups", makeSure => {
 
   makeSure.describe(".add will handle the lifecycle events", makeSure => {
     makeSure.let("actor", () => { return {powerups: []} });
-
-    class ColorPowerup extends Powerup {
-      setup() { this.l = 0.2126*this.r + 0.7152*this.g + 0.0722*this.b; }
-      added() { this.pl = 0.299*this.r + 0.587*this.g + 0.114*this.b; }
-
-      static get templates() {
-        return [{name: "red", r: 255, g: 0, b: 0}, {name: "green", r: 0, g: 255, b: 0}, {name: "blue", r: 0, g: 0, b: 255}];
-      }
-    }
 
     makeSure.it("adds to the actor", ({assert, actor}) => {
       let powerup = ColorPowerup.add({type: ColorPowerup, templateName: "red", actor});

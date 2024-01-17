@@ -1,3 +1,5 @@
+import { Activity } from "../models/activity.js";
+
 import { blockedTooltip } from "./blocked_tooltip.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { RxElement } from "./rx_element.js";
