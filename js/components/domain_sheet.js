@@ -382,7 +382,7 @@ class DomainSheet extends RxElement {
 
     let roller = Maker.tag(
       "dice-roller",
-      {dice: die || 20, modifier: modifierTotal},
+      {dice: die || 20, modifier: modifierTotal, "data-ability": modifier},
     );
     if (dc !== false) {
       dc = dc || this.controlDC;

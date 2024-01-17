@@ -63,9 +63,27 @@ export default class DomainActivityLog extends RxElement {
     this.currentTurn && this.domainSummary();
     
     this.resetTurn();
-    this.currentTurn.number && this.domainSheet.addFame();
+    if (this.currentTurn.number) {
+      this.domainSheet.addFame();
+      this.forEachPowerup("newTurn");
+    }
     this.ruin();
     this.domainSheet.saveData();
+  }
+
+  forEachPowerup(callback) {
+    let globalContext = {domainSheet: this.domainSheet};
+    this.domainSheet.actors.forEach(actor => {
+      let actorContext = {...globalContext, actor};
+      actor.isLeader && (actorContext.leader = actor);
+      actor.isSettlement && (actorContext.settlement = actor);
+
+      actor.powerups.forEach(powerup => {
+        let context = {...actorContext, powerup};
+        powerup.type && (context[powerup.type] = powerup);
+        callback.call ? callback.call(powerup, context) : (powerup[callback] && powerup[callback](context));
+      });
+    })
   }
 
   reroll(event) {
@@ -76,6 +94,14 @@ export default class DomainActivityLog extends RxElement {
     
     let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
     consumableId && this.domainSheet.useConsumable({id: consumableId});
+  }
+
+  rerollEconomy(event) {
+    let lastRoll = this.domainSheet.$("dice-roller");
+    if (!lastRoll) { return }
+    if (lastRoll.dataset.ability !== "Economy") return;
+    
+    this.reroll(event);
   }
 
   doActivity(event, {actionTarget}) {
