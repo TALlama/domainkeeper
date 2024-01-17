@@ -110,7 +110,10 @@ export class ActivityDecision {
         if (activity.transient[`_${saveAs}`] === value) { return }
 
         activity.transient[`_${saveAs}`] = value;
-        activity.callbacksEnabled && decision.picked?.call(activity, value, {decision, activity});
+        if (activity.callbacksEnabled) {
+          decision.picked?.call(activity, value, {decision, activity});
+          activity.decisionResolved?.call(activity, decision, {value, activity});
+        }
       },
     });
   }

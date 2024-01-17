@@ -422,6 +422,25 @@ Eris.test("Activity", makeSure => {
         assert.false(decision.mutable);
       });
     });
+
+    makeSure.it("tells the activity whenever any decision is resolved", ({assert}) => {
+      makeSure.it("by setting the activity's", ({assert}) => {
+        let resolved = [];
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+        activity.decisionResolved = (decision) => resolved.push(decision.name);
+        assert.equals(resolved, []);
+        activity.color = "Red";
+        assert.equals(resolved, ["Color"]);
+      });
+      makeSure.it("by setting the decision's resolution", ({assert}) => {
+        let resolved = [];
+        let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+        activity.decisionResolved = (decision) => resolved.push(decision.name);
+        assert.equals(resolved, []);
+        activity.decision("Color").resolution = "Red";
+        assert.equals(resolved, ["Color"]);
+      });
+    });
   });
 
   makeSure.describe("default decisions", makeSure => {

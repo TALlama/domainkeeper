@@ -92,6 +92,9 @@ export var systemTemplates = [{
       picked: (ability, {activity}) => activity.boost(ability),
     }];
   })(),
+  decisionResolved(decision) {
+    if (this.resolved) { document.querySelector("domain-activity-log").newTurn() }
+  },
 }, {
   icon: "💥",
   name: "Event",

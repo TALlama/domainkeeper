@@ -13,8 +13,8 @@ export default class DomainActivityLog extends RxElement {
     this.addEventListener("click", this);
     document.addEventListener("domains:nudge", (event) => this.doNudge(event))
 
-    if (!this.currentTurn) {
-      this.newTurn();
+    if (!this.currentTurn) { this.newTurn() }
+    if (this.currentTurn.number === 0) {
       this.domainConcept();
       this.welcome();
     }
@@ -63,7 +63,7 @@ export default class DomainActivityLog extends RxElement {
     this.currentTurn && this.domainSummary();
     
     this.resetTurn();
-    this.domainSheet.addFame();
+    this.currentTurn.number && this.domainSheet.addFame();
     this.ruin();
     this.domainSheet.saveData();
   }
@@ -102,8 +102,8 @@ export default class DomainActivityLog extends RxElement {
   render() {
     return `
       <aside class="status-banner">${this.renderStatusBanner()}</aside>
-      <actor-sheet></actor-sheet>
-      <ul class="consumables">${this.renderConsumables()}</ul>
+      ${this.currentTurn.number ? `<actor-sheet></actor-sheet>` : ""}
+      ${this.renderConsumables()}
       ${debugJSON(this.currentTurn)}
       <main class="turns">${this.renderTurns()}</main>`
   }
@@ -127,12 +127,16 @@ export default class DomainActivityLog extends RxElement {
   }
 
   renderConsumables() {
-    return Object.values(this.domainSheet.data.consumables).map(consumable => `
-      <li class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
-        <span class="name">${consumable.name}</span>
-        <div class="description">${consumable.description}</div>
-      </li>`
-    ).join("");
+    if (this.currentTurn.number === 0) { return "" }
+
+    return `<ul class="consumables">
+      ${Object.values(this.domainSheet.data.consumables).map(consumable => `
+        <li class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
+          <span class="name">${consumable.name}</span>
+          <div class="description">${consumable.description}</div>
+        </li>`
+      ).join("")}
+    </ul>`;
   }
 
   renderTurns() { return this.domainSheet.data.turns.map(turn => this.renderTurn(turn)).reverse().join("") }
@@ -147,7 +151,7 @@ export default class DomainActivityLog extends RxElement {
       ${summary ? `<main class="activities activities---summary-spotlight">${this.renderActivity(summary)}</main>` : ""}
 
       <details ${turn === this.currentTurn ? "open" : ""}>
-        <summary>${activities.length} activities</summary>
+        <summary>${activities.length - 1} activities</summary>
         <main class="activities">
           ${activities.map(activity => activity === summary ? "" : this.renderActivity(activity)).reverse().join("")}
         </main>
