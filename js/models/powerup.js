@@ -1,21 +1,30 @@
+import { Eris } from "../eris.js";
+
 export class Powerup {
   constructor(properties) {
     let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.templateName, properties];
 
-    Object.assign(this, this.constructor.template(templateName));
-    Object.assign(this, properties);
+    Object.assign(this, {...this.constructor.template(templateName), ...props});
 
     this.type ??= this.constructor.type;
     this.id ??= `${this.type}-${templateName}-${crypto.randomUUID()}`;
+    this.name ??= templateName;
     this.templateName ??= templateName;
+    this.traits ??= [];
   }
 
   setup({actor, powerup, activity}) {}
   added({actor, powerup, activity}) {}
 
+  addTrait(name) { if (!this.traits.includes(name)) { this.traits.push(name)} }
+  removeTrait(name) {
+    let ix = this.traits.indexOf(name);
+    if (ix > -1) { this.traits.splice(ix, 1) }
+  }
+
   static add({type, templateName, actor, activity, setup, added, makeContext}) {
     let powerup = new type(templateName);
-    let context = {templateName, actor, activity};
+    let context = {powerup, templateName, actor, activity};
     if (makeContext) { context = makeContext(context) }
 
     setup && setup(context);
@@ -27,4 +36,79 @@ export class Powerup {
 
     return powerup;
   }
+
+  static template(templateName) { return this.templates.find(t => t.name === templateName) || {} }
+  static get templates() { return [] }
 }
+
+Eris.test("Powerups", makeSure => {
+  makeSure.describe("creation", makeSure => {
+    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup("Cool").name, "Cool"));
+    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup("Cool").templateName, "Cool"));
+
+    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup({name: "Cool", templateName: "Temp"}).name, "Cool"));
+    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup({name: "Cool", templateName: "Temp"}).templateName, "Temp"));
+
+    makeSure.it("auto-generates an id", ({assert}) => assert.defined(new Powerup("Cool").id));
+    makeSure.it("always has traits", ({assert}) => assert.equals(new Powerup("Cool").traits, []));
+  });
+
+  makeSure.describe("trait management", makeSure => {
+    makeSure.let("powerup", () => new Powerup("Cool"));
+
+    makeSure.it("can add traits", ({assert, powerup}) => {
+      assert.equals(powerup.traits, []);
+      powerup.addTrait("Cold");
+      assert.equals(powerup.traits, ["Cold"]);
+      powerup.addTrait("Cold"); // won't add something that's already there
+      assert.equals(powerup.traits, ["Cold"]);
+    });
+
+    makeSure.it("can remove traits", ({assert, powerup}) => {
+      powerup.traits = ["Cold", "Frigid"];
+      powerup.removeTrait("Cold");
+      assert.equals(powerup.traits, ["Frigid"]);
+      powerup.removeTrait("Cold");
+      assert.equals(powerup.traits, ["Frigid"]);
+    });
+  });
+
+  makeSure.describe(".add will handle the lifecycle events", makeSure => {
+    makeSure.let("actor", () => { return {powerups: []} });
+
+    class ColorPowerup extends Powerup {
+      setup() { this.l = 0.2126*this.r + 0.7152*this.g + 0.0722*this.b; }
+      added() { this.pl = 0.299*this.r + 0.587*this.g + 0.114*this.b; }
+
+      static get templates() {
+        return [{name: "red", r: 255, g: 0, b: 0}, {name: "green", r: 0, g: 255, b: 0}, {name: "blue", r: 0, g: 0, b: 255}];
+      }
+    }
+
+    makeSure.it("adds to the actor", ({assert, actor}) => {
+      let powerup = ColorPowerup.add({type: ColorPowerup, templateName: "red", actor});
+      assert.equals(actor.powerups, [powerup]);
+    });
+    makeSure.it("calls my setup method, then the class setup method, before adding to the actor", ({assert, actor}) => {
+      let returned = ColorPowerup.add({type: ColorPowerup, templateName: "red", actor, setup: ({powerup}) => {
+        assert.equals(actor.powerups, []);
+        assert.equals(powerup.l, undefined);
+        powerup.calledSetup = true;
+      }});
+
+      assert.equals(returned.l, 54.213);
+      assert.equals(returned.calledSetup, true);
+    });
+    makeSure.it("calls my added method, then the class added method, after adding to the actor", ({assert, actor}) => {
+      let returned = ColorPowerup.add({type: ColorPowerup, templateName: "red", actor, added: ({powerup}) => {
+        assert.equals(actor.powerups, [powerup]);
+        assert.defined(powerup.l); // setup has already been called
+        assert.equals(powerup.pl, undefined);
+        powerup.calledAdded = true;
+      }});
+
+      assert.equals(returned.pl, 76.24499999999999);
+      assert.equals(returned.calledAdded, true);
+    });
+  });
+});

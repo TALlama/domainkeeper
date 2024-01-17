@@ -23,8 +23,11 @@ export class TraitList extends RxElement {
       Building: "A collection of indoor sites",
       Yard: "Primarily an outdoor site",
       Infrastructure: "Benefits a whole settlement without occupying space",
-      Ediface: "Grants its benefits to a settlement only once; if you build that structure an additional time in the same settlement, it’s purely cosmetic.",
       Famous: "When built, adds one Fame to the Domain",
+      "Limit 1": "You can only build one of these per settlement",
+      "Limit 2": "You can only build two of these per settlement",
+      "Limit 3": "You can only build three of these per settlement",
+      "Limit 4": "You can only build four of these per settlement",
 
       Culture: "Affects the Culture ability",
       Economy: "Affects the Economy ability",
@@ -35,7 +38,7 @@ export class TraitList extends RxElement {
 
   static el(...items) {
     return `<trait-list>
-      <ul class="traits list-unstyled list-inline">${items.map(i => `<li class="trait"><span class='badge'>${i}</span></li>`).join("")}</ul>
+      <ul class="traits list-unstyled list-inline">${items.map(i => `<li key=${i} class="trait"><span class='badge'>${i}</span></li>`).join("")}</ul>
     </trait-list>`;
   }
 }

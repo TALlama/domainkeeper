@@ -9,10 +9,10 @@ import { Powerup } from "./powerup.js";
 export class Structure extends Powerup {
   constructor(properties) {
     super(properties);
+
+    this.addTrait(`Limit ${this.limit}`);
     // TODO some stuff should take more than one turn to build…
   }
-
-  info() { return {Limit: this.limit} }
 
   static type = "structure";
 
@@ -104,7 +104,7 @@ export class Structure extends Powerup {
     }, {
       name: `Grand Bazaar`,
       level: 13,
-      traits: ["Building", "Ediface", "Fame", "Infamy"],
+      traits: ["Building", "Fame", "Infamy"],
       description: `This sprawling marketplace is a true hub of trade.`,
       bonuses: [{max: ability, value: 3}],
       effects: `A settlement with no general store, marketplace, or grand bazaar reduces its effective level for the purposes of determining what items can be purchased there by 2. The grand bazaar instead increases the settlement’s effective level for determining what items can be purchased by 2.`,
@@ -142,7 +142,7 @@ export class Structure extends Powerup {
     }, {
       name: `Mint`,
       level: 15,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A mint allows the kingdom to produce its own coinage to augment its economy. It can also include fortified underground chambers to help serve as a treasury.`,
       newTurn: (domainSheet, settlement, structure) => { /* TODO add consumable */ },
       effects: `Once per turn, you may reroll an Economy roll.`,
@@ -242,7 +242,7 @@ export class Structure extends Powerup {
     }, {
       name: `Marshals Office`,
       level: 5,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `The central office for a Marshal, who will patrol the surrounding territory.`,
       bonuses: [{max: ability, value: 1}],
     }, {
@@ -432,7 +432,7 @@ export class Structure extends Powerup {
     return [{
       name: `Town Hall`,
       level: 2,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A town hall is a public venue for town meetings and a repository for town history and records.`,
       bonuses: [{activity: "Establish Settlement", value: 1}],
       effects: `The first time you build a town hall each Kingdom turn, reduce Unrest by 1. A town hall in a capital allows PC leaders to take 3 Leadership activities during the Activity phase of a Kingdom turn rather than just 2.`,
@@ -460,21 +460,21 @@ export class Structure extends Powerup {
     let education = [{
       name: `School`,
       level: 5,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A public school cares for children and teaches people a broad set of useful skills, educating the citizenry.`,
       bonuses: [{activity, value: 2}], // WAS +1 to all Culture-based checks and to Improve Lifestyle
       effects: `The educated populace can sometimes point out problems with higher-minded citizens’ solutions. If the kingdom fails or critically fails an attempt at a Creative Solution, roll a DC 11 flat check; on a success, the degree of success for the creative solution is improved by one step.`,
     }, {
       name: `Academy`,
       level: 10,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `An academy gives your citizens—and the PCs themselves— an institution where advanced study in many fields can be pursued, researched, and referenced.`,
       bonuses: [{activity, value: 2}], // WAS +2 item bonus to Creative Solution
       effects: `While in a settlement with an Academy, you gain a +2 item bonus to Lore checks made to Recall Knowledge while Investigating, to all checks made while Researching (Gamemastery Guide 154), and to Decipher Writing.`,
     }, {
       name: `Mystic Academy`,
       level: 12,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A mystic academy is dedicated to the study of the mystic arts and the training of elite clerics, mages, and mystics.`,
       bonuses: [{activity, ability: "Culture", value: 2}], // WAS +2 to Supernatural Solution
       effects: `Once each each turn, you can choose to reduce Culture by 1 to increase any other Ability by 1.`,
@@ -482,7 +482,7 @@ export class Structure extends Powerup {
     }, {
       name: `University`,
       level: 15,
-      traits: ["Building", "Ediface", "Famous"],
+      traits: ["Building", "Famous"],
       description: `A university is a sprawling institution of higher learning.`,
       bonuses: [{activity, value: 3}], // WAS +3 item bonus to Creative Solution
       effects: `While in a settlement with a university, you gain a +3 item bonus to Lore checks made to Recall Knowledge while Investigating, to Research checks (Gamemastery Guide 154), and to Decipher Writing.`,
@@ -545,7 +545,7 @@ export class Structure extends Powerup {
     }, {
       name: `Cathedral`,
       level: 15,
-      traits: ["Building", "Ediface", "Famous", "Infamous"],
+      traits: ["Building", "Famous", "Infamous"],
       description: `A cathedral serves as a focal point of spiritual worship in the settlement and the seat of regional power for a religion. Most cathedrals are astounding works of art and eye-catching marvels of architecture.`,
       bonuses: [
         {activity, ability: "Culture", value: 2},
@@ -614,7 +614,7 @@ export class Structure extends Powerup {
     }, {
       name: `Printing House`,
       level: 10,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A printing house gives your citizens – and the PCs themselves – a place to create newspapers and books.`,
       bonuses: [{activity, ability: "Culture", value: 2}], // WAS +2 to Quell Unrest and to Repair Reputation (Corruption, Strife)
       effects: `[Complete Linzi’s quest before this can be built] A PC in a settlement with a printing house gains a +2 item bonus to checks to Gather Information or to Research any topic which might appear in a library.`,
@@ -623,13 +623,13 @@ export class Structure extends Powerup {
     let usingLoyalty = [{
       name: `Community Center`,
       level: 5,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `Unlike a town hall or other seat of governmental power, a community center is the center for the socialization and common activities of the populace.`,
       bonuses: [{activity, ability: "Loyalty", value: 1}], // WAS +1 to Quell Unrest and to all Loyalty-based kingdom skill checks
     }, {
       name: `Arena`,
       level: 9,
-      traits: ["Ediface", "Yard"],
+      traits: ["Yard"],
       description: `An Arena is a large public structure, traditionally open to the air, surrounded by seating and viewing areas. It’s used for staging competitions, athletics, gladiatorial combats, and elaborate entertainments and spectacles.`,
       bonuses: [
         {activity, ability: "Loyalty", value: 2},
@@ -639,7 +639,7 @@ export class Structure extends Powerup {
     }, {
       name: `Gladitorial Arena`,
       level: 15,
-      traits: ["Ediface", "Yard", "Fame", "Infamy"],
+      traits: ["Yard", "Fame", "Infamy"],
       description: `A gladiatorial arena is a sprawling open-air field surrounded by seating and viewing areas. It also includes extensive underground barracks and training facilities for gladiators to use.`,
       bonuses: [
         {activity: "Quell Unrest", ability: "Loyalty", value: 3},
@@ -674,7 +674,7 @@ export class Structure extends Powerup {
     }, {
       name: `Managerie`,
       level: 12,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A menagerie is a large zoo that contains numerous enclosures, exhibits, tanks, or open preserves meant to display wildlife.`,
       bonuses: [{activity, ability: "Stability", value: 2}], // WAS +2 item bonus to Rest and Relax using Wilderness
       effects: `A menagerie typically contains a selection of level 5 or lower animals. If your party captures a living creature of level 6 or higher and can transport the creature back to a settlement with a menagerie, you can add that creature to the menagerie as long as your kingdom level is at least 4 higher than the creature’s level. Each time such a creature is added to a menagerie, gain 1 Fame or Infamy point (as appropriate) or reduce Unrest by 1.\nOnly creatures with Intelligence modifiers of –4 or –5 are appropriate to place in a menagerie. A kingdom gains 1 Unrest at the start of a Kingdom turn for each sapient creature (anything with an Intelligence modifier of –3 or higher) on display in a menagerie.`,
@@ -704,7 +704,7 @@ export class Structure extends Powerup {
     return [{
       name: `Rookery`,
       level: 3,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A rookery is a fortified nesting ground for ravens or other birds often used to deliver messages.`,
       bonuses: [{activity, value: 1}], // WAS +1 to Focus Attention, Manage Trade Agreement, Request Foreign Aid, and Take Charge
       effects: `A rookery can be built in any claimed hex, rather than only in a settlement. A raven or other messenger bird can travel up to 8 hexes in a day (4 in inclement weather); if it cannot rest at a rookery each day on its path, you must succeed a DC 5 flat check or have the bird and its message be lost.`,
@@ -741,7 +741,7 @@ export class Structure extends Powerup {
     }, {
       name: `Tavern, World-Class`,
       level: 15,
-      traits: ["Building", "Ediface", "Famous"],
+      traits: ["Building", "Famous"],
       description: `A World-Class Tavern is a legendary establishment for entertainment, eating, and drinking. It has at least one venue for performances—perhaps multiple ones.`,
       bonuses: [{activity, value: 3}], // WAS +3 item bonus to Hire Adventurers, to Rest and Relax using Trade, and to Repair Reputation (Strife)
       effects: `The first time you build a world-class tavern in a turn, reduce Unrest by 2d4. If you try a Performance check to Earn Income in a settlement with a world-class tavern, you gain a +3 item bonus to the check. All checks made to Gather Information in a settlement with a world-class tavern gain a +3 item bonus.`,
@@ -801,7 +801,7 @@ export class Structure extends Powerup {
     }, {
       name: `Opera House`,
       level: 15,
-      traits: ["Building", "Ediface", "Famous", "Infamous"],
+      traits: ["Building", "Famous", "Infamous"],
       description: `An opera house functions well as a venue for operas, plays, and concerts, but also includes extensive facilities to aid in the training of all manner of bardic pursuits. Often, an opera house becomes a grandiose landmark, either due to its outlandish colors or eye-catching architecture.`,
       bonuses: [
         {activity: "Celebrate Holiday", ability: "Culture", value: 3},
@@ -828,7 +828,7 @@ export class Structure extends Powerup {
     }, {
       name: `Keep`,
       level: 3,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A keep is a high-walled defensive structure that guards the heart of a settlement. It includes practice and marshaling yards as well as a refuge for your leaders should danger strike the settlement.`,
       bonuses: [
         {activity: "Deploy Army", value: 1},
@@ -851,7 +851,7 @@ export class Structure extends Powerup {
     }, {
       name: `Castle`,
       level: 9,
-      traits: ["Building", "Ediface", "Famous", "Infamous"],
+      traits: ["Building", "Famous", "Infamous"],
       description: `A castle is a fortified structure that often serves as the seat of government for a kingdom.`,
       bonuses: [
         {activity: "Pledge of Fealty", value: 2},
@@ -864,7 +864,7 @@ export class Structure extends Powerup {
     }, {
       name: `Military Academy`,
       level: 12,
-      traits: ["Building", "Ediface"],
+      traits: ["Building"],
       description: `A military academy is dedicated to the study of war and the training of elite soldiers and officers.`,
       bonuses: [
         {activity: "Pledge of Fealty", ability: "Loyalty", value: 2},
@@ -873,7 +873,7 @@ export class Structure extends Powerup {
     }, {
       name: `Palace`,
       level: 15,
-      traits: ["Building", "Ediface", "Famous", "Infamous"],
+      traits: ["Building", "Famous", "Infamous"],
       description: `A palace is a grand and splendid seat of government for your leaders and other political functionaries.`,
       bonuses: [
         {activity: "Pledge of Fealty", value: 3},
