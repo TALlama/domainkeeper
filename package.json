@@ -1,0 +1,25 @@
+{
+  "name": "domainmaker",
+  "version": "1.0.0",
+  "description": "A small single-page app for keeping track of a Kingmaker domain, using simplified rules",
+  "main": "index.js",
+  "scripts": {
+    "server": "npx http-server -p 9090",
+    "test-server": "npx http-server -p 2323"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TALlama/domainkeeper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TALlama/domainkeeper/issues"
+  },
+  "homepage": "https://github.com/TALlama/domainkeeper#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.41.0",
+    "@types/node": "^20.11.5"
+  }
+}
