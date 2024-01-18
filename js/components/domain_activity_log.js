@@ -13,12 +13,6 @@ export default class DomainActivityLog extends RxElement {
     this.addEventListener("click", this);
     document.addEventListener("domains:nudge", (event) => this.doNudge(event))
 
-    if (!this.currentTurn) { this.newTurn() }
-    if (this.currentTurn.number === 0) {
-      this.domainConcept();
-      this.welcome();
-    }
-
     let activityFinder = this.searchParams.get("activity");
     activityFinder && this.activity(new Activity({name: activityFinder}));
   }
@@ -28,15 +22,6 @@ export default class DomainActivityLog extends RxElement {
     if (this.currentTurn.number > 0 || this.domainSheet.activitiesWhere({name}).length > 0) return;
 
     this.activity(new Activity({name}));
-  }
-
-  resetTurn() {
-    delete this.domainSheet.data.currentActorId; // TODO move that into turn
-    this.domainSheet.data.leaders.forEach(l => l.rollInitiative()); // TODO this too
-    let turns = this.domainSheet.data.turns;
-    let newTurn = {number: turns.length, activities: []};
-    if (turns.length === 0) { newTurn.name = "Domain creation" }
-    turns.push(newTurn);
   }
 
   domainConcept() {
@@ -59,10 +44,14 @@ export default class DomainActivityLog extends RxElement {
     this.activity(new Activity({name: "Event"}));
   }
 
-  newTurn(name) {
-    this.currentTurn && this.domainSummary();
-    
-    this.resetTurn();
+  newTurn() {
+    this.domainSummary();
+
+    delete this.domainSheet.data.currentActorId; // TODO move that into turn
+    this.domainSheet.data.leaders.forEach(l => l.rollInitiative()); // TODO this too
+
+    let newTurn = this.domainSheet.addTurn();
+
     if (this.currentTurn.number) {
       this.domainSheet.addFame();
       this.forEachPowerup("newTurn");

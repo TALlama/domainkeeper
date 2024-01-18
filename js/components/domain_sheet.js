@@ -16,7 +16,7 @@ class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }
 
   connectedCallback() {
-    this.data = reef.signal(this.loadData());
+    this.load();
     this.makeReactive();
 
     this.addEventListener("click", this);
@@ -34,6 +34,8 @@ class DomainSheet extends RxElement {
       );
     };
   }
+
+  get data() { return this._data.current }
 
   doSaveData() {
     this.saveData();
@@ -58,17 +60,19 @@ class DomainSheet extends RxElement {
     this.saveSlots.save({domain: this.data});
   }
 
+  load(data = this.loadData()) {
+    this._data ??= reef.signal({});
+    this._data.current = this.addDefaultsToData(data);
+  }
+
   loadData() {
-    let saved = this.saveSlots.load({key: "domain", defaultValue: {
-      name: "Anvilania",
-      abilityBoosts: [
-        ["stability"],
-        ["stability", "culture"],
-        ["stability", "culture", "economy"],
-      ],
-    }});
+    return this.saveSlots.load({key: "domain", defaultValue: {}});
+  }
+
+  addDefaultsToData(saved) {
     let abilitiesStartAt = 2;
 
+    saved.name ??= "Anvilania";
     saved.level ??= 1;
     saved.culture ??= abilitiesStartAt;
     saved.economy ??= abilitiesStartAt;
@@ -92,14 +96,27 @@ class DomainSheet extends RxElement {
     saved.consumables ??= {};
     saved.turns ??= [];
 
+    saved.turns.length || this.addTurn(saved.turns);
+
     "leaders settlements".split(" ").forEach(key => {
       saved[key] = saved[key].map(attrs => new Actor(attrs));
     });
-    saved.turns.forEach(turn => {
-      turn.activities = turn.activities.map(attrs => new Activity(attrs));
-    })
+    saved.turns.forEach(turn => { // TODO make this pattern a mixin
+      turn.activities = turn.activities.map(attrs => attrs.constructor === Activity ? attrs : new Activity(attrs));
+    });
 
     return saved;
+  }
+
+  addTurn(turns = this.data.turns) {
+    let newTurn = {number: turns.length, activities: []};
+    if (turns.length === 0) {
+      newTurn.name = "Domain creation";
+      newTurn.activities.push(new Activity({name: "Welcome, Domainkeeper"}));
+      newTurn.activities.push(new Activity({name: "Domain Concept"}));
+    }
+    turns.push(newTurn);
+    return newTurn;
   }
 
   get activityLog() { return document.querySelector("domain-activity-log") }

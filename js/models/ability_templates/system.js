@@ -14,7 +14,7 @@ export var systemTemplates = [{
     <p>💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!</p>
     <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
   `,
-}, {
+}, { // TODO it'd be nice if this prevented you from overflowing your ability scores
   icon: "🌱",
   name: "Domain Concept",
   summary: "Let's pick some starting stats",
