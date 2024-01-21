@@ -36,7 +36,7 @@ export class ActivityDecisionPanel extends RxElement {
   }
 
   renderResolved(activity, decision) {
-    return `<span class="picked">${decision.displayResolutionValue}</span>`;
+    return `<span class="picked" data-value="${decision.resolution}">${decision.displayResolutionValue}</span>`;
   }
 
   renderUndoLink(css="") {
@@ -58,7 +58,7 @@ export class ActivityDecisionPanel extends RxElement {
             let name = `${activity.id}__${decision.name}`;
             let id = `${name}__${value}`;
             let whyDisabled = decision.optionDisableReason(option);
-            let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}">
+            let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}" data-value="${value}">
               <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
               ${decision.displayValue(option)}
               ${this.renderSummary(activity, decision, option)}

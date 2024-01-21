@@ -7,6 +7,7 @@ export class RxElement extends HTMLElement {
   handleEvent(event) {
     let actionTarget = event.target.closest("[data-action]");
     if (actionTarget) {
+      event.preventDefault();
       let handler = this[actionTarget.dataset.action];
       handler?.call(this, event, {actionTarget});
     }

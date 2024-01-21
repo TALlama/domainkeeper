@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { domainConcepts } = require('./fixtures/activities');
 const { DomainkeeperPage } = require("./domainkeeper_page");
 
 test.describe("domain concept is shown on first run", () => {
@@ -49,6 +50,31 @@ test.describe("domain concept is shown on first run", () => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
     await dk.setDomainConcept();
+
+    // Current Actor is offered activities
+    expect(dk.currentActorName).toBeDefined();
+    expect(dk.activityPicker.root).toHaveAttribute("open");
+    await expect(dk.activityPicker.availableActvities).toHaveCount(17);
+
+    // Consumables refresh each turn
+    await expect(dk.consumables.withName("Fame")).toHaveCount(1);
+    expect(await dk.consumables.names).toEqual(["Fame"]);
+  });
+
+  // TODO after reload, we shouldn't add another welcome + concept to any turn
+
+  test("turn 0 can be injected", async ({page}) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain({name: "Whoville",
+      culture: 5, economy: 3, loyalty: 3, stability: 3,
+      turns: [{activities: [domainConcepts.complete]}],
+    });
+
+    await dk.shouldHaveStats({
+      culture: 5, economy: 3, loyalty: 3, stability: 3,
+      unrest: 0, size: 1, xp: 0, level: 1,
+    });
 
     // Current Actor is offered activities
     expect(dk.currentActorName).toBeDefined();

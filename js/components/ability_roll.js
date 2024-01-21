@@ -15,7 +15,7 @@ export class AbilityRoll extends RxElement {
   get modifier() { return this.abilityBonus + this.itemBonus }
 
   get ability() { return this.getAttribute("ability") }
-  get abilityBonus() { return this.domainSheet.data[this.ability.toLocaleLowerCase()] }
+  get abilityBonus() { return this.domainSheet.domain[this.ability.toLocaleLowerCase()] }
 
   // TODO pull in bonuses from consumables (are there any?)
   get itemBonus() { return this.bonuses.first()?.value || 0 }

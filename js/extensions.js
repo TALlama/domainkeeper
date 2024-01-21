@@ -1,10 +1,23 @@
 import { Eris } from "./eris.js";
 
+/* Object extensions */
+Object.matches = Object.matches || function(object, pattern) {
+  return Object.keys(pattern).reduce((all, key) => all && (pattern[key] === object[key]), true);
+};
+
 /* Array extensions */
 Array.prototype.random = Array.prototype.random || function() { return this[Math.floor((Math.random()*this.length))] };
 Array.prototype.shuffle = Array.prototype.shuffle || function() { return this.sortBy(o => Math.random()) };
 Array.prototype.first = Array.prototype.first || function() { return this[0] }
 Array.prototype.last = Array.prototype.last || function() { return this[this.length - 1] }
+Array.prototype.findLast = Array.prototype.findLast || function(predicate) { return this[this.findLastIndex(predicate)] };
+Array.prototype.findLastIndex = Array.prototype.findLastIndex || function(predicate) {
+  for(let ix = length - 1; ix >= 0; --ix) {
+    if (predicate(this[ix], ix, this)) return ix;
+  }
+}
+Array.prototype.all = Array.prototype.all || function(fn, onEmpty = true) { return this.length === 0 ? onEmpty : this.reduce((all, item) => all && (fn.call ? fn(item) : item[fn]), true) };
+Array.prototype.sum = Array.prototype.sum || function(fn, seed = 0) { fn ||= (i) => i; return this.reduce((total, item) => total + (fn.call ? fn(item) : item[fn]), seed) };
 Array.prototype.count = Array.prototype.count || function(fn) { return this.filter(fn).length }
 Array.prototype.toDictionary = Array.prototype.toDictionary || function(fn) {
   let retval = {};
@@ -30,11 +43,9 @@ Array.prototype.groupBy = Array.prototype.groupBy || function(attr) {
     grouped[key].push(item);
     return grouped;
   }, {});
-}
+};
 Array.prototype.matches = Array.prototype.matches || function(pattern) {
-  return this.filter(object =>
-    Object.keys(pattern).reduce((all, key) => all && (pattern[key] === object[key]), true)
-  );
+  return this.filter(object => Object.matches(object, pattern));
 }
 Array.eql = Array.eql || function(a, b) {
   return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((e, ix) => b[ix] === e);
@@ -67,6 +78,35 @@ Eris.test("Array extensions", array => {
     fn.it("gets undefined if no items are present", ({assert}) =>
       assert.equals([].last(), undefined)
     );
+  });
+  array.describe("all", fn => {
+    fn.it("returns true if all items satisfy the predicate", ({assert}) => {
+      assert.true([1, 2, 3].all(i => i > 0));
+    });
+    fn.it("returns false if any element does not satisfy the predicate", ({assert}) => {
+      assert.false([1, 2, 3].all(i => i > 2));
+      assert.false([1, 2, 3].all(i => i < 2));
+    });
+    fn.it("defaults to true for empty arrays, but can be told otherwise", ({assert}) => {
+      assert.true([].all(i => i > 0));
+      assert.false([].all(i => i > 0, false));
+    });
+    fn.it("can also work with boolean properties", ({assert}) => {
+      assert.true( [{done: true}, {done: true }].all("done"));
+      assert.false([{done: true}, {done: false}].all("done"));
+      assert.true( [                           ].all("done"));
+      assert.false( [                           ].all("done", false));
+    });
+  });
+  array.describe("sum", fn => {
+    fn.it("adds up all the items", ({assert}) => {
+      assert.equals([1, 2, 3].sum(), 6);
+      assert.equals([1, 2, 3].sum(i => i * 2), 12);
+      assert.equals([1, 2, 3].sum(i => i * 2, 10), 22);
+    });
+    fn.it("can also work with properties", ({assert}) => {
+      assert.equals([{n: 1}, {n: 2}, {n: 3}].sum("n"), 6);
+    });
   });
   array.describe("count", fn => {
     fn.it("counts the items that match", ({assert}) => {

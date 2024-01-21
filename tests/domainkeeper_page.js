@@ -13,6 +13,7 @@ class LocatorLike {
   locator(...args) { return this.root.locator(...args) }
   getByRole(...args) { return this.root.getByRole(...args) }
   getByText(...args) { return this.root.getByText(...args) }
+  getAttribute(...args) { return this.root.getAttribute(...args) }
 
   toHaveAttribute(...args) { return this.root.toHaveAttribute(...args) }
 }
@@ -30,16 +31,51 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   // Parts of the page
-  get currentActorName() { return this.locator(".actor.current .name").textContent }
+  get currentActorName() { return this.locator(".actor.current .name").textContent() }
+  get currentActorActivitiesLeft() { return this.locator(".actor.current .badge").textContent() }
+
+  get rolls() { return this.locator("dice-roller") }
+  get lastRoll() { return this.rolls.nth(0) }
+  async rollText(roll) { return roll.evaluate(r => r.shadowRoot?.textContent) }
+
   get activityPicker() { return new ActivityPicker(this.page, this.locator('activity-picker')) }
   get consumables() { return new Consumables(this.page, this.locator('ul.consumables')) }
+
   get currentActivity() { return new ActivitySheet(this.page, this.locator('activity-sheet:not([resolved])')) }
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
   decisionPanel(name, opts={}) { return (opts.within || this.currentActivity).decisionPanel(name) }
 
   // Actions
-  makeDecision(option, opts={}) {
-    (opts.within || this.currentActivity).getByRole('radio', {name: option, includeHidden: true}).click({force: true});
+  async setCurrentActor(value) { this.locator(`.leaders-section .actor:has-text("${value}")`).click() }
+
+  rollAbility(name) {
+    this.page.getByRole("link", {name: `Roll ${name}`}).click();
+  }
+
+  async pickActivity(name, ...decisions) {
+    await this.activityPicker.getByRole("button", {name}).click();
+    await this.page.waitForFunction(() => document.querySelector("activity-sheet:not([resolved])"));
+    let activityId = await this.currentActivity.getAttribute("id");
+    let activitySheet = this.locator(`#${activityId}`);
+
+    return this.makeDecisions(decisions, {within: activitySheet});
+  }
+
+  async cancelActivity() {
+    return this.currentActivity.getByRole("link", {name: "Cancel"}).click();
+  }
+
+  async makeDecisions(options, opts={}) {
+    if (options.length === 0) { return Promise.resolve() }
+
+    await this.makeDecision(options[0], opts);
+    return this.makeDecisions(options.slice(1), opts);
+  }
+
+  async makeDecision(option, opts={}) {
+    let within = (opts.within || this.currentActivity);
+    await within.locator(`label[data-value="${option}"]`).click({force: true})
+    return expect(within.locator(`.picked[data-value="${option}"]`)).toBeVisible();
   }
 
   async setDomainConcept(opts = {}) {
@@ -51,16 +87,21 @@ export class DomainkeeperPage extends LocatorLike {
       govtFree: "Loyalty",
       ...opts};
 
-    this.makeDecision(heartland);
+    await this.makeDecision(heartland);
     await expect(this.getByText(`Heartland ${heartland}`)).toBeVisible();
-    this.makeDecision(charter);
+    await this.makeDecision(charter);
     await expect(this.getByText(`Charter ${charter}`)).toBeVisible();
-    this.decisionPanel('Free Charter Boost').decide(charterFree);
+    await this.decisionPanel('Free Charter Boost').decide(charterFree);
     await expect(this.getByText(`Free Charter Boost ${charterFree}`)).toBeVisible();
-    this.makeDecision(govt);
+    await this.makeDecision(govt);
     await expect(this.getByText(`Government ${govt}`)).toBeVisible();
-    this.decisionPanel('Free Government Boost').decide(govtFree);
+    await this.decisionPanel('Free Government Boost').decide(govtFree);
     await expect(this.getByText('Turn 1')).toBeVisible();
+  }
+
+  async loadDomain(data, expectTurn = "Turn 1") {
+    this.page.evaluate((data) => document.querySelector("domain-sheet").load(data), data);
+    await expect(this.getByText(expectTurn, {exact: true})).toBeVisible();
   }
 
   // Expectations
@@ -85,8 +126,33 @@ export class Consumables extends LocatorLike {
 }
 
 export class ActivitySheet extends LocatorLike {
+  constructor(page, root) {
+    super(page, root);
+    this.retargetWithId();
+  }
+
+  async retargetWithId() {
+    if (this.id) return;
+
+    console.log(`-- acquiring id…`);
+    let id = await this.root.getAttribute("id");
+    console.log(`-- acquired id: ${id}`);
+    this.root = this.page.locator(`#${id}`);
+    this.id = id;
+    console.log(`-- retargetted with id: ${id}`);
+    return id;
+  }
+
   // Parts
   decisionPanel(name) { return new DecisionPanel(this.page, this.locator(`activity-decision-panel[name="${name}"]`)) }
+
+  // Actions
+  decide(...options) {
+    return Promise.all(options.map(async option => {
+      console.log(`-- gonna decide on ${option} next`);
+      await this.makeDecision(option, {within: activitySheet});
+    }));
+  }
 }
 
 export class DecisionPanel extends LocatorLike {

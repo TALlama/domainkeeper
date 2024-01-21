@@ -14,7 +14,7 @@ export class ActivitySheet extends RxElement {
       ? this.domainSheet.activity(activityId)
       : reef.signal(new Activity(initWith));
 
-    reef.component(this, () => this.render());
+    this.component = reef.component(this, () => this.render());
     this.addEventListener("click", this);
   }
 
@@ -74,9 +74,7 @@ export class ActivitySheet extends RxElement {
   /////////////////////////////////////////////// Event Handling
 
   cancelActivity() {
-    let activities = this.currentTurn.activities;
-    let ixThis = activities.findIndex(e => e.id == this.activity.id);
-    ixThis > -1 && activities.splice(ixThis, 1);
+    this.currentTurn.cancelActivity(this.activity);
   }
 }
 ActivitySheet.define("activity-sheet");

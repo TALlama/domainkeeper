@@ -1,4 +1,4 @@
-import { addTransient } from "./utils.js";
+import { addTransient, hydrateList } from "./utils.js";
 import { makeId } from "./with_id.js";
 import { withTraits } from "./with_traits.js";
 import { Structure } from "./structure.js";
@@ -15,10 +15,7 @@ function makePowerup(properties, actor) {
 export class Actor {
   constructor(properties) {
     addTransient(this, {value: {}});
-    Object.defineProperty(this, "powerups", {enumerable: true,
-      get() { return this.transient.powerups },
-      set(value) { this.transient.powerups = value.map(v => makePowerup(v, this)) },
-    });
+    hydrateList(this, {name: "powerups", keepOrMake: (p) => makePowerup(p, this)});
 
     Object.assign(this, properties);
     this.id ??= makeId(`leader`, this.name);
@@ -29,7 +26,7 @@ export class Actor {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
-  get currentTurn() { return this.domainSheet?.data?.turns?.last() }
+  get currentTurn() { return this.domainSheet?.domain?.turns?.last() }
 
   get isLeader() { return this.hasTrait("PC", "NPC") }
   get isSettlement() { return this.hasTrait("Village", "Town", "City", "Metropolis") }

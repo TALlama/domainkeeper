@@ -16,7 +16,7 @@ export class DifficultyClass extends RxElement {
 
   get base() { return Number(this.getAttribute("base") || 10) }
   get other() { return this.state.other }
-  get total() { return this.selectedOptions.reduce((total, o) => total + o.value, this.base) + this.other }
+  get total() { return this.base + this.selectedOptions.sum("value") + this.other }
   get options() { return this.state.options }
   get selectedOptions() { return this.options.filter(o => o.checked) }
 

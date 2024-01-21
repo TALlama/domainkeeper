@@ -198,7 +198,7 @@ export var leadershipTemplates = [{
 
     let settlement = new Actor({type: "Village", name: name});
     this.settlementId = settlement.id;
-    this.domainSheet.data.settlements.push(settlement);
+    this.domainSheet.domain.settlements.push(settlement);
   },
   criticalSuccess() {
     this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);
@@ -471,7 +471,7 @@ export var leadershipTemplates = [{
     saveAs: "settlementId",
     valueMethod: "settlement",
     description: "Which settlement will get your attention - and an extra action?",
-    options() { return this.domainSheet?.data?.settlements || [] },
+    options() { return this.domainSheet?.domain?.settlements || [] },
     saveValue(settlement) { return settlement?.id },
     displayValue(settlement) { return settlement?.name },
   }, {
@@ -513,7 +513,7 @@ export var leadershipTemplates = [{
     saveAs: "traineeId",
     valueMethod: "trainee",
     description: "Which leader will you be tutoring?",
-    options() { return this.domainSheet?.data?.leaders.filter(l => l.type === "NPC").filter(l => l !== this.actor) || [] },
+    options() { return this.domainSheet?.domain?.leaders.filter(l => l.type === "NPC").filter(l => l !== this.actor) || [] },
     saveValue(trainee) { return trainee?.id },
     displayValue(trainee) { return trainee?.name },
   }, {
@@ -645,7 +645,7 @@ export var leadershipTemplates = [{
   },
   criticalFailure() {
     this.error(`💥 Not only does your attempt to create a masterpiece fail, it does so in a dramatic and humiliating way. Lose 1 Fame or Infamy point; if you have no Fame or Infamy points to lose, instead gain 1d4 Unrest.`);
-    let consumed = this.domainSheet.useConsumable({name: "Fame"}); // TODO make this the default when losing fame
+    let consumed = this.domain.useConsumable({name: "Fame"}); // TODO make this the default when losing fame
     if (consumed) {
       this.error("🤡 Fame reduced by 1");
     } else {

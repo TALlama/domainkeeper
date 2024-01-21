@@ -1,6 +1,7 @@
 import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 import { Actor } from "../models/actor.js";
+import { Domain } from "../models/domain.js";
 import { Structure } from "../models/structure.js";
 
 import { nudge } from "./event_helpers.js";
@@ -24,18 +25,18 @@ class DomainSheet extends RxElement {
     // For debugging; put `?actor=Seth` in the URL to make that one current
     let actorPicker = this.searchParams.get("actor");
     let actor = this.actors.find(a => a.name === actorPicker || a.id === actorPicker);
-    if (actor) { this.data.currentActorId = actor.id }
+    if (actor) { this.domain.currentActorId = actor.id }
 
     // For debuging: put ?structures=all in the URL to give Capital one of each
     if (this.searchParams.get("structures") === "all") {
-      let capital = this.data.settlements[0];
+      let capital = this.domain.settlements[0];
       Structure.names.forEach(n =>
         capital.powerups.matches({name: n}).length || capital.powerups.push(new Structure(n))
       );
     };
   }
 
-  get data() { return this._data.current }
+  get domain() { return this._data.current }
 
   doSaveData() {
     this.saveData();
@@ -53,74 +54,24 @@ class DomainSheet extends RxElement {
     this.saveSlots.clear("domain");
 
     let newData = this.loadData();
-    Object.keys(newData).forEach(key => this.data[key] = newData[key])
+    Object.keys(newData).forEach(key => this.domain[key] = newData[key])
   }
 
   saveData() {
-    this.saveSlots.save({domain: this.data});
+    this.saveSlots.save({domain: this.domain});
   }
 
   load(data = this.loadData()) {
     this._data ??= reef.signal({});
-    this._data.current = this.addDefaultsToData(data);
+    this._data.current = new Domain(data);
   }
 
   loadData() {
     return this.saveSlots.load({key: "domain", defaultValue: {}});
   }
 
-  addDefaultsToData(saved) {
-    let abilitiesStartAt = 2;
-
-    saved.name ??= "Anvilania";
-    saved.level ??= 1;
-    saved.culture ??= abilitiesStartAt;
-    saved.economy ??= abilitiesStartAt;
-    saved.loyalty ??= abilitiesStartAt;
-    saved.stability ??= abilitiesStartAt;
-    saved.unrest ??= 0;
-    saved.size ??= 1;
-    saved.xp ??= 0;
-    saved.level ??= 1;
-    saved.leaders ??= [
-      {traits: "PC".split(" "), name: "Seth"},
-      {traits: "PC".split(" "), name: "Ben"},
-      {traits: "PC".split(" "), name: "David"},
-      {traits: "PC".split(" "), name: "Morgan"},
-      {traits: "PC".split(" "), name: "Joe"},
-      {traits: "NPC".split(" "), name: "Bertie", activitiesPerTurn: 1},
-    ];
-    saved.settlements ??= [
-      {traits: "Village".split(" "), name: "Capital", activitiesPerTurn: 1, powerups: [new Structure("Town Hall")]},
-    ]
-    saved.consumables ??= {};
-    saved.turns ??= [];
-
-    saved.turns.length || this.addTurn(saved.turns);
-
-    "leaders settlements".split(" ").forEach(key => {
-      saved[key] = saved[key].map(attrs => new Actor(attrs));
-    });
-    saved.turns.forEach(turn => { // TODO make this pattern a mixin
-      turn.activities = turn.activities.map(attrs => attrs.constructor === Activity ? attrs : new Activity(attrs));
-    });
-
-    return saved;
-  }
-
-  addTurn(turns = this.data.turns) {
-    let newTurn = {number: turns.length, activities: []};
-    if (turns.length === 0) {
-      newTurn.name = "Domain creation";
-      newTurn.activities.push(new Activity({name: "Welcome, Domainkeeper"}));
-      newTurn.activities.push(new Activity({name: "Domain Concept"}));
-    }
-    turns.push(newTurn);
-    return newTurn;
-  }
-
   get activityLog() { return document.querySelector("domain-activity-log") }
-  get activities() { return this.data.turns.flatMap(t => t.activities) }
+  get activities() { return this.domain.turns.flatMap(t => t.activities) }
   activity(activityId) { return this.activities.find(a => a.id === activityId) }
   activitiesWhere(pattern) { return this.activities.matches(pattern) }
 
@@ -137,14 +88,14 @@ class DomainSheet extends RxElement {
       let key = ability.toLocaleLowerCase();
 
       Maker.tag("article", {class: "ability", appendTo: this.abilitiesList},
-        Maker.tag("a", {href: "#", class: "ability-roll icon-link", "data-ability": ability}, "🎲"),
+        Maker.tag("a", {href: "#", class: "ability-roll icon-link", "data-ability": ability}, "🎲", Maker.tag("span", `Roll ${ability}`, {class: "sr-only"})),
         Maker.tag("label", ability, {for: `domain-${ability}`}),
         Maker.tag("span", {class: "gauge",
           rx: () => {
             let max = this.max(ability);
-            return `<input type="number" id="domain-${ability}" @value="${this.data[key]}" min="0" max="${max}" /> / ${max}`;
+            return `<input type="number" id="domain-${ability}" @value="${this.domain[key]}" min="0" max="${max}" /> / ${max}`;
           },
-          change: (event) => { nudgeValue(this, ability, this.data, key, event.target.value) },
+          change: (event) => { nudgeValue(this, ability, this.domain, key, event.target.value) },
         }));
     });
 
@@ -152,10 +103,10 @@ class DomainSheet extends RxElement {
       let key = stat.toLocaleLowerCase();
 
       Maker.tag("article", {class: `stat stat---${stat.toLocaleLowerCase()}`, appendTo: this.statsList,
-        rx: () => `<label for="domain-${stat}">${stat}</label><input type="number" id="domain-${stat}" class="gauge" @value="${this.data[key]}" data-in="${stat}" min="${this.min(stat)}" max="${this.max(stat)}" />`,
+        rx: () => `<label for="domain-${stat}">${stat}</label><input type="number" id="domain-${stat}" class="gauge" @value="${this.domain[key]}" data-in="${stat}" min="${this.min(stat)}" max="${this.max(stat)}" />`,
         change: (event) => {
           let value = event.target.value;
-          nudgeValue(this, stat, this.data, key, value);
+          nudgeValue(this, stat, this.domain, key, value);
           this.style.setProperty(`--${key}-value`, value);
           this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(key)}%`);
         },
@@ -168,7 +119,7 @@ class DomainSheet extends RxElement {
 
   fillName() {
     reef.component(this.$(".domain-header"), () =>
-      `<span class="domain-name">${this.data.name}</span>
+      `<span class="domain-name">${this.domain.name}</span>
         <span class="domain-data-management">
           <a href="#" data-action="doSaveData">💾</a>
           <a href="#" data-action="doClearData">❌</a>
@@ -183,14 +134,14 @@ class DomainSheet extends RxElement {
   fillLeaders() {
     this.leadersComponent ||= reef.component(this.$(".leaders-section"), () =>
       `<h4>Leaders <span class="badge" title="${this.activitx(this.leadershipActivitiesLeft)} left">${this.leadershipActivitiesLeft}</span></h4>
-      <ul class="actors leaders list-unstyled">${this.actorList(this.data.leaders.sort((a, b) => a.initiative - b.initiative))}</ul>`
+      <ul class="actors leaders list-unstyled">${this.actorList(this.domain.leaders.sortBy("-initiative"))}</ul>`
     );
   }
 
   fillSettlements() {
     this.settlementsComponent ||= reef.component(this.$(".settlements-section"), () =>
       `<h4>Settlements <span class="badge" title="${this.activitx(this.civicActivitiesLeft)} left">${this.civicActivitiesLeft}</span></h4>
-      <ul class="actors settlements list-unstyled">${this.actorList(this.data.settlements)}</ul>`
+      <ul class="actors settlements list-unstyled">${this.actorList(this.domain.settlements)}</ul>`
     );
   }
 
@@ -199,8 +150,8 @@ class DomainSheet extends RxElement {
       let total = actor.activitiesPerTurn;
       let left = actor.activitiesLeft;
 
-      return `<li id="${actor.id}" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
-        ${actor.name}
+      return `<li id="${actor.id}" aria-role="button" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
+        <span class="name">${actor.name}</span>
         <span class="badge" title="${this.activitx(actor.activitiesLeft)} left">${actor.activitiesLeft}</span>
         </div>
       </li>`;
@@ -210,7 +161,7 @@ class DomainSheet extends RxElement {
   updateCssProperties() {
     [...Ability.all, ..."Unrest Size XP Level".split(" ")].forEach(name => {
       let key = name.toLocaleLowerCase();
-      let value = this.data[key];
+      let value = this.domain[key];
 
       this.style.setProperty(`--${key}-value`, value);
       this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(name)}%`);
@@ -219,7 +170,7 @@ class DomainSheet extends RxElement {
 
   setCurrentActor(event) {
     let actorId = event.target.closest(".actor[id]").id;
-    if (actorId) { this.data.currentActorId = actorId }
+    if (actorId) { this.domain.currentActorId = actorId }
   }
 
   min(stat) {
@@ -230,7 +181,7 @@ class DomainSheet extends RxElement {
   }
 
   max(stat) {
-    return this.maxBase(stat) + this.bonuses.matches({max: stat}).reduce((t, p) => t + p.value, 0);
+    return this.maxBase(stat) + this.bonuses.matches({max: stat}).sum("value");
   }
 
   maxBase(stat) {
@@ -243,11 +194,11 @@ class DomainSheet extends RxElement {
     return 99999;
   }
 
-  get leadershipActivitiesLeft() { return this.data.leaders.reduce((total, leader) => total + leader.activitiesLeft, 0) }
-  get civicActivitiesLeft() { return this.data.settlements.reduce((total, settlement) => total + settlement.activitiesLeft, 0) }
+  get leadershipActivitiesLeft() { return this.domain.leaders.sum("activitiesLeft") }
+  get civicActivitiesLeft() { return this.domain.settlements.sum("activitiesLeft") }
 
   get controlDC() {
-    let size = this.data.size;
+    let size = this.domain.size;
     let sizeMod = size < 10 ? 0 : (size < 25 ? 1 : (size < 50 ? 2 : (size < 100 ? 3 : 4)));
 
     let baseControlDCByLevel = {
@@ -273,15 +224,15 @@ class DomainSheet extends RxElement {
       20: 40, // Ability boosts, envy of the world, Kingdom feat, ruin resistance
     };
 
-    return sizeMod + baseControlDCByLevel[this.data.level];
+    return sizeMod + baseControlDCByLevel[this.domain.level];
   }
 
-  get currentTurn() { return this.data.turns.last() }
-  get previousTurn() { let turns = this.data.turns || []; return turns[turns.length - 2]; }
-  get currentActor() { return this.readyActor(this.data.currentActorId) || this.readyActors.first() }
+  get currentTurn() { return this.domain.turns.last() }
+  get previousTurn() { let turns = this.domain.turns || []; return turns[turns.length - 2]; }
+  get currentActor() { return this.readyActor(this.domain.currentActorId) || this.readyActors.first() }
 
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
-  get actors() { return [...this.data.leaders, ...this.data.settlements] }
+  get actors() { return [...this.domain.leaders, ...this.domain.settlements] }
   readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }
   get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
 
@@ -291,56 +242,26 @@ class DomainSheet extends RxElement {
   findBonuses({ability, ...pattern}) { return this.bonuses.matches(pattern).filter(b => !b.ability || b.ability === ability).sortBy("-value") }
   get bonuses() { return this.structures.flatMap(s => (s.bonuses || []).map(b => { return {...b, structure: s}})) }
 
-  addFame() {
-    let existing = this.findConsumables({name: "Fame"});
-    if (existing.length < 3) {
-      this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
-    } else {
-      this.info(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
-      this.data.xp += 100;
-    }
-  }
-
-  findConsumables(pattern) {
-    return Object.values(this.data.consumables).matches(pattern);
-  }
-
-  addConsumable(attrs) {
-    let id = attrs.id || crypto.randomUUID();
-    this.data.consumables[id] = {name: "Consumable", description: "?", useBy: "end-of-turn", id, ...attrs};
-  }
-
-  useConsumable(pattern) {
-    let matches = this.findConsumables(pattern);
-    if (matches[0]) { delete this.data.consumables[matches[0].id] }
-  }
-
-  useAllConsumables(pattern) {
-    this
-      .findConsumables(pattern)
-      .forEach(consumable => this.useConsumable({id: consumable.id}));
-  }
-
   mod(ability) {
-    let score = this.data[ability.toLocaleLowerCase()];
+    let score = this.domain[ability.toLocaleLowerCase()];
     return `${score >= 0 ? "+" : ""}${score}`;
   }
 
   get abilityScores() {
     return {
-      Culture: this.data.culture,
-      Economy: this.data.economy,
-      Loyalty: this.data.loyalty,
-      Stability: this.data.stability,
+      Culture: this.domain.culture,
+      Economy: this.domain.economy,
+      Loyalty: this.domain.loyalty,
+      Stability: this.domain.stability,
     };
   }
 
   get statScores() {
     return {
-      Unrest: this.data.unrest,
-      Size: this.data.size,
-      XP: this.data.xp,
-      Level: this.data.level,
+      Unrest: this.domain.unrest,
+      Size: this.domain.size,
+      XP: this.domain.xp,
+      Level: this.domain.level,
     };
   }
 
@@ -349,14 +270,14 @@ class DomainSheet extends RxElement {
   modify({by}, names) {
     names.forEach(name => {
       let key = name.toLocaleLowerCase();
-      let current = this.data[key];
+      let current = this.domain[key];
       let target = current + by;
       let max = this.max(name);
       let overage = target - max;
-      this.data[key] = Math.min(max, target);
+      this.domain[key] = Math.min(max, target);
       if (overage > 0) {
         this.info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
-        this.data.xp += overage * 50;
+        this.domain.xp += overage * 50;
       }
     })
   }
@@ -372,15 +293,15 @@ class DomainSheet extends RxElement {
   }
 
   get unrestModifier() {
-    let unrest = this.data.unrest;
+    let unrest = this.domain.unrest;
     return unrest >= 15 ? -4 : (unrest >= 10 ? -3 : (unrest >= 5 ? -2 : (unrest >= 1 ? -1 : 0)));
   }
 
   get diceTray() { return this.$(".dice-tray") }
 
   roll({die, modifier, itemBonus, level, dc}) {
-    let modifierValue = (modifier ? this.data[modifier.toLocaleLowerCase()] : 0);
-    let levelValue = (level === false ? 0 : this.data.level);
+    let modifierValue = (modifier ? this.domain[modifier.toLocaleLowerCase()] : 0);
+    let levelValue = (level === false ? 0 : this.domain.level);
 
     let components = [[modifier, modifierValue]];
     itemBonus && components.push(["Item", itemBonus]); // TODO it'd be nice to name the source

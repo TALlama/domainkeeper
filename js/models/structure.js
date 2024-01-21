@@ -144,8 +144,8 @@ export class Structure extends Powerup {
       level: 15,
       traits: ["Building"],
       description: `A mint allows the kingdom to produce its own coinage to augment its economy. It can also include fortified underground chambers to help serve as a treasury.`,
-      newTurn: ({domainSheet, structure}) => {
-        domainSheet.addConsumable({name: structure.name, description: "Reroll Economy", action: "rerollEconomy"});
+      newTurn({domain}) {
+        domain.addConsumable({name: this.name, description: "Reroll Economy", action: "rerollEconomy"});
       },
       effects: `Once per turn, you may reroll an Economy roll.`,
     }];

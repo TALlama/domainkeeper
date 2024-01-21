@@ -11,11 +11,9 @@ import { leadershipTemplates } from "./ability_templates/leadership.js";
 import { systemTemplates } from "./ability_templates/system.js";
 
 export class Activity {
-  constructor(properties) {
+  constructor(properties, turn) {
     this.log = [];
-    addTransient(this, {value: {}});
-    this.transient.currentTurn = properties.currentTurn;
-    delete properties.currentTurn;
+    addTransient(this, {value: {turn}});
 
     this.init(properties, {decisions: [{name: "Roll"}, {name: "Outcome"}]});
 
@@ -34,12 +32,15 @@ export class Activity {
   // TODO how can we do this without hitting the DOM?
   get domainSheet() { return document.querySelector("domain-sheet") }
   get actor() { return this.domainSheet.actor(this.actorId) }
-  get currentTurn() { return this.transient.currentTurn ?? this.domainSheet.currentTurn }
+  get turn() { return this.transient.turn }
+  set turn(value) { /* ignore */ }
+  get domain() { return this.turn.domain }
+  set turn(value) { /* ignore */  }
   
   peerActivities() {
     return "civic system".split(" ").includes(this.type)
       ? []
-      : (this.currentTurn.activities || []).filter(e => e.name === this.name) || [];
+      : (this.turn.activities || []).filter(e => e.name === this.name) || [];
   }
 
   /////////////////////////////////////////////// Decisions & Resolution
@@ -50,7 +51,7 @@ export class Activity {
   }
   decision(name) { return this.decisions.find(d => d.name === name) }
 
-  get resolved() { return this.decisions.reduce((all, d) => all && d.resolved, true) }
+  get resolved() { return this.decisions.all("resolved") }
   
   /////////////////////////////////////////////// Actions
 
@@ -61,7 +62,7 @@ export class Activity {
     if (by < 0) { return this.reduce({by}, ...abilities) }
     abilities.forEach(ability => {
       this.domainSheet.boost({by}, ability);
-      this.info(`📈 Boosted ${ability} by ${by} <small>, to ${this.domainSheet.data[ability.toLowerCase()]}</small>`);
+      this.info(`📈 Boosted ${ability} by ${by} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }
 
@@ -73,18 +74,18 @@ export class Activity {
     if (by > 0) { return this.boost({by}, ...abilities) }
     abilities.forEach(ability => {
       this.domainSheet.boost({by}, ability);
-      this.warning(`📉 Reduced ${ability} by ${Math.abs(by)} <small>, to ${this.domainSheet.data[ability.toLowerCase()]}</small>`);
+      this.warning(`📉 Reduced ${ability} by ${Math.abs(by)} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }
 
   addConsumable(attrs, logMessage) {
     this.info(logMessage || `➕ Added ${attrs.name}`);
-    this.domainSheet.addConsumable(attrs);
+    this.domain.addConsumable(attrs);
   }
 
   addFame() {
     this.info("👩🏻‍🎤 Add fame");
-    this.domainSheet.addFame();
+    this.domain.addFame();
   }
 
   addBonusActivity(actor) {
@@ -161,25 +162,25 @@ Eris.test("Activity", makeSure => {
 
   makeSure.describe("peerActivities()", makeSure => {
     makeSure.it("returns no items if the turn is empty", ({assert}) => {
-      let activity = new Activity({name: "Dance", currentTurn: {}});
+      let activity = new Activity({name: "Dance"}, {});
       assert.equals(activity.peerActivities(), []);
     });
     makeSure.it("for leadership activities, returns the items from the turn's entries (leaders focus then move on)", ({assert}) => {
-      let currentTurn = {activities: [
+      let turn = {activities: [
         {name: "Dance", id: "a"},
         {name: "Dance", id: "b"},
         {name: "Revolution", id: "c"},
       ]};
-      let activity = new Activity({name: "Dance", type: "leadership", currentTurn});
+      let activity = new Activity({name: "Dance", type: "leadership"}, turn);
       assert.equals(activity.peerActivities().map(a => a.id), ["a", "b"]);
     });
     makeSure.it("for civic activities, returns no items ever (cities can distribute focus)", ({assert}) => {
-      let currentTurn = {activities: [
+      let turn = {activities: [
         {name: "Dance", id: "a"},
         {name: "Dance", id: "b"},
         {name: "Revolution", id: "c"},
       ]};
-      let activity = new Activity({name: "Dance", type: "civic", currentTurn});
+      let activity = new Activity({name: "Dance", type: "civic"}, turn);
       assert.equals(activity.peerActivities(), []);
     });
   });

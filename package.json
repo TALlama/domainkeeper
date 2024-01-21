@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "server": "npx http-server -p 9090",
-    "test-server": "npx http-server -p 2323"
+    "test-server": "npx http-server -p 2323",
+    "test": "npx playwright test",
+    "test-ui": "npx playwright test --ui"
   },
   "repository": {
     "type": "git",

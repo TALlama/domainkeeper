@@ -110,6 +110,12 @@ export class ErisTestGroup {
       reporter.end(context);
     });
     reporter.endGroup(this);
+
+    window.erisResults ??= {runCount: 0, passCount: 0, failCount: 0, errorCount: 0};
+    window.erisResults.runCount += reporter.runCount;
+    window.erisResults.passCount += reporter.passCount;
+    window.erisResults.failCount += reporter.failCount;
+    window.erisResults.errorCount += reporter.errorCount;
   }
 }
 
@@ -132,6 +138,7 @@ export class ErisAssertions {
 }
 
 export class ErisConsoleReporter {
+  runCount = 0;
   passCount = 0;
   failCount = 0;
   errorCount = 0;
@@ -146,6 +153,7 @@ export class ErisConsoleReporter {
     console.group(testable.name);
     testable.description && console.debug(testable.description);
     try {
+      this.runCount += 1;
       testable.run(context);
     } catch (err) {
       this.errorCount += 1;

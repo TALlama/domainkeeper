@@ -14,24 +14,7 @@ export default class DomainActivityLog extends RxElement {
     document.addEventListener("domains:nudge", (event) => this.doNudge(event))
 
     let activityFinder = this.searchParams.get("activity");
-    activityFinder && this.activity(new Activity({name: activityFinder}));
-  }
-
-  welcome() {
-    let name = "Welcome, Domainkeeper";
-    if (this.currentTurn.number > 0 || this.domainSheet.activitiesWhere({name}).length > 0) return;
-
-    this.activity(new Activity({name}));
-  }
-
-  domainConcept() {
-    let name = "Domain Concept";
-    if (this.currentTurn.number > 0 || this.domainSheet.activitiesWhere({name}).length > 0) return;
-
-    // TODO it'd be nice if this prevented you from overflowing your ability scores
-    let activity = new Activity({name});
-    this.activity(activity);
-    //activity.government = "Culture";
+    activityFinder && this.activity({name: activityFinder});
   }
 
   endTurn(event) {
@@ -41,23 +24,7 @@ export default class DomainActivityLog extends RxElement {
       }
     }
 
-    this.activity(new Activity({name: "Event"}));
-  }
-
-  newTurn() {
-    this.domainSummary();
-
-    delete this.domainSheet.data.currentActorId; // TODO move that into turn
-    this.domainSheet.data.leaders.forEach(l => l.rollInitiative()); // TODO this too
-
-    let newTurn = this.domainSheet.addTurn();
-
-    if (this.currentTurn.number) {
-      this.domainSheet.addFame();
-      this.forEachPowerup("newTurn");
-    }
-    this.ruin();
-    this.domainSheet.saveData();
+    this.activity({name: "Event"});
   }
 
   forEachPowerup(callback) {
@@ -82,7 +49,7 @@ export default class DomainActivityLog extends RxElement {
     lastRoll.shadowRoot.querySelector("*").click(); // Ew
     
     let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
-    consumableId && this.domainSheet.useConsumable({id: consumableId});
+    consumableId && this.domainSheet.domain.useConsumable({id: consumableId});
   }
 
   rerollEconomy(event) {
@@ -95,20 +62,16 @@ export default class DomainActivityLog extends RxElement {
 
   doActivity(event, {actionTarget}) {
     let name = actionTarget.dataset.activity;
-    name && this.activity(new Activity({name}));
+    name && this.activity({name});
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
   get currentTurn() { return this.domainSheet.currentTurn }
   get currentActivity() { return this.currentTurn?.activities?.last() }
 
-  ruin() { this.currentTurn.number === 0 || this.activity(new Activity({name: "Ruin"})) }
-  domainSummary() { this.activity(new Activity({name: "Domain Summary"})) }
-
   activity(activity) {
     activity.actorId ??= this.domainSheet.currentActor.id;
-    this.currentTurn.activities.push(activity);
-    activity.added && activity.added();
+    this.currentTurn.addActivity(activity);
     setTimeout(() => twist(document.getElementById(activity.id)), 100);
   }
 
@@ -124,7 +87,7 @@ export default class DomainActivityLog extends RxElement {
   }
 
   renderStatusBanner() {
-    let abilities = this.domainSheet.data;
+    let abilities = this.domainSheet.domain;
 
     if (abilities.culture <= 0) {
       return `The domain has lost its identity and fallen into anarchy.`;
@@ -145,16 +108,18 @@ export default class DomainActivityLog extends RxElement {
     if (this.currentTurn.number === 0) { return "" }
 
     return `<ul class="consumables">
-      ${Object.values(this.domainSheet.data.consumables).map(consumable => `
-        <li class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
-          <span class="name">${consumable.name}</span>
-          <div class="description">${consumable.description}</div>
+      ${Object.values(this.domainSheet.domain.consumables).map(consumable => `
+        <li>
+          <button class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
+            <span class="name">${consumable.name}</span>
+            <div class="description">${consumable.description}</div>
+          </button>
         </li>`
       ).join("")}
     </ul>`;
   }
 
-  renderTurns() { return this.domainSheet.data.turns.map(turn => this.renderTurn(turn)).reverse().join("") }
+  renderTurns() { return this.domainSheet.domain.turns.map(turn => this.renderTurn(turn)).reverse().join("") }
 
   renderTurn(turn) {
     let activities = turn.activities;
@@ -183,8 +148,8 @@ export default class DomainActivityLog extends RxElement {
   doNudge(event) {
     let activity = this.currentActivity;
     if (!["Nudge", "Event"].includes(activity?.name)) {
-      activity = new Activity({name: "Nudge"})
-      this.activity(activity);
+      this.activity({name: "Nudge"});
+      activity = this.currentTurn.activities.last();
     };
     event.detail.complete(activity);
   }

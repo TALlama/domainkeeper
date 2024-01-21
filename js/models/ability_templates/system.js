@@ -46,7 +46,6 @@ export var systemTemplates = [{
       Expansion: ["Culture"],
       Exploration: ["Stability"],
       Grant: ["Economy"],
-      Open: [],
 
       // Governments
       Despotism: ["Stability", "Economy"],
@@ -71,7 +70,7 @@ export var systemTemplates = [{
     }, {
       name: "Charter",
       saveAs: "charter",
-      options: "Conquest Expansion Exploration Grant Open".split(" "),
+      options: "Conquest Expansion Exploration Grant".split(" "),
       picked,
       summaryValue,
     }, {
@@ -92,9 +91,6 @@ export var systemTemplates = [{
       picked: (ability, {activity}) => activity.boost(ability),
     }];
   })(),
-  decisionResolved(decision) {
-    if (this.resolved) { document.querySelector("domain-activity-log").newTurn() }
-  },
 }, {
   icon: "💥",
   name: "Event",
@@ -116,14 +112,13 @@ export var systemTemplates = [{
       ...Ability.all.toDictionary(ability => [`Lower ${ability}`, ({activity}) => activity.reduce(ability)]),
       "Lower random ability": ({activity}) => activity.reduce(Ability.random),
       "1d4 Unrest": ({activity}) => activity.boost({by: [1, 2, 3, 4].random()}, "Unrest"),
-      "Lose 1 Fame": ({activity}) => activity.domainSheet.useConsumable({name: "Fame"}),
+      "Lose 1 Fame": ({activity}) => activity.domain.useConsumable({name: "Fame"}),
       "Nothing happened": ({activity}) => {},
     },
     picked(resolution, context) {
       let {activity, decision} = context;
       decision.resolutions[resolution](context);
-      activity.domainSheet.useAllConsumables({useBy: "end-of-turn"});
-      document.querySelector("domain-activity-log").newTurn(); // TODO should this be an event?
+      activity.domain.useAllConsumables({useBy: "end-of-turn"});
     },
   }],
 }, {
@@ -187,7 +182,7 @@ export var systemTemplates = [{
     };
   }),
   added() {
-    let unrest = this.domainSheet.data.unrest;
+    let unrest = this.domainSheet.domain.unrest;
     this.decisions.forEach(decision => {
       decision.resolution = unrest >= decision.threshold ? "Met" : "Unmet";
     });
