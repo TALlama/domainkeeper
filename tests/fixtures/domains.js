@@ -3,7 +3,7 @@ import { domainConcepts, ruin } from "./activities";
 export const onTurnOne = {
   name: "Founded Yesterday",
   turns: [{
-    turn: 0,
+    number: 0,
     name: "Domain Creation",
     activities: [domainConcepts.complete],
   }]

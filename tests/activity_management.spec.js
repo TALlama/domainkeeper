@@ -16,12 +16,12 @@ test.describe("when it's your turn", () => {
 
     await monitor({
       shouldNotChange: () => dk.currentActorName,
-      when: () => dk.pickActivity("Clear Hex", "Economy", "success"),
+      when: () => dk.pickActivity("Clear Hex", "Economy", "Success"),
     });
 
     await monitor({
       shouldChange: () => dk.currentActorName,
-      when: () => dk.pickActivity("Work the Land", "Culture", "failure"),
+      when: () => dk.pickActivity("Work the Land", "Culture", "Failure"),
     });
   });
 

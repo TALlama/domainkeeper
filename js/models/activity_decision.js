@@ -21,6 +21,7 @@ export class ActivityDecision {
         saveAs: "ability",
         options: Ability.all,
         displayValue: (ability) => `<ability-roll ability="${ability}">${ability}</ability-roll>`,
+        displayTitleValue: (ability) => ability,
         displayResolvedValue: (ability) => ability,
         optionDisableReason(ability) {
           let usedBy = this.abilityAlreadyUsedBy(ability);
@@ -79,6 +80,7 @@ export class ActivityDecision {
       saveValue: (value) => value,
       unsaveValue(value) { return this.options.find(o => this.saveValue(o) === value) },
       displayValue: (value) => (this.displayValues || {})[value] || value,
+      displayTitleValue: (value) => this.displayValue(value),
       displayResolvedValue: (value) => this.displayValue(value),
       summaryValue: (value) => (this.summaries || {})[value],
       groupOptionsBy: (value) => "",
@@ -91,6 +93,7 @@ export class ActivityDecision {
     this.#addSaveAsProperty(activity, props.saveAs);
     this.#addValueProperty(activity, props.valueMethod || `${props.saveAs}Value`);
     this.#addDisplayProperty(activity, props.displayMethod || `${props.saveAs}Display`);
+    this.#addDisplayTitleProperty(activity, props.displayResolvedMethod || `${props.saveAs}DisplayTitle`);
     this.#addDisplayResolvedProperty(activity, props.displayResolvedMethod || `${props.saveAs}DisplayResolved`);
     this.#addSummaryProperty(activity, props.summaryMethod || `${props.saveAs}Summary`);
   }
@@ -142,6 +145,16 @@ export class ActivityDecision {
     });
   }
 
+  #addDisplayTitleProperty(activity, saveAsDisplayTitle) {
+    let decision = this;
+
+    Object.defineProperty(activity, saveAsDisplayTitle, {
+      configurable: true,
+      get() { return decision.displayTitleValue(decision.resolution) },
+      set(value) { decision.resolution = decision.options.find(option => decision.displayTitleValue(option) === value) },
+    });
+  }
+
   #addDisplayResolvedProperty(activity, saveAsDisplayResolved) {
     let decision = this;
 
@@ -162,7 +175,9 @@ export class ActivityDecision {
   }
 
   get domainSheet() { return this.activity.domainSheet }
+  get domain() { return this.activity.domain }
   get actor() { return this.activity.actor }
+  get actorId() { return this.activity.actorId }
 
   get dictionary() { return this.options.toDictionary(o => [this.saveValue(o), this.displayValue(o)]) }
   get enabledOptions() { return this.options.filter(o => !this.optionDisableReason(o)) }

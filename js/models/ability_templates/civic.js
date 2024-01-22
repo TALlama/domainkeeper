@@ -40,6 +40,7 @@ export var civicTemplates = [{
       return alreadyBuilt.length >= limit ? `${this.actor.name} already has ${alreadyBuilt.length} structure${limit === 1 ? "" : "s"} of type "${structureName}"` : null;
     },
     displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
+    displayTitleValue: structureName => structureName,
     picked(structureName) { this.decision("Roll").difficultyClassOptions.base = Structure.template(structureName)?.dc },
     mutable: (activity, decision) => activity.decision("Roll").mutable,
   }, {

@@ -513,9 +513,17 @@ export var leadershipTemplates = [{
     saveAs: "traineeId",
     valueMethod: "trainee",
     description: "Which leader will you be tutoring?",
-    options() { return this.domainSheet?.domain?.leaders.filter(l => l.type === "NPC").filter(l => l !== this.actor) || [] },
+    options() {
+      let npcs = this.domain.leaders.filter(l => l.hasTrait("NPC"));
+      return npcs.length ? npcs : [{name: "There's no one to train"}];
+    },
+    optionDisableReason(trainee) {
+      return trainee.id
+        ? (trainee.id === this.activity.actorId ? "Cannot train yourself" : null)
+        : "All NPCs in Leadership roles have 2 activities per turn" },
     saveValue(trainee) { return trainee?.id },
     displayValue(trainee) { return trainee?.name },
+    mutable: (activity, decision) => activity.decision("Roll").mutable,
   }, {
     name: "Roll",
     options: ["Loyalty"],

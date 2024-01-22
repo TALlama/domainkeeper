@@ -36,7 +36,7 @@ export class ActivityDecisionPanel extends RxElement {
   }
 
   renderResolved(activity, decision) {
-    return `<span class="picked" data-value="${decision.resolution}">${decision.displayResolutionValue}</span>`;
+    return `<span class="picked" data-display-title-value="${decision.displayTitleValue(decision.resolutionValue)}">${decision.displayResolutionValue}</span>`;
   }
 
   renderUndoLink(css="") {
@@ -49,7 +49,7 @@ export class ActivityDecisionPanel extends RxElement {
     }
 
     return `
-      <div class="description">${callOrReturn(decision.description || "", this, {decision, activity})}</div>
+      <div class="description">${callOrReturn(decision.description || "", decision, {decision, activity})}</div>
       <fieldset class='pickable-group'>
         ${Object.entries(decision.groupedOptions).flatMap(([group, options]) => {
           let header = group ? `<header class='option-group'>${group}</header>` : "";
@@ -58,7 +58,7 @@ export class ActivityDecisionPanel extends RxElement {
             let name = `${activity.id}__${decision.name}`;
             let id = `${name}__${value}`;
             let whyDisabled = decision.optionDisableReason(option);
-            let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}" data-value="${value}">
+            let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}" data-value="${value}" data-display-title-value="${decision.displayTitleValue(option)}">
               <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
               ${decision.displayValue(option)}
               ${this.renderSummary(activity, decision, option)}

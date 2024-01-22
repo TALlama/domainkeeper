@@ -31,6 +31,7 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   // Parts of the page
+  get leadersList() { return this.locator(".leaders-section") }
   get currentActorName() { return this.locator(".actor.current .name").textContent() }
   get currentActorActivitiesLeft() { return this.locator(".actor.current .badge").textContent() }
 
@@ -74,8 +75,8 @@ export class DomainkeeperPage extends LocatorLike {
 
   async makeDecision(option, opts={}) {
     let within = (opts.within || this.currentActivity);
-    await within.locator(`label[data-value="${option}"]`).click({force: true})
-    return expect(within.locator(`.picked[data-value="${option}"]`)).toBeVisible();
+    await within.locator(`label[data-display-title-value="${option}"]`).click({force: true})
+    return expect(within.locator(`.picked[data-display-title-value="${option}"]`)).toBeVisible();
   }
 
   async setDomainConcept(opts = {}) {

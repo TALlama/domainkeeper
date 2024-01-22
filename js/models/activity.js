@@ -338,6 +338,37 @@ Eris.test("Activity", makeSure => {
         assert.equals(activity.color, "Green");
         assert.equals(activity.colorDisplay, "G");
       });
+      makeSure.describe("displayTitleValue allows you to highlight an accessible title for each option", makeSure => {
+        let displayTitleValue = (color) => color ? color.toUpperCase() : null;
+
+        makeSure.it("by default, uses the value itself", ({assert}) => {
+          let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"]});
+          assert.equals(activity.decision("Color").displayTitleValue("Red"), "Red");
+        });
+
+        makeSure.it("if there is a displayValue, uses that", ({assert}) => {
+          let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], displayValue});
+          assert.equals(activity.decision("Color").displayTitleValue("Red"), "R");
+        });
+
+        makeSure.it("can be set via property, using a function", ({assert}) => {
+          let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], displayValue, displayTitleValue});
+          assert.equals(activity.decision("Color").displayTitleValue("Red"), "RED");
+        });
+
+        makeSure.it("exposes an accessor for the current display value", ({assert}) => {
+          let activity = makeActivity({name: "Color", options: () => ["Red", "Green", "Blue"], displayValue, displayTitleValue});
+
+          assert.equals(activity.colorDisplayTitle, null);
+
+          activity.color = "Red";
+          assert.equals(activity.colorDisplayTitle, "RED");
+
+          activity.colorDisplay = "G";
+          assert.equals(activity.color, "Green");
+          assert.equals(activity.colorDisplayTitle, "GREEN");
+        });
+      });
       makeSure.describe("displayResolvedValue allows you to show different things when the decision is resolved", makeSure => {
         let displayResolvedValue = (color) => color ? color.toUpperCase() : null;
 
