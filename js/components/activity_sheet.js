@@ -36,7 +36,7 @@ export class ActivitySheet extends RxElement {
 
     return `
       <header>
-        ${this.activity.name}
+        <span class="activity-name">${this.activity.name}</span>
         <small class="byline">${this.actor ? `by ${this.actor.name}` : ""}</small>
         ${debugJSON(this.activity.id)}
         ${this.renderCancelLink()}

@@ -10,8 +10,8 @@ export var systemTemplates = [{
   description: () => `
     <p>💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!</p>
     <p>👑 Click the buttons above to do activities. You can cancel activities until you click buttons to roll or spend, so feel free to explore.</p>
-    <p>♻️ When you're out of activities each turn, click "End turn" to see a summary of what's changed and start the next turn.</p>
-    <p>💾 Warning! At the end of every turn, we auto-save domain stats (the sidebar) but not the action history (the main content). So keep that tab open if you care about the details! If you want to start again, click the ❌ at the top of the domain sidebar!</p>
+    <p>♻️ When you're out of activities each turn, click "Event" to wrap up. Then you'll see a summary of what's changed and start the next turn.</p>
+    <p>💾 At the end of every turn, we auto-save the domain. If you want to start all over again, click the ❌ at the top of the domain sidebar.</p>
     <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
   `,
 }, { // TODO it'd be nice if this prevented you from overflowing your ability scores
@@ -120,6 +120,16 @@ export var systemTemplates = [{
       decision.resolutions[resolution](context);
       activity.domain.useAllConsumables({useBy: "end-of-turn"});
     },
+  }, {
+    name: "Next",
+    options: ["End turn", "Add another event"],
+    picked(resolution, {activity}) {
+      if (resolution === "End turn") {
+        activity.domain.newTurn();
+      } else if (resolution === "Add another event") {
+        activity.domain.currentTurn.addActivity({name: "Additional Event", template: "Event"});
+      }
+    },
   }],
 }, {
   icon: "🗺️",
@@ -131,8 +141,6 @@ export var systemTemplates = [{
     let abilityScores = this.abilityScores = this.domainSheet.abilityScores;
     let statScores = this.statScores = this.domainSheet.statScores;
     
-    // TODO style
-    // TODO add smoothScroll action
     return `
       <p>💾 Domain saved</p>
       <header>What Happened</header>

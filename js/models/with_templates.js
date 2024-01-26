@@ -9,7 +9,11 @@ export function withTemplates(toClass, make) {
   Object.assign(toClass.prototype, {
     init(properties, defaults = {}) {
       let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.templateName || properties.name, properties];
+      let fallbacks = props.fallbacks;
+      delete props.fallbacks;
+
       Object.assign(this, {
+        ...fallbacks,
         ...defaults,
         ...this.constructor.template(templateName),
         ...props});

@@ -38,7 +38,7 @@ export class Turn {
   cancelActivity(activity) {
     let ixThis = this.activities.findIndex(a => a.id == activity.id);
     if (ixThis > -1) {
-      this.activities = [...this.activities.splice(0, ixThis - 1), ...this.activities.splice(ixThis + 1)]
+      this.activities = [...this.activities.splice(0, ixThis), ...this.activities.splice(1)]
     }
   }
 

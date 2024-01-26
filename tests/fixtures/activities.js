@@ -1,3 +1,7 @@
+export function activityRecord(name, ability, outcome) {
+  return {name, ability, outcome};
+}
+
 export const domainConcepts = {
   complete: {
     name:"Domain Concept",
@@ -17,3 +21,19 @@ export const ruin = {
     ruin15: "Unmet",
   },
 };
+
+export const workTheLand = {
+  cultureFailure: activityRecord("Work the Land", "Culture", "failure"),
+};
+
+export const prognostication = {
+  success: activityRecord("Prognostication", "Culture", "success"),
+  failure: activityRecord("Prognostication", "Culture", "failure"),
+};
+
+export const contribute = {
+  culture: {...activityRecord("Contribute"), contribution: "Culture"},
+  economy: {...activityRecord("Contribute"), contribution: "Economy"},
+  loyalty: {...activityRecord("Contribute"), contribution: "Loyalty"},
+  stability: {...activityRecord("Contribute"), contribution: "Stability"},
+}

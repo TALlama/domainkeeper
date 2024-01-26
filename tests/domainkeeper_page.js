@@ -28,6 +28,12 @@ export class DomainkeeperPage extends LocatorLike {
     "Culture Economy Loyalty Stability Unrest Size XP Level".split(" ").forEach(stat =>
       this[stat.toLowerCase()] = this.getByRole('spinbutton', {name: stat})
     );
+
+    this.saveLink = this.getByRole('link', {name: '💾'});
+    this.restartLink = this.getByRole('link', {name: '❌'});
+
+    this.readyEventButton = this.getByRole("button", {name: "Begin event"});
+    this.earlyEventButton = this.getByRole("button", {name: "Start event early"});
   }
 
   // Parts of the page
@@ -41,6 +47,8 @@ export class DomainkeeperPage extends LocatorLike {
 
   get activityPicker() { return new ActivityPicker(this.page, this.locator('activity-picker')) }
   get consumables() { return new Consumables(this.page, this.locator('ul.consumables')) }
+
+  turn(name) { return new Turn(this.page, this.locator(`article.turn:has(.turn-name:has-text("${name}"))`)) }
 
   get currentActivity() { return new ActivitySheet(this.page, this.locator('activity-sheet:not([resolved])')) }
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
@@ -69,6 +77,11 @@ export class DomainkeeperPage extends LocatorLike {
   async makeDecisions(options, opts={}) {
     if (options.length === 0) { return Promise.resolve() }
 
+    if (!opts.within) {
+      opts = {...opts, within: this.currentActivity};
+      await opts.within.retargetWithId();
+    }
+
     await this.makeDecision(options[0], opts);
     return this.makeDecisions(options.slice(1), opts);
   }
@@ -92,17 +105,20 @@ export class DomainkeeperPage extends LocatorLike {
     await expect(this.getByText(`Heartland ${heartland}`)).toBeVisible();
     await this.makeDecision(charter);
     await expect(this.getByText(`Charter ${charter}`)).toBeVisible();
-    await this.decisionPanel('Free Charter Boost').decide(charterFree);
+    await this.decisionPanel('Free Charter Boost').makeDecision(charterFree);
     await expect(this.getByText(`Free Charter Boost ${charterFree}`)).toBeVisible();
     await this.makeDecision(govt);
     await expect(this.getByText(`Government ${govt}`)).toBeVisible();
-    await this.decisionPanel('Free Government Boost').decide(govtFree);
+    await this.decisionPanel('Free Government Boost').makeDecision(govtFree);
     await expect(this.getByText('Turn 1')).toBeVisible();
   }
 
   async loadDomain(data, expectTurn = "Turn 1") {
     this.page.evaluate((data) => document.querySelector("domain-sheet").load(data), data);
     await expect(this.getByText(expectTurn, {exact: true})).toBeVisible();
+  }
+  async savedDomain() {
+    return this.page.evaluate(() => document.querySelector("save-slots").load({key: "domain"}));
   }
 
   // Expectations
@@ -126,6 +142,16 @@ export class Consumables extends LocatorLike {
   get names() { return this.items.locator(".name").allTextContents() }
 }
 
+export class Turn extends LocatorLike {
+  constructor(page, root) {
+    super(page, root);
+
+    this.activities = this.locator("activity-sheet");
+  }
+
+  activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
+}
+
 export class ActivitySheet extends LocatorLike {
   constructor(page, root) {
     super(page, root);
@@ -145,14 +171,24 @@ export class ActivitySheet extends LocatorLike {
   }
 
   // Parts
+  name() { return this.locator(".activity-name") }
   decisionPanel(name) { return new DecisionPanel(this.page, this.locator(`activity-decision-panel[name="${name}"]`)) }
 
   // Actions
-  decide(...options) {
-    return Promise.all(options.map(async option => {
-      console.log(`-- gonna decide on ${option} next`);
-      await this.makeDecision(option, {within: activitySheet});
-    }));
+  async makeDecisions(options, opts={}) {
+    if (options.length === 0) { return Promise.resolve() }
+
+    await this.makeDecision(options[0], opts);
+    return this.makeDecisions(options.slice(1), opts);
+  }
+
+  async makeDecision(option, opts={}) {
+    await this.locator(`label[data-display-title-value="${option}"]`).click({force: true});
+
+    return Promise.any([
+      expect(this.root).toHaveAttribute("resolved"),
+      expect(this.locator(`.picked[data-display-title-value="${option}"]`)).toBeVisible(),
+    ]);
   }
 }
 
@@ -161,5 +197,5 @@ export class DecisionPanel extends LocatorLike {
   optionButton(option) { return this.getByRole('radio', {name: option, includeHidden: true}) }
 
   // Actions
-  decide(option) { this.optionButton(option).click({force: true}) }
+  makeDecision(option) { this.optionButton(option).click({force: true}) }
 }

@@ -23,8 +23,11 @@ test.describe("Train Lieutenant", () => {
     await dk.loadDomain({...inTurnOne, leaders: [{...leaders.pc, initiative: 1}, leaders.npc]});
 
     await dk.pickActivity("Train Lieutenant");
-    await dk.currentActivity.decisionPanel("Trainee").optionButton("Ned").hover({force: true});
-    await expect(dk.currentActivity.getByText("Cannot train yourself")).toBeVisible();
+
+    let activity = dk.currentActivity;
+    await activity.retargetWithId();
+    await activity.decisionPanel("Trainee").optionButton("Ned").hover({force: true});
+    await expect(activity.getByText("Cannot train yourself")).toBeVisible();
   });
 
   test('if no NPCs are available, lets you know', async ({ page }) => {

@@ -54,10 +54,10 @@ export class Domain {
     if (this.leaders.length === 0) {
       this.leaders = [
         {traits: "PC".split(" "), name: "Seth"},
-      //{traits: "PC".split(" "), name: "Ben"},
-      //{traits: "PC".split(" "), name: "David"},
-      //{traits: "PC".split(" "), name: "Morgan"},
-      //{traits: "PC".split(" "), name: "Joe"},
+        {traits: "PC".split(" "), name: "Ben"},
+        {traits: "PC".split(" "), name: "David"},
+        {traits: "PC".split(" "), name: "Morgan"},
+        {traits: "PC".split(" "), name: "Joe"},
         {traits: "NPC".split(" "), name: "Bertie", activitiesPerTurn: 1},
       ];
     }
@@ -70,9 +70,9 @@ export class Domain {
   }
 
   #addDefaultTurns() {
-    this.turns.length || this.#addTurn({name: "Domain creation"});
+    this.turns.length || this.#addTurn({name: "Domain Creation"});
     if (this.turns.length === 1 && this.turns[0].activities.all("resolved")) {
-      this.#newTurn();
+      this.newTurn();
     }
   }
 
@@ -83,23 +83,23 @@ export class Domain {
     return this.turns.last();
   }
 
-  #newTurn() {
+  newTurn(properties = {}) {
     this.turns.last().addActivity({name: "Domain Summary"});
 
     delete this.currentActorId; // TODO move that into turn
     this.leaders.forEach(l => l.rollInitiative()); // TODO this too
 
-    let turn = this.#addTurn();
+    let turn = this.#addTurn(properties);
     if (turn.number > 0) {
       turn.addUniqueActivity({name: "Ruin"});
       this.addFame();
       this.powerups.forEach(pu => pu.newTurn && pu.newTurn({domain: this, powerup: pu}));
     }
-    // TODO this.domainSheet.saveData();
+    document.querySelector("domain-sheet").saveData();
   }
 
   turnResolved(turn) {
-    if (turn.number === 0) { this.#newTurn() }
+    if (turn.number === 0) { this.newTurn() }
   }
 
   /////////////////////////////////////////////// Consumable Management

@@ -14,7 +14,7 @@ test.describe("domain concept is shown on first run", () => {
       unrest: 0, size: 1, xp: 0, level: 1,
     });
 
-    let concept = dk.currentActivity;
+    let concept = await dk.currentActivity;
 
     // each decision bumps a stat by 1. Start with Heartland
     dk.makeDecision('Forest');
@@ -27,7 +27,7 @@ test.describe("domain concept is shown on first run", () => {
     await expect(concept.getByText('Charter Conquest')).toBeVisible();
 
     let charterBoost = dk.decisionPanel('Free Charter Boost');
-    charterBoost.decide("Loyalty");
+    charterBoost.makeDecision("Loyalty");
     await dk.shouldHaveStats({loyalty: 4});
     await expect(charterBoost.getByText('Free Charter Boost Loyalty')).toBeVisible();
 
@@ -38,7 +38,7 @@ test.describe("domain concept is shown on first run", () => {
     await expect(page.getByText('Government Despotism')).toBeVisible();
 
     let govtBoost = dk.decisionPanel('Free Government Boost');
-    govtBoost.decide("Loyalty");
+    govtBoost.makeDecision("Loyalty");
     await dk.shouldHaveStats({loyalty: 5});
     await expect(page.getByText('Free Government Boost Loyalty')).toBeAttached(); // hides under previous turn
 

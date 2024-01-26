@@ -27,23 +27,19 @@ export class ActivityPicker extends RxElement {
   }
 
   renderClosed() {
-    this.removeAttribute("open");
-
     return `
       <span class="todo">⌛ Complete the activity below before picking another activity.</span>
-      ${this.renderEndTurnButton()}`;
+      ${this.renderEventButton()}`;
   }
 
   renderOpen() {
-    this.setAttribute("open", "");
-
     let type = this.isLeader ? "leadership" : (this.isSettlement ? "civic" : "none");
 
     return `
       ${this.isLeader
         ? this.renderActivityList(Activity.templates.matches({type}), this.domainSheet.leadershipActivitiesLeft, "leadership")
         : this.isSettlement ? this.renderActivityList(Activity.templates.matches({type}), this.domainSheet.civicActivitiesLeft, "civic") : ""}
-      ${this.renderEndTurnButton()}`;
+      ${this.renderEventButton()}`;
   }
 
   renderActivityList(activities, left, typeName) {
@@ -71,8 +67,12 @@ export class ActivityPicker extends RxElement {
     }).join("");
   }
 
-  renderEndTurnButton() {
-    return `<button class="end-turn ${this.currentActor ? "end-turn-pending" : "end-turn-ready"}" data-action="endTurn">End turn</button>`;
+  renderEventButton() {
+    if (this.unresolvedActivity) { return `` }
+
+    return this.domainSheet.allActivitiesLeft
+      ? `<button class="add-event add-event-pending" data-action="kickoffEvent">Start event early</button>`
+      : `<button class="add-event add-event-ready" data-action="kickoffEvent">Begin event</button>`;
   }
 }
 ActivityPicker.define("activity-picker");

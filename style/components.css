@@ -377,16 +377,17 @@
       --button-bg: var(--color-civic-bg);
     }
 
-    > .end-turn {
+    > .add-event {
       margin-top: var(--external-margin);
     }
 
-    > .end-turn-pending {
+    > .add-event-pending {
       --button-bg: white;
     }
     
-    > .end-turn-ready {
-      --button-bg: green;
+    > .add-event-ready {
+      --button-bg: hsl(120, 40%, 60%);
+      font-size: var(--step-3);
     }
   }
 

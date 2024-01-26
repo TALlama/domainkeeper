@@ -51,6 +51,7 @@ export class ActivityDecisionPanel extends RxElement {
     return `
       <div class="description">${callOrReturn(decision.description || "", decision, {decision, activity})}</div>
       <fieldset class='pickable-group'>
+        ${decision.options.length === 0 ? "🚫" : ""}
         ${Object.entries(decision.groupedOptions).flatMap(([group, options]) => {
           let header = group ? `<header class='option-group'>${group}</header>` : "";
           return [header, ...options.map(option => {

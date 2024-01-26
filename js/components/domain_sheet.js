@@ -196,6 +196,7 @@ class DomainSheet extends RxElement {
 
   get leadershipActivitiesLeft() { return this.domain.leaders.sum("activitiesLeft") }
   get civicActivitiesLeft() { return this.domain.settlements.sum("activitiesLeft") }
+  get allActivitiesLeft() { return this.leadershipActivitiesLeft + this.civicActivitiesLeft }
 
   get controlDC() {
     let size = this.domain.size;

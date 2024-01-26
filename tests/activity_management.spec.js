@@ -28,7 +28,7 @@ test.describe("when it's your turn", () => {
   test('initiative set the default order, but you can override it', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.anne, leaders.zed]}, "Domain creation");
+    await dk.loadDomain({...inTurnOne, leaders: [leaders.anne, leaders.zed]}, "Domain Creation");
 
     expect(await dk.currentActorName).toEqual("Anne");
     await monitor({
@@ -43,9 +43,12 @@ test.describe("when it's your turn", () => {
     await dk.loadDomain({...onTurnOne, leaders: [leaders.anne, leaders.zed]});
 
     expect(await dk.currentActorActivitiesLeft).toEqual("2");
+    expect(await dk.turn("Turn 1").activities).toHaveCount(1);
     await dk.pickActivity("Clear Hex"),
     expect(await dk.currentActorActivitiesLeft).toEqual("1");
+    expect(await dk.turn("Turn 1").activities).toHaveCount(2);
     await dk.cancelActivity();
     expect(await dk.currentActorActivitiesLeft).toEqual("2");
+    expect(await dk.turn("Turn 1").activities).toHaveCount(1);
   });
 });

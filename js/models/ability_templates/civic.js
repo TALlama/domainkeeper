@@ -14,12 +14,9 @@ export var civicTemplates = [{
     saveAs: "contribution",
   }],
   added() {
-    this.decision("Contribution").amount = {
-      Village: -1,
-      Town: -2,
-      City: -3,
-      Metropolis: -4,
-    }[this.actor.type] || -1;
+    let amount = -1;
+    if (this.actor.hasTrait("City")) { amount -= 1 }
+    this.decision("Contribution").amount = amount;
   },
 }, {
   icon: "🚧",

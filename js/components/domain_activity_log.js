@@ -17,8 +17,8 @@ export default class DomainActivityLog extends RxElement {
     activityFinder && this.activity({name: activityFinder});
   }
 
-  endTurn(event) {
-    if (event && (this.domainSheet.leadershipActivitiesLeft > 0 || this.domainSheet.civicActivitiesLeft > 0)) {
+  kickoffEvent(event) {
+    if (this.domainSheet.allActivitiesLeft > 0) {
       if (!confirm(`You still have actions left; are you sure you want to waste them and end your turn?`)) {
         return;
       }
@@ -66,13 +66,13 @@ export default class DomainActivityLog extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
+  get domain() { return this.domainSheet.domain }
   get currentTurn() { return this.domainSheet.currentTurn }
   get currentActivity() { return this.currentTurn?.activities?.last() }
 
-  activity(activity) {
-    activity.actorId ??= this.domainSheet.currentActor.id;
-    this.currentTurn.addActivity(activity);
-    setTimeout(() => twist(document.getElementById(activity.id)), 100);
+  activity(properties) {
+    let activity = this.currentTurn.addActivity({...properties, fallbacks: {actorId: this.domainSheet.currentActor?.id}});
+    setTimeout(() => twist(document.getElementById(activity.id)), 200);
   }
 
   /////////////////////////////////////////////// Rendering
