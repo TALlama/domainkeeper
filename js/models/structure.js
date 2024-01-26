@@ -16,8 +16,8 @@ export class Structure extends Powerup {
 
   static type = "structure";
 
-  static add({templateName, actor, activity, setup, added}) {
-    Powerup.add({type: this, templateName, actor, setup, added, activity,
+  static add({template, actor, activity, setup, added}) {
+    Powerup.add({type: this, template, actor, setup, added, activity,
       makeContext(ctx) { return {...ctx, settlement: actor, structure: ctx.powerup} },
     });
   }

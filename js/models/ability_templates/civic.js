@@ -30,7 +30,7 @@ export var civicTemplates = [{
     options: () => new AvalableStructures().names,
     groupOptionsBy: structureName => `Level ${Structure.template(structureName).level}`,
     optionDisableReason(structureName) {
-      let alreadyBuilt = this.actor.powerups.matches({templateName: structureName});
+      let alreadyBuilt = this.actor.powerups.matches({template: structureName});
       if (alreadyBuilt.length === 0) { return null }
 
       let limit = alreadyBuilt[0].limit;
@@ -61,7 +61,7 @@ export var civicTemplates = [{
     this.success();
   },
   success() {
-    Structure.add({templateName: this.structureName, actor: this.actor, activity: this,
+    Structure.add({template: this.structureName, actor: this.actor, activity: this,
       added({activity, fullName}) { activity.info(`🏛️ You built the ${fullName}!`) },
     });
     

@@ -8,7 +8,7 @@ export function withTemplates(toClass, make) {
 
   Object.assign(toClass.prototype, {
     init(properties, defaults = {}) {
-      let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.templateName || properties.name, properties];
+      let [templateName, props] = ("string" === typeof properties) ? [properties, {}] : [properties.template || properties.name, properties];
       let fallbacks = props.fallbacks;
       delete props.fallbacks;
 
@@ -19,9 +19,9 @@ export function withTemplates(toClass, make) {
         ...props});
 
       this.name ||= templateName;
-      this.templateName ||= templateName;
+      this.template ||= templateName;
 
-      return {templateName, props};
+      return {template: templateName, props};
     }
   });
 }

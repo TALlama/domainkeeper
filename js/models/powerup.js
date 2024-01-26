@@ -6,28 +6,28 @@ import { withTraits } from "./with_traits.js";
 
 export class Powerup {
   constructor(properties) {
-    let {templateName} = this.init(properties);
+    let {template} = this.init(properties);
 
     this.type ??= this.constructor.type;
-    this.id ??= makeId(this.type, templateName);
-    this.name ??= templateName;
-    this.templateName ??= templateName;
+    this.id ??= makeId(this.type, template);
+    this.name ??= template;
+    this.template ??= template;
     this.traits ??= [];
   }
 
   setup({actor, powerup, activity}) {}
   added({actor, powerup, activity}) {}
 
-  static add({type, templateName, actor, activity, setup, added, makeContext}) {
-    let powerup = new type(templateName);
-    let context = {powerup, templateName, actor, activity};
+  static add({type, template, actor, activity, setup, added, makeContext}) {
+    let powerup = new type(template);
+    let context = {powerup, template, actor, activity};
     if (makeContext) { context = makeContext(context) }
 
     setup && setup(context);
     powerup.setup && powerup.setup(context);
 
     actor.powerups.push(powerup);
-    added && added({...context, fullName: `${powerup.name}${powerup.name === templateName ? "" : `, a ${templateName}`}`});
+    added && added({...context, fullName: `${powerup.name}${powerup.name === template ? "" : `, a ${template}`}`});
     powerup.added && powerup.added(context);
 
     return powerup;
@@ -50,17 +50,17 @@ Eris.test("Powerups", makeSure => {
 
   makeSure.describe("creation", makeSure => {
     makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup("red").name, "red"));
-    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup("red").templateName, "red"));
+    makeSure.it("sets its template", ({assert}) => assert.equals(new Powerup("red").template, "red"));
 
-    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup({name: "Danger", templateName: "red"}).name, "Danger"));
-    makeSure.it("sets its templateName", ({assert}) => assert.equals(new Powerup({name: "Danger", templateName: "red"}).templateName, "red"));
+    makeSure.it("sets its name", ({assert}) => assert.equals(new Powerup({name: "Danger", template: "red"}).name, "Danger"));
+    makeSure.it("sets its template", ({assert}) => assert.equals(new Powerup({name: "Danger", template: "red"}).template, "red"));
 
     makeSure.it("auto-generates an id", ({assert}) => assert.defined(new Powerup("red").id));
     makeSure.it("always has traits", ({assert}) => assert.equals(new Powerup("red").traits, []));
 
     makeSure.it("finds the named template", ({assert}) => assert.equals(new ColorPowerup("red").rgb, "rgb(255, 0, 0)"));
     makeSure.it("finds its property-named template", ({assert}) => assert.equals(new ColorPowerup({name: "red"}).rgb, "rgb(255, 0, 0)"));
-    makeSure.it("finds its name-overridden template", ({assert}) => assert.equals(new ColorPowerup({name: "Danger", templateName: "red"}).rgb, "rgb(255, 0, 0)"));
+    makeSure.it("finds its name-overridden template", ({assert}) => assert.equals(new ColorPowerup({name: "Danger", template: "red"}).rgb, "rgb(255, 0, 0)"));
   });
 
   makeSure.describe("trait management", makeSure => {
@@ -87,11 +87,11 @@ Eris.test("Powerups", makeSure => {
     makeSure.let("actor", () => { return {powerups: []} });
 
     makeSure.it("adds to the actor", ({assert, actor}) => {
-      let powerup = ColorPowerup.add({type: ColorPowerup, templateName: "red", actor});
+      let powerup = ColorPowerup.add({type: ColorPowerup, template: "red", actor});
       assert.equals(actor.powerups, [powerup]);
     });
     makeSure.it("calls my setup method, then the class setup method, before adding to the actor", ({assert, actor}) => {
-      let returned = ColorPowerup.add({type: ColorPowerup, templateName: "red", actor, setup: ({powerup}) => {
+      let returned = ColorPowerup.add({type: ColorPowerup, template: "red", actor, setup: ({powerup}) => {
         assert.equals(actor.powerups, []);
         assert.equals(powerup.l, undefined);
         powerup.calledSetup = true;
@@ -101,7 +101,7 @@ Eris.test("Powerups", makeSure => {
       assert.equals(returned.calledSetup, true);
     });
     makeSure.it("calls my added method, then the class added method, after adding to the actor", ({assert, actor}) => {
-      let returned = ColorPowerup.add({type: ColorPowerup, templateName: "red", actor, added: ({powerup}) => {
+      let returned = ColorPowerup.add({type: ColorPowerup, template: "red", actor, added: ({powerup}) => {
         assert.equals(actor.powerups, [powerup]);
         assert.defined(powerup.l); // setup has already been called
         assert.equals(powerup.pl, undefined);

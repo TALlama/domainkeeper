@@ -27,7 +27,7 @@ export class StructureDescription extends RxElement {
     return `
       <div class="header">
         <span class="name">${this.structure.name}</span>
-        ${this.structure.name === this.structure.templateName ? "" : `<span class="template-name">${this.structure.templateName}</span>`}
+        ${this.structure.name === this.structure.template ? "" : `<span class="template-name">${this.structure.template}</span>`}
       </div>
       ${TraitList.el(...this.structure.traits)}
       <div class="stats">
