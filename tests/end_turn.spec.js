@@ -3,10 +3,10 @@ const { DomainkeeperPage } = require("./domainkeeper_page");
 const { endTurnOne, inTurnOne } = require("./fixtures/domains");
 const { monitor } = require('./helpers');
 
-async function eventPicks(dk) {
+async function eventPicks(dk, finalPick = "End turn") {
   await expect((await dk.currentActivity).locator(".activity-name", {name: "Event"})).toBeVisible();
   await dk.makeDecisions(["Culture", "Success", "Nothing happened"]);
-  return dk.currentActivity.makeDecision("End turn");
+  return dk.currentActivity.makeDecision(finalPick);
 }
 
 test.describe("You can end your turn", () => {
@@ -17,6 +17,17 @@ test.describe("You can end your turn", () => {
 
     await dk.readyEventButton.click();
     await eventPicks(dk);
+    await expect(dk.getByText("Turn 2", {exact: true})).toBeVisible();
+  });
+
+  test('Event might lead to another event', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain(endTurnOne);
+
+    await dk.readyEventButton.click();
+    await eventPicks(dk, "Add another event");
+    await eventPicks(dk, "End turn");
     await expect(dk.getByText("Turn 2", {exact: true})).toBeVisible();
   });
 
