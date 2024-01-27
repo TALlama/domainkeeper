@@ -30,9 +30,5 @@
     body {
       grid-template-columns: 1fr;
     }
-
-    .rolls {
-      display: none;
-    }
   }
 }

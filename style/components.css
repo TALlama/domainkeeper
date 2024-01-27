@@ -80,22 +80,45 @@
     initial-value: white;
   }
 
-  domain-sheet {
+  aside#sidebar {
     position: sticky;
     top: 0;
     padding-top: 0;
     max-height: 100vh;
     overflow: hidden;
 
+    @media screen {
+      border-right: 3px solid var(--text-color);
+    }
+
+    .rolls {
+      > h4, h6 {
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--header-bg);
+        padding: var(--internal-margin);
+        margin: var(--internal-margin) 0 0;
+        font-size: var(--step--1);
+      }
+
+      h4 {
+        color: white;
+      }
+
+      h6 {
+        --header-bg: hsl(0, 0%, 90%);
+      }
+
+      @media print { display: none; }
+    }
+  }
+  
+  domain-sheet {
+    display: block;
     --unrest-base-color: hsl(0, 100%, 80%, calc(1.5 * var(--unrest-percent)));
     --unrest-color: hsl(0, 100%, 80%, var(--unrest-percent));
     background: linear-gradient(to right, var(--unrest-base-color), var(--unrest-color) var(--unrest-percent, 0%), white 0 100%);
     transition: --unrest-percent 1s, --unrest-color 500ms;
     transition-timing-function: cubic-bezier(0.000, 0.75, 0.75, 1.5);
-
-    @media screen {
-      border-right: 3px solid var(--text-color);
-    }
 
     .domain-header {
       display: flex;
@@ -121,10 +144,6 @@
 
     h3, h4, h5 {
       color: white;
-    }
-
-    h6 {
-      --header-bg: hsl(0, 0%, 90%);
     }
 
     h3 {
@@ -720,6 +739,10 @@
       &:has(input:checked), &:hover {
         --button-bg: var(--color-selected-bg);
       }
+
+      &:focus-within {
+        outline: 2px dotted red;
+      }
     }
 
     label.pickable + label.pickable {
@@ -773,8 +796,14 @@
       }
     }
 
-    label.base, label:has(input:checked), label:hover {
-      --button-bg: var(--color-selected-bg);
+    label {
+      &.base, &:has(input:checked), &:hover {
+        --button-bg: var(--color-selected-bg);
+      }
+
+      &:focused {
+        outline: 1px dashed var(--color-selected-bg);
+      }
     }
 
     .other {

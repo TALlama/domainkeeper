@@ -18,9 +18,10 @@ class DomainSheet extends RxElement {
 
   connectedCallback() {
     this.load();
-    this.makeReactive();
 
+    reef.component(this, () => this.render());
     this.addEventListener("click", this);
+    this.addEventListener("change", this);
 
     // For debugging; put `?actor=Seth` in the URL to make that one current
     let actorPicker = this.searchParams.get("actor");
@@ -78,74 +79,83 @@ class DomainSheet extends RxElement {
   get abilitiesList() { return this.$(".abilities") }
   get statsList() { return this.$(".stats") }
 
-  makeReactive() {
-    this.fillName();
-    this.fillLeaders();
-    this.fillSettlements();
+  render() {
     this.updateCssProperties();
 
-    Ability.all.forEach(ability => {
-      let key = ability.toLocaleLowerCase();
-
-      Maker.tag("article", {class: "ability", appendTo: this.abilitiesList},
-        Maker.tag("a", {href: "#", class: "ability-roll icon-link", "data-ability": ability}, "🎲", Maker.tag("span", `Roll ${ability}`, {class: "sr-only"})),
-        Maker.tag("label", ability, {for: `domain-${ability}`}),
-        Maker.tag("span", {class: "gauge",
-          rx: () => {
-            let max = this.max(ability);
-            return `<input type="number" id="domain-${ability}" @value="${this.domain[key]}" min="0" max="${max}" /> / ${max}`;
-          },
-          change: (event) => { nudgeValue(this, ability, this.domain, key, event.target.value) },
-        }));
-    });
-
-    "Unrest Size XP Level".split(" ").forEach((stat) => {
-      let key = stat.toLocaleLowerCase();
-
-      Maker.tag("article", {class: `stat stat---${stat.toLocaleLowerCase()}`, appendTo: this.statsList,
-        rx: () => `<label for="domain-${stat}">${stat}</label><input type="number" id="domain-${stat}" class="gauge" @value="${this.domain[key]}" data-in="${stat}" min="${this.min(stat)}" max="${this.max(stat)}" />`,
-        change: (event) => {
-          let value = event.target.value;
-          nudgeValue(this, stat, this.domain, key, value);
-          this.style.setProperty(`--${key}-value`, value);
-          this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(key)}%`);
-        },
-      });
-    })
-    Maker.tag("article", {class: "stat stat---domain-control-dc", appendTo: this.statsList,
-      rx: () => `<label for="domain-control-dc">Control DC</label><input type="number" id="domain-control-dc" class="gauge" @value="${this.controlDC}" readonly />`
-    });
+    return `
+      <h3 class="domain-header">${this.renderName()}</h3>
+      <section class="abilities">${this.renderAbilities()}</section>
+      <section class="stats">${this.renderStats()}</section>
+      <section class="leaders-section">${this.renderLeaders()}</section>
+      <section class="settlements-section">${this.renderSettlements()}</section>`;
   }
 
-  fillName() {
-    reef.component(this.$(".domain-header"), () =>
-      `<span class="domain-name">${this.domain.name}</span>
-        <span class="domain-data-management">
-          <a href="#" data-action="doSaveData">💾</a>
-          <a href="#" data-action="doClearData">❌</a>
+  renderAbilities() {
+    return Ability.all.map(ability => {
+      let key = ability.toLocaleLowerCase();
+      let max = this.max(ability);
+
+      return `<article class="ability">
+          <a href="#" class="ability-roll icon-link" data-ability="${ability}">🎲<span class="sr-only">Roll ${ability}</span></a>
+          <label for="domain-${ability}">${ability}</label>
+          <span class="gauge" data-action="doNudge" data-stat="${ability}">
+            <input type="number" id="domain-${ability}" @value="${this.domain[key]}" min="0" max="${max}" />
+            / ${max}
+          </span>
+        </article>`;
+    }).join("");
+  }
+
+  renderStats() {
+    return `
+      ${this.renderStat("Unrest")}
+      ${this.renderStat("Size")}
+      ${this.renderStat("XP")}
+      ${this.renderStat("Level")}
+      <article class="stat stat---domain-control-dc">
+        <span>Control DC</span><span id="domain-control-dc">${this.controlDC}</span>
+      </article>
+    `;
+  }
+
+  renderStat(stat) {
+    let key = stat.toLocaleLowerCase();
+    let max = this.max(stat);
+
+    return `
+      <article class="stat stat---${stat.toLocaleLowerCase()}">
+        <label for="domain-${stat}">${stat}</label>
+        <span class="gauge" data-action="doNudge" data-stat="${stat}">
+          <input type="number" id="domain-${stat}" @value="${this.domain[key]}" min="0" max="${max}" />
         </span>
-      `
-    );
+      </article>`;
+  }
+
+  renderName() {
+    return `
+      <span class="domain-name">${this.domain.name}</span>
+      <span class="domain-data-management">
+        <a href="#" data-action="doSaveData">💾</a>
+        <a href="#" data-action="doClearData">❌</a>
+      </span>`;
   }
 
 
   activitx(count) { return count == 1 ? "1 activity" : `${count} activities`};
 
-  fillLeaders() {
-    this.leadersComponent ||= reef.component(this.$(".leaders-section"), () =>
-      `<h4>Leaders <span class="badge" title="${this.activitx(this.leadershipActivitiesLeft)} left">${this.leadershipActivitiesLeft}</span></h4>
-      <ul class="actors leaders list-unstyled">${this.actorList(this.domain.leaders.sortBy("-initiative"))}</ul>`
-    );
+  renderLeaders() {
+    return `
+      <h4>Leaders <span class="badge" title="${this.activitx(this.leadershipActivitiesLeft)} left">${this.leadershipActivitiesLeft}</span></h4>
+      <ul class="actors leaders list-unstyled">${this.renderActorList(this.domain.leaders.sortBy("-initiative"))}</ul>`;
   }
 
-  fillSettlements() {
-    this.settlementsComponent ||= reef.component(this.$(".settlements-section"), () =>
-      `<h4>Settlements <span class="badge" title="${this.activitx(this.civicActivitiesLeft)} left">${this.civicActivitiesLeft}</span></h4>
-      <ul class="actors settlements list-unstyled">${this.actorList(this.domain.settlements)}</ul>`
-    );
+  renderSettlements() {
+    return `
+      <h4>Settlements <span class="badge" title="${this.activitx(this.civicActivitiesLeft)} left">${this.civicActivitiesLeft}</span></h4>
+      <ul class="actors settlements list-unstyled">${this.renderActorList(this.domain.settlements)}</ul>`;
   }
 
-  actorList(actors, current = this.currentActor) {
+  renderActorList(actors, current = this.currentActor) {
     return actors.map(actor => {
       let total = actor.activitiesPerTurn;
       let left = actor.activitiesLeft;
@@ -166,6 +176,11 @@ class DomainSheet extends RxElement {
       this.style.setProperty(`--${key}-value`, value);
       this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(name)}%`);
     });
+  }
+
+  doNudge(event) {
+    let stat = event.target.closest("[data-stat]")?.dataset?.stat;
+    if (event.type === "change" && stat) { nudgeValue(event.target, stat, this.domain, stat.toLocaleLowerCase(), event.target.value) }
   }
 
   setCurrentActor(event) {
@@ -298,7 +313,7 @@ class DomainSheet extends RxElement {
     return unrest >= 15 ? -4 : (unrest >= 10 ? -3 : (unrest >= 5 ? -2 : (unrest >= 1 ? -1 : 0)));
   }
 
-  get diceTray() { return this.$(".dice-tray") }
+  get diceTray() { return document.querySelector(".dice-tray") }
 
   roll({die, modifier, itemBonus, level, dc}) {
     let modifierValue = (modifier ? this.domain[modifier.toLocaleLowerCase()] : 0);

@@ -43,7 +43,7 @@ export default class DomainActivityLog extends RxElement {
   }
 
   reroll(event) {
-    let lastRoll = this.domainSheet.$("dice-roller");
+    let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
     if (!lastRoll) { return }
 
     lastRoll.shadowRoot.querySelector("*").click(); // Ew
@@ -53,7 +53,7 @@ export default class DomainActivityLog extends RxElement {
   }
 
   rerollEconomy(event) {
-    let lastRoll = this.domainSheet.$("dice-roller");
+    let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
     if (!lastRoll) { return }
     if (lastRoll.dataset.ability !== "Economy") return;
     
