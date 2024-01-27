@@ -76,58 +76,41 @@ class DomainSheet extends RxElement {
   activity(activityId) { return this.activities.find(a => a.id === activityId) }
   activitiesWhere(pattern) { return this.activities.matches(pattern) }
 
-  get abilitiesList() { return this.$(".abilities") }
-  get statsList() { return this.$(".stats") }
-
   render() {
     this.updateCssProperties();
 
     return `
       <h3 class="domain-header">${this.renderName()}</h3>
-      <section class="abilities">${this.renderAbilities()}</section>
       <section class="stats">${this.renderStats()}</section>
       <section class="leaders-section">${this.renderLeaders()}</section>
       <section class="settlements-section">${this.renderSettlements()}</section>`;
   }
 
-  renderAbilities() {
-    return Ability.all.map(ability => {
-      let key = ability.toLocaleLowerCase();
-      let max = this.max(ability);
-
-      return `<article class="ability">
-          <a href="#" class="ability-roll icon-link" data-ability="${ability}">🎲<span class="sr-only">Roll ${ability}</span></a>
-          <label for="domain-${ability}">${ability}</label>
-          <span class="gauge" data-action="doNudge" data-stat="${ability}">
-            <input type="number" id="domain-${ability}" @value="${this.domain[key]}" min="0" max="${max}" />
-            / ${max}
-          </span>
-        </article>`;
-    }).join("");
-  }
-
   renderStats() {
     return `
+      ${Ability.all.map(ability => this.renderStat(ability, {class: "ability"})).join("")}
+      <article class="hidden stat stat---domain-control-dc">
+        <span class="label">Control DC</span><span id="domain-control-dc" class="current">${this.controlDC}</span>
+      </article>
+      ${this.renderStat("Control DC", {readonly: true, value: this.controlDC})}
       ${this.renderStat("Unrest")}
       ${this.renderStat("Size")}
       ${this.renderStat("XP")}
       ${this.renderStat("Level")}
-      <article class="stat stat---domain-control-dc">
-        <span>Control DC</span><span id="domain-control-dc">${this.controlDC}</span>
-      </article>
     `;
   }
 
-  renderStat(stat) {
-    let key = stat.toLocaleLowerCase();
-    let max = this.max(stat);
+  renderStat(stat, opts = {}) {
+    let key = opts.key ?? stat.toLocaleLowerCase();
+    let value = opts.value ?? this.domain[key];
+    let max = opts.max ?? this.max(stat);
 
     return `
-      <article class="stat stat---${stat.toLocaleLowerCase()}">
+      <article class="stat ${opts.class || ""} ${opts.class === "ability" && value === 1 ? "ability---danger" : ""} stat---${stat.toLocaleLowerCase()}">
+        <input class="current" type="number" id="domain-${stat}" @value="${value}" min="0" max="${max}" ${opts.readonly ? "readonly" : ""} data-action="doNudge" data-stat="${stat}" />
         <label for="domain-${stat}">${stat}</label>
-        <span class="gauge" data-action="doNudge" data-stat="${stat}">
-          <input type="number" id="domain-${stat}" @value="${this.domain[key]}" min="0" max="${max}" />
-        </span>
+        <span class="max"><sl-tooltip content="Maxium value ${max}">${max}</sl-tooltip></span>
+        <a href="#" class="ability-roll icon-link" data-ability="${stat}">🎲<span class="sr-only">Roll ${stat}</span></a>
       </article>`;
   }
 

@@ -108,18 +108,17 @@
         --header-bg: hsl(0, 0%, 90%);
       }
 
+      .dice-tray {
+        max-width: 12em;
+      }
+
       @media print { display: none; }
     }
   }
   
   domain-sheet {
     display: block;
-    --unrest-base-color: hsl(0, 100%, 80%, calc(1.5 * var(--unrest-percent)));
-    --unrest-color: hsl(0, 100%, 80%, var(--unrest-percent));
-    background: linear-gradient(to right, var(--unrest-base-color), var(--unrest-color) var(--unrest-percent, 0%), white 0 100%);
-    transition: --unrest-percent 1s, --unrest-color 500ms;
-    transition-timing-function: cubic-bezier(0.000, 0.75, 0.75, 1.5);
-
+    
     .domain-header {
       display: flex;
 
@@ -150,53 +149,82 @@
       margin-top: 0;
     }
 
-    .abilities, .stats {
-      font-size: var(--step-1);
+    .stats {
+      position: relative;
       display: grid;
+      grid-template-columns: auto 1fr auto auto;
       gap: var(--internal-margin);
-    }
+      padding-inline: var(--internal-margin);
 
-    .stats {
-      grid-template-columns: 1fr 1fr;
+      &:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        z-index: -1;
 
-      :last-child { grid-column: 1 / -1; }
-    }
-
-    .stats {
-      border-top: 1px solid var(--text-color);
-      margin-top: var(--external-margin);
-      padding-top: var(--internal-margin);
-    }
-
-    .abilities .ability, .stats .stat {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      padding-inline-end: var(--internal-margin);
-      justify-items: end;
-
-      &.ability---danger {
-        color: white;
-        animation: internal-error-pulse 1s infinite alternate;
-
-        input { color: white }
+        --unrest-base-color: hsl(0, 100%, 80%, calc(1.5 * var(--unrest-percent)));
+        --unrest-color: hsl(0, 100%, 80%, var(--unrest-percent));
+        background: linear-gradient(to right, var(--unrest-base-color), var(--unrest-color) var(--unrest-percent, 0%), white 0 100%);
+        transition: 0ms, --unrest-percent 1s, --unrest-color 500ms;
+        transition-timing-function: cubic-bezier(0.000, 0.75, 0.75, 1.5);
       }
 
-      .icon-link {
-        font-size: var(--step--2);
-        align-self: center;
-      }
 
-      label {
-        grid-column: 2;
-      }
-
-      .gauge {
+      > .stat {
+        display: grid;
         grid-column: 1 / -1;
+        grid-template-columns: subgrid;
+        align-items: baseline;
+
+        &.ability---danger {
+          color: white;
+          animation: internal-error-pulse 1s infinite alternate;
+  
+          input { color: white }
+        }
+
+        .icon-link {
+          font-size: var(--step--1);
+          align-self: center;
+        }
+
+        .current {
+          grid-column: 1;
+          flex-grow: 1;
+        }
+        label, .label {
+          grid-column: 2;
+        }
+        .max {
+          grid-column: 3;
+          font-size: var(--step--2);
+
+          &:before {
+            content: "/ ";
+          }
+        }
+        .ability-roll {
+          grid-column: 4;
+        }
+
+        &.ability label { font-weight: 600; }
+        &:not(.ability) label { grid-column-end: -1; }
+        &:not(.ability) .ability-roll { display: none }
+        &:not(.ability) .max { display: none }
+
+        &.ability + &:not(.ability) {
+          margin-top: var(--internal-margin);
+        }
       }
     }
 
-    .ability-roll {
-      margin-right: var(--external-margin);
+    hr {
+      grid-column: 1 / -1;
+      margin-block-start: 0;
+      border-top: 1px solid black;
     }
 
     .actors {
