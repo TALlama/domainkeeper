@@ -518,6 +518,15 @@
           h1, h2, h3, h4, h5, h6, header {
             margin-inline: calc(-1 * var(--internal-margin));
           }
+
+          ~ activity-decision-panel {
+            cursor: not-allowed;
+            
+            fieldset {
+              opacity: .5;
+              pointer-events: none;
+            }
+          }
         }
 
         &[resolved] {
