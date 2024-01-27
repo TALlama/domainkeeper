@@ -1,3 +1,4 @@
+import { mod } from "../helpers.js";
 import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 import { Actor } from "../models/actor.js";
@@ -243,7 +244,7 @@ class DomainSheet extends RxElement {
 
   mod(ability) {
     let score = this.domain[ability.toLocaleLowerCase()];
-    return `${score >= 0 ? "+" : ""}${score}`;
+    return mod(score);
   }
 
   get abilityScores() {
@@ -309,13 +310,15 @@ class DomainSheet extends RxElement {
     let modifierTotal = 0;
 
     let header = Maker.tag("h6");
+    let componentsEl = Maker.tag("span", {class: "components", appendTo: header});
     components.forEach((component) => {
       let [name, value] = component;
       if (value !== 0) {
-        header.append(` ${value > 0 ? "+" : "-"} ${name} (${Math.abs(value)})`);
+        componentsEl.append(Maker.tag("span", ` ${mod(value)} (${name})`));
         modifierTotal += value;
       }
     })
+    header.prepend(Maker.tag("span", {class: "total"}, mod(modifierTotal)));
 
     let roller = Maker.tag(
       "dice-roller",
@@ -323,7 +326,7 @@ class DomainSheet extends RxElement {
     );
     if (dc !== false) {
       dc = dc || this.controlDC;
-      header.append(` vs ${dc}`);
+      header.append(Maker.tag("span", {class: "dc"}, ` ${dc}`));
       dc -= modifierTotal; // see https://github.com/colinaut/dice-roller/issues/1
       roller.setAttribute("difficulty", Math.max(1, dc));
     }

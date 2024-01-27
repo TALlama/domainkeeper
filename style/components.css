@@ -106,6 +106,27 @@
 
       h6 {
         --header-bg: hsl(0, 0%, 90%);
+        display: flex;
+        gap: var(--internal-margin);
+        align-items: center;
+
+        > .total, > .dc {
+          font-size: var(--step-1);
+        }
+
+        > .components {
+          display: flex;
+          flex-direction: column;
+        }
+
+        > .dc {
+          margin-left: auto;
+
+          &:before {
+            content: "vs ";
+            font-size: var(--step--2);
+          }
+        }
       }
 
       .dice-tray {
