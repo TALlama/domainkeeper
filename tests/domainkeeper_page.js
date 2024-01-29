@@ -13,6 +13,7 @@ class LocatorLike {
   locator(...args) { return this.root.locator(...args) }
   getByRole(...args) { return this.root.getByRole(...args) }
   getByText(...args) { return this.root.getByText(...args) }
+  getByLabel(...args) { return this.root.getByLabel(...args) }
   getAttribute(...args) { return this.root.getAttribute(...args) }
 
   toHaveAttribute(...args) { return this.root.toHaveAttribute(...args) }
@@ -165,6 +166,8 @@ export class ActivitySheet extends LocatorLike {
     this.retargetWithId();
   }
 
+  get summary() { return this.locator(".summary .value") }
+
   async retargetWithId() {
     if (this.id) return;
 
@@ -182,6 +185,12 @@ export class ActivitySheet extends LocatorLike {
   decisionPanel(name) { return new DecisionPanel(this.page, this.locator(`activity-decision-panel[name="${name}"]`)) }
 
   // Actions
+  async updateSummary(value) {
+    this.page.on('dialog', async dialog => { await dialog.accept(value) });
+    await this.getByLabel("Edit summary").click();
+    return expect(this.summary).toHaveText(value);
+  }
+
   async makeDecisions(options, opts={}) {
     if (options.length === 0) { return Promise.resolve() }
 

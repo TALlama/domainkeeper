@@ -563,6 +563,11 @@
       border-bottom: 1px solid var(--summary-bg);
       padding: var(--internal-margin);
       font-size: var(--step--1);
+      display: flex;
+
+      > a.icon-link {
+        margin-left: auto;
+      }
     }
 
     > .body {

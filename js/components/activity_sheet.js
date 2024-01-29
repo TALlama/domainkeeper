@@ -43,7 +43,7 @@ export class ActivitySheet extends RxElement {
         ${this.renderCancelLink()}
       </header>
       <span class="icon">${this.activity.icon}</span>
-      <blockquote class="summary">${this.activity.summary}</blockquote>
+      ${this.renderSummary()}
       <section class="body">
         ${this.renderDescription()}
         ${this.renderDecisions()}
@@ -58,6 +58,13 @@ export class ActivitySheet extends RxElement {
     return this.canCancel
       ? `<a href="#" class="cancel-activity" data-action="cancelActivity">Cancel</a>`
       : "";
+  }
+
+  renderSummary() {
+    return `<blockquote class="summary">
+      <div class="value">${this.activity.summary}</div>
+      <a href="#" class="icon-link" data-action="editSummary" aria-label="Edit summary">📝</a>
+    </blockquote>`;
   }
 
   renderDescription() {
@@ -82,6 +89,11 @@ export class ActivitySheet extends RxElement {
 
   cancelActivity() {
     this.currentTurn.cancelActivity(this.activity);
+  }
+
+  editSummary(event) {
+    let value = prompt("What's the real story?");
+    if (value) { this.activity.summary = value }
   }
 }
 ActivitySheet.define("activity-sheet");
