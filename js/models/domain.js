@@ -29,8 +29,12 @@ export class Domain {
   //get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
 
   get powerups() { return this.actors.flatMap(a => a.powerups) }
+  set powerups(v) { /* ignore */ }
   //structure(structureId) { return this.structures.find(s => s.id === structureId) }
   //get structures() { return this.powerups.matches({type: Structure.type})) }
+
+  get bonuses() { return this.powerups.flatMap(p => p.bonuses) }
+  set bonuses(v) { /* ignore */ }
 
   /////////////////////////////////////////////// Defaults
 

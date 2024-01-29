@@ -58,6 +58,12 @@ export class DomainkeeperPage extends LocatorLike {
   // Actions
   async setCurrentActor(value) { this.locator(`.leaders-section .actor:has-text("${value}")`).click() }
 
+  async addStructure(settlementName, properties) {
+    return this.page.evaluate((opts) =>
+      document.querySelector("domain-sheet").settlement(opts.settlementName).addPowerup(opts.properties),
+      {settlementName, properties});
+  }
+
   rollAbility(name) {
     this.page.getByRole("link", {name: `Roll ${name}`}).click();
   }
@@ -115,7 +121,7 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   async loadDomain(data, expectTurn = "Turn 1") {
-    this.page.evaluate((data) => document.querySelector("domain-sheet").load(data), data);
+    await this.page.evaluate((data) => document.querySelector("domain-sheet").load(data), data);
     await expect(this.getByText(expectTurn, {exact: true})).toBeVisible();
   }
   async savedDomain() {

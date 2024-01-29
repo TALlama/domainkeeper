@@ -52,6 +52,10 @@ export class Actor {
 
   powerup(id) { return this.powerups.find(p => p.id === id) }
 
+  addPowerup(powerup) {
+    this.powerups = [...this.powerups, powerup];
+  }
+
   removePowerup(powerup) {
     let index = this.powerups.indexOf(powerup);
     index > -1 && this.powerups.splice(index, 1);

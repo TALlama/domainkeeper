@@ -147,7 +147,6 @@ class DomainSheet extends RxElement {
       return `<li id="${actor.id}" aria-role="button" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
         <span class="name">${actor.name}</span>
         <span class="badge" title="${this.activitx(actor.activitiesLeft)} left">${actor.activitiesLeft}</span>
-        </div>
       </li>`;
     }).join("");
   }
@@ -235,7 +234,8 @@ class DomainSheet extends RxElement {
   get actors() { return [...this.domain.leaders, ...this.domain.settlements] }
   readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }
   get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
-
+  
+  settlement(name) { return this.domain.settlements.find(s => s.name === name) }
   structure(structureId) { return this.structures.find(s => s.id === structureId) }
   get structures() { return this.actors.flatMap(a => a.powerups.matches({type: Structure.type})) }
 

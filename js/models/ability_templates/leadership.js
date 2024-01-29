@@ -14,7 +14,11 @@ export var leadershipTemplates = [{
   icon: "🧭",
   name: "Reconnoiter Hex",
   summary: "You hire a team to survey a particular hex.",
-  // TODO limit to after you've built an appropriate structure?
+  whyDisabled(domain, leader) {
+    if (!domain.bonuses.find(p => p.unlock === "Reconnoiter Hex")) {
+      return "Build a Hunters' Lodge first";
+    }
+  },
   decisions: [{
     name: "Roll",
     options: ["Economy", "Stability"],
