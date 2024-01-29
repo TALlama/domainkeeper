@@ -146,6 +146,10 @@
 
       .domain-data-management {
         margin-left: auto;
+
+        a.unnecessary {
+          opacity: 0.8;
+        }
       }
     }
 

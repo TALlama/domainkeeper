@@ -40,6 +40,7 @@ class DomainSheet extends RxElement {
   }
 
   get domain() { return this._data.current }
+  get changed() { return !this._pristineDomain || JSON.stringify(this.domain) !== this._pristineDomain }
 
   renameDomain() {
     let newName = prompt("Name your domain", this.domain.name);
@@ -72,10 +73,11 @@ class DomainSheet extends RxElement {
   load(data = this.loadData()) {
     this._data ??= reef.signal({});
     this._data.current = new Domain(data);
+    this._pristineDomain = JSON.stringify(this._data.current);
   }
 
   loadData() {
-    return this.saveSlots.load({key: "domain", defaultValue: {}});
+    return this.saveSlots.load({key: this.domainKey, defaultValue: {}});
   }
 
   get activityLog() { return document.querySelector("domain-activity-log") }
@@ -126,7 +128,7 @@ class DomainSheet extends RxElement {
       <span class="domain-name">${this.domain.name}</span>
       <a href="#" data-action="renameDomain" aria-label="Rename domain">📝</a>
       <span class="domain-data-management">
-        <a href="#" data-action="doSaveData">💾</a>
+        <a href="#" data-action="doSaveData" class="${this.changed ? "necessary" : "unnecessary"}">💾</a>
         <a href="#" data-action="doClearData">❌</a>
       </span>`;
   }

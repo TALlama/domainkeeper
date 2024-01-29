@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("./domainkeeper_page");
-const { inTurnOne } = require('./fixtures/domains');
+const { inTurnOne, endTurnOne } = require('./fixtures/domains');
 
 test.describe("Saving", () => {
   test('it does not save new domains automatically', async ({ page }) => {
@@ -15,6 +15,16 @@ test.describe("Saving", () => {
 
     await dk.saveLink.click();
     expect(await dk.savedDomain()).toBeDefined();
+  });
+
+  test('it knows if anything has changed', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain(endTurnOne);
+
+    await expect(dk.saveLink).toHaveClass("unnecessary");
+    await dk.readyEventButton.click();
+    await expect(dk.saveLink).not.toHaveClass("unnecessary");
   });
 
   test('it can clear the saved domain when I tell it to', async ({ page }) => {
