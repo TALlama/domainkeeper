@@ -7,6 +7,7 @@ import { Structure } from "../models/structure.js";
 
 import { nudge } from "./event_helpers.js";
 import { RxElement } from "./rx_element.js";
+import { notify } from "./toast.js";
 
 let nudgeValue = function(el, name, data, key, newValue) {
   let was = data[key];
@@ -42,7 +43,6 @@ class DomainSheet extends RxElement {
 
   doSaveData() {
     this.saveData();
-    alert("Domain stats saved. We don't yet save action history.")
   }
 
   doClearData() {
@@ -61,6 +61,7 @@ class DomainSheet extends RxElement {
 
   saveData() {
     this.saveSlots.save({domain: this.domain});
+    notify("Domain saved.", {variant: "success", icon: "check-circle"});
   }
 
   load(data = this.loadData()) {

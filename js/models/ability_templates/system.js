@@ -142,7 +142,6 @@ export var systemTemplates = [{
     let statScores = this.statScores = this.domainSheet.statScores;
     
     return `
-      <p>💾 Domain saved</p>
       <header>What Happened</header>
       <div class="activity-summaries">
         ${(this.domainSheet.currentTurn?.activities || []).map(activity =>
