@@ -401,8 +401,8 @@ export var leadershipTemplates = [{
   }, {
     name: "Outcome",
     summaries: {
-      criticalSuccess: `Boost an Ability you pick by 2; +4 bonus to future roll`,
-      success: `Boost an Ability you pick by 2`,
+      criticalSuccess: `Boost an Ability you pick by 1; +4 bonus to future roll`,
+      success: `Boost an Ability you pick by 1`,
       failure: `Boost a random Ability by 1`,
       criticalFailure: `1d4 Unrest`,
     },
@@ -410,10 +410,11 @@ export var leadershipTemplates = [{
   criticalSuccess() {
     this.success();
     this.info(`🎁 In addition, your ally’s aid grants a +4 circumstance bonus to any one Domain check attempted during the remainder of this turn. You can choose to apply this bonus to any Domain check after the die is rolled, but must do so before the result is known.`);
+    this.addConsumable({name: "Foregin Aid", description: "+4 on any roll, after you roll it.", action: "expire"});
   },
   success() {
     this.info(`🎉 Your ally sends the aid you need.`);
-    this.requirePayment({name: "Benefit", amount: -2});
+    this.requirePayment({name: "Benefit", amount: -1});
   },
   failure() {
     this.warning(`🥡 Your ally sends what aid they can.`);
