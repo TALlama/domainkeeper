@@ -392,6 +392,15 @@
   
         .turn-name {
           padding: var(--internal-margin);
+
+          &:any-link { color: white }
+
+          &:after {
+            content: "📝";
+            margin-inline-start: var(--internal-margin);
+            text-decoration: none;
+            display: inline-block;
+          }
         }
       }
 

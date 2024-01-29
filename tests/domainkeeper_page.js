@@ -48,7 +48,7 @@ export class DomainkeeperPage extends LocatorLike {
   get activityPicker() { return new ActivityPicker(this.page, this.locator('activity-picker')) }
   get consumables() { return new Consumables(this.page, this.locator('ul.consumables')) }
 
-  turn(name) { return new Turn(this.page, this.locator(`article.turn:has(.turn-name:has-text("${name}"))`)) }
+  turn(name) { return new Turn(this.page, this.locator((typeof name) === "number" ? `article.turn[data-turn-number="${name}"]` : `article.turn[data-turn-name="${name}"]`)) }
 
   get currentActivity() { return new ActivitySheet(this.page, this.locator('activity-sheet:not([resolved])')) }
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
@@ -146,10 +146,17 @@ export class Turn extends LocatorLike {
   constructor(page, root) {
     super(page, root);
 
+    this.name = this.locator(".turn-name");
     this.activities = this.locator("activity-sheet");
   }
 
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
+
+  async rename(name) {
+    this.page.on('dialog', async dialog => { await dialog.accept(name) });
+    await this.name.click();
+    return expect(this.name).toHaveText(name);
+  }
 }
 
 export class ActivitySheet extends LocatorLike {
