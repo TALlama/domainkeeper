@@ -1,7 +1,7 @@
 import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 
-import { twist } from "./animations.js";
+import { denyUse, twist, useUp } from "./animations.js";
 import { debugJSON } from "../helpers.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { ActivityPicker } from "./activity_picker.js";
@@ -42,20 +42,28 @@ export default class DomainActivityLog extends RxElement {
     })
   }
 
+  expire(event) {
+    let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
+    if (consumableId) {
+      useUp(event.target.closest(".consumable")).then(() =>
+        this.domainSheet.domain.useConsumable({id: consumableId})
+      );
+    }
+  }
+
   reroll(event) {
     let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
-    if (!lastRoll) { return }
+    if (!lastRoll) { return denyUse(event.target.closest(".consumable")) }
 
     lastRoll.shadowRoot.querySelector("*").click(); // Ew
-    
-    let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
-    consumableId && this.domainSheet.domain.useConsumable({id: consumableId});
+    this.expire(event);
   }
 
   rerollEconomy(event) {
+    let consumable = event.target.closest(".consumable");
     let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
-    if (!lastRoll) { return }
-    if (lastRoll.dataset.ability !== "Economy") return;
+    if (!lastRoll) { return denyUse(consumable) }
+    if (lastRoll.dataset.ability !== "Economy") { return denyUse(consumable) }
     
     this.reroll(event);
   }

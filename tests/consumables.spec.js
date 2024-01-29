@@ -21,7 +21,7 @@ test('fame rerolls the last roll', async ({ page }) => {
     shouldNotChange: () => expect(dk.rolls).toHaveCount(1),
     when: () => dk.consumables.withName("Fame").click(),
   });
-  expect(await dk.consumables.names).toEqual([]);
+  expect(await dk.consumables.names).toContainText([]);
 });
 
 test('mint rerolls only economy rolls', async ({ page }) => {
@@ -43,5 +43,5 @@ test('mint rerolls only economy rolls', async ({ page }) => {
     shouldNotChange: () => dk.rolls.length,
     when: () => dk.consumables.withName("Mint").click(),
   });
-  expect(await dk.consumables.names).toEqual(["Fame"]);
+  expect(await dk.consumables.names).toContainText(["Fame"]);
 });

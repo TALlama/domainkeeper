@@ -45,4 +45,24 @@
     50%  { rotate:  1deg }
     100% { rotate:  0deg }
   }
+
+  .animation---use-up {
+    animation: 600ms use-up;
+  }
+
+  @keyframes use-up {
+    0%   { opacity: 1.0; scale: 1.0 }
+    100% { opacity: 0.0; scale: 0.0; rotate:  -20deg }
+  }
+
+  .animation---deny-use {
+    animation: 600ms deny-use;
+  }
+
+  @keyframes deny-use {
+    0%   { scale: 1.0 }
+    20%  { scale: 0.8; rotate:  -10deg }
+    40%  { scale: 1.1; rotate: 2deg }
+    100% { scale: 1.0 }
+  }
 }

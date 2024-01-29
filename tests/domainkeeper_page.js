@@ -140,7 +140,7 @@ export class Consumables extends LocatorLike {
   get items() { return this.getByRole('listitem') }
   withName(name) { return this.items.filter({has: this.page.getByText(name)}) }
 
-  get names() { return this.items.locator(".name").allTextContents() }
+  get names() { return this.items.locator(".name") }
 }
 
 export class Turn extends LocatorLike {

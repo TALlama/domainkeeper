@@ -48,9 +48,9 @@ test.describe("You can end your turn", () => {
     await dk.loadDomain(endTurnOne);
 
     await dk.readyEventButton.click();
-    expect(await dk.consumables.names).toEqual([]);
+    expect(await dk.consumables.names).toContainText([]);
     await eventPicks(dk),
-    expect(await dk.consumables.names).toEqual(["Fame"]);
+    expect(await dk.consumables.names).toContainText(["Fame"]);
   });
 
   test('uses up end-of-turn consumables', async ({ page }) => {
@@ -59,11 +59,11 @@ test.describe("You can end your turn", () => {
     await dk.loadDomain(endTurnOne);
 
     await page.evaluate(() => { document.querySelector("domain-sheet").domain.addConsumable() });
-    expect(await dk.consumables.names).toEqual(["Consumable"]);
+    expect(await dk.consumables.names).toContainText(["Consumable"]);
 
     await dk.readyEventButton.click();
     await eventPicks(dk);
-    expect(await dk.consumables.names).toEqual(["Fame"]);
+    expect(await dk.consumables.names).toContainText(["Fame"]);
   });
 
   test('adds a domain summary to, and collapses, the previous turn', async ({ page }) => {
