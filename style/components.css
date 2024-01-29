@@ -142,6 +142,7 @@
     
     .domain-header {
       display: flex;
+      gap: var(--internal-margin);
 
       .domain-data-management {
         margin-left: auto;

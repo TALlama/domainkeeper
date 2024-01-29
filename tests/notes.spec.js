@@ -3,6 +3,16 @@ const { DomainkeeperPage } = require("./domainkeeper_page");
 const { inTurnOne } = require('./fixtures/domains');
 
 test.describe("Notes", () => {
+  test('can name the domain', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain(inTurnOne);
+
+    await expect(dk.name).toHaveText("Founded Yesterday");
+    await dk.rename("Anvilania");
+    await expect(dk.name).toHaveText("Anvilania");
+  });
+
   test('can name turns', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');

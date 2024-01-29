@@ -30,6 +30,9 @@ export class DomainkeeperPage extends LocatorLike {
       this[stat.toLowerCase()] = this.getByRole('spinbutton', {name: stat})
     );
 
+    this.name = this.locator(".domain-name");
+    this.renameLink = this.getByLabel("Rename domain");
+
     this.saveLink = this.getByRole('link', {name: '💾'});
     this.restartLink = this.getByRole('link', {name: '❌'});
 
@@ -56,6 +59,12 @@ export class DomainkeeperPage extends LocatorLike {
   decisionPanel(name, opts={}) { return (opts.within || this.currentActivity).decisionPanel(name) }
 
   // Actions
+  async rename(name) {
+    this.page.on('dialog', async dialog => { await dialog.accept(name) });
+    await this.renameLink.click();
+    return expect(this.name).toHaveText(name);
+  }
+
   async setCurrentActor(value) { this.locator(`.leaders-section .actor:has-text("${value}")`).click() }
 
   async addStructure(settlementName, properties) {

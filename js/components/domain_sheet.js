@@ -41,6 +41,11 @@ class DomainSheet extends RxElement {
 
   get domain() { return this._data.current }
 
+  renameDomain() {
+    let newName = prompt("Name your domain", this.domain.name);
+    if (newName) { this.domain.name = newName }
+  }
+
   doSaveData() {
     this.saveData();
   }
@@ -119,6 +124,7 @@ class DomainSheet extends RxElement {
   renderName() {
     return `
       <span class="domain-name">${this.domain.name}</span>
+      <a href="#" data-action="renameDomain" aria-label="Rename domain">📝</a>
       <span class="domain-data-management">
         <a href="#" data-action="doSaveData">💾</a>
         <a href="#" data-action="doClearData">❌</a>
