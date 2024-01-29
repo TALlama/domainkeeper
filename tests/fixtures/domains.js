@@ -1,4 +1,4 @@
-import { domainConcepts, ruin, workTheLand, prognostication, contribute } from "./activities";
+import { domainConcepts, ruin, buildUp, prognostication, contribute } from "./activities";
 
 export const domainCreationTurn = {
   number: 0,
@@ -26,7 +26,7 @@ export const endTurnOne = {
   turns: [domainCreationTurn, {
     number: 1,
     activities: [ruin.allGood, {
-      ...workTheLand.cultureFailure, actorId: "leader-anne",
+      ...buildUp.cultureFailure, actorId: "leader-anne",
     }, {
       ...prognostication.success, actorId: "leader-anne",
     }, {

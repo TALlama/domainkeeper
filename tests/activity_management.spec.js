@@ -21,7 +21,7 @@ test.describe("when it's your turn", () => {
 
     await monitor({
       shouldChange: () => dk.currentActorName,
-      when: () => dk.pickActivity("Work the Land", "Culture", "Failure"),
+      when: () => dk.pickActivity("Build Up", "Culture", "Failure"),
     });
   });
 

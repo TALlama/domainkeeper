@@ -22,8 +22,8 @@ export const ruin = {
   },
 };
 
-export const workTheLand = {
-  cultureFailure: activityRecord("Work the Land", "Culture", "failure"),
+export const buildUp = {
+  cultureFailure: activityRecord("Build Up", "Culture", "failure"),
 };
 
 export const prognostication = {

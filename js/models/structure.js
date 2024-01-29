@@ -43,7 +43,7 @@ export class Structure extends Powerup {
       description: `A festival hall is a small building that gives performers a venue to entertain and citizens a place to gather for celebrations or simply to relax.`,
       bonuses: [
         {max: ability, value: 1},
-        {activity: "Celebrate Holiday", ability: "Culture", value: 1},
+        {activity: "Cool Down", ability: "Culture", value: 1},
       ], // WAS +1 item bonus to Celebrate Holiday
     }, {
       name: `Museum`,
@@ -72,7 +72,7 @@ export class Structure extends Powerup {
       description: `A theater is a venue for concerts, plays, and dances, but can double as a place for debates or other events.`,
       bonuses: [
         {max: ability, value: 1},
-        {activity: "Celebrate Holiday", ability: "Culture", value: 1},
+        {activity: "Cool Down", ability: "Culture", value: 1},
       ], // WAS +2 item bonus to Celebrate Holiday.
       effects: `The first time you build a theater each Kingdom turn, reduce Unrest by 1. While in a settlement with a theater, you gain a +2 item bonus to Performance checks made to Earn Income.`,
       added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
@@ -320,7 +320,7 @@ export class Structure extends Powerup {
       traits: ["Building"],
       limit: 3,
       description: `This collection of stores specializes in expensive, rare, and exotic goods that cater to the wealthy.`,
-      bonuses: [{activity: "Celebrate Holiday", ability: "Economy", value: 2}], // WAS +1 item bonus to Establish Trade Agreement
+      bonuses: [{activity: "Cool Down", ability: "Economy", value: 2}], // WAS +1 item bonus to Establish Trade Agreement
       effects: `Treat the settlement’s level as one level higher than its actual level for determining what luxury-themed magic items (subject to GM approval) are readily available for sale in that settlement. This effect stacks up to three times and overlaps with other stores that function in this way for more specific categories of magic items.`,
     }, {
       name: `Magic Shop`,
@@ -493,38 +493,38 @@ export class Structure extends Powerup {
     return [...education];
   }
 
-  static get activityWorkTheLandStructures() {
-    let activity = "Work the Land";
+  static get activityBuildUpStructures() {
+    let activity = "Build Up";
 
     return [{
       name: `Lorekeeper`,
       level: 3,
       traits: ["Building"],
       description: `Lorekeepers weave stories into tradition.`,
-      bonuses: [{activity: "Work the Land", ability: "Culture", value: 1}],
+      bonuses: [{activity, ability: "Culture", value: 1}],
     }, {
       name: `Foundry`,
       level: 3,
       traits: ["Building"],
       description: `A foundry is a facility used to refine ore into finished metal.`,
-      bonuses: [{activity: "Work the Land", ability: "Economy", value: 1}], // WAS +1 item bonus to Establish Work Site (mine)
+      bonuses: [{activity, ability: "Economy", value: 1}], // WAS +1 item bonus to Establish Work Site (mine)
     }, {
       name: `City Watch`,
       level: 3,
       traits: ["Building"],
       description: `Keep the streets safe and the gates open.`,
-      bonuses: [{activity: "Work the Land", ability: "Loyalty", value: 1}],
+      bonuses: [{activity, ability: "Loyalty", value: 1}],
     }, {
       name: `Lumberyard`,
       level: 3,
       traits: ["Yard"],
       description: `A lumberyard is an open area used to store additional lumber. The yard includes a lumber mill used to process lumber into timbers for construction purposes.`,
-      bonuses: [{activity: "Work the Land", ability: "Stability", value: 1}], // WAS +1 item bonus to Establish Work Site (lumber camp)
-    }]; // TODO it'd be nice to have one to boost culture & loyalty
+      bonuses: [{activity, ability: "Stability", value: 1}], // WAS +1 item bonus to Establish Work Site (lumber camp)
+    }];
   }
 
-  static get activityCelebrateHolidayStructures() {
-    let activity = "Celebrate Holiday";
+  static get activityCoolDownStructures() {
+    let activity = "Cool Down";
     let religious = [{
       name: `Shrine`,
       level: 1,
@@ -635,7 +635,7 @@ export class Structure extends Powerup {
       description: `An Arena is a large public structure, traditionally open to the air, surrounded by seating and viewing areas. It’s used for staging competitions, athletics, gladiatorial combats, and elaborate entertainments and spectacles.`,
       bonuses: [
         {activity, ability: "Loyalty", value: 2},
-        {activity: "Celebrate Holiday", ability: "Loyalty", value: 2},
+        {activity: "Cool Down", ability: "Loyalty", value: 2},
       ], // WAS +2 item bonus to Celebrate Holiday and to Warfare checks made to Quell Unrest
       effects: `An arena lets you to retrain combat-themed feats more efficiently while in the settlement; doing so takes only 5 days rather than a week of downtime.`,
     }, {
@@ -645,7 +645,7 @@ export class Structure extends Powerup {
       description: `A gladiatorial arena is a sprawling open-air field surrounded by seating and viewing areas. It also includes extensive underground barracks and training facilities for gladiators to use.`,
       bonuses: [
         {activity: "Quell Unrest", ability: "Loyalty", value: 3},
-        {activity: "Celebrate Holiday", ability: "Loyalty", value: 3},
+        {activity: "Cool Down", ability: "Loyalty", value: 3},
         {activity: "Hire Adventurers", value: 1},
       ], // WAS +3 to Celebrate Holiday, Hire Adventurers, or Quell Unrest (Warfare)
       effects: `A gladiatorial arena allows a PC in the settlement to retrain combat-themed feats (at the GM's discretion) more efficiently; doing so takes only 4 days rather than a week of downtime.`,
@@ -806,7 +806,7 @@ export class Structure extends Powerup {
       traits: ["Building", "Famous", "Infamous"],
       description: `An opera house functions well as a venue for operas, plays, and concerts, but also includes extensive facilities to aid in the training of all manner of bardic pursuits. Often, an opera house becomes a grandiose landmark, either due to its outlandish colors or eye-catching architecture.`,
       bonuses: [
-        {activity: "Celebrate Holiday", ability: "Culture", value: 3},
+        {activity: "Cool Down", ability: "Culture", value: 3},
         {activity, value: 3},
       ], // WAS +3 item bonus to Celebrate Holiday and Create a Masterpiece
       effects: `The first time you build an opera house each Kingdom turn, reduce Unrest by 4. While in a settlement with an opera house, you gain a +3 item bonus to Performance checks made to Earn Income.`,
@@ -904,8 +904,8 @@ export class Structure extends Powerup {
       ...this.abilityBoostHexStructures,
       ...this.activityBuildStructures,
       ...this.activityCreativeSolutionStructures,
-      ...this.activityWorkTheLandStructures,
-      ...this.activityCelebrateHolidayStructures,
+      ...this.activityBuildUpStructures,
+      ...this.activityCoolDownStructures,
       ...this.activityRequestForeignAidStructures,
       ...this.activityQuellUnrestStructures,
       ...this.activityTakeChargeStructures,

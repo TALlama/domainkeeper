@@ -310,8 +310,8 @@ export var leadershipTemplates = [{
     this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
   },
 }, {
-  icon: "👨🏻‍🌾",
-  name: "Work the Land",
+  icon: "🛠️",
+  name: "Build Up",
   summary: "You lead a party to harvest the bounty of this realm.",
   description() { return `
     <p>This boosts the ability above the one you roll:</p>
@@ -347,8 +347,8 @@ export var leadershipTemplates = [{
     this.boost("Unrest");
   },
 }, {
-  icon: "🎄",
-  name: "Celebrate Holiday",
+  icon: "🍹",
+  name: "Cool Down",
   summary: "You organize a festival where the populace can enjoy themselves.",
   description() { return `
     <p>You declare a day of celebration. Holidays may be religious, historical, martial, or simply festive, but all relieve your citizens from their labors and give them a chance to make merry at the domain’s expense.</p>
