@@ -123,6 +123,9 @@ export var leadershipTemplates = [{
   icon: "🏃‍♂️",
   name: "Abandon Hex",
   summary: "You renounce the domain's claim to a hex.",
+  whyDisabled(domain, leader) {
+    if (domain.size < 2) { return "Cannot abandon your last hex" }
+  },
   decisions: [{
     name: "Roll",
     options: ["Stability"],

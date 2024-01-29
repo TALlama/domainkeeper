@@ -3,6 +3,7 @@ import { Activity } from "../models/activity.js";
 import { blockedTooltip } from "./blocked_tooltip.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { RxElement } from "./rx_element.js";
+import { makeId } from "../models/with_id.js";
 
 export class ActivityPicker extends RxElement {
   connectedCallback() {
@@ -56,10 +57,12 @@ export class ActivityPicker extends RxElement {
         whyDisabled = `${this.currentActor.name} has already done this activity this turn`;
       } else if (leftOfType <= 0) {
         whyDisabled = `The domain has used all its activites for this turn`;
+      } else if (activity.whyDisabled) {
+        whyDisabled = activity.whyDisabled(this.domainSheet.domain, this.currentActor);
       }
 
-      let disabled = whyDisabled !== null;
-      let button = `<button title="${activity.summary}" data-action="doActivity" data-activity="${activity.name}" ${disabled ? "disabled" : ""}>
+      let disabled = !!whyDisabled;
+      let button = `<button key="${makeId(activity.name)}" title="${activity.summary}" data-action="doActivity" data-activity="${activity.name}" ${disabled ? "disabled" : ""}>
           <span class="icon">${activity.icon}</span>
           <span class="name">${activity.name}</span>
         </button>`;
