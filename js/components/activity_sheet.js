@@ -24,6 +24,7 @@ export class ActivitySheet extends RxElement {
 
   get inCurrentTurn() { return this.currentTurn?.activities?.find(e => e.id === this.id) }
   get canCancel() { return this.actor && this.inCurrentTurn && this.mutableDecisionsCount == (this.activity.decisions || []).length }
+  get showDescription() { return this.activity.resolved && this.activity.actorId !== "system" }
   get mutableDecisionsCount() { return (this.activity.decisions || []).count(d => d.mutable) }
 
   /////////////////////////////////////////////// Rendering
@@ -44,7 +45,7 @@ export class ActivitySheet extends RxElement {
       <span class="icon">${this.activity.icon}</span>
       <blockquote class="summary">${this.activity.summary}</blockquote>
       <section class="body">
-        <blockquote class="description">${callOrReturn(this.activity.description || "", this)}</blockquote>
+        ${this.renderDescription()}
         ${this.renderDecisions()}
         <section class="log">
           <header>Log</header>
@@ -56,7 +57,13 @@ export class ActivitySheet extends RxElement {
   renderCancelLink() {
     return this.canCancel
       ? `<a href="#" class="cancel-activity" data-action="cancelActivity">Cancel</a>`
-      : ``;
+      : "";
+  }
+
+  renderDescription() {
+    return this.showDescription
+      ? ""
+      : `<blockquote class="description">${callOrReturn(this.activity.description || "", this)}</blockquote>`;
   }
 
   renderDecisions() {
