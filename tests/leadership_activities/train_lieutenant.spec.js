@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
-const { DomainkeeperPage } = require("./domainkeeper_page");
-const { inTurnOne } = require('./fixtures/domains');
-const { monitor } = require('./helpers');
+const { DomainkeeperPage } = require("../domainkeeper_page");
+const { inTurnOne } = require('../fixtures/domains');
+const { monitor } = require('../helpers');
 
 let leaders = {
   pc: {name: "Polly", traits: ["PC"], initiative: 20},
