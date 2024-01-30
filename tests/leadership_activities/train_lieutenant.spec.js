@@ -54,10 +54,10 @@ test.describe("Train Lieutenant", () => {
     await page.goto('/');
     await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
-    expect(await dk.currentActorActivitiesLeft).toEqual("2");
-    await dk.pickActivity("Train Lieutenant");
-    expect(await dk.currentActorActivitiesLeft).toEqual("1");
+    await expect(dk.currentActorActivitiesLeft).toHaveText("2");
+    await dk.pickActivity("Train Lieutenant", "Ned");
+    await expect(dk.currentActorActivitiesLeft).toHaveText("1");
     await dk.cancelActivity();
-    expect(await dk.currentActorActivitiesLeft).toEqual("2");
+    await expect(dk.currentActorActivitiesLeft).toHaveText("2");
   });
 });

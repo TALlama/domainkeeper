@@ -30,20 +30,27 @@ export class DomainkeeperPage extends LocatorLike {
       this[stat.toLowerCase()] = this.getByRole('spinbutton', {name: stat})
     );
 
+    this.saveSlots = new SaveSlots(this.page, this.page);
+
     this.name = this.locator(".domain-name");
     this.renameLink = this.getByLabel("Rename domain");
 
     this.saveLink = this.getByRole('link', {name: '💾'});
-    this.restartLink = this.getByRole('link', {name: '❌'});
+    this.swapLink = this.getByRole('link', {name: '🔀'});
+    this.restartLink = this.getByRole('link', {name: '✨'});
 
     this.readyEventButton = this.getByRole("button", {name: "Begin event"});
     this.earlyEventButton = this.getByRole("button", {name: "Start event early"});
   }
 
   // Parts of the page
+  statInput(label) { return this[label.toLowerCase()] }
+  async stat(label) { return Number(await this.statInput(label).inputValue()) }
+
   get leadersList() { return this.locator(".leaders-section") }
   get currentActorName() { return this.locator(".actor.current .name").textContent() }
-  get currentActorActivitiesLeft() { return this.locator(".actor.current .badge").textContent() }
+  get currentActorActivitiesLeft() { return this.locator(".actor.current .badge") }
+  actorActivitiesLeft(actorName) { return this.locator(`.actor:has(.name:has-text("${actorName}")) .badge`) }
 
   get rolls() { return this.locator("dice-roller") }
   get lastRoll() { return this.rolls.nth(0) }
@@ -60,7 +67,7 @@ export class DomainkeeperPage extends LocatorLike {
 
   // Actions
   async rename(name) {
-    this.page.on('dialog', async dialog => { await dialog.accept(name) });
+    this.page.once('dialog', async dialog => { await dialog.accept(name) });
     await this.renameLink.click();
     return expect(this.name).toHaveText(name);
   }
@@ -133,8 +140,20 @@ export class DomainkeeperPage extends LocatorLike {
     await this.page.evaluate((data) => document.querySelector("domain-sheet").load(data), data);
     await expect(this.getByText(expectTurn, {exact: true})).toBeVisible();
   }
-  async savedDomain() {
-    return this.page.evaluate(() => document.querySelector("save-slots").load({key: "domain"}));
+
+  async swapToDomain(domainName) {
+    await this.swapLink.click();
+    let dialog = this.page.locator("sl-dialog[open]");
+    await dialog.getByLabel(domainName).click();
+    return dialog.getByRole("button", {name: "Load"}).click();
+  }
+
+  async clearDomain() {
+    await this.swapLink.click();
+    
+    this.page.once('dialog', async dialog => { await dialog.accept() });
+    let dialog = this.page.locator("sl-dialog[open]");
+    await dialog.getByRole('button', { name: 'Delete' }).click();
   }
 
   // Expectations
@@ -144,6 +163,20 @@ export class DomainkeeperPage extends LocatorLike {
       expect(locator, `Stat ${stat} should be ${value}`).toBeDefined();
       await expect(locator).toHaveValue(value.toString());
     }
+  }
+}
+
+export class SaveSlots extends LocatorLike {
+  // Actions
+  async add(slot, properties) {
+    return this.page.evaluate((m) => document.querySelector("save-slots").save(m), {[slot]: properties});
+  }
+
+  async raw() {
+    return this.page.evaluate(() => {
+      let key = document.querySelector("domain-sheet").domainKey;
+      return document.querySelector("save-slots").load({key});
+    });
   }
 }
 
@@ -169,7 +202,7 @@ export class Turn extends LocatorLike {
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
 
   async rename(name) {
-    this.page.on('dialog', async dialog => { await dialog.accept(name) });
+    this.page.once('dialog', async dialog => { await dialog.accept(name) });
     await this.name.click();
     return expect(this.name).toHaveText(name);
   }

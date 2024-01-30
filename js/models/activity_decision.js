@@ -176,6 +176,7 @@ export class ActivityDecision {
 
   get domainSheet() { return this.activity.domainSheet }
   get domain() { return this.activity.domain }
+  set domain(value) { /* ignore */ }
   get actor() { return this.activity.actor }
   get actorId() { return this.activity.actorId }
 

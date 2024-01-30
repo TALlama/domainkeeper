@@ -1,4 +1,6 @@
 import { mod } from "../helpers.js";
+
+import { makeId } from "../models/with_id.js";
 import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 import { Actor } from "../models/actor.js";
@@ -17,6 +19,8 @@ let nudgeValue = function(el, name, data, key, newValue) {
 
 class DomainSheet extends RxElement {
   get saveSlots() { return document.querySelector("save-slots") }
+  get domainKey() { return window.localStorage["domainkey"] ?? "domain" }
+  set domainKey(value) { window.localStorage["domainkey"] = value }
 
   connectedCallback() {
     this.load();
@@ -51,23 +55,77 @@ class DomainSheet extends RxElement {
     this.saveData();
   }
 
-  doClearData() {
+  swapSaveSlot() {
+    this.promptSave()
+
+    let dialog = Object.assign(document.createElement("sl-dialog"), {
+      label: "Which save slot should we use?",
+      innerHTML: `
+        <div>
+          ${Object.entries(this.saveSlots.root).map(([slot, domain]) =>
+            `<label for="use-slot-${slot}" style="display: block" title="${slot}">
+              <input type="radio" id="use-slot-${slot}" name="use-slot" value="${slot}" ${slot === this.domainKey ? "checked" : ""}/>
+              ${domain.name} <span class="metadata">Level ${domain.level} @ Turn ${domain.turns.length - 1}</span>
+            </label>`
+          ).join("")}
+        </div>
+        <div slot="footer" style="display: flex">
+          <sl-button class="delete" variant="danger" size="small" outline style="margin-right: auto">Delete</sl-button>
+          <sl-button class="load" variant="primary">Load</sl-button>
+        </div>
+      `,
+    });
+    dialog.querySelector("sl-button.load").addEventListener("click", event => this.doSwapSaveSlot(event));
+    dialog.querySelector("sl-button.delete").addEventListener("click", event => this.doClearData(event));
+    dialog.addEventListener("sl-after-hide", () => dialog.remove());
+    document.body.append(dialog);
+    dialog.show();
+  }
+
+  doSwapSaveSlot(event) {
+    let dialog = event.target.closest("sl-dialog");
+    let selected = dialog?.querySelector("input:checked")?.value;
+    if (!selected) { return }
+
+    this.domainKey = selected;
+    this.load();
+    notify(`Loaded from ${selected}`);
+    dialog.hide();
+  }
+
+  doClearData(event) {
+    let dialog = event.target.closest("sl-dialog");
+    let selected = dialog?.querySelector("input:checked")?.value;
+    if (!selected) { return }
+
     if (confirm("Really clear data? There is no undo")) {
-      this.clearData();
-      setTimeout(() => window.location.reload(), 0);
+      this.clearData(selected);
     }
   }
 
-  clearData() {
-    this.saveSlots.clear("domain");
+  clearData(slot = this.domainKey) {
+    this.saveSlots.clear(slot);
+  }
 
-    let newData = this.loadData();
-    Object.keys(newData).forEach(key => this.domain[key] = newData[key])
+  newSaveSlot() {
+    this.promptSave();
+    this.domainKey = makeId("slot");
+    this.load();
+  }
+
+  promptSave() {
+    if (!this.changed) return;
+
+    let saveAndContinue = confirm("Press OK to save changes to the current domain, or press cancel to continue without saving");
+    if (saveAndContinue) { this.saveData() }
+    return saveAndContinue;
   }
 
   saveData() {
-    this.saveSlots.save({domain: this.domain});
-    notify("Domain saved.", {variant: "success", icon: "check-circle"});
+    let memo = {};
+    memo[this.domainKey] = this.domain;
+    this.saveSlots.save(memo);
+    notify(`Domain saved as ${this.domainKey}.`, {variant: "success", icon: "check-circle"});
   }
 
   load(data = this.loadData()) {
@@ -129,7 +187,8 @@ class DomainSheet extends RxElement {
       <a href="#" data-action="renameDomain" aria-label="Rename domain">📝</a>
       <span class="domain-data-management">
         <a href="#" data-action="doSaveData" class="${this.changed ? "necessary" : "unnecessary"}">💾</a>
-        <a href="#" data-action="doClearData">❌</a>
+        <a href="#" data-action="swapSaveSlot">🔀</a>
+        <a href="#" data-action="newSaveSlot">✨</a>
       </span>`;
   }
 

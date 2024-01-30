@@ -42,13 +42,13 @@ test.describe("when it's your turn", () => {
     await page.goto('/');
     await dk.loadDomain({...onTurnOne, leaders: [leaders.anne, leaders.zed]});
 
-    expect(await dk.currentActorActivitiesLeft).toEqual("2");
+    await expect(dk.currentActorActivitiesLeft).toHaveText("2");
     expect(await dk.turn("Turn 1").activities).toHaveCount(1);
     await dk.pickActivity("Clear Hex"),
-    expect(await dk.currentActorActivitiesLeft).toEqual("1");
+    await expect(dk.currentActorActivitiesLeft).toHaveText("1");
     expect(await dk.turn("Turn 1").activities).toHaveCount(2);
     await dk.cancelActivity();
-    expect(await dk.currentActorActivitiesLeft).toEqual("2");
+    await expect(dk.currentActorActivitiesLeft).toHaveText("2");
     expect(await dk.turn("Turn 1").activities).toHaveCount(1);
   });
 });

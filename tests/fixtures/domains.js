@@ -34,3 +34,6 @@ export const endTurnOne = {
     }],
   }]
 };
+
+export const unSaved = {...inTurnOne};
+export const allSaved = {...endTurnOne};

@@ -36,7 +36,7 @@ test.describe("You can end your turn", () => {
     await page.goto('/');
     await dk.loadDomain(inTurnOne);
 
-    page.on('dialog', dialog => dialog.accept()); // accept early end of turn
+    page.once('dialog', dialog => dialog.accept()); // accept early end of turn
     await dk.earlyEventButton.click();
     await eventPicks(dk);
     await expect(dk.getByText("Turn 2", {exact: true})).toBeVisible();
