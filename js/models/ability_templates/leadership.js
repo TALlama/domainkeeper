@@ -479,9 +479,10 @@ export var leadershipTemplates = [{
     saveAs: "settlementId",
     valueMethod: "settlement",
     description: "Which settlement will get your attention - and an extra action?",
-    options() { return this.domainSheet?.domain?.settlements || [] },
+    options() { return this.domain?.settlements || [] },
     saveValue(settlement) { return settlement?.id },
     displayValue(settlement) { return settlement?.name },
+    mutable: (activity, decision) => activity.decision("Roll").mutable,
   }, {
     name: "Roll",
   }, {
