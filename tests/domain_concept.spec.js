@@ -58,7 +58,7 @@ test.describe("domain concept is shown on first run", () => {
 
     // Consumables refresh each turn
     await expect(dk.consumables.withName("Fame")).toHaveCount(1);
-    expect(await dk.consumables.names).toContainText(["Fame"]);
+    await expect(dk.consumables.names).toContainText(["Fame"]);
   });
 
   // TODO after reload, we shouldn't add another welcome + concept to any turn
@@ -83,6 +83,6 @@ test.describe("domain concept is shown on first run", () => {
 
     // Consumables refresh each turn
     await expect(dk.consumables.withName("Fame")).toHaveCount(1);
-    expect(await dk.consumables.names).toContainText(["Fame"]);
+    await expect(dk.consumables.names).toContainText(["Fame"]);
   });
 });
