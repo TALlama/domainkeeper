@@ -4,6 +4,7 @@
 // See https://paizo.com/community/communityuse for details                     //
 /********************************************************************************/
 
+import "../extensions.js";
 import { Powerup } from "./powerup.js";
 
 export class Structure extends Powerup {
@@ -297,7 +298,7 @@ export class Structure extends Powerup {
   }
 
   static get equipmentStructures() {
-    /* These strucrures focus on giving the PCs purchasing options for their adventures */
+    /* These structures focus on giving the PCs purchasing options for their adventures */
     return [{ //////////////////////////////////////// Special shops let you buy equipment
       name: `Alchemy Laboratory`,
       level: 3,
