@@ -25,7 +25,7 @@ export class StructureChip extends RxElement {
 
   render() {
     return `
-      ${this.structure.name}
+      <span class="structure-name powerup-name">${this.structure.name}</span>
       <a href="#" data-action="showDetails">ℹ️</a>
       ${this.renderDialog()}`;
   }
