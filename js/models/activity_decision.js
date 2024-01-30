@@ -108,7 +108,11 @@ export class ActivityDecision {
       set(value) {
         let validOptions = decision.optionValues;
         if (validOptions.length && ![...validOptions, null, undefined].includes(value)) {
-          throw TypeError(`Canot set ${saveAs} to ${value}; try one of ${JSON.stringify(decision.options)}`)
+          if (activity.callbacksEnabled) {
+            throw TypeError(`Cannot set ${saveAs} to ${value}; try one of ${JSON.stringify(validOptions)}`);
+          } else {
+            console.debug(`Setting ${saveAs} to ${value} even though it's not in ${JSON.stringify(validOptions)}`);
+          }
         }
         if (activity.transient[`_${saveAs}`] === value) { return }
 

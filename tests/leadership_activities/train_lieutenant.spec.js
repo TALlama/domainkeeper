@@ -4,19 +4,60 @@ const { inTurnOne } = require('../fixtures/domains');
 const { monitor } = require('../helpers');
 
 let leaders = {
-  pc: {name: "Polly", traits: ["PC"], initiative: 20},
-  npc: {name: "Ned", traits: ["NPC"], initiative: 10},
+  pc: {name: "Polly", id: "leader-polly", traits: ["PC"], initiative: 20},
+  npc: {name: "Ned", id: "leader-ned", traits: ["NPC"], initiative: 10},
 };
 
-test.describe("Train Lieutenant", () => {
-  test('lets you pick an NPC, then an Ability, then an outcome', async ({ page }) => {
+test.describe("Critical Success", () => {
+  test('the NPC gains a second activity', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+
+    expect(dk.actorActivitiesLeft("Ned")).toHaveText("1");
+    await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Success");
+    expect(dk.actorActivitiesLeft("Ned")).toHaveText("2");
+  });
+});
+
+test.describe("Success", () => {
+  test('gives the chosen NPC more activity choices', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
     await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Success");
+    // TODO check this
   });
+});
 
+test.describe("Failure", () => {
+  test('nothing happens', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+
+    await monitor({
+      shouldNotChange: () => dk.actorActivitiesLeft("Ned").textContent(),
+      when: () => dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Failure"),
+    });
+  });
+});
+
+test.describe("Critical Failure", () => {
+  test('trainee abandons their post', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+
+    await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Failure");
+    dk.setCurrentActor("Ned");
+    await expect(dk.currentActorTraits()).toContainText(["NPC"]);
+    // TODO await expect(dk.currentActorTraits()).toContainText(["AWOL"]);
+  });
+});
+
+test.describe("Picking an NPC to train", () => {
   test('cannot train yourself', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
@@ -38,17 +79,9 @@ test.describe("Train Lieutenant", () => {
     await dk.pickActivity("Train Lieutenant");
     await expect(dk.currentActivity.getByText("There's no one to train")).toBeVisible();
   });
+});
 
-  test('on a critical success, the NPC gains a second activity', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
-
-    expect(dk.leadersList.getByText("Ned 1")).toBeVisible();
-    await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Success");
-    expect(dk.leadersList.getByText("Ned 2")).toBeVisible();
-  });
-
+test.describe("Cancelling", () => {
   test('can be cancelled until you roll', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
@@ -61,3 +94,26 @@ test.describe("Train Lieutenant", () => {
     await expect(dk.currentActorActivitiesLeft).toHaveText("2");
   });
 });
+
+test.describe("Loading", () => {
+  test('Adds an activity to the selected settlement', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    let saved = {...inTurnOne, leaders: [leaders.pc, leaders.npc]};
+    saved.turns[1].activities.push({
+      "name": "Train Lieutenant",
+      "actorId": leaders.pc.id,
+      "traineeId": leaders.npc.id,
+      "ability": "Loyalty",
+      "outcome": "success",
+    });
+    await dk.loadDomain(saved);
+    
+    let takeCharge = dk.activity("Train Lieutenant");
+    await expect(takeCharge.root).toHaveAttribute("resolved");
+    await expect(takeCharge.decisionPanel("Trainee").root).toContainText("Trainee Ned");
+    await expect(takeCharge.decisionPanel("Roll").root).toContainText("Roll Loyalty");
+    await expect(takeCharge.decisionPanel("Outcome").root).toContainText("Outcome Success");
+  });
+});
+

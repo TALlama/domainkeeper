@@ -73,6 +73,7 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   async setCurrentActor(value) { this.locator(`.leaders-section .actor:has-text("${value}")`).click() }
+  currentActorTraits() { return this.locator(`actor-sheet trait-list li.trait`) }
 
   async addStructure(settlementName, properties) {
     return this.page.evaluate((opts) =>
