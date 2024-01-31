@@ -25,6 +25,19 @@ test.describe("when it's your turn", () => {
     });
   });
 
+  test('actors must pick two different activities', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain({...onTurnOne, leaders: [leaders.anne, leaders.zed]});
+
+    await monitor({
+      shouldNotChange: () => dk.currentActorName,
+      when: () => dk.pickActivity("Clear Hex", "Economy", "Success"),
+    });
+
+    await expect(dk.activityPicker.getByRole("button", {name: "Clear Hex"})).toBeDisabled();
+  });
+
   test('initiative set the default order, but you can override it', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
