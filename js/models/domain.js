@@ -169,7 +169,6 @@ export class Domain {
   newTurn(properties = {}) {
     this.turns.last().addActivity({name: "Domain Summary"});
 
-    delete this.currentActorId; // TODO move that into turn
     this.leaders.forEach(l => l.rollInitiative()); // TODO this too
 
     let turn = this.#addTurn(properties);
@@ -181,7 +180,13 @@ export class Domain {
     document.querySelector("domain-sheet").saveData();
   }
 
-  turnResolved(turn) {
+  activityResolved({activity}) {
+    if (activity.actorId === this.currentActorId && activity.actor.activitiesLeft === 0) {
+      delete this.currentActorId; // TODO move that into turn
+    }
+  }
+
+  turnResolved({turn}) {
     if (turn.number === 0) { this.newTurn() }
   }
 

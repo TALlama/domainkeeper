@@ -25,10 +25,7 @@ export class ActorSheet extends RxElement {
   }
 
   renderNoActor() {
-    return `<h3>
-      All activities for the turn have been taken.
-      <span class='badge'>0 activities left</span>
-    </h3>${this.renderBody()}`
+    return `<h3>Select a leader or settlement on the left.</h3>${this.renderBody()}`
   }
 
   renderHeader() {
@@ -50,16 +47,16 @@ export class ActorSheet extends RxElement {
   renderBody() {
     let content = ``;
 
-    if (this.actor?.isSettlement) {
-      content = `
-        <ul class="powerups list-unstyled list-inline">${this.actor.powerups.map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
-        ${this.renderStructureControls()}`;
-    }
-
-    return `<article>
-      ${content}
+    return `<article class="actor-controls">
+      ${this.renderPowerups()}
       <activity-picker></activity-picker>
-    </article>`;
+    </article>${this.renderEventButton()}`;
+  }
+
+  renderPowerups() {
+    return `
+      <ul class="powerups list-unstyled list-inline">${(this.actor?.powerups || []).map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
+      ${this.renderStructureControls()}`
   }
 
   renderPowerup(powerup) {
@@ -67,6 +64,7 @@ export class ActorSheet extends RxElement {
   }
 
   renderStructureControls() {
+    if (!this.actor) { return `` }
     if (!this.actor.isSettlement) { return `` }
 
     return `<fieldset class="structure-controls">
@@ -74,6 +72,14 @@ export class ActorSheet extends RxElement {
       <input id="nudge-structure" name="name" list="available-structures"/>
       <button data-action="doAddStructure">Build</button>
     </fieldset>`;
+  }
+
+  renderEventButton() {
+    let button = this.domainSheet.readyActors.length
+      ? `<button class="add-event add-event-pending" data-action="kickoffEvent">Start event early</button>`
+      : `<button class="add-event add-event-ready" data-action="kickoffEvent">Begin event</button>`;
+    
+    return `<article class="event-controls">${button}</article>`;
   }
 
   //////////////////////////////////// Event handling

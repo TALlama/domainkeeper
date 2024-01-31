@@ -346,6 +346,31 @@
         }
       }
     }
+
+    > .actor-controls {
+      border-bottom-width: 0;
+      padding-bottom: 0;
+    }
+
+    > .event-controls {
+      display: flex;
+      border-top-width: 0;
+      padding-top: 0;
+
+      > .add-event {
+        margin-inline-start: auto;
+        margin-top: var(--external-margin);
+      }
+
+      > .add-event-pending {
+        --button-bg: white;
+      }
+      
+      > .add-event-ready {
+        --button-bg: hsl(120, 40%, 60%);
+        font-size: var(--step-3);
+      }
+    }
   }
 
   domain-activity-log {
@@ -457,19 +482,6 @@
 
     > .civic-activities {
       --button-bg: var(--color-civic-bg);
-    }
-
-    > .add-event {
-      margin-top: var(--external-margin);
-    }
-
-    > .add-event-pending {
-      --button-bg: white;
-    }
-    
-    > .add-event-ready {
-      --button-bg: hsl(120, 40%, 60%);
-      font-size: var(--step-3);
     }
   }
 

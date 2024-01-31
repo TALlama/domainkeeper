@@ -28,19 +28,23 @@ export class ActivityPicker extends RxElement {
   }
 
   renderClosed() {
-    return `
-      <span class="todo">⌛ Complete the activity below before picking another activity.</span>
-      ${this.renderEventButton()}`;
+    return `<span class="todo">⌛ Complete the activity below before picking another activity.</span>`;
   }
 
   renderOpen() {
+    if (this.currentActor && this.currentActor.activitiesLeft === 0) {
+      return `<span class="todo">⌛ ${this.currentActor.name} has used all their activities for this turn.</span>`;
+    } else {
+      return this.renderActivityButtons();
+    }
+  }
+
+  renderActivityButtons() {
     let type = this.isLeader ? "leadership" : (this.isSettlement ? "civic" : "none");
 
-    return `
-      ${this.isLeader
-        ? this.renderActivityList(Activity.templates.matches({type}), this.domainSheet.leadershipActivitiesLeft, "leadership")
-        : this.isSettlement ? this.renderActivityList(Activity.templates.matches({type}), this.domainSheet.civicActivitiesLeft, "civic") : ""}
-      ${this.renderEventButton()}`;
+    return this.isLeader
+      ? this.renderActivityList(Activity.templates.matches({type}), this.domainSheet.leadershipActivitiesLeft, "leadership")
+      : this.isSettlement ? this.renderActivityList(Activity.templates.matches({type}), this.domainSheet.civicActivitiesLeft, "civic") : "";
   }
 
   renderActivityList(activities, left, typeName) {
@@ -68,14 +72,6 @@ export class ActivityPicker extends RxElement {
         </button>`;
       return blockedTooltip(whyDisabled, button);
     }).join("");
-  }
-
-  renderEventButton() {
-    if (this.unresolvedActivity) { return `` }
-
-    return this.domainSheet.allActivitiesLeft
-      ? `<button class="add-event add-event-pending" data-action="kickoffEvent">Start event early</button>`
-      : `<button class="add-event add-event-ready" data-action="kickoffEvent">Begin event</button>`;
   }
 }
 ActivityPicker.define("activity-picker");

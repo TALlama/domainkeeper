@@ -245,7 +245,7 @@ class DomainSheet extends RxElement {
 
   get currentTurn() { return this.domain.turns.last() }
   get previousTurn() { let turns = this.domain.turns || []; return turns[turns.length - 2]; }
-  get currentActor() { return this.readyActor(this.domain.currentActorId) || this.readyActors.first() }
+  get currentActor() { return this.domain.currentActorId ? this.actor(this.domain.currentActorId) : this.readyActors.first() }
 
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
   get actors() { return [...this.domain.leaders, ...this.domain.settlements] }

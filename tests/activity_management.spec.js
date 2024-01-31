@@ -50,6 +50,18 @@ test.describe("when it's your turn", () => {
     });
   });
 
+  test('you can always click on an actor to see their stats', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain({...inTurnOne, leaders: [{...leaders.anne, activitiesPerTurn: 0}, leaders.zed]}, "Domain Creation");
+
+    expect(await dk.currentActorName).toEqual("Zed");
+    await monitor({
+      shouldChange: () => dk.currentActorName,
+      when: () => page.getByText("Anne").click(),
+    });
+  });
+
   test('picking activities lowers the number of activities you have left, but canceling returns them', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');

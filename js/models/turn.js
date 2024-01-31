@@ -43,8 +43,10 @@ export class Turn {
   }
 
   activityResolved(activity) {
+    this.domain?.activityResolved({activity, turn: this});
+
     if (this.number === 0 || this.resolved) {
-      this.domain?.turnResolved(this);
+      this.domain?.turnResolved({activity, turn: this});
     }
   }
 }
