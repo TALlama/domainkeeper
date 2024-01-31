@@ -48,6 +48,7 @@ export class DomainkeeperPage extends LocatorLike {
   async stat(label) { return Number(await this.statInput(label).inputValue()) }
 
   get leadersList() { return this.locator(".leaders-section") }
+  get settlementsList() { return this.locator(".settlements-section") }
   get currentActorName() { return this.locator(".actor.current .name").textContent() }
   get currentActorActivitiesLeft() { return this.locator(".actor.current .badge") }
   actorActivitiesLeft(actorName) { return this.locator(`.actor:has(.name:has-text("${actorName}")) .badge`) }
@@ -61,6 +62,7 @@ export class DomainkeeperPage extends LocatorLike {
 
   turn(name) { return new Turn(this.page, this.locator((typeof name) === "number" ? `article.turn[data-turn-number="${name}"]` : `article.turn[data-turn-name="${name}"]`)) }
 
+  topActivity() { return new ActivitySheet(this.page, this.locator("activity-sheet").first()) }
   get currentActivity() { return new ActivitySheet(this.page, this.locator('activity-sheet:not([resolved])')) }
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
   decisionPanel(name, opts={}) { return (opts.within || this.currentActivity).decisionPanel(name) }
@@ -216,22 +218,19 @@ export class ActivitySheet extends LocatorLike {
     this.retargetWithId();
   }
 
-  get summary() { return this.locator(".summary .value") }
-
   async retargetWithId() {
     if (this.id) return;
 
-    console.log(`-- acquiring id…`);
     let id = await this.root.getAttribute("id");
-    console.log(`-- acquired id: ${id}`);
     this.root = this.page.locator(`#${id}`);
     this.id = id;
-    console.log(`-- retargetted with id: ${id}`);
     return id;
   }
 
   // Parts
-  name() { return this.locator(".activity-name") }
+  get name() { return this.locator(".activity-name") }
+  get summary() { return this.locator(".summary .value") }
+  get log() { return this.locator("section.log") }
   decisionPanel(name) { return new DecisionPanel(this.page, this.locator(`activity-decision-panel[name="${name}"]`)) }
 
   // Actions

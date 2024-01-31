@@ -45,9 +45,9 @@ export class ActivityPicker extends RxElement {
 
   renderActivityList(activities, left, typeName) {
     return `
-      <ul class="activities-list ${typeName}-activities">
+      <div class="activities-list ${typeName}-activities">
         ${this.renderActivityButton(activities, left)}
-      </ul>`;
+      </div>`;
   }
 
   renderActivityButton(available, leftOfType) {

@@ -27,7 +27,7 @@ class DomainSheet extends RxElement {
 
     reef.component(this, () => this.render());
     this.addEventListener("click", this);
-    this.addEventListener("change", this);
+    this.addEventListener("input", this);
 
     // For debugging; put `?actor=Seth` in the URL to make that one current
     let actorPicker = this.searchParams.get("actor");
@@ -231,7 +231,7 @@ class DomainSheet extends RxElement {
 
   doNudge(event) {
     let stat = event.target.closest("[data-stat]")?.dataset?.stat;
-    if (event.type === "change" && stat) { nudgeValue(event.target, stat, this.domain, stat.toLocaleLowerCase(), event.target.value) }
+    if (event.type === "input" && stat) { nudgeValue(event.target, stat, this.domain, stat.toLocaleLowerCase(), event.target.value) }
   }
 
   setCurrentActor(event) {

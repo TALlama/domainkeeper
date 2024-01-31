@@ -70,7 +70,8 @@ export class ActorSheet extends RxElement {
     if (!this.actor.isSettlement) { return `` }
 
     return `<fieldset class="structure-controls">
-      Structure: <input name="name" list="available-structures"/>
+      <label for="nudge-structure">Structure:</label>
+      <input id="nudge-structure" name="name" list="available-structures"/>
       <button data-action="doAddStructure">Build</button>
     </fieldset>`;
   }
@@ -87,7 +88,7 @@ export class ActorSheet extends RxElement {
     let structureName = nameInput?.value;
     if (structureName) {
       nudge(this, activity => Structure.add({template: structureName, actor: this.actor, activity,
-        added({fullName}) { activity.info(`🏦 Structure added: ${fullName}`) },
+        added({fullName, actor}) { activity.info(`🏦 Structure added to ${actor.name}: ${fullName}`) },
       }));
       nameInput.value = "";
     }

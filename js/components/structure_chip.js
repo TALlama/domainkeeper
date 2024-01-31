@@ -53,7 +53,7 @@ export class StructureChip extends RxElement {
 
   destroyStructure(event) {
     if (confirm("Really destroy? There is no undo!")) {
-      nudge(this, (activity) => activity.error(`💥 Structure destroyed: ${this.structure.name}`));
+      nudge(this, (activity) => activity.error(`💥 Structure destroyed in ${this.actor.name}: ${this.structure.name}`));
       this.hideDetails(event);
       this.actor.removePowerup(this.structure);
     }
