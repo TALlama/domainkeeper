@@ -12,10 +12,9 @@ export class ActivityDecisionPanel extends RxElement {
   }
 
   get activitySheet() { return this.closest("activity-sheet") }
-  get domainSheet() { return this.activitySheet?.domainSheet }
 
   get activity() { return this.activitySheet?.activity }
-  get decision() { return this.activity.decision(this.getAttribute("name")) }
+  get decision() { return this.activity ? this.activity.decision(this.getAttribute("name")) : undefined }
 
   /////////////////////////////////////////////// Rendering
 

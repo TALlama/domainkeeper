@@ -137,14 +137,24 @@ export var systemTemplates = [{
   summary: `A report on the state of your domain`,
   decisions: [],
   description() {
-    let lastSummary = this.domainSheet.previousTurn?.activities?.find(e => e.name === this.name);
-    let abilityScores = this.abilityScores = this.domainSheet.abilityScores;
-    let statScores = this.statScores = this.domainSheet.statScores;
+    let lastSummary = this.domain.previousTurn?.activities?.find(e => e.name === this.name);
+    let abilityScores = this.abilityScores = {
+      Culture: this.domain.culture,
+      Economy: this.domain.economy,
+      Loyalty: this.domain.loyalty,
+      Stability: this.domain.stability,
+    };
+    let statScores = this.statScores = {
+      Unrest: this.domain.unrest,
+      Size: this.domain.size,
+      XP: this.domain.xp,
+      Level: this.domain.level,
+    };
     
     return `
       <header>What Happened</header>
       <div class="activity-summaries">
-        ${(this.domainSheet.currentTurn?.activities || []).map(activity =>
+        ${(this.domain.currentTurn?.activities || []).map(activity =>
           `<a
             href="#${activity.id}"
             title="${activity.name}"
@@ -189,7 +199,7 @@ export var systemTemplates = [{
     };
   }),
   added() {
-    let unrest = this.domainSheet.domain.unrest;
+    let unrest = this.domain.unrest;
     this.decisions.forEach(decision => {
       decision.resolution = unrest >= decision.threshold ? "Met" : "Unmet";
     });

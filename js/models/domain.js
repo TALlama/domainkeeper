@@ -1,4 +1,5 @@
 import { addTransient, hydrateList } from "./utils.js";
+import { Ability } from "./abilities.js";
 import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
 import { Turn } from "./turn.js";
@@ -23,7 +24,7 @@ export class Domain {
   get currentTurn() { return this.turns.last() }
   get currentActivity() { return this.currentTurn?.currentActivity }
 
-  //actor(actorId) { return this.actors.find(a => a.id === actorId) }
+  actor(actorId) { return this.actors.find(a => a.id === actorId) }
   get actors() { return [...this.leaders, ...this.settlements] }
   //readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }
   //get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
@@ -78,6 +79,84 @@ export class Domain {
     if (this.turns.length === 1 && this.turns[0].activities.all("resolved")) {
       this.newTurn();
     }
+  }
+
+  /////////////////////////////////////////////// Stats
+
+  min(stat) {
+    stat = stat.toLocaleLowerCase();
+
+    if ("level size".split(" ").includes(stat)) { return 1 }
+    return 0;
+  }
+
+  max(stat) {
+    return this.maxBase(stat) + this.bonuses.matches({max: stat}).sum("value");
+  }
+
+  maxBase(stat) {
+    stat = stat.toLocaleLowerCase();
+
+    if (Ability.all.map(a => a.toLocaleLowerCase()).includes(stat)) { return 5 }
+    if ("unrest level".split(" ").includes(stat)) { return 20 }
+    if ("xp".split(" ").includes(stat)) { return 1000 }
+    if ("size".split(" ").includes(stat)) { return 200 }
+    return 99999;
+  }
+
+  modify({by}, names) {
+    names.forEach(name => {
+      let key = name.toLocaleLowerCase();
+      let current = this[key];
+      let target = current + by;
+      let max = this.max(name);
+      let overage = target - max;
+      this[key] = Math.min(max, target);
+      if (overage > 0) {
+        this.info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
+        this.xp += overage * 50;
+      }
+    })
+  }
+  boost(...names) {
+    let {by} = names[0];
+    by && names.shift();
+    this.modify({by: by ?? 1}, names);
+  }
+  reduce(...names) {
+    let {by} = names[0];
+    by && names.shift();
+    this.modify({by: by ?? -1}, names);
+  }
+
+  get controlDC() {
+    let size = this.size;
+    let sizeMod = size < 10 ? 0 : (size < 25 ? 1 : (size < 50 ? 2 : (size < 100 ? 3 : 4)));
+
+    let baseControlDCByLevel = {
+      1: 14, // Charter, government, heartland, initial proficiencies, favored land, settlement construction (village)
+      2: 15, // Kingdom feat
+      3: 16, // Settlement construction (town), skill increase
+      4: 18, // Expansion expert, fine living, Kingdom feat
+      5: 20, // Ability boosts, ruin resistance, skill increase
+      6: 22, // Kingdom feat
+      7: 23, // Skill increase
+      8: 24, // Experienced leadership +2, Kingdom feat, ruin resistance
+      9: 26, // Expansion expert (Claim Hex 3 times/turn), settlement construction (city), skill increase
+      10: 27, // Ability boosts, Kingdom feat, life of luxury
+      11: 28, // Ruin resistance, skill increase
+      12: 30, // Civic planning, Kingdom feat
+      13: 31, // Skill increase
+      14: 32, // Kingdom feat, ruin resistance
+      15: 34, // Ability boosts, settlement construction (metropolis), skill increase
+      16: 35, // Experienced leadership +3, Kingdom feat
+      17: 36, // Ruin resistance, skill increase
+      18: 38, // Kingdom feat
+      19: 39, // Skill increase
+      20: 40, // Ability boosts, envy of the world, Kingdom feat, ruin resistance
+    };
+
+    return sizeMod + baseControlDCByLevel[this.level];
   }
 
   /////////////////////////////////////////////// Turn Management

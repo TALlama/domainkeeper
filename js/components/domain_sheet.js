@@ -170,11 +170,11 @@ class DomainSheet extends RxElement {
   renderStat(stat, opts = {}) {
     let key = opts.key ?? stat.toLocaleLowerCase();
     let value = opts.value ?? this.domain[key];
-    let max = opts.max ?? this.max(stat);
+    let max = opts.max ?? this.domain.max(stat);
 
     return `
       <article class="stat ${opts.class || ""} ${opts.class === "ability" && value === 1 ? "ability---danger" : ""} stat---${stat.toLocaleLowerCase()}">
-        <input class="current" type="number" id="domain-${stat}" @value="${value}" min="0" max="${max}" ${opts.readonly ? "readonly" : ""} data-action="doNudge" data-stat="${stat}" />
+        <input class="current" type="number" id="domain-${stat}" @value="${value}" min="${this.domain.min(stat)}" max="${max}" ${opts.readonly ? "readonly" : ""} data-action="doNudge" data-stat="${stat}" />
         <label for="domain-${stat}">${stat}</label>
         <span class="max"><sl-tooltip content="Maxium value ${max}">${max}</sl-tooltip></span>
         <a href="#" class="ability-roll icon-link" data-ability="${stat}">🎲<span class="sr-only">Roll ${stat}</span></a>
@@ -225,7 +225,7 @@ class DomainSheet extends RxElement {
       let value = this.domain[key];
 
       this.style.setProperty(`--${key}-value`, value);
-      this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.max(name)}%`);
+      this.style.setProperty(`--${key}-percent`, `${value * 100.0 / this.domain.max(name)}%`);
     });
   }
 
@@ -239,60 +239,9 @@ class DomainSheet extends RxElement {
     if (actorId) { this.domain.currentActorId = actorId }
   }
 
-  min(stat) {
-    stat = stat.toLocaleLowerCase();
-
-    if ("level size".split(" ").includes(stat)) { return 1 }
-    return 0;
-  }
-
-  max(stat) {
-    return this.maxBase(stat) + this.bonuses.matches({max: stat}).sum("value");
-  }
-
-  maxBase(stat) {
-    stat = stat.toLocaleLowerCase();
-
-    if (Ability.all.map(a => a.toLocaleLowerCase()).includes(stat)) { return 5 }
-    if ("unrest level".split(" ").includes(stat)) { return 20 }
-    if ("xp".split(" ").includes(stat)) { return 1000 }
-    if ("size".split(" ").includes(stat)) { return 200 }
-    return 99999;
-  }
-
   get leadershipActivitiesLeft() { return this.domain.leaders.sum("activitiesLeft") }
   get civicActivitiesLeft() { return this.domain.settlements.sum("activitiesLeft") }
   get allActivitiesLeft() { return this.leadershipActivitiesLeft + this.civicActivitiesLeft }
-
-  get controlDC() {
-    let size = this.domain.size;
-    let sizeMod = size < 10 ? 0 : (size < 25 ? 1 : (size < 50 ? 2 : (size < 100 ? 3 : 4)));
-
-    let baseControlDCByLevel = {
-      1: 14, // Charter, government, heartland, initial proficiencies, favored land, settlement construction (village)
-      2: 15, // Kingdom feat
-      3: 16, // Settlement construction (town), skill increase
-      4: 18, // Expansion expert, fine living, Kingdom feat
-      5: 20, // Ability boosts, ruin resistance, skill increase
-      6: 22, // Kingdom feat
-      7: 23, // Skill increase
-      8: 24, // Experienced leadership +2, Kingdom feat, ruin resistance
-      9: 26, // Expansion expert (Claim Hex 3 times/turn), settlement construction (city), skill increase
-      10: 27, // Ability boosts, Kingdom feat, life of luxury
-      11: 28, // Ruin resistance, skill increase
-      12: 30, // Civic planning, Kingdom feat
-      13: 31, // Skill increase
-      14: 32, // Kingdom feat, ruin resistance
-      15: 34, // Ability boosts, settlement construction (metropolis), skill increase
-      16: 35, // Experienced leadership +3, Kingdom feat
-      17: 36, // Ruin resistance, skill increase
-      18: 38, // Kingdom feat
-      19: 39, // Skill increase
-      20: 40, // Ability boosts, envy of the world, Kingdom feat, ruin resistance
-    };
-
-    return sizeMod + baseControlDCByLevel[this.domain.level];
-  }
 
   get currentTurn() { return this.domain.turns.last() }
   get previousTurn() { let turns = this.domain.turns || []; return turns[turns.length - 2]; }
@@ -315,50 +264,7 @@ class DomainSheet extends RxElement {
     return mod(score);
   }
 
-  get abilityScores() {
-    return {
-      Culture: this.domain.culture,
-      Economy: this.domain.economy,
-      Loyalty: this.domain.loyalty,
-      Stability: this.domain.stability,
-    };
-  }
-
-  get statScores() {
-    return {
-      Unrest: this.domain.unrest,
-      Size: this.domain.size,
-      XP: this.domain.xp,
-      Level: this.domain.level,
-    };
-  }
-
   info(message) { this.activityLog?.currentActivity?.info(message) }
-
-  modify({by}, names) {
-    names.forEach(name => {
-      let key = name.toLocaleLowerCase();
-      let current = this.domain[key];
-      let target = current + by;
-      let max = this.max(name);
-      let overage = target - max;
-      this.domain[key] = Math.min(max, target);
-      if (overage > 0) {
-        this.info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
-        this.domain.xp += overage * 50;
-      }
-    })
-  }
-  boost(...names) {
-    let {by} = names[0];
-    by && names.shift();
-    this.modify({by: by ?? 1}, names);
-  }
-  reduce(...names) {
-    let {by} = names[0];
-    by && names.shift();
-    this.modify({by: by ?? -1}, names);
-  }
 
   get unrestModifier() {
     let unrest = this.domain.unrest;

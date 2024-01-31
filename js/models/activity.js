@@ -27,13 +27,10 @@ export class Activity {
 
   /////////////////////////////////////////////// Associations
 
-  // TODO how can we do this without hitting the DOM?
-  get domainSheet() { return document.querySelector("domain-sheet") }
-  get actor() { return this.domainSheet.actor(this.actorId) }
+  get actor() { return this.domain.actor(this.actorId) }
   get turn() { return this.transient.turn }
   set turn(value) { /* ignore */ }
   get domain() { return this.turn.domain }
-  set turn(value) { /* ignore */  }
   
   peerActivities() {
     return "civic system".split(" ").includes(this.type)
@@ -59,7 +56,7 @@ export class Activity {
     by ??= 1;
     if (by < 0) { return this.reduce({by}, ...abilities) }
     abilities.forEach(ability => {
-      this.domainSheet.boost({by}, ability);
+      this.domain.boost({by}, ability);
       this.info(`📈 Boosted ${ability} by ${by} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }
@@ -71,7 +68,7 @@ export class Activity {
 
     if (by > 0) { return this.boost({by}, ...abilities) }
     abilities.forEach(ability => {
-      this.domainSheet.boost({by}, ability);
+      this.domain.boost({by}, ability);
       this.warning(`📉 Reduced ${ability} by ${Math.abs(by)} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }

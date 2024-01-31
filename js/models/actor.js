@@ -13,8 +13,8 @@ function makePowerup(properties, actor) {
 }
 
 export class Actor {
-  constructor(properties) {
-    addTransient(this, {value: {}});
+  constructor(properties, domain) {
+    addTransient(this, {value: {domain}});
     hydrateList(this, {name: "powerups", keepOrMake: (p) => makePowerup(p, this)});
 
     Object.assign(this, properties);
@@ -25,8 +25,8 @@ export class Actor {
     this.activitiesPerTurn ??= this.traits.includes("PC") ? 2 : 1;
   }
 
-  get domainSheet() { return document.querySelector("domain-sheet") }
-  get currentTurn() { return this.domainSheet?.domain?.turns?.last() }
+  get domain() { return this.transient.domain }
+  get currentTurn() { return this.domain?.turns?.last() }
 
   get isLeader() { return this.hasTrait("PC", "NPC") }
   get isSettlement() { return this.hasTrait("Village", "Town", "City", "Metropolis") }

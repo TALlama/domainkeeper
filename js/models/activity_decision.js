@@ -31,7 +31,7 @@ export class ActivityDecision {
         difficultyClassOptions: {},
         difficultyClass({decision}) {
           let dcOpts = decision?.difficultyClassOptions || {};
-          dcOpts.base ??= this.domainSheet?.controlDC || 15;
+          dcOpts.base ??= this.domain?.controlDC || 15;
           return Maker.tag("difficulty-class", dcOpts).outerHTML;
         },
       },
@@ -117,10 +117,8 @@ export class ActivityDecision {
         if (activity.transient[`_${saveAs}`] === value) { return }
 
         activity.transient[`_${saveAs}`] = value;
-        console.log(`${activity.name}: Setting ${saveAs} to ${value}`);
 
         if (activity.callbacksEnabled) {
-          console.log(`${activity.name}: Running callbacks`);
           decision.picked?.call(activity, value, {decision, activity});
           activity.decisionResolved?.call(activity, decision, {value, activity});
           if (activity.resolved && activity.turn) { activity.turn.activityResolved(activity) }
@@ -178,7 +176,6 @@ export class ActivityDecision {
     });
   }
 
-  get domainSheet() { return this.activity.domainSheet }
   get domain() { return this.activity.domain }
   set domain(value) { /* ignore */ }
   get actor() { return this.activity.actor }

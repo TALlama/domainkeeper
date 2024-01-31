@@ -61,9 +61,9 @@ export var civicTemplates = [{
     this.success();
   },
   success() {
-    this.structureId = Structure.add({template: this.structureName, actor: this.actor, activity: this,
+    Structure.add({template: this.structureName, actor: this.actor, activity: this,
       added({activity, fullName}) { activity.info(`🏛️ You built the ${fullName}!`) },
-    }).id;
+    });
     
     this.info("📈 If there are now 4+ buildings in the settlement, it's a town. Get Milestone XP!");
     this.info("📈 If there are now 8+ buildings in the settlement, it's a city. Get Milestone XP!");
