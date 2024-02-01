@@ -40,6 +40,7 @@ export class ActorSheet extends RxElement {
           <a href="#" data-action="doAddBonusActivity">+</a>
           <a href="#" data-action="doAddBonusActivity" data-amount="-1">-</a>
         </span>
+        <a href="#" data-action="renameActor" aria-label="Rename ${this.actor.name}">📝</a>
       </h3>
     `;
   }
@@ -86,6 +87,11 @@ export class ActorSheet extends RxElement {
 
   doAddBonusActivity(event) {
     this.actor.bonusActivities += Number(event.target.closest("[data-amount]")?.dataset?.amount ?? 1);
+  }
+
+  renameActor(event) {
+    let newName = prompt(`What should we call ${this.actor.name} from now on?`, this.actor.name);
+    if (newName) { this.actor.name = newName }
   }
 
   doAddStructure(event) {

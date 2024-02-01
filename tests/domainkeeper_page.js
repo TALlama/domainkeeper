@@ -74,6 +74,11 @@ export class DomainkeeperPage extends LocatorLike {
     return expect(this.name).toHaveText(name);
   }
 
+  async renameLeader(oldName, newName) {
+    this.page.once('dialog', async dialog => { await dialog.accept(newName) });
+    await this.getByLabel("Rename Anne").click();
+  }
+
   async setCurrentActor(value) { return this.locator(`:is(.leaders-section, .settlements-section) .actor:has-text("${value}")`).click() }
   currentActorTraits() { return this.locator(`actor-sheet trait-list li.trait`) }
   currentActorPowerups() { return this.locator(`actor-sheet .powerups li .powerup-name`) }
