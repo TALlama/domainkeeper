@@ -1,10 +1,8 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require("../fixtures/domains");
+const { leaders } = require("../fixtures/leaders");
 
-let leaders = {
-  anne: {name: "Anne", id: "leader-anne", traits: ["PC"], initiative: 20},
-};
 let settlements = {
   capital: {name: "Capital", id: "settlement-capital", traits: ["Village"]},
 };

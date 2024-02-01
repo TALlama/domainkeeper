@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("./domainkeeper_page");
 const { inTurnOne, endTurnOne } = require('./fixtures/domains');
+const { leaders } = require('./fixtures/leaders');
 
 test.describe("Notes", () => {
   test('can name the domain', async ({ page }) => {
@@ -11,8 +12,8 @@ test.describe("Notes", () => {
     await expect(dk.name).toHaveText("Anvilania");
   });
 
-  test('can rename actors', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [{name: "Anne", traits: ["PC"]}]});
+  test('can rename leaders', async ({ page }) => {
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne]});
 
     await dk.renameLeader("Anne", "Destroyer");
     expect(await dk.currentActorName).toEqual("Destroyer");
