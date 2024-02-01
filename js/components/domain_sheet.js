@@ -156,10 +156,7 @@ class DomainSheet extends RxElement {
   renderStats() {
     return `
       ${Ability.all.map(ability => this.renderStat(ability, {class: "ability"})).join("")}
-      <article class="hidden stat stat---domain-control-dc">
-        <span class="label">Control DC</span><span id="domain-control-dc" class="current">${this.controlDC}</span>
-      </article>
-      ${this.renderStat("Control DC", {readonly: true, value: this.controlDC})}
+      ${this.renderStat("Control DC", {readonly: true, value: this.domain.controlDC})}
       ${this.renderStat("Unrest")}
       ${this.renderStat("Size")}
       ${this.renderStat("XP")}
@@ -298,7 +295,7 @@ class DomainSheet extends RxElement {
       {dice: die || 20, modifier: modifierTotal, "data-ability": modifier},
     );
     if (dc !== false) {
-      dc = dc || this.controlDC;
+      dc = dc || this.domain.controlDC;
       header.append(Maker.tag("span", {class: "dc"}, ` ${dc}`));
       dc -= modifierTotal; // see https://github.com/colinaut/dice-roller/issues/1
       roller.setAttribute("difficulty", Math.max(1, dc));
