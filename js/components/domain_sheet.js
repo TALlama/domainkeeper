@@ -63,10 +63,14 @@ class DomainSheet extends RxElement {
       innerHTML: `
         <div>
           ${Object.entries(this.saveSlots.root).map(([slot, domain]) =>
-            `<label for="use-slot-${slot}" style="display: block" title="${slot}">
+            `<div style="display: flex; align-items: center;">
               <input type="radio" id="use-slot-${slot}" name="use-slot" value="${slot}" ${slot === this.domainKey ? "checked" : ""}/>
-              ${domain.name} <span class="metadata">Level ${domain.level} @ Turn ${domain.turns.length - 1}</span>
-            </label>`
+              <label for="use-slot-${slot}" style="display: block" title="${slot}">
+                ${domain.name} <span class="metadata">Level ${domain.level} @ Turn ${domain.turns.length - 1}</span>
+              </label>
+              <code class="hidden" id="domain-${slot}-source">${JSON.stringify(domain)}</code>
+              <sl-copy-button from="domain-${slot}-source" copy-label="Click to copy JSON"></sl-copy-button>
+            </div>`
           ).join("")}
         </div>
         <div slot="footer" style="display: flex">
@@ -77,7 +81,7 @@ class DomainSheet extends RxElement {
     });
     dialog.querySelector("sl-button.load").addEventListener("click", event => this.doSwapSaveSlot(event));
     dialog.querySelector("sl-button.delete").addEventListener("click", event => this.doClearData(event));
-    dialog.addEventListener("sl-after-hide", () => dialog.remove());
+    dialog.addEventListener("sl-after-hide", (event) => event.target === dialog ? dialog.remove() : null);
     document.body.append(dialog);
     dialog.show();
   }
