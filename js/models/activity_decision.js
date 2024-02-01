@@ -77,6 +77,7 @@ export class ActivityDecision {
     let props = {
       name: templateName,
       saveAs: templateName.toLowerCase(),
+      additionalOptionValues: [],
       saveValue: (value) => value,
       unsaveValue(value) { return this.options.find(o => this.saveValue(o) === value) },
       displayValue: (value) => (this.displayValues || {})[value] || value,
@@ -106,7 +107,7 @@ export class ActivityDecision {
       enumerable: true,
       get() { return activity.transient[`_${saveAs}`] },
       set(value) {
-        let validOptions = decision.optionValues;
+        let validOptions = [...decision.optionValues, ...decision.additionalOptionValues];
         if (validOptions.length && ![...validOptions, null, undefined].includes(value)) {
           if (activity.callbacksEnabled) {
             throw TypeError(`Cannot set ${saveAs} to ${value}; try one of ${JSON.stringify(validOptions)}`);

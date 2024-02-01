@@ -514,6 +514,81 @@ export var leadershipTemplates = [{
     this.reduce(["Stability", "Loyalty"].random());
   },
 }, {
+  icon: "👩🏻‍🎓",
+  name: "New Leadership",
+  summary: "You reconfigure who's in charge.",
+  description: "<p>If the leader is unwilling to leave, roll twice and take the lower result. Double any unrest gained.</p>",
+  decisions: [{
+    name: "Roll",
+    options: ["Loyalty"],
+  }, {
+    name: "Outcome",
+    summaries: {
+      criticalSuccess: `Remove a leader and add a leader (both are optional)`,
+      success: `Remove a leader and add a leader (both are optional). Increase Unrest by 1.`,
+      failure: `Remove a leader and add a leader (both are optional). Increase Unrest by 1d4+1.`,
+      criticalFailure: `Remove a leader (optional). Increase Unrest by 2d4.`,
+    },
+  }, {
+    name: "Remove a Leader",
+    saveAs: "removedId",
+    valueMethod: "removed",
+    options() { return [{id: "no-one", name: "Don't Remove"}, ...this.domain.leaders] },
+    optionDisableReason: (leader) => leader.unavailable ? "Leader is not currently serving" : null,
+    saveValue: (leader) => leader.id,
+    displayValue: (leader) => leader.name,
+    picked(leaderId) {
+      if (leaderId == "no-one") { return }
+      let leader = this.domain.actor(leaderId);
+      leader && leader.addTrait("Retired");
+    },
+  }, {
+    name: "Add a Leader",
+    saveAs: "addedId",
+    options() { return [
+      {id: "no-one", name: "Don't Add"},
+      {id: "NPC", name: "Add a New NPC"},
+      {id: "PC", name: "Add a New PC"},
+      ...this.domain.leaders,
+    ]},
+    optionDisableReason: (leader) => leader.available ? "Leader is already serving" : null,
+    saveValue: (leader) => leader.id,
+    displayValue: (leader) => leader.name,
+    picked(kind) {
+      if (kind == "no-one") { return }
+
+      if (kind == "NPC" || kind == "PC") {
+        let name = prompt("What's the name of the new leader?");
+        let newLeader = new Actor({name: name || "Newbie", traits: [kind], initiative: 0}, this.domain);
+        this.domain.leaders = [...this.domain.leaders, newLeader];
+        this.decision("Add a Leader").additionalOptionValues = [newLeader.id];
+        this.addedId = newLeader.id;
+      } else {
+        let returningLeader = this.domain.actor(kind);
+        returningLeader.initiative = 0;
+        returningLeader.removeTrait("Retired");
+        returningLeader.removeTrait("AWOL");
+        this.addedId = returningLeader.id;
+      }
+    }
+  }],
+  criticalSuccess() {
+    this.info(`❤️ The people love the new leadership.`);
+  },
+  success() {
+    this.info(`👌🏻 The people accept the new leadership, but change is never easy.`);
+    this.boost("Unrest");
+  },
+  failure() {
+    this.info(`👌🏻 The people are unsure about this new leadership.`);
+    this.boost({by: [2, 3, 4, 5].random()}, "Unrest");
+  },
+  criticalFailure() {
+    this.info(`👌🏻 The people reject any new leadership.`);
+    this.addedType = "no-one";
+    this.boost({by: [2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 8].random()}, "Unrest");
+  },
+}, {
   icon: "🚋",
   name: "Train Lieutenant",
   summary: "You work with an NPC leader to increase their capacity.",
@@ -547,7 +622,8 @@ export var leadershipTemplates = [{
   }],
   criticalSuccess() {
     if (this.trainee.activitiesPerTurn < 2) {
-      this.info(`🧠 ${this.trainee.name} is an apt pupil! They can now perform ${++this.trainee.activitiesPerTurn} action${this.trainee.activitiesPerTurn == 1 ? "" : "s"} per turn.`);
+      this.trainee.addTrait("Apt Pupil");
+      this.info(`🧠 ${this.trainee.name} is an apt pupil! They can now perform ${this.trainee.activitiesPerTurn} action${this.trainee.activitiesPerTurn == 1 ? "" : "s"} per turn.`);
     } else { this.success() }
   },
   success() {
@@ -559,6 +635,7 @@ export var leadershipTemplates = [{
   },
   criticalFailure() {
     this.error(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
+    this.trainee.addTrait("AWOL");
   },
 }, {
   icon: "🛡️",

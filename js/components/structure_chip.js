@@ -16,9 +16,10 @@ export class StructureChip extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
+  get domain() { return this.domainSheet.domain }
   get actor() {
     let structureId = this.structure.id;
-    return this.domainSheet.actors.find(a => a.powerup(structureId));
+    return this.domain.actors.find(a => a.powerup(structureId));
   }
 
   /////////////////////////////////////////////// Rendering

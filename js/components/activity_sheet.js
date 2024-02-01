@@ -19,8 +19,9 @@ export class ActivitySheet extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
-  get currentTurn() { return this.domainSheet.currentTurn }
-  get actor() { return this.domainSheet.actor(this.activity.actorId) }
+  get domain() { return this.activity.domain || this.domainSheet.domain }
+  get currentTurn() { return this.domain.currentTurn }
+  get actor() { return this.domain.actor(this.activity.actorId) }
 
   get inCurrentTurn() { return this.currentTurn?.activities?.find(e => e.id === this.id) }
   get canCancel() { return this.actor && this.inCurrentTurn && this.mutableDecisionsCount == (this.activity.decisions || []).length }

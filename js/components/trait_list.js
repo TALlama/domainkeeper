@@ -41,6 +41,9 @@ export class TraitList extends RxElement {
       PC: "A player character, run by a real-world human",
       NPC: "A non-player character, run by the GM",
 
+      AWOL: "This leader has abandoned their post and cannot perform leadership activities",
+      Retired: "This leader has left their post and cannot perform leadership activities",
+
       Building: "A collection of indoor sites",
       Yard: "Primarily an outdoor site",
       Infrastructure: "Benefits a whole settlement without occupying space",

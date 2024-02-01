@@ -29,7 +29,7 @@ export default class DomainActivityLog extends RxElement {
 
   forEachPowerup(callback) {
     let globalContext = {domainSheet: this.domainSheet};
-    this.domainSheet.actors.forEach(actor => {
+    this.domain.actors.forEach(actor => {
       let actorContext = {...globalContext, actor};
       actor.isLeader && (actorContext.leader = actor);
       actor.isSettlement && (actorContext.settlement = actor);

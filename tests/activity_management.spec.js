@@ -1,11 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("./domainkeeper_page");
-const { onTurnOne, inTurnOne } = require('./fixtures/domains');
+const { onTurnOne, inTurnOne, endTurnOne } = require('./fixtures/domains');
 const { monitor } = require('./helpers');
 
 let leaders = {
-  anne: {name: "Anne", traits: ["PC"], initiative: 20, activitiesPerTurn: 2},
-  zed: {name: "Zed", traits: ["PC"], initiative: 1, activitiesPerTurn: 2},
+  anne: {name: "Anne", id: "leader-anne", traits: ["PC"], initiative: 20},
+  zed: {name: "Zed", id: "leader-zed", traits: ["PC"], initiative: 1},
 };
 
 test.describe("when it's your turn", () => {
@@ -53,12 +53,12 @@ test.describe("when it's your turn", () => {
   test('you can always click on an actor to see their stats', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [{...leaders.anne, activitiesPerTurn: 0}, leaders.zed]}, "Domain Creation");
+    await dk.loadDomain({...endTurnOne, leaders: [leaders.anne, leaders.zed]});
 
     expect(await dk.currentActorName).toEqual("Zed");
     await monitor({
       shouldChange: () => dk.currentActorName,
-      when: () => page.getByText("Anne").click(),
+      when: () => dk.leadersList.getByText("Anne").click(),
     });
   });
 

@@ -50,10 +50,9 @@ test.describe("Critical Failure", () => {
     await page.goto('/');
     await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
+    await expect(dk.leaderNames).toHaveText(["Polly", "Ned"]);
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Failure");
-    dk.setCurrentActor("Ned");
-    await expect(dk.currentActorTraits()).toContainText(["NPC"]);
-    // TODO await expect(dk.currentActorTraits()).toContainText(["AWOL"]);
+    await expect(dk.leaderNames).toHaveText(["Polly"]);
   });
 });
 

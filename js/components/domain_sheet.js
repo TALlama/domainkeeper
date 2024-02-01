@@ -31,7 +31,7 @@ class DomainSheet extends RxElement {
 
     // For debugging; put `?actor=Seth` in the URL to make that one current
     let actorPicker = this.searchParams.get("actor");
-    let actor = this.actors.find(a => a.name === actorPicker || a.id === actorPicker);
+    let actor = this.domain.actors.find(a => a.name === actorPicker || a.id === actorPicker);
     if (actor) { this.domain.currentActorId = actor.id }
 
     // For debuging: put ?structures=all in the URL to give Capital one of each
@@ -212,8 +212,9 @@ class DomainSheet extends RxElement {
       let total = actor.activitiesPerTurn;
       let left = actor.activitiesLeft;
 
-      return `<li id="${actor.id}" aria-role="button" class="actor ${(current == actor) ? "current" : ""}" data-action="setCurrentActor">
+      return `<li id="${actor.id}" aria-role="button" class="actor ${(current == actor) ? "current" : ""} ${actor.available ? "available" : "unavailable"}" data-action="setCurrentActor">
         <span class="name">${actor.name}</span>
+        <span class="status">${actor.available ? "" : "💤"}</span>
         <span class="badge" title="${this.activitx(actor.activitiesLeft)} left">${actor.activitiesLeft}</span>
       </li>`;
     }).join("");
@@ -245,16 +246,14 @@ class DomainSheet extends RxElement {
 
   get currentTurn() { return this.domain.turns.last() }
   get previousTurn() { let turns = this.domain.turns || []; return turns[turns.length - 2]; }
-  get currentActor() { return this.domain.currentActorId ? this.actor(this.domain.currentActorId) : this.readyActors.first() }
+  get currentActor() { return this.domain.currentActorId ? this.domain.actor(this.domain.currentActorId) : this.readyActors.first() }
 
-  actor(actorId) { return this.actors.find(a => a.id === actorId) }
-  get actors() { return [...this.domain.leaders, ...this.domain.settlements] }
   readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }
-  get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
+  get readyActors() { return this.domain.availableActors.filter(a => a.activitiesLeft > 0) }
   
   settlement(name) { return this.domain.settlements.find(s => s.name === name) }
   structure(structureId) { return this.structures.find(s => s.id === structureId) }
-  get structures() { return this.actors.flatMap(a => a.powerups.matches({type: Structure.type})) }
+  get structures() { return this.domain.actors.flatMap(a => a.powerups.matches({type: Structure.type})) }
 
   findBonuses({ability, ...pattern}) { return this.bonuses.matches(pattern).filter(b => !b.ability || b.ability === ability).sortBy("-value") }
   get bonuses() { return this.structures.flatMap(s => (s.bonuses || []).map(b => { return {...b, structure: s}})) }

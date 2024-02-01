@@ -26,13 +26,14 @@ export class Domain {
 
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
   get actors() { return [...this.leaders, ...this.settlements] }
-  //readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }
-  //get readyActors() { return this.actors.filter(a => a.activitiesLeft > 0) }
+  set actors(value) { /* ignore */ }
+  get availableActors() { return this.actors.filter(a => a.available) }
+  set availableActors(value) { /* ignore */ }
+  get unavailableActors() { return this.actors.filter(a => a.unavailable) }
+  set unavailableActors(value) { /* ignore */ }
 
   get powerups() { return this.actors.flatMap(a => a.powerups) }
   set powerups(v) { /* ignore */ }
-  //structure(structureId) { return this.structures.find(s => s.id === structureId) }
-  //get structures() { return this.powerups.matches({type: Structure.type})) }
 
   get bonuses() { return this.powerups.flatMap(p => p.bonuses) }
   set bonuses(v) { /* ignore */ }
@@ -63,13 +64,13 @@ export class Domain {
         {traits: "PC".split(" "), name: "David"},
         {traits: "PC".split(" "), name: "Morgan"},
         {traits: "PC".split(" "), name: "Joe"},
-        {traits: "NPC".split(" "), name: "Bertie", activitiesPerTurn: 1},
+        {traits: "NPC".split(" "), name: "Bertie"},
       ];
     }
 
     if (this.settlements.length === 0) {
       this.settlements = [
-        {traits: "Village".split(" "), name: "Capital", activitiesPerTurn: 1, powerups: [new Structure("Town Hall")]},
+        {traits: "Village".split(" "), name: "Capital", powerups: [new Structure("Town Hall")]},
       ];
     }
   }

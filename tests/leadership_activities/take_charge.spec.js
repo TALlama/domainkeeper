@@ -3,10 +3,10 @@ const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require("../fixtures/domains");
 
 let leaders = {
-  anne: {name: "Anne", id: "leader-anne", traits: ["PC"], initiative: 20, activitiesPerTurn: 2},
+  anne: {name: "Anne", id: "leader-anne", traits: ["PC"], initiative: 20},
 };
 let settlements = {
-  capital: {name: "Capital", id: "settlement-capital", traits: ["Village"], activitiesPerTurn: 1},
+  capital: {name: "Capital", id: "settlement-capital", traits: ["Village"]},
 };
 
 test.describe("Critical success", () => {

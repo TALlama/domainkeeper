@@ -1,3 +1,4 @@
+const ext = require("../js/extensions");
 const { expect } = require('@playwright/test');
 
 class LocatorLike {
@@ -49,6 +50,9 @@ export class DomainkeeperPage extends LocatorLike {
 
   get leadersList() { return this.locator(".leaders-section") }
   get settlementsList() { return this.locator(".settlements-section") }
+
+  get leaderNames() { return this.leadersList.locator(".name:visible") }
+
   get currentActorName() { return this.locator(".actor.current .name").textContent() }
   get currentActorActivitiesLeft() { return this.locator(".actor.current .badge") }
   actorActivitiesLeft(actorName) { return this.locator(`.actor:has(.name:has-text("${actorName}")) .badge`) }
@@ -80,7 +84,7 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   async setCurrentActor(value) { return this.locator(`:is(.leaders-section, .settlements-section) .actor:has-text("${value}")`).click() }
-  currentActorTraits() { return this.locator(`actor-sheet trait-list li.trait`) }
+  currentActorTraits() { return this.locator(`actor-sheet trait-list li.trait .badge`) }
   currentActorPowerups() { return this.locator(`actor-sheet .powerups li .powerup-name`) }
 
   async addStructure(settlementName, properties) {
@@ -106,22 +110,22 @@ export class DomainkeeperPage extends LocatorLike {
     return this.currentActivity.getByRole("link", {name: "Cancel"}).click();
   }
 
-  async makeDecisions(options, opts={}) {
-    if (options.length === 0) { return Promise.resolve() }
+  async makeDecisions(picks, opts={}) {
+    if (picks.length === 0) { return Promise.resolve() }
 
     if (!opts.within) {
       opts = {...opts, within: this.currentActivity};
       await opts.within.retargetWithId();
     }
 
-    await this.makeDecision(options[0], opts);
-    return this.makeDecisions(options.slice(1), opts);
+    await this.makeDecision(picks[0], opts);
+    return this.makeDecisions(picks.slice(1), opts);
   }
 
-  async makeDecision(option, opts={}) {
+  async makeDecision(pick, opts={}) {
     let within = (opts.within || this.currentActivity);
-    await within.locator(`label[data-display-title-value="${option}"]`).click({force: true})
-    return expect(within.locator(`.picked[data-display-title-value="${option}"]`)).toBeVisible();
+    return within.locator(`activity-decision-panel:not([resolved])`).first()
+      .locator(`label[data-display-title-value="${pick}"]`).click({force: true})
   }
 
   async setDomainConcept(opts = {}) {

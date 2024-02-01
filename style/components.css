@@ -265,6 +265,10 @@
           background: var(--color-selected-bg);
         }
 
+        &.unavailable {
+          display: none;
+        }
+
         .badge {
           margin-left: auto;
         }

@@ -61,7 +61,7 @@ export class ActorSheet extends RxElement {
   }
 
   renderPowerup(powerup) {
-    return `<structure-chip structure-id="${powerup.id}"></structure-chip>`;
+    return `<structure-chip key="${powerup.id}" structure-id="${powerup.id}"></structure-chip>`;
   }
 
   renderStructureControls() {

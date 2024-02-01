@@ -54,7 +54,7 @@ test.describe("domain concept is shown on first run", () => {
     // Current Actor is offered activities
     expect(dk.currentActorName).toBeDefined();
     expect(dk.activityPicker.root).toHaveAttribute("open");
-    await expect(dk.activityPicker.availableActvities).toHaveCount(17);
+    await expect(dk.activityPicker.availableActvities).toHaveCount(18);
 
     // Consumables refresh each turn
     await expect(dk.consumables.withName("Fame")).toHaveCount(1);
@@ -79,7 +79,7 @@ test.describe("domain concept is shown on first run", () => {
     // Current Actor is offered activities
     expect(dk.currentActorName).toBeDefined();
     expect(dk.activityPicker.root).toHaveAttribute("open");
-    await expect(dk.activityPicker.availableActvities).toHaveCount(17);
+    await expect(dk.activityPicker.availableActvities).toHaveCount(18);
 
     // Consumables refresh each turn
     await expect(dk.consumables.withName("Fame")).toHaveCount(1);

@@ -31,6 +31,7 @@ export class Activity {
   get turn() { return this.transient.turn }
   set turn(value) { /* ignore */ }
   get domain() { return this.turn.domain }
+  set domain(value) { /* ignore */ }
   
   peerActivities() {
     return "civic system".split(" ").includes(this.type)

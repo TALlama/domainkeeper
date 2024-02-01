@@ -5,104 +5,79 @@ const { monitor } = require('../helpers');
 const { Structure } = require('../../js/models/structure');
 
 let settlements = {
-  withExtraActivity: {name: "Bigappel", id: "nyc", traits: ["Village"], activitiesPerTurn: 2, powerups: [{name: "Inn"}]},
+  withInn: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: "Inn"}]},
 };
 
 let abilitiesTotal = async (dk) => await dk.stat("Culture") + await dk.stat("Economy") + await dk.stat("Loyalty") + await dk.stat("Stability");
 
-test.describe("Critical Success", () => {
-  test('Builds the selected structure', async ({ page }) => {
+test.describe("Builds the selected structure", () => {
+  let outcomes = ["Critical Success", "Success"];
+  test(`On any of the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
+    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
-    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Success");
+    await expect(dk.currentActorPowerups()).toHaveText(["Inn"]);
+    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", outcomes.random());
+    await dk.setCurrentActor("Bigappel");
     await expect(dk.currentActorPowerups()).toHaveText(["Inn", "Cemetery"]);
-  });
-
-  test('Boosts a random ability (potentially making up for the payment)', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
-    await dk.setCurrentActor("Bigappel");
-
-    let before = await abilitiesTotal(dk);
-    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Success");
-    expect(await abilitiesTotal(dk)).toEqual(before - 1 + 1);
   });
 });
 
-test.describe("Success", () => {
-  test('Builds the selected structure', async ({ page }) => {
+test.describe("Does not build anything", () => {
+  let outcomes = ["Failure", "Critical Failure"];
+  test(`On any of the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
+    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
-    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Success");
-    await expect(dk.currentActorPowerups()).toHaveText(["Inn", "Cemetery"]);
+    await expect(dk.currentActorPowerups()).toHaveText(["Inn"]);
+    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", outcomes.random()),
+    await dk.setCurrentActor("Bigappel");
+    await expect(dk.currentActorPowerups()).toHaveText(["Inn"]);
   });
+});
+
+test.describe("Cost to Build", () => {
+  let outcomes = ["Success", "Failure"];
 
   test('Reduces an ability you choose by 1', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
+    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     let before = await dk.stat("Culture");
-    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Success");
+    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", outcomes.random());
     expect(await dk.stat("Culture")).toEqual(before - 1);
   });
-});
 
-test.describe("Failure", () => {
-  test('Does not build anything', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
-    await dk.setCurrentActor("Bigappel");
-
-    await monitor({
-      shouldNotChange: () => dk.currentActorPowerups().textContent(),
-      when: () => dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Failure"),
+  test.describe("Critical Success", () => {
+    test('Boosts a random ability (potentially making up for the payment)', async ({ page }) => {
+      let dk = new DomainkeeperPage(page);
+      await page.goto('/');
+      await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+      await dk.setCurrentActor("Bigappel");
+  
+      let before = await abilitiesTotal(dk);
+      await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Success");
+      expect(await abilitiesTotal(dk)).toEqual(before - 1 + 1);
     });
   });
 
-  test('Still reduces an ability you choose by 1', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
-    await dk.setCurrentActor("Bigappel");
+  test.describe("Critical Failure", () => {
+    test('Reduces an ability you choose by 1, and another ability by 1', async ({ page }) => {
+      let dk = new DomainkeeperPage(page);
+      await page.goto('/');
+      await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+      await dk.setCurrentActor("Bigappel");
 
-    let before = await dk.stat("Culture");
-    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Failure");
-    expect(await dk.stat("Culture")).toEqual(before - 1);
-  });
-});
-
-test.describe("Critical Failure", () => {
-  test('Does not build anything', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
-    await dk.setCurrentActor("Bigappel");
-
-    await monitor({
-      shouldNotChange: () => dk.currentActorPowerups().textContent(),
-      when: () => dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Failure"),
+      let before = await abilitiesTotal(dk);
+      await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Failure");
+      expect(await abilitiesTotal(dk)).toEqual(before - 1 - 1);
     });
-  });
-
-  test('Reduces an ability you choose by 1, and another ability by 1', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
-    await dk.setCurrentActor("Bigappel");
-
-    let before = await abilitiesTotal(dk);
-    await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Failure");
-    expect(await abilitiesTotal(dk)).toEqual(before - 1 - 1);
   });
 });
 
@@ -110,7 +85,7 @@ test.describe("Available structures", () => {
   test('are constrained by domain level', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
+    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");
@@ -127,7 +102,7 @@ test.describe("Available structures", () => {
   test('are constrained by their limit traits', async ({ page }) => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withExtraActivity]});
+    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");
