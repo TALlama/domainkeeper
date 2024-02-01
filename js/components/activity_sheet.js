@@ -24,7 +24,7 @@ export class ActivitySheet extends RxElement {
 
   get inCurrentTurn() { return this.currentTurn?.activities?.find(e => e.id === this.id) }
   get canCancel() { return this.actor && this.inCurrentTurn && this.mutableDecisionsCount == (this.activity.decisions || []).length }
-  get showDescription() { return this.activity.resolved && this.activity.actorId !== "system" }
+  get hideDescription() { return this.activity.resolved && this.activity.actorId !== "system" }
   get mutableDecisionsCount() { return (this.activity.decisions || []).count(d => d.mutable) }
 
   /////////////////////////////////////////////// Rendering
@@ -68,9 +68,10 @@ export class ActivitySheet extends RxElement {
   }
 
   renderDescription() {
-    return this.showDescription
+    let desc = callOrReturn(this.activity.description || "", this);
+    return this.hideDescription || desc === ""
       ? ""
-      : `<blockquote class="description">${callOrReturn(this.activity.description || "", this)}</blockquote>`;
+      : `<blockquote class="description">${desc}</blockquote>`;
   }
 
   renderDecisions() {

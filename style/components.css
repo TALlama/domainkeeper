@@ -602,9 +602,12 @@
 
       > .description {
         padding: var(--internal-margin);
+        padding-top: 0;
 
         h1, h2, h3, h4, h5, h6, header {
           margin-inline: calc(-1 * var(--internal-margin));
+
+          &:first-child { margin-top: 0 }
         }
       }
 
