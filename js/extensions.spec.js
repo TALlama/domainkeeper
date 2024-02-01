@@ -170,13 +170,6 @@ Eris.test("Array extensions", array => {
   });
 });
 
-/* String extentions */
-String.prototype.escapeHtml = String.prototype.escapeHtml || function() {
-  const el = document.createElement("div");
-  el.innerText = this;
-  return el.innerHTML;
-}
-
 Eris.test("String extensions", string => {
   string.describe("escapeHtml", fn => {
     fn.it("does not change normal strings", ({assert}) =>

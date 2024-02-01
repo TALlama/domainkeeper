@@ -48,3 +48,10 @@ Array.prototype.matches = Array.prototype.matches || function(pattern) {
 Array.eql = Array.eql || function(a, b) {
   return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((e, ix) => b[ix] === e);
 }
+
+/* String extentions */
+String.prototype.escapeHtml = String.prototype.escapeHtml || function() {
+  const el = document.createElement("div");
+  el.innerText = this;
+  return el.innerHTML;
+}
