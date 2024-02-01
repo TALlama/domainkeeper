@@ -40,7 +40,10 @@ export class ActivitySheet extends RxElement {
         <span class="activity-name">${this.activity.name}</span>
         <small class="byline">${this.actor ? `by ${this.actor.name}` : ""}</small>
         ${debugJSON(this.activity.id)}
-        ${this.renderCancelLink()}
+        <span class="activity-actions">
+          <a href="#" data-action="rename" class="icon-link" aria-label="Rename">📝</a>
+          ${this.renderCancelLink()}
+        </span>
       </header>
       <span class="icon">${this.activity.icon}</span>
       ${this.renderSummary()}
@@ -56,7 +59,7 @@ export class ActivitySheet extends RxElement {
 
   renderCancelLink() {
     return this.canCancel
-      ? `<a href="#" class="cancel-activity" data-action="cancelActivity">Cancel</a>`
+      ? `<a href="#" class="cancel-activity icon-link" data-action="cancelActivity" aria-label="Cancel">❌</a>`
       : "";
   }
 
@@ -88,12 +91,17 @@ export class ActivitySheet extends RxElement {
   
   /////////////////////////////////////////////// Event Handling
 
+  rename(event) {
+    let value = prompt("What shall we call this activity?", this.activity.name);
+    if (value) { this.activity.name = value }
+  }
+
   cancelActivity() {
     this.currentTurn.cancelActivity(this.activity);
   }
 
   editSummary(event) {
-    let value = prompt("What's the real story?");
+    let value = prompt("What's the real story?", this.activity.summary);
     if (value) { this.activity.summary = value }
   }
 }

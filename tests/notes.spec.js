@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("./domainkeeper_page");
-const { inTurnOne } = require('./fixtures/domains');
+const { inTurnOne, endTurnOne } = require('./fixtures/domains');
 
 test.describe("Notes", () => {
   test('can name the domain', async ({ page }) => {
@@ -31,6 +31,16 @@ test.describe("Notes", () => {
     await expect(turn1.name).toHaveText("Turn 1");
     await turn1.rename("The Beginning");
     await expect(turn1.name).toHaveText("The Beginning");
+  });
+
+  test('can rename activities taken', async ({ page }) => {
+    let dk = new DomainkeeperPage(page);
+    await page.goto('/');
+    await dk.loadDomain(endTurnOne);
+
+    await expect(dk.turn(1).activityNames).toHaveText(["Contribute", "Prognostication", "Build Up", "Ruin"]);
+    await dk.topActivity().rename("Festival of Fools");
+    await expect(dk.turn(1).activityNames).toHaveText(["Festival of Fools", "Prognostication", "Build Up", "Ruin"]);
   });
 
   test('can change activity summaries', async ({ page }) => {

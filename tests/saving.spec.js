@@ -32,9 +32,9 @@ test.describe("Manual saves", () => {
     await page.goto('/');
     await dk.loadDomain(allSaved);
 
-    await expect(dk.saveLink).toHaveClass("unnecessary");
+    await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
     await dk.readyEventButton.click();
-    await expect(dk.saveLink).not.toHaveClass("unnecessary");
+    await expect(dk.saveLink).not.toHaveClass(/\bunnecessary\b/);
   });
 });
 
@@ -62,17 +62,17 @@ test.describe("Save slots", () => {
     await page.goto('/');
 
     await dk.rename("Aubergine");
-    await expect(dk.saveLink).toHaveClass("necessary");
+    await expect(dk.saveLink).toHaveClass(/\bnecessary\b/);
 
     page.once('dialog', async dialog => { await dialog.accept() }); // save progress before switching
     await dk.swapToDomain("Barbarella");
     await expect(dk.name).toHaveText("Barbarella");
-    await expect(dk.saveLink).toHaveClass("unnecessary");
+    await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
 
     // now swap back: it should be saved
     await dk.swapToDomain("Aubergine");
     await expect(dk.name).toHaveText("Aubergine");
-    await expect(dk.saveLink).toHaveClass("unnecessary");
+    await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
   });
 
   test('it can clear the saved domain when I tell it to', async ({ page }) => {
@@ -90,7 +90,7 @@ test.describe("Restart", () => {
     let dk = new DomainkeeperPage(page);
     await page.goto('/');
     await dk.loadDomain(allSaved);
-    await expect(dk.saveLink).toHaveClass("unnecessary");
+    await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
 
     await dk.restartLink.click();
     expect(await dk.saveSlots.raw()).toBeUndefined();
@@ -101,16 +101,16 @@ test.describe("Restart", () => {
     await page.goto('/');
     await dk.loadDomain(unSaved);
     await dk.rename("Barbarella");
-    await expect(dk.saveLink).toHaveClass("necessary");
+    await expect(dk.saveLink).toHaveClass(/\bnecessary\b/);
 
     page.once('dialog', async dialog => { await dialog.accept() }); // save progress before switching
     await dk.restartLink.click();
     expect(await dk.saveSlots.raw()).toBeUndefined();
-    await expect(dk.saveLink).toHaveClass("unnecessary");
+    await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
 
     // now swap back: it should be saved
     await dk.swapToDomain("Barbarella");
     await expect(dk.name).toHaveText("Barbarella");
-    await expect(dk.saveLink).toHaveClass("unnecessary");
+    await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
   });
 });

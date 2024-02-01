@@ -418,19 +418,11 @@
         background: var(--text-color);
         color: white;
         justify-content: center;
+        align-items: center;
         margin-left: calc(-1 * var(--external-margin));
   
-        .turn-name {
+        .turn-name, .icon-name {
           padding: var(--internal-margin);
-
-          &:any-link { color: white }
-
-          &:after {
-            content: "📝";
-            margin-inline-start: var(--internal-margin);
-            text-decoration: none;
-            display: inline-block;
-          }
         }
       }
 
@@ -536,7 +528,7 @@
       }
     }
 
-    .cancel-activity {
+    .activity-actions {
       margin-left: auto;
     }
 
@@ -758,6 +750,15 @@
   .activity-summaries {
     display: flex;
     flex-wrap: wrap;
+
+    a.icon-link:hover {
+      z-index: 2;
+    }
+
+    a.icon-link:has(+ a:hover), a.icon-link:hover + a {
+      scale: 1.2;
+      z-index: 1;
+    }
   }
 
   .activity-summary {

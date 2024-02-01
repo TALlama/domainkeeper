@@ -40,7 +40,7 @@ export class ActorSheet extends RxElement {
           <a href="#" data-action="doAddBonusActivity">+</a>
           <a href="#" data-action="doAddBonusActivity" data-amount="-1">-</a>
         </span>
-        <a href="#" data-action="renameActor" aria-label="Rename ${this.actor.name}">📝</a>
+        <a href="#" data-action="renameActor" class="icon-link" aria-label="Rename ${this.actor.name}">📝</a>
       </h3>
     `;
   }

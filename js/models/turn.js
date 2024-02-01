@@ -9,8 +9,8 @@ export class Turn {
     hydrateList(this, {name: "activities", type: Activity});
 
     Object.assign(this, properties);
-    this.name ??= "";
     this.number ??= domain.turns.length;
+    this.name ??= "";
 
     if (this.number === 0) {
       this.addUniqueActivity({name: "Domain Concept"});

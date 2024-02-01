@@ -184,11 +184,11 @@ class DomainSheet extends RxElement {
   renderName() {
     return `
       <span class="domain-name">${this.domain.name}</span>
-      <a href="#" data-action="renameDomain" aria-label="Rename domain">📝</a>
+      <a href="#" data-action="renameDomain" class="icon-link" aria-label="Rename domain">📝</a>
       <span class="domain-data-management">
-        <a href="#" data-action="doSaveData" class="${this.changed ? "necessary" : "unnecessary"}">💾</a>
-        <a href="#" data-action="swapSaveSlot">🔀</a>
-        <a href="#" data-action="newSaveSlot">✨</a>
+        <a href="#" data-action="doSaveData" class="icon-link ${this.changed ? "necessary" : "unnecessary"}">💾</a>
+        <a href="#" data-action="swapSaveSlot" class="icon-link">🔀</a>
+        <a href="#" data-action="newSaveSlot" class="icon-link">✨</a>
       </span>`;
   }
 

@@ -137,7 +137,8 @@ export default class DomainActivityLog extends RxElement {
     return `
     <article class="turn" data-turn-name="${name.replace(/[^a-zA-Z0-9 ]+/g, " ")}" data-turn-number="${turn.number}">
       <div class="turn-marker">
-        <a href="#" class="turn-name" data-action="renameTurn">${name}</a>
+        <span class="turn-name">${name}</span>
+        <a href="#" class="icon-link" data-action="renameTurn" aria-label="Rename turn">📝</a>
       </div>
       ${summary ? `<main class="activities activities---summary-spotlight">${this.renderActivity(summary)}</main>` : ""}
 
@@ -169,7 +170,8 @@ export default class DomainActivityLog extends RxElement {
     let turnNumber = event.target.closest("[data-turn-number]")?.dataset?.turnNumber;
     if (turnNumber) {
       let turn = this.domain.turns.find(t => t.number === Number(turnNumber));
-      if (turn) { turn.name = prompt("Rename turn", turn.name) }
+      let newName = turn && prompt("What shall we call this turn?", turn.name || `Turn ${turn.number}`);
+      if (newName) { turn.name = newName }
     }
   }
 

@@ -19,7 +19,13 @@
 
   a {
     &.icon-link {
+      display: inline-block;
       text-decoration: none;
+      transition: scale 200ms;
+
+      &:hover {
+        scale: 1.5;
+      }
     }
   }
 

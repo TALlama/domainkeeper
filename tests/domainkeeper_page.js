@@ -206,13 +206,14 @@ export class Turn extends LocatorLike {
 
     this.name = this.locator(".turn-name");
     this.activities = this.locator("activity-sheet");
+    this.activityNames = this.locator("activity-sheet .activity-name");
   }
 
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
 
   async rename(name) {
     this.page.once('dialog', async dialog => { await dialog.accept(name) });
-    await this.name.click();
+    await this.getByLabel("Rename turn").click();
     return expect(this.name).toHaveText(name);
   }
 }
@@ -239,6 +240,11 @@ export class ActivitySheet extends LocatorLike {
   decisionPanel(name) { return new DecisionPanel(this.page, this.locator(`activity-decision-panel[name="${name}"]`)) }
 
   // Actions
+  async rename(newName) {
+    this.page.once('dialog', async dialog => { await dialog.accept(newName) });
+    await this.getByLabel("Rename").click();
+  }
+
   async updateSummary(value) {
     this.page.on('dialog', async dialog => { await dialog.accept(value) });
     await this.getByLabel("Edit summary").click();
