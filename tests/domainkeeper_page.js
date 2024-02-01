@@ -85,9 +85,52 @@ export class DomainkeeperPage extends LocatorLike {
     return expect(this.name).toHaveText(name);
   }
 
-  async renameLeader(oldName, newName) {
-    this.page.once('dialog', async dialog => { await dialog.accept(newName) });
-    await this.getByLabel("Rename Anne").click();
+  async renameActor(oldName, newName) {
+    await this.setCurrentActor(oldName);
+    await this.getByLabel(`Update ${oldName}`).click();
+    
+    const editor = this.locator("sl-dialog[open]");
+    await editor.getByLabel("Name").fill(newName);
+    return editor.getByRole("button", {name: "Update"}).click();
+  }
+
+  async addActorTraits(actorName, newTraits) {
+    await this.setCurrentActor(actorName);
+    await this.getByLabel(`Update ${actorName}`).click();
+
+    await this.addTraits(newTraits);
+    return this.locator("sl-dialog[open]").getByRole("button", {name: "Update"}).click();
+  }
+
+  async addTraits(traits) {
+    if (traits.length === 0) { return Promise.resolve() }
+    await this.addTrait(traits[0]);
+    return this.addTraits(traits.slice(1));
+  }
+
+  async addTrait(trait) {
+    const editor = this.locator("sl-dialog[open]");
+    await editor.getByLabel("Add a trait").fill(trait);
+    return editor.getByLabel("Add a trait").press("Enter");
+  }
+
+  async removeActorTraits(actorName, doomedTraits) {
+    await this.setCurrentActor(actorName);
+    await this.getByLabel(`Update ${actorName}`).click();
+
+    await this.removeTraits(doomedTraits);
+    return this.locator("sl-dialog[open]").getByRole("button", {name: "Update"}).click();
+  }
+
+  async removeTraits(traits) {
+    if (traits.length === 0) { return Promise.resolve() }
+    await this.removeTrait(traits[0]);
+    return this.removeTraits(traits.slice(1));
+  }
+
+  async removeTrait(trait) {
+    const editor = this.locator("sl-dialog[open]");
+    return editor.locator('sl-tag').filter({hasText: trait}).getByLabel('Remove').click();
   }
 
   async setCurrentActor(value) { return this.locator(`:is(.leaders-section, .settlements-section) .actor:has-text("${value}")`).click() }

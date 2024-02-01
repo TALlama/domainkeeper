@@ -942,6 +942,21 @@
     }
   }
 
+  .trait-editor {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--small-margin);
+
+    .trait.removed {
+      text-decoration: line-through;
+    }
+
+    > sl-input {
+      margin-inline-start: auto;
+      max-width: 15ch;
+    }
+  }
+
   body:has([data-used-ability~="Culture"]:hover) [data-uses-ability~="Culture"],
   body:has([data-used-ability~="Economy"]:hover) [data-uses-ability~="Economy"],
   body:has([data-used-ability~="Loyalty"]:hover) [data-uses-ability~="Loyalty"],

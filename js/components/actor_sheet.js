@@ -2,6 +2,7 @@ import { Structure } from "../models/structure.js";
 
 import { nudge } from "./event_helpers.js";
 import { ActivityPicker } from "./activity_picker.js";
+import { ActorEditor } from "./actor_editor.js";
 import { RxElement } from "./rx_element.js";
 import { StructureChip } from "./structure_chip.js";
 import { TraitList } from "./trait_list.js";
@@ -40,7 +41,7 @@ export class ActorSheet extends RxElement {
           <a href="#" data-action="doAddBonusActivity">+</a>
           <a href="#" data-action="doAddBonusActivity" data-amount="-1">-</a>
         </span>
-        <a href="#" data-action="renameActor" class="icon-link" aria-label="Rename ${this.actor.name}">📝</a>
+        <a href="#" data-action="editActor" class="icon-link" aria-label="Update ${this.actor.name}">📝</a>
       </h3>
     `;
   }
@@ -89,9 +90,11 @@ export class ActorSheet extends RxElement {
     this.actor.bonusActivities += Number(event.target.closest("[data-amount]")?.dataset?.amount ?? 1);
   }
 
-  renameActor(event) {
-    let newName = prompt(`What should we call ${this.actor.name} from now on?`, this.actor.name);
-    if (newName) { this.actor.name = newName }
+  editActor(event) {
+    const editor = new ActorEditor();
+    editor.setAttribute("label", this.actor.name);
+    editor.setAttribute("actorId", this.actor.id);
+    document.body.append(editor);
   }
 
   doAddStructure(event) {

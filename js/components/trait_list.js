@@ -36,7 +36,8 @@ export class TraitList extends RxElement {
     });
   }
 
-  static tooltipFor(trait) {
+  static tooltipFor(trait) { this.tooltips[trait] }
+  static get tooltips() {
     return {
       PC: "A player character, run by a real-world human",
       NPC: "A non-player character, run by the GM",
@@ -57,7 +58,7 @@ export class TraitList extends RxElement {
       Economy: "Affects the Economy ability",
       Loyalty: "Affects the Loyalty ability",
       Stability: "Affects the Stability ability",
-    }[trait];
+    };
   }
 
   static el(...traits) {

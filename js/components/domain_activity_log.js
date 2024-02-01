@@ -3,6 +3,7 @@ import { Activity } from "../models/activity.js";
 
 import { denyUse, twist, useUp } from "./animations.js";
 import { debugJSON } from "../helpers.js";
+import { ActorEditor } from "./actor_editor.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { ActivityPicker } from "./activity_picker.js";
 import { RxElement } from "./rx_element.js";

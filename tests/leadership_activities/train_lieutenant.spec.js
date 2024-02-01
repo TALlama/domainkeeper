@@ -1,12 +1,8 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
+const { leaders } = require('../fixtures/leaders');
 const { monitor } = require('../helpers');
-
-let leaders = {
-  pc: {name: "Polly", id: "leader-polly", traits: ["PC"], initiative: 20},
-  npc: {name: "Ned", id: "leader-ned", traits: ["NPC"], initiative: 10},
-};
 
 test.describe("Critical Success", () => {
   test('the NPC gains a second activity', async ({ page }) => {
@@ -42,9 +38,9 @@ test.describe("Critical Failure", () => {
   test('trainee abandons their post', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
-    await expect(dk.leaderNames).toHaveText(["Polly", "Ned"]);
+    await expect(dk.leaderNames).toHaveText(["Anne", "Ned"]);
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Failure");
-    await expect(dk.leaderNames).toHaveText(["Polly"]);
+    await expect(dk.leaderNames).toHaveText(["Anne"]);
   });
 });
 

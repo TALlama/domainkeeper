@@ -20,7 +20,7 @@ test.describe("when it's your turn", () => {
   });
 
   test('actors must pick two different activities', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...onTurnOne, leaders: leaders.twoPack});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack});
 
     await monitor({
       shouldNotChange: () => dk.currentActorName,

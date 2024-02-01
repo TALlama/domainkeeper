@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("./domainkeeper_page");
 const { inTurnOne } = require('./fixtures/domains');
+const { leaders } = require('./fixtures/leaders');
 const { Ability } = require('../js/models/abilities');
 
 async function nudgeLog(dk) {
@@ -49,5 +50,32 @@ test.describe("Track when a structure is", () => {
     await expect(dk.currentActorPowerups()).toHaveText([]);
 
     await expect(await nudgeLog(dk)).toContainText(`Structure destroyed in Capital: Town Hall`);
+  });
+});
+
+
+test.describe("Track when an actor", () => {
+  test('is renamed', async ({ page }) => {
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
+
+    await dk.renameActor("Anne", "Lady Anne");
+    await expect(await nudgeLog(dk)).toContainText(`Kneel, Anne. Rise, Lady Anne!`);
+  });
+
+  test('has traits are added', async ({ page }) => {
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne]});
+
+    expect(await dk.currentActorTraits()).toHaveText(["PC"]);
+    await dk.addActorTraits("Anne", ["Famous"]);
+    expect(await dk.currentActorTraits()).toHaveText(["Famous", "PC"]);
+    await expect(await nudgeLog(dk)).toContainText(`Anne now has traits: Famous, PC`);
+  });
+
+  test('has traits are removed', async ({ page }) => {
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [{...leaders.anne, traits: ["PC", "Famous"]}]});
+
+    await dk.removeActorTraits("Anne", ["Famous"]);
+    expect(await dk.currentActorTraits()).toHaveText(["PC"]);
+    await expect(await nudgeLog(dk)).toContainText(`Anne now has traits: PC`);
   });
 });
