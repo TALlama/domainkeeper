@@ -180,7 +180,7 @@
       display: grid;
       grid-template-columns: auto 1fr auto auto;
       gap: var(--internal-margin);
-      padding-inline: var(--internal-margin);
+      padding-inline: var(--small-margin);
 
       &:before {
         content: "";
@@ -940,5 +940,26 @@
     a {
       text-decoration: none;
     }
+  }
+
+  body:has([data-used-ability~="Culture"]:hover) [data-uses-ability~="Culture"],
+  body:has([data-used-ability~="Economy"]:hover) [data-uses-ability~="Economy"],
+  body:has([data-used-ability~="Loyalty"]:hover) [data-uses-ability~="Loyalty"],
+  body:has([data-used-ability~="Stability"]:hover) [data-uses-ability~="Stability"] {
+    outline: 2px solid rebeccapurple;
+  }
+
+  body:has([data-used-ability~="Culture"]:hover) [data-uses-ability="Culture"],
+  body:has([data-used-ability~="Economy"]:hover) [data-uses-ability="Economy"],
+  body:has([data-used-ability~="Loyalty"]:hover) [data-uses-ability="Loyalty"],
+  body:has([data-used-ability~="Stability"]:hover) [data-uses-ability="Stability"] {
+    outline: 5px solid rebeccapurple;
+  }
+
+  body:has([data-uses-ability~="Culture"]:hover) [data-used-ability~="Culture"],
+  body:has([data-uses-ability~="Economy"]:hover) [data-used-ability~="Economy"],
+  body:has([data-uses-ability~="Loyalty"]:hover) [data-used-ability~="Loyalty"],
+  body:has([data-uses-ability~="Stability"]:hover) [data-used-ability~="Stability"] {
+    outline: 2px solid rebeccapurple;
   }
 }

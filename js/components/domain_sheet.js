@@ -155,7 +155,7 @@ class DomainSheet extends RxElement {
 
   renderStats() {
     return `
-      ${Ability.all.map(ability => this.renderStat(ability, {class: "ability"})).join("")}
+      ${Ability.all.map(ability => this.renderStat(ability, {class: "ability", data: {"used-ability": ability}})).join("")}
       ${this.renderStat("Control DC", {readonly: true, value: this.domain.controlDC})}
       ${this.renderStat("Unrest")}
       ${this.renderStat("Size")}
@@ -169,8 +169,10 @@ class DomainSheet extends RxElement {
     let value = opts.value ?? this.domain[key];
     let max = opts.max ?? this.domain.max(stat);
 
+    let dataAttrs = Object.entries(opts.data || {}).map(([dname, dval]) => `data-${dname}="${dval}"`).join(" ");
+
     return `
-      <article class="stat ${opts.class || ""} ${opts.class === "ability" && value === 1 ? "ability---danger" : ""} stat---${stat.toLocaleLowerCase()}">
+      <article class="stat ${opts.class || ""} ${opts.class === "ability" && value === 1 ? "ability---danger" : ""} stat---${stat.toLocaleLowerCase()}" ${dataAttrs}>
         <input class="current" type="number" id="domain-${stat}" @value="${value}" min="${this.domain.min(stat)}" max="${max}" ${opts.readonly ? "readonly" : ""} data-action="doNudge" data-stat="${stat}" />
         <label for="domain-${stat}">${stat}</label>
         <span class="max"><sl-tooltip content="Maxium value ${max}">${max}</sl-tooltip></span>

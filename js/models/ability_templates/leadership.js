@@ -650,7 +650,7 @@ export var leadershipTemplates = [{
     description: "Before you roll, you must pay the mercenaries."
   }, {
     name: "Roll",
-    abilities: ["Loyalty"],
+    options: ["Economy"],
   }, {
     name: "Outcome",
     summaries: {

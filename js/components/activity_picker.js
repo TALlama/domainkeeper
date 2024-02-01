@@ -4,6 +4,7 @@ import { blockedTooltip } from "./blocked_tooltip.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { RxElement } from "./rx_element.js";
 import { makeId } from "../models/with_id.js";
+import { Ability } from "../models/abilities.js";
 
 export class ActivityPicker extends RxElement {
   connectedCallback() {
@@ -65,8 +66,12 @@ export class ActivityPicker extends RxElement {
         whyDisabled = activity.whyDisabled(this.domainSheet.domain, this.currentActor);
       }
 
+      let roll = activity.decisions.find(d => d.name === "Roll");
+      let abilities = roll ? (roll.options || Ability.all) : null;
+      let dataAbility = abilities ? `data-uses-ability="${abilities.join(" ")}"` : "";
+
       let disabled = !!whyDisabled;
-      let button = `<button key="${makeId(activity.name)}" title="${activity.summary}" data-action="doActivity" data-activity="${activity.name}" ${disabled ? "disabled" : ""}>
+      let button = `<button key="${makeId(activity.name)}" title="${activity.summary}" data-action="doActivity" data-activity="${activity.name}" ${disabled ? "disabled" : ""} ${dataAbility}>
           <span class="icon">${activity.icon}</span>
           <span class="name">${activity.name}</span>
         </button>`;
