@@ -5,8 +5,7 @@ const { DomainkeeperPage } = require("./domainkeeper_page");
 
 test.describe("domain concept is shown on first run", () => {
   test('setting the domain concept builds your abilities, then starts turn 1', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
+    const dk = await DomainkeeperPage.load(page);
 
     // starting stats
     await dk.shouldHaveStats({
@@ -47,8 +46,7 @@ test.describe("domain concept is shown on first run", () => {
   });
 
   test('turn 1 start gives you what you need to begin', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
+    const dk = await DomainkeeperPage.load(page);
     await dk.setDomainConcept();
 
     // Current Actor is offered activities
@@ -64,9 +62,8 @@ test.describe("domain concept is shown on first run", () => {
   // TODO after reload, we shouldn't add another welcome + concept to any turn
 
   test("turn 0 can be injected", async ({page}) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({name: "Whoville",
+    const dk = await DomainkeeperPage.load(page, {
+      name: "Whoville",
       culture: 5, economy: 3, loyalty: 3, stability: 3,
       turns: [{activities: [domainConcepts.complete]}],
     });

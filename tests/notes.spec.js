@@ -4,9 +4,7 @@ const { inTurnOne, endTurnOne } = require('./fixtures/domains');
 
 test.describe("Notes", () => {
   test('can name the domain', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await expect(dk.name).toHaveText("Founded Yesterday");
     await dk.rename("Anvilania");
@@ -14,18 +12,14 @@ test.describe("Notes", () => {
   });
 
   test('can rename actors', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [{name: "Anne", traits: ["PC"]}]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [{name: "Anne", traits: ["PC"]}]});
 
     await dk.renameLeader("Anne", "Destroyer");
     expect(await dk.currentActorName).toEqual("Destroyer");
   });
 
   test('can name turns', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let turn1 = dk.turn(1);
     await expect(turn1.name).toHaveText("Turn 1");
@@ -34,9 +28,7 @@ test.describe("Notes", () => {
   });
 
   test('can rename activities taken', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne);
 
     await expect(dk.turn(1).activityNames).toHaveText(["Contribute", "Prognostication", "Build Up", "Ruin"]);
     await dk.topActivity().rename("Festival of Fools");
@@ -44,9 +36,7 @@ test.describe("Notes", () => {
   });
 
   test('can change activity summaries', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await dk.pickActivity("Prognostication");
     await expect(dk.currentActivity.summary).toHaveText("You use the mystic arts to forsee future events and prepare for them.");

@@ -11,9 +11,7 @@ let settlements = {
 
 test.describe("Critical success", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await expect(dk.actorActivitiesLeft("Capital")).toHaveText("1");
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Success");
@@ -21,9 +19,7 @@ test.describe("Critical success", () => {
   });
 
   test('Increases stability or loyalty at random', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let before = await dk.stat('Loyalty') + await dk.stat('Stability');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Success");
@@ -34,9 +30,7 @@ test.describe("Critical success", () => {
 
 test.describe("Success", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await expect(dk.actorActivitiesLeft("Capital")).toHaveText("1");
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Success");
@@ -46,9 +40,7 @@ test.describe("Success", () => {
 
 test.describe("Failure", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await expect(dk.actorActivitiesLeft("Capital")).toHaveText("1");
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Failure");
@@ -56,9 +48,7 @@ test.describe("Failure", () => {
   });
 
   test('Increases unrest', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let before = await dk.stat('Unrest');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Failure");
@@ -68,9 +58,7 @@ test.describe("Failure", () => {
 
 test.describe("Critical Failure", () => {
   test('Increases unrest', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let before = await dk.stat('Unrest');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Failure");
@@ -78,9 +66,7 @@ test.describe("Critical Failure", () => {
   });
 
   test('Decreases stability or loyalty at random', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let before = await dk.stat('Loyalty') + await dk.stat('Stability');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Failure");
@@ -90,9 +76,7 @@ test.describe("Critical Failure", () => {
 });
 
 test('can be cancelled until you roll', async ({ page }) => {
-  let dk = new DomainkeeperPage(page);
-  await page.goto('/');
-  await dk.loadDomain({...inTurnOne, leaders: [leaders.anne]});
+  const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne]});
 
   await expect(dk.currentActorActivitiesLeft).toHaveText("2");
   await dk.pickActivity("Take Charge", "Capital");
@@ -103,8 +87,6 @@ test('can be cancelled until you roll', async ({ page }) => {
 
 test.describe("Loading", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
     let saved = {...inTurnOne, leaders: [leaders.anne], settlements: [settlements.capital]};
     saved.turns[1].activities.push({
       "name": "Take Charge",
@@ -113,7 +95,7 @@ test.describe("Loading", () => {
       "ability": "Economy",
       "outcome": "success",
     });
-    await dk.loadDomain(saved);
+    const dk = await DomainkeeperPage.load(page, saved);
     
     let takeCharge = dk.activity("Take Charge");
     await expect(takeCharge.root).toHaveAttribute("resolved");

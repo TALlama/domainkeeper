@@ -10,9 +10,7 @@ async function nudgeLog(dk) {
 
 test.describe("Track changes to the domain's", () => {
   test('ability scores', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let ability = Ability.random;
     await dk.statInput(ability).fill("4");
@@ -20,9 +18,7 @@ test.describe("Track changes to the domain's", () => {
   });
 
   test('other stats', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let stat = "Unrest Size XP Level".split(" ").random();
     let oldValue = await dk.stat(stat);
@@ -33,9 +29,7 @@ test.describe("Track changes to the domain's", () => {
 
 test.describe("Track when a structure is", () => {
   test('added', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
     await dk.settlementsList.getByText("Capital").click();
 
     await page.getByLabel("Structure:").fill("Herbalist");
@@ -46,9 +40,7 @@ test.describe("Track when a structure is", () => {
   });
 
   test('destroyed', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
     await dk.settlementsList.getByText("Capital").click();
 
     await page.locator('li').filter({hasText: 'Town Hall' }).getByRole("link", {name: "ℹ️"}).click();

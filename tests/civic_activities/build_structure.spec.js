@@ -13,9 +13,7 @@ let abilitiesTotal = async (dk) => await dk.stat("Culture") + await dk.stat("Eco
 test.describe("Builds the selected structure", () => {
   let outcomes = ["Critical Success", "Success"];
   test(`On any of the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     await expect(dk.currentActorPowerups()).toHaveText(["Inn"]);
@@ -28,9 +26,7 @@ test.describe("Builds the selected structure", () => {
 test.describe("Does not build anything", () => {
   let outcomes = ["Failure", "Critical Failure"];
   test(`On any of the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     await expect(dk.currentActorPowerups()).toHaveText(["Inn"]);
@@ -44,9 +40,7 @@ test.describe("Cost to Build", () => {
   let outcomes = ["Success", "Failure"];
 
   test('Reduces an ability you choose by 1', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     let before = await dk.stat("Culture");
@@ -56,9 +50,7 @@ test.describe("Cost to Build", () => {
 
   test.describe("Critical Success", () => {
     test('Boosts a random ability (potentially making up for the payment)', async ({ page }) => {
-      let dk = new DomainkeeperPage(page);
-      await page.goto('/');
-      await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
       await dk.setCurrentActor("Bigappel");
   
       let before = await abilitiesTotal(dk);
@@ -69,9 +61,7 @@ test.describe("Cost to Build", () => {
 
   test.describe("Critical Failure", () => {
     test('Reduces an ability you choose by 1, and another ability by 1', async ({ page }) => {
-      let dk = new DomainkeeperPage(page);
-      await page.goto('/');
-      await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
       await dk.setCurrentActor("Bigappel");
 
       let before = await abilitiesTotal(dk);
@@ -83,9 +73,7 @@ test.describe("Cost to Build", () => {
 
 test.describe("Available structures", () => {
   test('are constrained by domain level', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");
@@ -100,9 +88,7 @@ test.describe("Available structures", () => {
   });
 
   test('are constrained by their limit traits', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, settlements: [settlements.withInn]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");

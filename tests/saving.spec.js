@@ -4,14 +4,12 @@ const { inTurnOne, endTurnOne, allSaved, unSaved } = require('./fixtures/domains
 
 test.describe("Autosaves", () => {
   test('it does not save new domains automatically', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
+    const dk = await DomainkeeperPage.load(page);
     expect(await dk.saveSlots.raw()).toBeUndefined();
   });
 
   test('saves at the start of each new turn', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
+    const dk = await DomainkeeperPage.load(page);
 
     await dk.setDomainConcept();
     expect(await dk.saveSlots.raw()).toBeDefined();
@@ -20,17 +18,14 @@ test.describe("Autosaves", () => {
 
 test.describe("Manual saves", () => {
   test('it saves when I tell it to save', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
+    const dk = await DomainkeeperPage.load(page);
 
     await dk.saveLink.click();
     expect(await dk.saveSlots.raw()).toBeDefined();
   });
 
   test('it knows if anything has changed', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(allSaved);
+    const dk = await DomainkeeperPage.load(page, allSaved);
 
     await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
     await dk.readyEventButton.click();
@@ -40,8 +35,7 @@ test.describe("Manual saves", () => {
 
 test.describe("Save slots", () => {
   test('can swap to a different save', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
+    const dk = await DomainkeeperPage.load(page);
     await dk.saveSlots.add("domain", {...endTurnOne, name: "Anvilania", culture: 2, economy: 3, loyalty: 4, stability: 5});
     await dk.saveSlots.add("backup", {...endTurnOne, name: "Barbarella", culture: 5, economy: 4, loyalty: 3, stability: 2});
     await page.goto('/');
@@ -55,8 +49,7 @@ test.describe("Save slots", () => {
   });
 
   test('when current domain is unsaved, prompts you to save', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
+    const dk = await DomainkeeperPage.load(page);
     await dk.saveSlots.add("domain", {...endTurnOne, name: "Anvilania"});
     await dk.saveSlots.add("backup", {...endTurnOne, name: "Barbarella"});
     await page.goto('/');
@@ -76,9 +69,7 @@ test.describe("Save slots", () => {
   });
 
   test('it can clear the saved domain when I tell it to', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await dk.clearDomain();
     expect(await dk.saveSlots.raw()).toBeUndefined();
@@ -87,9 +78,7 @@ test.describe("Save slots", () => {
 
 test.describe("Restart", () => {
   test('when current domain is saved, it just does it', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(allSaved);
+    const dk = await DomainkeeperPage.load(page, allSaved);
     await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
 
     await dk.restartLink.click();
@@ -97,9 +86,7 @@ test.describe("Restart", () => {
   });
 
   test('when current domain is unsaved, prompts you to save', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(unSaved);
+    const dk = await DomainkeeperPage.load(page, unSaved);
     await dk.rename("Barbarella");
     await expect(dk.saveLink).toHaveClass(/\bnecessary\b/);
 

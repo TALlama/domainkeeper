@@ -44,6 +44,13 @@ export class DomainkeeperPage extends LocatorLike {
     this.earlyEventButton = this.getByRole("button", {name: "Start event early"});
   }
 
+  static async load(page, domain, opts = {}) {
+    const dk = new DomainkeeperPage(page);
+    return page.goto(opts.path || '/')
+      .then(() => domain && dk.loadDomain(domain, opts.expectTurn))
+      .then(() => dk);
+  }
+
   // Parts of the page
   statInput(label) { return this[label.toLowerCase()] }
   async stat(label) { return Number(await this.statInput(label).inputValue()) }

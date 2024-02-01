@@ -11,9 +11,7 @@ async function eventPicks(dk, finalPick = "End turn") {
 
 test.describe("You can end your turn", () => {
   test('When all activities are complete, by triggering and resolving an event', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne);
 
     await dk.readyEventButton.click();
     await eventPicks(dk);
@@ -21,9 +19,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('Event might lead to another event', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne);
 
     await dk.readyEventButton.click();
     await eventPicks(dk, "Add another event");
@@ -32,9 +28,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('early reqires confirmation before the event', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     page.once('dialog', dialog => dialog.accept()); // accept early end of turn
     await dk.earlyEventButton.click();
@@ -43,9 +37,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('adds one fame, unless you already have 3', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne);
 
     await dk.readyEventButton.click();
     await expect(dk.consumables.names).toContainText([]);
@@ -54,9 +46,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('uses up end-of-turn consumables', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne);
 
     await page.evaluate(() => { document.querySelector("domain-sheet").domain.addConsumable() });
     await expect(dk.consumables.names).toContainText(["Consumable"]);
@@ -67,9 +57,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('adds a domain summary to, and collapses, the previous turn', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne);
     
     expect(dk.turn("Turn 1").activity("Domain Summary").root).toHaveCount(0);
     expect(dk.turn("Turn 1").activity("Ruin").root).toBeVisible();
@@ -80,9 +68,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('adds a ruin to the new turn', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne);
     
     expect(dk.turn("Turn 2").activity("Ruin").root).toHaveCount(0);
     await dk.readyEventButton.click();

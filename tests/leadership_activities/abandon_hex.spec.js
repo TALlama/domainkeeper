@@ -5,17 +5,13 @@ const { monitor } = require('../helpers');
 
 test.describe("Availability", () => {
   test('When size is 1', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain(inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await expect(dk.activityPicker.getByRole("button", {name: "Abandon Hex"})).toBeDisabled();
   });
 
   test('When size is > 1', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, size: 2});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: 2});
 
     await expect(dk.activityPicker.getByRole("button", {name: "Abandon Hex"})).toBeEnabled();
   });

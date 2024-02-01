@@ -12,9 +12,7 @@ test.describe("Can remove leaders", () => {
   let outcomes = ["Critical Success", "Success", "Failure"];
   
   test(`with the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
   
     await dk.pickActivity("New Leadership", "Loyalty", outcomes.random(), "Ned", "Don't Add");
     return expect(dk.leaderNames).toHaveText(["Polly"]);
@@ -25,9 +23,7 @@ test.describe("Can add new PC leaders", () => {
   let outcomes = ["Critical Success", "Success", "Failure"];
   
   test(`with the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
     page.once('dialog', async dialog => { await dialog.accept("Bertie") });
     await dk.pickActivity("New Leadership", "Loyalty", outcomes.random(), "Don't Remove", "Add a New PC");
@@ -42,9 +38,7 @@ test.describe("Can reinstate AWOL or Retired leaders", () => {
   let outcomes = ["Critical Success", "Success", "Failure"];
   
   test(`with the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc, {name: "Oldie", id: "leader-oldie", traits: ["NPC", ["Retired", "AWOL"].random()]}]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc, {name: "Oldie", id: "leader-oldie", traits: ["NPC", ["Retired", "AWOL"].random()]}]});
 
     await dk.pickActivity("New Leadership", "Loyalty", outcomes.random(), "Don't Remove", "Oldie");
     await expect(dk.leaderNames).toHaveText(["Polly", "Ned", "Oldie"]);
@@ -58,9 +52,7 @@ test.describe("Can add new NPC leaders", () => {
   let outcomes = ["Critical Success", "Success", "Failure"];
   
   test(`with the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
     page.once('dialog', async dialog => { await dialog.accept("Bertie") });
     await dk.pickActivity("New Leadership", "Loyalty", outcomes.random(), "Don't Remove", "Add a New NPC");
@@ -73,9 +65,7 @@ test.describe("Can add new NPC leaders", () => {
 
 test.describe("Unrest", () => {
   test('Success adds 1 unrest', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
     let before = await dk.stat("Unrest");
     await dk.pickActivity("New Leadership", "Loyalty", "Success", "Ned");
@@ -83,9 +73,7 @@ test.describe("Unrest", () => {
   });
 
   test('Failure adds 2-5 unrest', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
     let before = await dk.stat("Unrest");
     await dk.pickActivity("New Leadership", "Loyalty", "Failure", "Ned");
@@ -93,9 +81,7 @@ test.describe("Unrest", () => {
   });
 
   test('Critical Failure adds 2-8 unrest', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
     let before = await dk.stat("Unrest");
     await dk.pickActivity("New Leadership", "Loyalty", "Critical Failure", "Ned");
@@ -105,8 +91,6 @@ test.describe("Unrest", () => {
 
 test.describe("Loading", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
     let classic = {name: "Classic", id: "leader-classic", traits: ["NPC", "Retired"]};
     let hotrod = {name: "Hotrod", id: "leader-hotrod", traits: ["NPC"]};
     let saved = {...inTurnOne, leaders: [leaders.pc, leaders.npc, classic, hotrod]};
@@ -119,7 +103,7 @@ test.describe("Loading", () => {
       "addedType": "NPC",
       "addedId": hotrod.id,
     });
-    await dk.loadDomain(saved);
+    const dk = await DomainkeeperPage.load(page, saved);
     
     let takeCharge = dk.activity("New Leadership");
     await expect(takeCharge.root).toHaveAttribute("resolved");

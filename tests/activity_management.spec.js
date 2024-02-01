@@ -10,9 +10,7 @@ let leaders = {
 
 test.describe("when it's your turn", () => {
   test('you can pick two activities', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...onTurnOne, leaders: [leaders.anne, leaders.zed]});
+    const dk = await DomainkeeperPage.load(page, {...onTurnOne, leaders: [leaders.anne, leaders.zed]});
 
     await monitor({
       shouldNotChange: () => dk.currentActorName,
@@ -26,9 +24,7 @@ test.describe("when it's your turn", () => {
   });
 
   test('actors must pick two different activities', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...onTurnOne, leaders: [leaders.anne, leaders.zed]});
+    const dk = await DomainkeeperPage.load(page, {...onTurnOne, leaders: [leaders.anne, leaders.zed]});
 
     await monitor({
       shouldNotChange: () => dk.currentActorName,
@@ -39,9 +35,7 @@ test.describe("when it's your turn", () => {
   });
 
   test('initiative set the default order, but you can override it', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...inTurnOne, leaders: [leaders.anne, leaders.zed]}, "Domain Creation");
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne, leaders.zed]}, {expectTurn: "Domain Creation"});
 
     expect(await dk.currentActorName).toEqual("Anne");
     await monitor({
@@ -51,9 +45,7 @@ test.describe("when it's your turn", () => {
   });
 
   test('you can always click on an actor to see their stats', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...endTurnOne, leaders: [leaders.anne, leaders.zed]});
+    const dk = await DomainkeeperPage.load(page, {...endTurnOne, leaders: [leaders.anne, leaders.zed]});
 
     expect(await dk.currentActorName).toEqual("Zed");
     await monitor({
@@ -63,9 +55,7 @@ test.describe("when it's your turn", () => {
   });
 
   test('picking activities lowers the number of activities you have left, but canceling returns them', async ({ page }) => {
-    let dk = new DomainkeeperPage(page);
-    await page.goto('/');
-    await dk.loadDomain({...onTurnOne, leaders: [leaders.anne, leaders.zed]});
+    const dk = await DomainkeeperPage.load(page, {...onTurnOne, leaders: [leaders.anne, leaders.zed]});
 
     await expect(dk.currentActorActivitiesLeft).toHaveText("2");
     expect(await dk.turn("Turn 1").activities).toHaveCount(1);
