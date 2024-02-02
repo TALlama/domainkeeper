@@ -6,9 +6,7 @@ const { monitor } = require('./helpers');
 let abilities = "Culture Economy Loyalty Stability".split(" ");
 
 test('fame rerolls the last roll', async ({ page }) => {
-  let dk = new DomainkeeperPage(page);
-  await page.goto('/');
-  await dk.loadDomain(onTurnOne);
+  const dk = await DomainkeeperPage.load(page, onTurnOne);
 
   await monitor({ // no roll; fame won't get used
     shouldNotChange: () => dk.consumables.names,
@@ -25,19 +23,17 @@ test('fame rerolls the last roll', async ({ page }) => {
 });
 
 test('mint rerolls only economy rolls', async ({ page }) => {
-  let dk = new DomainkeeperPage(page);
-  await page.goto('/');
-  await dk.loadDomain({...onTurnOne, settlements: [{name: "Denver", powerups: [{name: "Mint"}]}]});
+  const dk = await DomainkeeperPage.load(page, {...onTurnOne, settlements: [{name: "Denver", powerups: [{name: "Mint"}]}]});
 
   // no economy roll; fame won't get used
-  dk.rollAbility("Culture");
+  await dk.rollAbility("Culture");
   await monitor({ // no roll; fame won't get used
     shouldNotChange: () => dk.consumables.names,
     when: () => dk.consumables.withName("Mint").click(),
   });
 
   // if there is a roll, we'll reroll it
-  dk.rollAbility("Economy");
+  await dk.rollAbility("Economy");
   await monitor({ // now there's an Economy roll; fame can reroll it
     shouldChange: () => dk.rollText(dk.lastRoll),
     shouldNotChange: () => dk.rolls.length,

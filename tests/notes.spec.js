@@ -16,14 +16,14 @@ test.describe("Notes", () => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne]});
 
     await dk.renameActor("Anne", "Destroyer");
-    expect(await dk.currentActorName).toEqual("Destroyer");
+    await expect(dk.currentActorName).toHaveText("Destroyer");
   });
 
   test('can rename settlements', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await dk.renameActor("Capital", "The Hub");
-    expect(await dk.currentActorName).toEqual("The Hub");
+    await expect(dk.currentActorName).toHaveText("The Hub");
   });
 
   test('can name turns', async ({ page }) => {

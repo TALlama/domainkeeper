@@ -59,20 +59,20 @@ test.describe("You can end your turn", () => {
   test('adds a domain summary to, and collapses, the previous turn', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, endTurnOne);
     
-    expect(dk.turn("Turn 1").activity("Domain Summary").root).toHaveCount(0);
-    expect(dk.turn("Turn 1").activity("Ruin").root).toBeVisible();
+    await expect(dk.turn("Turn 1").activityNames).not.toContainText(["Domain Summary"]);
+    await expect(dk.turn("Turn 1").activityNames).toContainText(["Ruin"]);
     await dk.readyEventButton.click();
     await eventPicks(dk);
-    expect(dk.turn("Turn 1").activity("Domain Summary").root).toBeVisible();
-    expect(dk.turn("Turn 1").activity("Ruin").root).not.toBeVisible();
+    await expect(dk.turn("Turn 1").activityNames).toContainText(["Domain Summary"]);
+    await expect(dk.turn("Turn 1").activityNames.last()).not.toBeVisible();
   });
 
   test('adds a ruin to the new turn', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, endTurnOne);
     
-    expect(dk.turn("Turn 2").activity("Ruin").root).toHaveCount(0);
+    await expect(dk.turn("Turn 2").activityNames).not.toContainText(["Ruin"]);
     await dk.readyEventButton.click();
     await eventPicks(dk);
-    expect(dk.turn("Turn 2").activity("Ruin").root).toBeVisible();
+    await expect(dk.turn("Turn 2").activityNames).toContainText(["Ruin"]);
   });
 });

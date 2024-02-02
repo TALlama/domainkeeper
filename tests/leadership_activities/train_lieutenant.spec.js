@@ -8,9 +8,9 @@ test.describe("Critical Success", () => {
   test('the NPC gains a second activity', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
 
-    expect(dk.actorActivitiesLeft("Ned")).toHaveText("1");
+    await expect(dk.actorActivitiesLeft("Ned")).toHaveText("1");
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Success");
-    expect(dk.actorActivitiesLeft("Ned")).toHaveText("2");
+    await expect(dk.actorActivitiesLeft("Ned")).toHaveText("2");
   });
 });
 

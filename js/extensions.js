@@ -31,7 +31,7 @@ Array.prototype.sortBy = Array.prototype.sortBy || function(attr) {
   return this.sort((a, b) => {
     let aVal = attr.call ? attr(a) : a[attr];
     let bVal = attr.call ? attr(b) : b[attr];
-    return aVal > bVal ? 1 : -1;
+    return aVal === bVal ? 0 : (aVal > bVal ? 1 : -1);
   })
 };
 Array.prototype.groupBy = Array.prototype.groupBy || function(attr) {

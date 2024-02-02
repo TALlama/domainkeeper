@@ -8,7 +8,12 @@ let settlements = {
   withInn: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: "Inn"}]},
 };
 
-let abilitiesTotal = async (dk) => await dk.stat("Culture") + await dk.stat("Economy") + await dk.stat("Loyalty") + await dk.stat("Stability");
+let abilitiesTotal = async (dk) => {
+  return dk.stat("Culture")
+    .then(async (t) => t + await dk.stat("Economy"))
+    .then(async (t) => t +  await dk.stat("Loyalty"))
+    .then(async (t) => t +  await dk.stat("Stability"));
+};
 
 test.describe("Builds the selected structure", () => {
   let outcomes = ["Critical Success", "Success"];
@@ -55,7 +60,7 @@ test.describe("Cost to Build", () => {
   
       let before = await abilitiesTotal(dk);
       await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Success");
-      expect(await abilitiesTotal(dk)).toEqual(before - 1 + 1);
+      await dk.shouldHaveStatTotal(before - 1 + 1);
     });
   });
 
@@ -66,7 +71,7 @@ test.describe("Cost to Build", () => {
 
       let before = await abilitiesTotal(dk);
       await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Failure");
-      expect(await abilitiesTotal(dk)).toEqual(before - 1 - 1);
+      await dk.shouldHaveStatTotal(before - 1 - 1);
     });
   });
 });

@@ -42,11 +42,11 @@ test.describe("Save slots", () => {
     await page.goto('/');
 
     await expect(dk.name).toHaveText("Anvilania");
-    dk.shouldHaveStats({culture: 2, economy: 3, loyalty: 4, stability: 5});
+    await dk.shouldHaveStats({culture: 2, economy: 3, loyalty: 4, stability: 5});
 
     await dk.swapToDomain("Barbarella");
     await expect(dk.name).toHaveText("Barbarella");
-    dk.shouldHaveStats({culture: 5, economy: 4, loyalty: 3, stability: 2});
+    await dk.shouldHaveStats({culture: 5, economy: 4, loyalty: 3, stability: 2});
   });
 
   test('when current domain is unsaved, prompts you to save', async ({ page }) => {

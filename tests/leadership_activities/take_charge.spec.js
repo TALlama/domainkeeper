@@ -19,10 +19,9 @@ test.describe("Critical success", () => {
   test('Increases stability or loyalty at random', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
-    let before = await dk.stat('Loyalty') + await dk.stat('Stability');
+    let before = 4 + await dk.stat('Loyalty') + await dk.stat('Stability');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Success");
-    let after = await dk.stat('Loyalty') + await dk.stat('Stability');
-    expect(after).toEqual(before + 1);
+    await dk.shouldHaveStatTotal(before + 1);
   });
 });
 
@@ -50,7 +49,7 @@ test.describe("Failure", () => {
 
     let before = await dk.stat('Unrest');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Failure");
-    expect(await dk.stat('Unrest')).toBe(before + 1);
+    await expect(dk.unrest).toHaveValue((before + 1).toString());
   });
 });
 
@@ -59,17 +58,17 @@ test.describe("Critical Failure", () => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let before = await dk.stat('Unrest');
+    expect(before).toBe(0);
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Failure");
-    expect(await dk.stat('Unrest')).toBe(before + 1);
+    await expect(dk.unrest).toHaveValue((before + 1).toString());
   });
 
   test('Decreases stability or loyalty at random', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
-    let before = await dk.stat('Loyalty') + await dk.stat('Stability');
+    let before = 4 + await dk.stat('Loyalty') + await dk.stat('Stability');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Failure");
-    let after = await dk.stat('Loyalty') + await dk.stat('Stability');
-    expect(after).toEqual(before - 1);
+    await dk.shouldHaveStatTotal(before - 1);
   });
 });
 

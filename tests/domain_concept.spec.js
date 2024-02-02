@@ -42,7 +42,7 @@ test.describe("domain concept is shown on first run", () => {
     await expect(page.getByText('Free Government Boost Loyalty')).toBeAttached(); // hides under previous turn
 
     // Start of turn 1
-    expect(dk.getByText("Turn 1")).toBeVisible();
+    await expect(dk.getByText("Turn 1")).toBeVisible();
   });
 
   test('turn 1 start gives you what you need to begin', async ({ page }) => {
@@ -50,7 +50,7 @@ test.describe("domain concept is shown on first run", () => {
     await dk.setDomainConcept();
 
     // Current Actor is offered activities
-    expect(dk.currentActorName).toBeDefined();
+    await expect(dk.currentActorName).toHaveText(/.*/);
     expect(dk.activityPicker.root).toHaveAttribute("open");
     await expect(dk.activityPicker.availableActvities).toHaveCount(18);
 
@@ -74,7 +74,7 @@ test.describe("domain concept is shown on first run", () => {
     });
 
     // Current Actor is offered activities
-    expect(dk.currentActorName).toBeDefined();
+    await expect(dk.currentActorName).toHaveText(/.*/);
     expect(dk.activityPicker.root).toHaveAttribute("open");
     await expect(dk.activityPicker.availableActvities).toHaveCount(18);
 

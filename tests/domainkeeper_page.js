@@ -43,6 +43,9 @@ export class DomainkeeperPage extends LocatorLike {
     this.earlyEventButton = this.getByRole("button", {name: "Start event early"});
   }
 
+  /**
+   * @returns {Promise<DomainkeeperPage>}
+   */
   static async load(page, domain, opts = {}) {
     const dk = new DomainkeeperPage(page);
     return page.goto(opts.path || '/')
@@ -59,7 +62,7 @@ export class DomainkeeperPage extends LocatorLike {
 
   get leaderNames() { return this.leadersList.locator(".name:visible") }
 
-  get currentActorName() { return this.locator(".actor.current .name").textContent() }
+  get currentActorName() { return this.locator(".actor.current .name") }
   get currentActorActivitiesLeft() { return this.locator(".actor.current .badge") }
   actorActivitiesLeft(actorName) { return this.locator(`.actor:has(.name:has-text("${actorName}")) .badge`) }
 
@@ -143,7 +146,7 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   rollAbility(name) {
-    this.page.getByRole("link", {name: `Roll ${name}`}).click();
+    return this.page.getByRole("link", {name: `Roll ${name}`}).click();
   }
 
   async pickActivity(name, ...decisions) {
@@ -178,23 +181,13 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   async setDomainConcept(opts = {}) {
-    let {heartland, charter, charterFree, govt, govtFree} = {
-      heartland: "Forest",
-      charter: "Exploration",
-      charterFree: "Loyalty",
-      govt: "Republic",
-      govtFree: "Loyalty",
-      ...opts};
-
-    await this.makeDecision(heartland);
-    await expect(this.getByText(`Heartland ${heartland}`)).toBeVisible();
-    await this.makeDecision(charter);
-    await expect(this.getByText(`Charter ${charter}`)).toBeVisible();
-    await this.decisionPanel('Free Charter Boost').makeDecision(charterFree);
-    await expect(this.getByText(`Free Charter Boost ${charterFree}`)).toBeVisible();
-    await this.makeDecision(govt);
-    await expect(this.getByText(`Government ${govt}`)).toBeVisible();
-    await this.decisionPanel('Free Government Boost').makeDecision(govtFree);
+    await expect(this.locator('activity-sheet:not([resolved])')).toHaveCount(1);
+    await this.makeDecisions([
+      opts.heartland || "Forest",
+      opts.charter || "Exploration",
+      opts.charterFree || "Loyalty",
+      opts.govt || "Republic",
+      opts.govtFree || "Loyalty"]);
     await expect(this.getByText('Turn 1')).toBeVisible();
   }
 
@@ -225,6 +218,13 @@ export class DomainkeeperPage extends LocatorLike {
       expect(locator, `Stat ${stat} should be ${value}`).toBeDefined();
       await expect(locator).toHaveValue(value.toString());
     }
+  }
+
+  async shouldHaveStatTotal(expectedTotal) {
+    return this.page.waitForFunction((expected) => {
+      let domain = document.querySelector("domain-sheet").domain;
+      return expected === domain.culture + domain.economy + domain.loyalty + domain.stability;
+    }, expectedTotal);
   }
 }
 
@@ -262,7 +262,7 @@ export class Turn extends LocatorLike {
     this.activityNames = this.locator("activity-sheet .activity-name");
   }
 
-  activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
+  async activity(name) { return await new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)).retargetWithId() }
 
   async rename(name) {
     this.page.once('dialog', async dialog => { await dialog.accept(name) });
@@ -274,16 +274,17 @@ export class Turn extends LocatorLike {
 export class ActivitySheet extends LocatorLike {
   constructor(page, root) {
     super(page, root);
-    this.retargetWithId();
+    this.retarget = this.retargetWithId();
   }
 
   async retargetWithId() {
-    if (this.id) return;
+    if (this.id) { return Promise.resolved() }
 
-    let id = await this.root.getAttribute("id");
-    this.root = this.page.locator(`#${id}`);
-    this.id = id;
-    return id;
+    return this.root.getAttribute("id")
+      .then(id => {
+        this.root = this.page.locator(`#${id}`);
+        this.id = id;
+      });
   }
 
   // Parts

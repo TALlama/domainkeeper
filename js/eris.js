@@ -4,7 +4,7 @@ export class Eris {
 
   constructor(name, builder) {
     this.name = name;
-    this.#root = new ErisTestGroup(name, builder);
+    this.#root = new ErisTestGroup(name, null, builder);
   }
 
   run({params, condition, reporter} = {}) {
@@ -66,8 +66,9 @@ export class ErisTestGroup {
   #befores = [];
   #afters = [];
 
-  constructor(name, builder) {
+  constructor(name, parent, builder) {
     this.name = name;
+    this.parent = parent;
     builder(this);
   }
 
@@ -76,7 +77,7 @@ export class ErisTestGroup {
   }
 
   describe(description, builder) {
-    this.#suite.push(new ErisTestGroup(description, builder));
+    this.#suite.push(new ErisTestGroup(description, this, builder));
   }
 
   let(name, fn) {
@@ -98,6 +99,11 @@ export class ErisTestGroup {
   run(context = {}) {
     let reporter = context.reporter;
 
+    if (!this.parent) {
+      window.erisResults ??= {runCount: 0, passCount: 0, failCount: 0, errorCount: 0, suites: {}};
+      window.erisResults.suites[this.name] = {runCount: 0, passCount: 0, failCount: 0, errorCount: 0, finished: false};
+    }
+
     reporter.beginGroup(this);
     this.#suite.forEach(testcase => {
       reporter.begin(context);
@@ -111,11 +117,19 @@ export class ErisTestGroup {
     });
     reporter.endGroup(this);
 
-    window.erisResults ??= {runCount: 0, passCount: 0, failCount: 0, errorCount: 0};
-    window.erisResults.runCount += reporter.runCount;
-    window.erisResults.passCount += reporter.passCount;
-    window.erisResults.failCount += reporter.failCount;
-    window.erisResults.errorCount += reporter.errorCount;
+    if (!this.parent) {
+      window.erisResults.runCount += reporter.runCount;
+      window.erisResults.passCount += reporter.passCount;
+      window.erisResults.failCount += reporter.failCount;
+      window.erisResults.errorCount += reporter.errorCount;
+      window.erisResults.suites[this.name] = {
+        runCount: reporter.runCount,
+        passCount: reporter.passCount,
+        failCount: reporter.failCount,
+        errorCount: reporter.errorCount,
+        finished: true,
+      };
+    }
   }
 }
 
