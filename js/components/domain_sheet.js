@@ -59,17 +59,30 @@ class DomainSheet extends RxElement {
     this.promptSave()
 
     let dialog = Object.assign(document.createElement("sl-dialog"), {
+      open: true,
       label: "Which save slot should we use?",
       innerHTML: `
-        <div>
+        <sl-button-group>
+          <sl-button size="small" data-action="newDomain">
+            <sl-icon slot="prefix" name="plus-circle"></sl-icon>
+            New Domain
+          </sl-button>
+          <sl-button size="small" data-action="importDomain">
+            <sl-icon slot="prefix" name="file-earmark-arrow-down"></sl-icon>
+            Import Domain
+          </sl-button>
+        </sl-button-group>
+        <div class="save-slots">
           ${Object.entries(this.saveSlots.root).map(([slot, domain]) =>
-            `<div style="display: flex; align-items: center;">
+            `<div class="save-slot">
               <input type="radio" id="use-slot-${slot}" name="use-slot" value="${slot}" ${slot === this.domainKey ? "checked" : ""}/>
-              <label for="use-slot-${slot}" style="display: block" title="${slot}">
+              <label for="use-slot-${slot}" title="${slot}">
                 ${domain.name} <span class="metadata">Level ${domain.level} @ Turn ${domain.turns.length - 1}</span>
               </label>
               <code class="hidden" id="domain-${slot}-source">${JSON.stringify(domain)}</code>
-              <sl-copy-button from="domain-${slot}-source" copy-label="Click to copy JSON"></sl-copy-button>
+              <sl-copy-button from="domain-${slot}-source" copy-label="Click to copy JSON">
+                <sl-icon slot="copy-icon" name="file-earmark-arrow-up"></sl-icon>
+              </sl-copy-button>
             </div>`
           ).join("")}
         </div>
@@ -79,11 +92,19 @@ class DomainSheet extends RxElement {
         </div>
       `,
     });
+    dialog.classList.add("save-slot-management");
+    dialog.querySelector("sl-button[data-action='newDomain']").addEventListener("click", event => {
+      this.newSaveSlot();
+      dialog.hide();
+    });
+    dialog.querySelector("sl-button[data-action='importDomain']").addEventListener("click", async event => {
+      await dialog.hide();
+      this.showImportSaveDialog();
+    });
     dialog.querySelector("sl-button.load").addEventListener("click", event => this.doSwapSaveSlot(event));
     dialog.querySelector("sl-button.delete").addEventListener("click", event => this.doClearData(event));
     dialog.addEventListener("sl-after-hide", (event) => event.target === dialog ? dialog.remove() : null);
     document.body.append(dialog);
-    dialog.show();
   }
 
   doSwapSaveSlot(event) {
@@ -92,9 +113,33 @@ class DomainSheet extends RxElement {
     if (!selected) { return }
 
     this.domainKey = selected;
-    this.load();
-    notify(`Loaded from ${selected}`);
+    let data = this.load();
+    notify(`Loaded ${data.name || "Domain"}`);
     dialog.hide();
+  }
+
+  showImportSaveDialog() {
+    let dialog = Object.assign(document.createElement("sl-dialog"), {
+      open: true,
+      label: "Import JSON",
+      innerHTML: `
+        <sl-textarea label="Domain JSON" help-text="If you didn't copy JSON from somewhere, you're in the wrong place"></sl-textarea>
+        <sl-button slot="footer" class="import" variant="primary">Import</sl-button>
+      `,
+    });
+    dialog.addEventListener("sl-after-hide", (event) => event.target === dialog ? dialog.remove() : null);
+    dialog.querySelector("sl-button.import").addEventListener("click", event => {
+      const textarea = dialog.querySelector("sl-textarea");
+      try {
+        this.domainKey = makeId("slot");
+        this.load(JSON.parse(textarea.value));
+        this.saveData();
+        dialog.hide();
+      } catch (error) {
+        alert(error);
+      }
+    });
+    document.body.append(dialog);
   }
 
   doClearData(event) {
@@ -126,16 +171,15 @@ class DomainSheet extends RxElement {
   }
 
   saveData() {
-    let memo = {};
-    memo[this.domainKey] = this.domain;
-    this.saveSlots.save(memo);
-    notify(`Domain saved as ${this.domainKey}.`, {variant: "success", icon: "check-circle"});
+    this.saveSlots.save({[this.domainKey]: this.domain});
+    notify(`Domain saved. Long live ${this.domain.name}!`, {variant: "success", icon: "check-circle"});
   }
 
   load(data = this.loadData()) {
     this._data ??= reef.signal({});
     this._data.current = new Domain(data);
     this._pristineDomain = JSON.stringify(this._data.current);
+    return data;
   }
 
   loadData() {
@@ -191,7 +235,6 @@ class DomainSheet extends RxElement {
       <span class="domain-data-management">
         <a href="#" data-action="doSaveData" class="icon-link ${this.changed ? "necessary" : "unnecessary"}">💾</a>
         <a href="#" data-action="swapSaveSlot" class="icon-link">🔀</a>
-        <a href="#" data-action="newSaveSlot" class="icon-link">✨</a>
       </span>`;
   }
 

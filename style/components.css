@@ -288,6 +288,17 @@
     }
   }
 
+  .save-slot-management {
+    sl-button-group {
+      margin-bottom: var(--external-margin);
+    }
+
+    .save-slot {
+      display: flex;
+      align-items: center;
+    }
+  }
+
   @media print {
     .ability-roll {
       display: none;

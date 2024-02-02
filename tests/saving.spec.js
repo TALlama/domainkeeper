@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("./domainkeeper_page");
 const { inTurnOne, endTurnOne, allSaved, unSaved } = require('./fixtures/domains');
+const { Domain } = require('domain');
 
 test.describe("Autosaves", () => {
   test('it does not save new domains automatically', async ({ page }) => {
@@ -81,7 +82,8 @@ test.describe("Restart", () => {
     const dk = await DomainkeeperPage.load(page, allSaved);
     await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
 
-    await dk.restartLink.click();
+    await dk.swapLink.click();
+    await dk.getByRole("button", {name: "New Domain"}).click();
     expect(await dk.saveSlots.raw()).toBeUndefined();
   });
 
@@ -91,7 +93,9 @@ test.describe("Restart", () => {
     await expect(dk.saveLink).toHaveClass(/\bnecessary\b/);
 
     page.once('dialog', async dialog => { await dialog.accept() }); // save progress before switching
-    await dk.restartLink.click();
+    await dk.swapLink.click();
+    await dk.getByRole("button", {name: "New Domain"}).click();
+
     expect(await dk.saveSlots.raw()).toBeUndefined();
     await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
 
@@ -99,5 +103,19 @@ test.describe("Restart", () => {
     await dk.swapToDomain("Barbarella");
     await expect(dk.name).toHaveText("Barbarella");
     await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
+  });
+});
+
+test.describe("Importing", () => {
+  test('when current domain is saved, it just does it', async ({ page }) => {
+    const dk = await DomainkeeperPage.load(page, allSaved);
+    await expect(dk.saveLink).toHaveClass(/\bunnecessary\b/);
+
+    await dk.swapLink.click();
+    await dk.getByRole("button", {name: "Import Domain"}).click();
+    await dk.getByLabel("Domain JSON").fill(JSON.stringify({name: "My Great Domain"}));
+    await dk.getByRole("button", {name: "Import"}).click();
+    await expect(dk.name).toHaveText("My Great Domain");
+    expect(await dk.saveSlots.raw()).toBeDefined();
   });
 });

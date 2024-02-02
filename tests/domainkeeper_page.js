@@ -38,7 +38,6 @@ export class DomainkeeperPage extends LocatorLike {
 
     this.saveLink = this.getByRole('link', {name: '💾'});
     this.swapLink = this.getByRole('link', {name: '🔀'});
-    this.restartLink = this.getByRole('link', {name: '✨'});
 
     this.readyEventButton = this.getByRole("button", {name: "Begin event"});
     this.earlyEventButton = this.getByRole("button", {name: "Start event early"});
