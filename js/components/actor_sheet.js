@@ -51,14 +51,18 @@ export class ActorSheet extends RxElement {
 
     return `<article class="actor-controls">
       ${this.renderPowerups()}
+      ${this.renderLocation()}
       <activity-picker></activity-picker>
     </article>${this.renderEventButton()}`;
   }
 
   renderPowerups() {
-    return `
-      <ul class="powerups list-unstyled list-inline">${(this.actor?.powerups || []).map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}</ul>
-      ${this.renderStructureControls()}`
+    return `<section class="powerups">
+      <ul class="powerups list-unstyled list-inline">
+        ${(this.actor?.powerups || []).map(powerup => `<li>${this.renderPowerup(powerup)}</li>`).join("")}
+        ${this.renderStructureControls()}
+      </ul>
+    </section>`;
   }
 
   renderPowerup(powerup) {
@@ -69,11 +73,18 @@ export class ActorSheet extends RxElement {
     if (!this.actor) { return `` }
     if (!this.actor.isSettlement) { return `` }
 
-    return `<fieldset class="structure-controls">
-      <label for="nudge-structure">Structure:</label>
+    return `<li class="structure-controls">
+      <label for="nudge-structure">🔧 Add structure:</label>
       <input id="nudge-structure" name="name" list="available-structures"/>
       <button data-action="doAddStructure">Build</button>
-    </fieldset>`;
+    </li>`;
+  }
+
+  renderLocation() {
+    if (!this.actor || !this.actor.position) { return `` }
+
+    let icons = [{icon: this.actor.icon, position: this.actor.position}];
+    return `<domain-map class="location" square zoom=".4" style="width: 200px" markers='${JSON.stringify(icons)}'></domain-map>`;
   }
 
   renderEventButton() {

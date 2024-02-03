@@ -17,8 +17,13 @@ export class RxElement extends HTMLElement {
 
   setAttributeBoolean(name, options = {}) {
     let value = options.value ?? "";
+    let isSet = this.hasAttribute(name) ? this.getAttribute(name) === value.toString() : false;
     let present = value || (options.if ?? this[name]);
-    present ? this.setAttribute(name, value) : this.removeAttribute(name);
+    if (present) {
+      isSet || this.setAttribute(name, value);
+    } else {
+      !isSet || this.removeAttribute(name);
+    }
     return present;
   }
 

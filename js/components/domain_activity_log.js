@@ -6,6 +6,8 @@ import { debugJSON } from "../helpers.js";
 import { ActorEditor } from "./actor_editor.js";
 import { ActivitySheet } from "./activity_sheet.js";
 import { ActivityPicker } from "./activity_picker.js";
+import { DomainMap } from "./domain_map.js";
+import { DomainMapLegend } from "./domain_map_legend.js";
 import { RxElement } from "./rx_element.js";
 
 export default class DomainActivityLog extends RxElement {
@@ -90,6 +92,7 @@ export default class DomainActivityLog extends RxElement {
     return `
       <aside class="status-banner">${this.renderStatusBanner()}</aside>
       ${this.currentTurn.number ? `<actor-sheet></actor-sheet>` : ""}
+      ${this.renderMap()}
       ${this.renderConsumables()}
       ${debugJSON(this.currentTurn)}
       <main class="turns">${this.renderTurns()}</main>`
@@ -111,6 +114,19 @@ export default class DomainActivityLog extends RxElement {
     } else {
       return ``;
     }
+  }
+
+  renderMap() {
+    let icons = [
+      ...this.domain.settlements.filter(s => s.position).map(s => ({editable: false, position: s.position, icon: s.icon || "X"})),
+    ];
+
+    return `
+      <details><summary>Map</summary>
+        <domain-map-legend prompt="Move stuff">
+          <domain-map editable markers='${JSON.stringify(icons)}'></domain-map>
+        </domain-map-legend>
+      </details>`;
   }
 
   renderConsumables() {
