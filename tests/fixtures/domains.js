@@ -1,10 +1,10 @@
-import { domainConcepts, ruin, buildUp, prognostication, contribute } from "./activities";
+import { domainConcepts, ruin, buildUp, prognostication, contribute, placeCapital } from "./activities";
 import { leaders } from "./leaders";
 
 export const domainCreationTurn = {
   number: 0,
   name: "Domain Creation",
-  activities: [domainConcepts.complete],
+  activities: [domainConcepts.complete, placeCapital.forks],
 };
 
 export const onTurnOne = {

@@ -26,7 +26,8 @@ export class ActivityDecision {
           </domain-map-legend>`
         },
         options: ["OK"],
-        picked() { this.position = document.getElementById(this.id).querySelector("domain-map").markerInfo[0].position },
+        position() { return document.getElementById(this.activity.id).querySelector("domain-map").markerInfo[0].position },
+        picked(_, {decision}) { this.position = decision.position() },
         unpicked() { this.position = null },
         displayTitleValue(value) {
           let position = this.activity.position;
@@ -37,7 +38,7 @@ export class ActivityDecision {
             ? `<domain-map zoom='.5' markers='${JSON.stringify([{position: this.activity.position}])}'></domain-map>`
             : "OK";
         },
-        mutable: (activity, decision) => activity.decision("Roll").mutable,
+        mutable: (activity, decision) => activity.decision("Roll")?.mutable,
       },
       Roll: {
         saveAs: "ability",

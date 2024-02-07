@@ -14,6 +14,26 @@ export var systemTemplates = [{
     <p>💾 At the end of every turn, we auto-save the domain. If you want to start all over again, click the ❌ at the top of the domain sidebar.</p>
     <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
   `,
+}, {
+  icon: "⭐",
+  name: "Place Capital",
+  summary: "You've got a domain. Where's the capital?",
+  decisions: [{
+    name: "Location",
+    picked(_, {decision}) {
+      let pos = decision.position();
+      console.log("set to", pos);
+      if (pos) {
+        let settlement = this.domain.settlements[0];
+        settlement.position = pos;
+
+        let name = prompt("And what will you name your capital?", "Capital");
+        if (name) { settlement.name = name }
+      } else {
+        this.location = null;
+      }
+    }
+  }],
 }, { // TODO it'd be nice if this prevented you from overflowing your ability scores
   icon: "🌱",
   name: "Domain Concept",

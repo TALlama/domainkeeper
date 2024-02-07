@@ -2,6 +2,14 @@ export function activityRecord(name, ability, outcome) {
   return {name, ability, outcome};
 }
 
+export const placeCapital = {
+  forks: {
+    name: "Place Capital",
+    actorId: "system",
+    location: "OK",
+  },
+};
+
 export const domainConcepts = {
   complete: {
     name:"Domain Concept",

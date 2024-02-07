@@ -48,6 +48,8 @@ export class DomainMap extends RxElement {
   nextMarker() { this.ixCurrentMarker++ }
   get ixCurrentMarker() { return this._ixCurrentMarker }
   set ixCurrentMarker(value) {
+    if (this.markers.filter(m => JSON.parse(m.dataset.properties).editable).length === 0) { return }
+
     this.marker.classList.remove('current');
     this._ixCurrentMarker = value % this.markers.length;
     if (JSON.parse(this.marker.dataset.properties).editable === false) {

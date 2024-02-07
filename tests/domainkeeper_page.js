@@ -187,11 +187,27 @@ export class DomainkeeperPage extends LocatorLike {
       .locator(`label[data-display-title-value="${pick}"]`).click({force: true})
   }
 
-  async makeLocationDecision(location, opts={}) {
+  async makeLocationDecision(position, opts={}) {
     let within = (opts.within || this.currentActivity);
-    await within.locator(`activity-decision-panel:not([resolved])`).first()
-      .locator(`domain-map`).click({force: true});
+    let el = await within.locator(`activity-decision-panel:not([resolved])`).first().locator(`domain-map`)
+    let size = await this.page.evaluate((selector) => {
+      let el = document.querySelector(selector);
+      return `${el.clientWidth},${el.clientHeight}`;
+    }, "activity-decision-panel:not([resolved]) domain-map");
+    size = size.split(",").map(n => parseFloat(n));
+    await el.scrollIntoViewIfNeeded();
+    await el.click({force: true, position: {x: position[0] / 100 * size[0], y: position[1] / 100 * size[1]}});
     return this.makeDecision("OK", {within, ...opts});
+  }
+
+  async setCapital({position} = {}) {
+    position = position ?? [80, 25];
+
+    let capitalLocation = this.activity("Place Capital");
+    await capitalLocation.retargetWithId();
+    await this.makeLocationDecision(position, {within: capitalLocation});
+    await expect(capitalLocation.root).toHaveAttribute("resolved");
+    return this.expectSettlementToHavePosition("Capital", position);
   }
 
   async setDomainConcept(opts = {}) {
@@ -239,6 +255,14 @@ export class DomainkeeperPage extends LocatorLike {
       let domain = document.querySelector("domain-sheet").domain;
       return expected === domain.culture + domain.economy + domain.loyalty + domain.stability;
     }, expectedTotal);
+  }
+
+  async expectSettlementToHavePosition(name, position) {
+    await this.page.waitForFunction(({name, position}) => {
+      let [xExpected, yExpected] = position;
+      let [x, y] = document.querySelector("domain-sheet").domain.settlements.find(s => s.name === name).position;
+      return Math.abs(xExpected - x) < 1 && Math.abs(yExpected - y) < 1;
+    }, {name, position})
   }
 }
 

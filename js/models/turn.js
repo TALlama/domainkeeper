@@ -14,6 +14,7 @@ export class Turn {
 
     if (this.number === 0) {
       this.addUniqueActivity({name: "Domain Concept"});
+      this.addUniqueActivity({name: "Place Capital"});
       this.addUniqueActivity({name: "Welcome, Domainkeeper"});
     }
   }
@@ -24,7 +25,10 @@ export class Turn {
   get currentActivity() { return this.activities.findLast(a => !a.resolved) }
 
   /////////////////////////////////////////////// Attrbutes
-  get resolved() { return this.activities.filter(a => a.actorId !== "system").all("resolved", false) }
+  get resolved() {
+    if (this.number === 0) { return this.activities.all("resolved", true) }
+    return this.activities.filter(a => a.actorId !== "system").all("resolved", false)
+  }
 
   activitiesNamed(name) { return this.activities.matches({name}) }
   addActivity(properties) {
@@ -45,7 +49,7 @@ export class Turn {
   activityResolved(activity) {
     this.domain?.activityResolved({activity, turn: this});
 
-    if (this.number === 0 || this.resolved) {
+    if (this.resolved) {
       this.domain?.turnResolved({activity, turn: this});
     }
   }

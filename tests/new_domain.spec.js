@@ -1,13 +1,16 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { domainConcepts } = require('./fixtures/activities');
+const { domainConcepts, placeCapital } = require('./fixtures/activities');
 const { DomainkeeperPage } = require("./domainkeeper_page");
 
-test.describe("domain concept is shown on first run", () => {
-  test('setting the domain concept builds your abilities, then starts turn 1', async ({ page }) => {
+test.describe("first run", () => {
+  test('asks for capital location and domain concept, which builds your abilities then starts turn 1', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page);
 
-    // starting stats
+    // Place Capital assigns position
+    await dk.setCapital({position: [84, 61]});
+
+    // Domain Concept sets starting stats
     await dk.shouldHaveStats({
       culture: 2, economy: 2, loyalty: 2, stability: 2,
       unrest: 0, size: 1, xp: 0, level: 1,
@@ -47,6 +50,7 @@ test.describe("domain concept is shown on first run", () => {
 
   test('turn 1 start gives you what you need to begin', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page);
+    await dk.setCapital();
     await dk.setDomainConcept();
 
     // Current Actor is offered activities
@@ -65,7 +69,7 @@ test.describe("domain concept is shown on first run", () => {
     const dk = await DomainkeeperPage.load(page, {
       name: "Whoville",
       culture: 5, economy: 3, loyalty: 3, stability: 3,
-      turns: [{activities: [domainConcepts.complete]}],
+      turns: [{activities: [domainConcepts.complete, placeCapital.forks]}],
     });
 
     await dk.shouldHaveStats({

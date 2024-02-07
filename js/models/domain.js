@@ -70,7 +70,7 @@ export class Domain {
 
     if (this.settlements.length === 0) {
       this.settlements = [
-        {traits: "Village".split(" "), name: "Capital", powerups: [new Structure("Town Hall")], position: [80, 25]},
+        {traits: "Village".split(" "), name: "Capital", icon: "⭐", powerups: [new Structure("Town Hall")], position: [80, 25]},
       ];
     }
   }
