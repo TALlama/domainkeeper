@@ -178,6 +178,8 @@ export var leadershipTemplates = [{
     `;
   },
   decisions: [{
+    name: "Location",
+  }, {
     name: "Roll",
   }, {
     name: "Outcome",
@@ -203,9 +205,9 @@ export var leadershipTemplates = [{
     let name = prompt("What will you name the settlement?");
     this.info(`🎉 You establish the settlement of ${name}`);
 
-    let settlement = new Actor({type: "Village", name: name});
+    let settlement = new Actor({name, icon: "🏠", traits: ["Village"], position: this.position});
     this.settlementId = settlement.id;
-    this.domainSheet.domain.settlements.push(settlement);
+    this.domain.settlements.push(settlement);
   },
   criticalSuccess() {
     this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);

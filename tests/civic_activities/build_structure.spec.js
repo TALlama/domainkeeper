@@ -8,13 +8,6 @@ let settlements = {
   withInn: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: "Inn"}]},
 };
 
-let abilitiesTotal = async (dk) => {
-  return dk.stat("Culture")
-    .then(async (t) => t + await dk.stat("Economy"))
-    .then(async (t) => t +  await dk.stat("Loyalty"))
-    .then(async (t) => t +  await dk.stat("Stability"));
-};
-
 test.describe("Builds the selected structure", () => {
   let outcomes = ["Critical Success", "Success"];
   test(`On any of the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
@@ -58,7 +51,7 @@ test.describe("Cost to Build", () => {
       const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
       await dk.setCurrentActor("Bigappel");
   
-      let before = await abilitiesTotal(dk);
+      let before = await dk.abilitiesTotal();
       await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Success");
       await dk.shouldHaveStatTotal(before - 1 + 1);
     });
@@ -69,7 +62,7 @@ test.describe("Cost to Build", () => {
       const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withInn]});
       await dk.setCurrentActor("Bigappel");
 
-      let before = await abilitiesTotal(dk);
+      let before = await dk.abilitiesTotal();
       await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Critical Failure");
       await dk.shouldHaveStatTotal(before - 1 - 1);
     });

@@ -83,6 +83,7 @@ export class ActivityDecisionPanel extends RxElement {
 
   undoPick(event) {
     this.decision.resolution = null;
+    this.decision.unpicked?.call(this.activity, {activity: this.activity, decision: this.decision});
   }
 }
 ActivityDecisionPanel.define("activity-decision-panel");

@@ -17,6 +17,28 @@ export class ActivityDecision {
 
     let templateName = properties.template || properties.name || properties;
     let template = {
+      Location: {
+        description(context) {
+          let icons = [...(this.activity.domain.icons ?? []), {}];
+
+          return `<domain-map-legend prompt="Where will you establish the city?">
+            <domain-map editable markers='${JSON.stringify(icons)}'></domain-map>
+          </domain-map-legend>`
+        },
+        options: ["OK"],
+        picked() { this.position = document.getElementById(this.id).querySelector("domain-map").markerInfo[0].position },
+        unpicked() { this.position = null },
+        displayTitleValue(value) {
+          let position = this.activity.position;
+          return position ? `${Number(position[0]).toFixed(1)}%, ${Number(position[1]).toFixed(1)}%` : value;
+        },
+        displayValue(value) {
+          return this.activity.position
+            ? `<domain-map zoom='.5' markers='${JSON.stringify([{position: this.activity.position}])}'></domain-map>`
+            : "OK";
+        },
+        mutable: (activity, decision) => activity.decision("Roll").mutable,
+      },
       Roll: {
         saveAs: "ability",
         options: Ability.all,

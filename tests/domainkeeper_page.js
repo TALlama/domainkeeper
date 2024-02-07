@@ -56,11 +56,18 @@ export class DomainkeeperPage extends LocatorLike {
   // Parts of the page
   statInput(label) { return this[label.toLowerCase()] }
   async stat(label) { return Number(await this.statInput(label).inputValue()) }
+  async abilitiesTotal() {
+    return this.stat("Culture")
+      .then(async (t) => t + await this.stat("Economy"))
+      .then(async (t) => t +  await this.stat("Loyalty"))
+      .then(async (t) => t +  await this.stat("Stability"));
+  }
 
   get leadersList() { return this.locator(".leaders-section") }
   get settlementsList() { return this.locator(".settlements-section") }
 
   get leaderNames() { return this.leadersList.locator(".name:visible") }
+  get settlementNames() { return this.settlementsList.locator(".name:visible") }
 
   get currentActorName() { return this.locator(".actor.current .name") }
   get currentActorActivitiesLeft() { return this.locator(".actor.current .badge") }
@@ -178,6 +185,13 @@ export class DomainkeeperPage extends LocatorLike {
     let within = (opts.within || this.currentActivity);
     return within.locator(`activity-decision-panel:not([resolved])`).first()
       .locator(`label[data-display-title-value="${pick}"]`).click({force: true})
+  }
+
+  async makeLocationDecision(location, opts={}) {
+    let within = (opts.within || this.currentActivity);
+    await within.locator(`activity-decision-panel:not([resolved])`).first()
+      .locator(`domain-map`).click({force: true});
+    return this.makeDecision("OK", {within, ...opts});
   }
 
   async setDomainConcept(opts = {}) {

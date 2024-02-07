@@ -664,6 +664,10 @@
             --vertical-margin: 0;
           }
         }
+
+        .picked domain-map {
+          aspect-ratio: 3 / 1;
+        }
       }
     }
 
