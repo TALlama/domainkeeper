@@ -183,6 +183,9 @@ export class DomainMap extends RxElement {
   }
 
   imgOffsetToPosition(event) {
+    if (event.target === this.dom.viewport) { return this.viewportOffsetToPosition(event) }
+    if (this.dom.image !== event.target) { throw new Error("Event target is not the image")}
+
     const viewport = this.dom.viewport;
     let x = event.offsetX / this.#zoom, xTotal = viewport.scrollWidth, xPercent = x * 100 / xTotal;
     let y = event.offsetY / this.#zoom, yTotal = viewport.scrollHeight, yPercent = y * 100 / yTotal;
@@ -190,6 +193,8 @@ export class DomainMap extends RxElement {
   }
 
   viewportOffsetToPosition(event) {
+    if (event.target === this.dom.image) { return this.imgOffsetToPosition(event) }
+
     const viewport = this.dom.viewport;
     if (viewport !== event.target) { throw new Error("Event target is not the viewport")}
 
