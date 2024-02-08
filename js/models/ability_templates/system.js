@@ -22,7 +22,7 @@ export var systemTemplates = [{
     name: "Location",
     picked(_, {decision}) {
       let pos = decision.position();
-      console.log("set to", pos);
+      this.position = pos;
       if (pos) {
         let settlement = this.domain.settlements[0];
         settlement.position = pos;

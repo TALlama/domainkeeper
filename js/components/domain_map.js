@@ -2,7 +2,7 @@ import { RxElement } from "./rx_element.js";
 
 // This is based closely on https://dev.to/ndesmic/how-to-make-a-pan-and-zoom-control-with-web-components-4ji6
 export class DomainMap extends RxElement {
-  static observedAttributes = ["editable", "zoom", "min-zoom", "max-zoom", "focus-x", "focus-y"];
+  static observedAttributes = ["markers", "editable", "zoom", "min-zoom", "max-zoom", "focus-x", "focus-y"];
   static defaultIcon = "🚩";
 
   #dragStarted = null;
@@ -37,21 +37,20 @@ export class DomainMap extends RxElement {
   get initialFocus() {
     let fallback = [50, 50];
     if (this.hasAttribute("focus-x") || this.hasAttribute("focus-y")) { return [focusX, focusY] }
-    if (this.markers.length === 1) { return JSON.parse(this.markers[0].dataset.properties).position || fallback }
+    if (this._markers.length === 1) { return JSON.parse(this._markers[0].dataset.properties).position || fallback }
     return fallback
   }
+  get markers() { return JSON.parse(this.getAttribute('markers') || "[]") }
+  set markers(value) { this.setAttribute('markers', ("string" === typeof(value)) ? value : JSON.stringify(value || [])) }
 
-  get markerInfo() { return JSON.parse(this.getAttribute('markers') || "[]") }
-  set markerInfo(value) { this.setAttribute('markers', JSON.stringify(value)) }
-
-  get marker() { return this.markers[this.ixCurrentMarker] }
+  get marker() { return this._markers[this.ixCurrentMarker] }
   nextMarker() { this.ixCurrentMarker++ }
   get ixCurrentMarker() { return this._ixCurrentMarker }
   set ixCurrentMarker(value) {
-    if (this.markers.filter(m => JSON.parse(m.dataset.properties).editable).length === 0) { return }
+    if (this._markers.filter(m => JSON.parse(m.dataset.properties).editable).length === 0) { return }
 
     this.marker.classList.remove('current');
-    this._ixCurrentMarker = value % this.markers.length;
+    this._ixCurrentMarker = value % this._markers.length;
     if (JSON.parse(this.marker.dataset.properties).editable === false) {
       this.ixCurrentMarker += 1;
     } else {
@@ -62,6 +61,8 @@ export class DomainMap extends RxElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue === newValue) { return }
+
     this[name] = newValue;
   }
 
@@ -74,13 +75,19 @@ export class DomainMap extends RxElement {
   }
 
   connectedCallback() {
-    this.render();
-    this.dom.image.addEventListener("load", () => {
-      this.naturalSize();
-      this.initMarkers();
+    if (this._alreadyConnected) {
       this.focus({position: this.initialFocus, behavior: "instant"});
-    });
-    this.addEventListener("domains:marker-placed", event => this.updateMarkerInfo());
+    } else {
+      this._alreadyConnected = true;
+
+      this.render();
+      this.dom.image.addEventListener("load", () => {
+        this.naturalSize();
+        this.initMarkers();
+        this.focus({position: this.initialFocus, behavior: "instant"});
+      });
+      this.addEventListener("domains:marker-placed", event => this.updateMarkerInfo());
+    }
   }
 
   render() {
@@ -103,7 +110,7 @@ export class DomainMap extends RxElement {
         #viewport {
           height: 100%;
           width: 100%;
-          overflow: auto;
+          overflow: hidden;
           cursor: grab;
           position: relative;
           
@@ -119,7 +126,7 @@ export class DomainMap extends RxElement {
           border: 1px solid var(--marker-glow);
           box-shadow: inset 0 0 2px var(--marker-glow);
           background: var(--marker-glow);
-          font-size: 2rem;
+          font-size: 3rem;
 
           &.ghost {
             opacity: 0.5;
@@ -205,9 +212,12 @@ export class DomainMap extends RxElement {
   /////////////////////////////////////////////// Markers
   
   initMarkers() {
-    this.markers = this.markerInfo.map(info => this.makeMarker(info));
-    if (this.markers.length === 0) { this.markers = [this.makeMarker()] }
-    this._ixCurrentMarker = this.markers.length - 1;
+    if (!this.dom?.viewport) { return }
+
+    this._markers?.forEach(marker => marker.remove());
+    this._markers = this.markers.map(info => this.makeMarker(info));
+    if (this._markers.length === 0) { this._markers = [this.makeMarker()] }
+    this._ixCurrentMarker = this._markers.length - 1;
     
     this.ghostMarker = this.makeMarker();
     this.ghostMarker.classList.add('ghost');
@@ -285,8 +295,8 @@ export class DomainMap extends RxElement {
   }
 
   updateMarkerInfo() {
-    if (!this.markers) { return }
-    this.markerInfo = this.markers.map(marker => JSON.parse(marker.dataset.properties));
+    if (!this._markers) { return }
+    this.markers = this._markers.map(marker => JSON.parse(marker.dataset.properties));
   }
 }
 DomainMap.define('domain-map');

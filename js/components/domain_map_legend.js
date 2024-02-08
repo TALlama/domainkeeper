@@ -9,7 +9,7 @@ export class DomainMapLegend extends RxElement {
   }
   
   get map() { return this.$("domain-map"); }
-  get markerInfo() { return this.map?.markerInfo ?? [] }
+  get markers() { return this.map?.markers ?? [] }
 
   render() {
     const prompt = this.getAttribute("prompt") || "";
@@ -58,7 +58,7 @@ export class DomainMapLegend extends RxElement {
 
   showPositions(positions = this.shadowRoot.getElementById('positions')) {
     positions.innerHTML = '';
-    this.markerInfo.forEach((info, index) => {
+    this.markers.forEach((info, index) => {
       const label = document.createElement('dt');
       label.classList.toggle("current", index === this.map.ixCurrentMarker);
       label.classList.toggle("locked", info.editable === false);

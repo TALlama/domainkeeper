@@ -26,7 +26,7 @@ export class ActivityDecision {
           </domain-map-legend>`
         },
         options: ["OK"],
-        position() { return document.getElementById(this.activity.id).querySelector("domain-map").markerInfo[0].position },
+        position() { return document.getElementById(this.activity.id).querySelector("domain-map").markers[0].position },
         picked(_, {decision}) { this.position = decision.position() },
         unpicked() { this.position = null },
         displayTitleValue(value) {

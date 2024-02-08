@@ -20,6 +20,8 @@ export var leadershipTemplates = [{
     }
   },
   decisions: [{
+    name: "Location",
+  }, {
     name: "Roll",
     options: ["Economy", "Stability"],
     difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
@@ -58,6 +60,8 @@ export var leadershipTemplates = [{
       ${hexMods}`;
   },
   decisions: [{
+    name: "Location",
+  }, {
     name: "Roll",
     options: ["Economy", "Stability"],
     difficultyClassOptions: {
@@ -92,6 +96,8 @@ export var leadershipTemplates = [{
     `
   },
   decisions: [{
+    name: "Location",
+  }, {
     name: "Roll",
     options: ["Economy", "Stability"]
   }, {
@@ -131,6 +137,8 @@ export var leadershipTemplates = [{
     if (domain.size < 2) { return "Cannot abandon your last hex" }
   },
   decisions: [{
+    name: "Location",
+  }, {
     name: "Roll",
     options: ["Stability"],
   }, {
@@ -259,6 +267,8 @@ export var leadershipTemplates = [{
   summary: "You organize the effort to tame the land.",
   description() { return hexMods },
   decisions: [{
+    name: "Location",
+  }, {
     name: "Roll",
     difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
   }, {

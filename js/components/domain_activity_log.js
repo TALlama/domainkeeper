@@ -118,7 +118,7 @@ export default class DomainActivityLog extends RxElement {
 
   renderMap() {
     let icons = [
-      ...this.domain.settlements.filter(s => s.position).map(s => ({editable: false, position: s.position, icon: s.icon || "X"})),
+      ...this.domain.settlements.filter(s => s.position).map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
     ];
 
     return `
