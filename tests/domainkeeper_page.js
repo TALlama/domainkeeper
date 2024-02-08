@@ -177,7 +177,12 @@ export class DomainkeeperPage extends LocatorLike {
       await opts.within.retargetWithId();
     }
 
-    await this.makeDecision(picks[0], opts);
+    let pick = picks[0];
+    if (typeof pick[0] === "number" && typeof pick[1] === "number") {
+      this.makeLocationDecision(pick, opts);
+    } else {
+      await this.makeDecision(pick, opts);
+    }
     return this.makeDecisions(picks.slice(1), opts);
   }
 

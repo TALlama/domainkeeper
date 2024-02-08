@@ -9,7 +9,7 @@ test.describe("when it's your turn", () => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack});
 
     await expect(dk.currentActorName).toHaveText("Anne");
-    await dk.pickActivity("Clear Hex", "Economy", "Success");
+    await dk.pickActivity("Clear Hex", [50, 50], "Economy", "Success");
     await expect(dk.currentActorName).toHaveText("Anne");
     
     await dk.pickActivity("Build Up", "Culture", "Failure");
@@ -20,7 +20,7 @@ test.describe("when it's your turn", () => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack});
 
     await expect(dk.currentActorName).toHaveText("Anne");
-    await dk.pickActivity("Clear Hex", "Economy", "Success"),
+    await dk.pickActivity("Clear Hex", [50, 50], "Economy", "Success"),
     await expect(dk.activityPicker.getByRole("button", {name: "Clear Hex"})).toBeDisabled();
   });
 
