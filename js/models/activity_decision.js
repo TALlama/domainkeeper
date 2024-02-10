@@ -21,10 +21,11 @@ export class ActivityDecision {
         description(context) {
           let icons = [...(this.activity.domain.icons ?? []), {}];
 
-          return `<domain-map-legend prompt="Where will you establish the city?">
+          return `<domain-map-legend prompt="${this.prompt}">
             <domain-map editable markers='${JSON.stringify(icons)}'></domain-map>
           </domain-map-legend>`
         },
+        prompt: "Choose a location",
         options: ["OK"],
         position() { return document.getElementById(this.activity.id).querySelector("domain-map").markers[0].position },
         picked(_, {decision}) { this.position = decision.position() },

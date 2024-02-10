@@ -21,6 +21,7 @@ export var leadershipTemplates = [{
   },
   decisions: [{
     name: "Location",
+    prompt: "Choose a hex",
   }, {
     name: "Roll",
     options: ["Economy", "Stability"],
@@ -61,6 +62,7 @@ export var leadershipTemplates = [{
   },
   decisions: [{
     name: "Location",
+    prompt: "Choose a hex",
   }, {
     name: "Roll",
     options: ["Economy", "Stability"],
@@ -97,6 +99,7 @@ export var leadershipTemplates = [{
   },
   decisions: [{
     name: "Location",
+    prompt: "Choose a hex",
   }, {
     name: "Roll",
     options: ["Economy", "Stability"]
@@ -138,6 +141,7 @@ export var leadershipTemplates = [{
   },
   decisions: [{
     name: "Location",
+    prompt: "Choose a hex",
   }, {
     name: "Roll",
     options: ["Stability"],
@@ -187,6 +191,7 @@ export var leadershipTemplates = [{
   },
   decisions: [{
     name: "Location",
+    prompt: "Choose a hex to build in",
   }, {
     name: "Roll",
   }, {
@@ -268,6 +273,7 @@ export var leadershipTemplates = [{
   description() { return hexMods },
   decisions: [{
     name: "Location",
+    prompt: "Choose a hex to build in",
   }, {
     name: "Roll",
     difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},

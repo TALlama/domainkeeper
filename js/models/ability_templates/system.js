@@ -20,6 +20,7 @@ export var systemTemplates = [{
   summary: "You've got a domain. Where's the capital?",
   decisions: [{
     name: "Location",
+    prompt: "Choose a hex to start in",
     picked(_, {decision}) {
       let pos = decision.position();
       this.position = pos;
