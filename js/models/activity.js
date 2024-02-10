@@ -57,7 +57,7 @@ export class Activity {
     by ??= 1;
     if (by < 0) { return this.reduce({by}, ...abilities) }
     abilities.forEach(ability => {
-      this.domain.boost({by}, ability);
+      this.domain.boost({by, activity: this}, ability);
       this.info(`📈 Boosted ${ability} by ${by} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }
@@ -69,7 +69,7 @@ export class Activity {
 
     if (by > 0) { return this.boost({by}, ...abilities) }
     abilities.forEach(ability => {
-      this.domain.boost({by}, ability);
+      this.domain.boost({by, activity: this}, ability);
       this.warning(`📉 Reduced ${ability} by ${Math.abs(by)} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }
@@ -81,7 +81,7 @@ export class Activity {
 
   addFame() {
     this.info("👩🏻‍🎤 Add fame");
-    this.domain.addFame();
+    this.domain.addFame({activity: this});
   }
 
   addBonusActivity(actor) {

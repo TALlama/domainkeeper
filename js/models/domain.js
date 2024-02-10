@@ -3,6 +3,7 @@ import { Ability } from "./abilities.js";
 import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
 import { Turn } from "./turn.js";
+import { nudge } from "../components/event_helpers.js";
 
 let abilitiesStartAt = 2;
 
@@ -105,7 +106,7 @@ export class Domain {
     return 99999;
   }
 
-  modify({by}, names) {
+  modify({by, activity}, names) {
     names.forEach(name => {
       let key = name.toLocaleLowerCase();
       let current = this[key];
@@ -114,20 +115,20 @@ export class Domain {
       let overage = target - max;
       this[key] = Math.min(max, target);
       if (overage > 0) {
-        this.info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
+        (activity || this).info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
         this.xp += overage * 50;
       }
     })
   }
   boost(...names) {
-    let {by} = names[0];
-    by && names.shift();
-    this.modify({by: by ?? 1}, names);
+    let opts = (typeof names[0] === "object") ? names.shift() : {};
+    opts.by ??= 1;
+    this.modify(opts, names);
   }
   reduce(...names) {
-    let {by} = names[0];
-    by && names.shift();
-    this.modify({by: by ?? -1}, names);
+    let opts = (typeof names[0] === "object") ? names.shift() : {};
+    opts.by ??= -1;
+    this.modify(opts, names);
   }
 
   get controlDC() {
@@ -158,6 +159,17 @@ export class Domain {
     };
 
     return sizeMod + baseControlDCByLevel[this.level];
+  }
+
+  /////////////////////////////////////////////// Logging
+
+  info(...args) {
+    let activity = this.currentActivity;
+    if (activity) {
+      activity.info(...args);
+    } else {
+      nudge(document.querySelector("domain-sheet"), (activity) => activity.info(...args));
+    }
   }
 
   /////////////////////////////////////////////// Turn Management
@@ -210,12 +222,12 @@ export class Domain {
       .forEach(consumable => this.useConsumable({id: consumable.id}));
   }
 
-  addFame() {
+  addFame({activity} = {}) {
     let existing = this.findConsumables({name: "Fame"});
     if (existing.length < 3) {
       this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
     } else {
-      this.currentActivity?.info(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
+      (activity || this).info(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
       this.xp += 100;
     }
   }
