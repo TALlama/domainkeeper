@@ -86,6 +86,7 @@
     padding-top: 0;
     max-height: 100vh;
     overflow: hidden;
+    grid-area: sidebar;
 
     @media screen {
       border-right: 3px solid var(--text-color);
@@ -407,6 +408,7 @@
   }
 
   domain-activity-log {
+    grid-area: main;
     display: flex;
     flex-direction: column;
     gap: var(--external-margin);

@@ -171,7 +171,7 @@ export class DomainMap extends RxElement {
     if (!this.hasAttribute("zoom")) {
       let el = this, width = 0;
       let inset = 0;
-      while (width === 0) {
+      while (width === 0 && el) {
         var cs = getComputedStyle(el);
         inset += (parseInt(cs.borderInlineStartWidth) || 0) + (parseInt(cs.borderInlineEndWidth) || 0);
         width = el.clientWidth;

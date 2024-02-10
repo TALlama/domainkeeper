@@ -28,7 +28,7 @@ test.describe("when it's your turn", () => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack}, {expectTurn: "Domain Creation"});
 
     await expect(dk.currentActorName).toHaveText("Anne");
-    await page.getByText("Ned").click(),
+    await dk.setCurrentActor("Ned");
     await expect(dk.currentActorName).toHaveText("Ned");
   });
 

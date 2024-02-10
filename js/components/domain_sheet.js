@@ -222,10 +222,24 @@ class DomainSheet extends RxElement {
     return `
       <article class="stat ${opts.class || ""} ${opts.class === "ability" && value === 1 ? "ability---danger" : ""} stat---${stat.toLocaleLowerCase()}" ${dataAttrs}>
         <input class="current" type="number" id="domain-${stat}" @value="${value}" min="${this.domain.min(stat)}" max="${max}" ${opts.readonly ? "readonly" : ""} data-action="doNudge" data-stat="${stat}" />
-        <label for="domain-${stat}">${stat}</label>
+        <sl-tooltip content="${this.statTooltip(stat)}" placement="right" hoist><label for="domain-${stat}">${stat}</label></sl-tooltip>
         <span class="max"><sl-tooltip content="Maxium value ${max}">${max}</sl-tooltip></span>
         <a href="#" class="ability-roll icon-link" data-ability="${stat}">🎲<span class="sr-only">Roll ${stat}</span></a>
       </article>`;
+  }
+
+  statTooltip(stat) {
+    return {
+      Culture: `Culture measures the interest and dedication of your nation and its people to the arts and sciences, to religion and reason, and to the subjects that your society chooses to learn about and to teach. Are your people well versed in rhetoric and philosophy? Do they value learning and research, music and dance? Do they embrace society in all its diverse splendor? If they do, your kingdom likely has a robust Culture score.`,
+      Economy: `Economy measures the practical day-to-day workings of your society as it comes together to do the work of making and building, buying and selling. How industrious are your citizenry? Are they devoted to building more, higher, and better, trading in goods, services, and ideas? If so, your kingdom likely has a robust Economy score.`,
+      Loyalty: `Loyalty measures the collective will, spirit, and sense of camaraderie the citizens of your nation possess. How much do they trust and depend on one another? How do they respond when you sound the call to arms or enact new laws? How do they react when other nations send spies or provocateurs into your lands to make trouble? If they support the kingdom’s leadership, the kingdom itself has a robust Loyalty score.`,
+      Stability: `Stability measures the physical health and well- being of your nation. This includes its infrastructure and buildings, the welfare of its people, and how well things are protected and maintained under your rule. How carefully do you maintain your stores and reserves, repair things that are broken, and provide for the necessities of life? How quickly can you mobilize to shield your citizens from harm? A kingdom that can handle both prosperity and disaster efficiently and effectively has a robust Stability score.`,
+      'Control DC': `The more powerful a kingdom grows, the more difficult it becomes to control it. The base Control DC for your kingdom is set by the kingdom’s level— fortunately, as you increase in level, your ability to successfully utilize your skills grows as well.`,
+      Unrest: `Unrest represents unhappiness among the kingdom’s citizens, who show their lack of confidence in the leadership by balking at edicts, refusing to follow commands, and disrupting local economies through boycotts, walkouts, and refusal to talk to emissaries. Unrest is a persistent value that remains from turn to turn and can be adjusted during Kingdom turns as events play out.`,
+      Size: `The total number of hexes in the kingdom. When a kingdom’s Size reaches 10, 25, 50, and 100, it gains kingdom XP as a milestone award (page 45).`,
+      XP: `A kingdom gains experience (XP) by claiming hexes, reaching milestones, enduring kingdom events, or converting surplus RP at the end of a Kingdom turn.`,
+      Level: `Kingdoms increase in level by gaining kingdom experience points (XP). At each new level, a kingdom improves attributes and focus areas beyond those provided by its basic background and the specific choices made at the time of its founding.`,
+    }[stat];
   }
 
   renderName() {
