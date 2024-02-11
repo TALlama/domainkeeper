@@ -39,6 +39,13 @@ export class Domain {
   get bonuses() { return this.powerups.flatMap(p => p.bonuses) }
   set bonuses(v) { /* ignore */ }
 
+  get markers() {
+    return [
+      ...this.settlements.map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
+    ];
+  }
+  set markers(value) { /* ignore */ }
+
   /////////////////////////////////////////////// Defaults
 
   #setDefaults() {

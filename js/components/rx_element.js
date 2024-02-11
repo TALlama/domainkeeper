@@ -13,7 +13,23 @@ export class RxElement extends HTMLElement {
     }
   }
 
-  fire(...args) { fire(this, ...args) }
+  fire(type, ...args) {
+    if (this._heldEvents && this._heldEvents[type]) {
+      this._heldEvents[type].push(args);
+    } else {
+      fire(this, type, ...args);
+    }
+  }
+
+  holdEvents(type, during) {
+    return new Promise((resolve) => {
+      this._heldEvents = this._heldEvents || {};
+      let held = this._heldEvents[type] = [];
+      during();
+      delete this._heldEvents[type];
+      held.forEach(args => this.fire(type, ...args));
+    });
+  }
 
   setAttributeBoolean(name, options = {}) {
     let value = options.value ?? "";

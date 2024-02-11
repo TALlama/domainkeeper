@@ -117,14 +117,12 @@ export default class DomainActivityLog extends RxElement {
   }
 
   renderMap() {
-    let icons = [
-      ...this.domain.settlements.filter(s => s.position).map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
-    ];
+    let markers = this.domain.markers.map(m => ({...m, editable: false}));
 
     return `
       <details><summary>Map</summary>
         <domain-map-legend prompt="Move stuff">
-          <domain-map editable markers='${JSON.stringify(icons)}'></domain-map>
+          <domain-map editable markers='${JSON.stringify(markers)}'></domain-map>
         </domain-map-legend>
       </details>`;
   }

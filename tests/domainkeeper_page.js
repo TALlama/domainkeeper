@@ -87,6 +87,11 @@ export class DomainkeeperPage extends LocatorLike {
   activity(name) { return new ActivitySheet(this.page, this.locator(`activity-sheet[name="${name}"]`)) }
   decisionPanel(name, opts={}) { return (opts.within || this.currentActivity).decisionPanel(name) }
 
+  async nudgeLog() {
+    await expect(this.topActivity().name).toHaveText("Nudge");
+    return this.topActivity().log;
+  }
+
   // Actions
   async rename(name) {
     this.page.once('dialog', async dialog => { await dialog.accept(name) });
@@ -142,6 +147,15 @@ export class DomainkeeperPage extends LocatorLike {
     return editor.locator('sl-tag').filter({hasText: trait}).getByLabel('Remove').click();
   }
 
+  async setActorLocation(actorName, position) {
+    await this.setCurrentActor(actorName);
+    await this.getByLabel(`Update ${actorName}`).click();
+    
+    const editor = this.locator("sl-dialog[open]");
+    await this.clickOnMap("sl-dialog[open]", position, {within: this.root});
+    return editor.getByRole("button", {name: "Update"}).click();
+  }
+
   async setCurrentActor(value) { return this.locator(`:is(.leaders-section, .settlements-section) .actor:has-text("${value}")`).click() }
   currentActorTraits() { return this.locator(`actor-sheet trait-list li.trait .badge`) }
   currentActorPowerups() { return this.locator(`actor-sheet .powerups li .powerup-name`) }
@@ -194,15 +208,21 @@ export class DomainkeeperPage extends LocatorLike {
 
   async makeLocationDecision(position, opts={}) {
     let within = (opts.within || this.currentActivity);
-    let el = await within.locator(`activity-decision-panel:not([resolved])`).first().locator(`domain-map`)
+    await this.clickOnMap("activity-decision-panel:not([resolved])", position, {within});
+    return this.makeDecision("OK", {within, ...opts});
+  }
+
+  async clickOnMap(selector, position, opts={}) {
+    let within = (opts.within || this.currentActivity);
     let size = await this.page.evaluate((selector) => {
       let el = document.querySelector(selector);
       return `${el.clientWidth},${el.clientHeight}`;
-    }, "activity-decision-panel:not([resolved]) domain-map");
+    }, `${selector} domain-map`);
     size = size.split(",").map(n => parseFloat(n));
+
+    let el = within.locator(selector).first().locator(`domain-map`)
     await el.scrollIntoViewIfNeeded();
-    await el.click({force: true, position: {x: position[0] / 100 * size[0], y: position[1] / 100 * size[1]}});
-    return this.makeDecision("OK", {within, ...opts});
+    return el.click({force: true, position: {x: position[0] / 100 * size[0], y: position[1] / 100 * size[1]}});
   }
 
   async setCapital({position} = {}) {

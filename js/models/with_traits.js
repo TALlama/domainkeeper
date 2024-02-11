@@ -1,6 +1,6 @@
 export function withTraits(toClass) {
   Object.assign(toClass.prototype, {
-    matchingTraits(...names) { return names.filter(name => this.traits.includes(name)) },
+    matchingTraits(...names) { return names.filter(name => (this.traits || []).includes(name)) },
     hasTrait(...names) { return this.matchingTraits(...names).length > 0 },
     hasAllTraits(...names) { return this.matchingTraits(...names).length === names.length },
 

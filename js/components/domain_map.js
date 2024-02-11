@@ -1,3 +1,4 @@
+import { makeId } from "../models/with_id.js";
 import { RxElement } from "./rx_element.js";
 
 // This is based closely on https://dev.to/ndesmic/how-to-make-a-pan-and-zoom-control-with-web-components-4ji6
@@ -41,7 +42,14 @@ export class DomainMap extends RxElement {
     return fallback
   }
   get markers() { return JSON.parse(this.getAttribute('markers') || "[]") }
-  set markers(value) { this.setAttribute('markers', ("string" === typeof(value)) ? value : JSON.stringify(value || [])) }
+  set markers(value) {
+    let oldValue = this.getAttribute('markers');
+    let newValue = ("string" === typeof(value)) ? value : JSON.stringify(value || []);
+    if (oldValue !== newValue) {
+      this.setAttribute('markers', newValue);
+      this.initMarkers();
+    }
+  }
 
   get marker() { return this._markers[this.ixCurrentMarker] }
   nextMarker() { this.ixCurrentMarker++ }
@@ -56,7 +64,7 @@ export class DomainMap extends RxElement {
     } else {
       this.marker.classList.add('current');
       this.ghostMarker.textContent = this.marker.textContent;
-      this.fire("domains:marker-selected", {marker: this.marker.dataset.properties, element: this.marker});
+      this.fire("domains:marker-selected", {detail: {marker: this.marker.dataset.properties, element: this.marker}});
     }
   }
 
@@ -203,6 +211,10 @@ export class DomainMap extends RxElement {
     return [xPercent, yPercent];
   }
 
+  constrainPosition(position) {
+    return position.map(n => parseFloat(Number(n).toFixed(2)));
+  }
+
   focus({position, behavior}={}) {
     const viewport = this.dom.viewport;
     const percentX = position[0] / 100;
@@ -219,15 +231,17 @@ export class DomainMap extends RxElement {
   initMarkers() {
     if (!this.dom?.viewport) { return }
 
-    this._markers?.forEach(marker => marker.remove());
-    this._markers = this.markers.map(info => this.makeMarker(info));
-    if (this._markers.length === 0) { this._markers = [this.makeMarker()] }
-    this._ixCurrentMarker = this._markers.length - 1;
-    
-    this.ghostMarker = this.makeMarker();
-    this.ghostMarker.classList.add('ghost');
+    this.holdEvents("domains:marker-placed", () => {
+      this._markers?.forEach(marker => marker.remove());
+      this._markers = this.markers.map(info => this.makeMarker(info));
+      if (this._markers.length === 0) { this._markers = [this.makeMarker()] }
+      this._ixCurrentMarker = this._markers.length - 1;
+      
+      this.ghostMarker = this.makeMarker();
+      this.ghostMarker.classList.add('ghost');
 
-    this.nextMarker();
+      this.nextMarker();
+    });
   }
 
   makeMarker(properties={}) {
@@ -251,7 +265,7 @@ export class DomainMap extends RxElement {
 
     if (marker !== this.ghostMarker) {
       marker.dataset.properties = JSON.stringify({...JSON.parse(marker.dataset.properties), position});
-      this.fire("domains:marker-placed", {marker: marker.dataset.properties, position, element: marker});
+      this.fire("domains:marker-placed", {detail: {marker: marker.dataset.properties, position, element: marker}});
     }
   }
 
@@ -265,7 +279,7 @@ export class DomainMap extends RxElement {
     const lag = event.timeStamp - this.#dragStarted;
     if (lag > 500) { return }
 
-    this.placeMarker(this.viewportOffsetToPosition(event));
+    this.placeMarker(this.constrainPosition(this.viewportOffsetToPosition(event)));
     this.nextMarker();
   }
 

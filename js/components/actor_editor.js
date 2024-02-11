@@ -5,7 +5,13 @@ export class ActorEditor extends EditorDialog {
   static observedAttributes = ["actorId"];
 
   initialData(data) {
-    return {...data, name: this.actor.name, traits: this.listToToggle(this.actor.traits)};
+    return {
+      ...data,
+      name: this.actor.name,
+      traits: this.listToToggle(this.actor.traits),
+      icon: this.actor.icon,
+      position: this.actor.position,
+    };
   }
 
   /////////////////////////////////////////////// Models 
@@ -17,7 +23,10 @@ export class ActorEditor extends EditorDialog {
     return `
       ${this.renderFormField("name")}
       <br/>
-      ${this.renderTraitEditor()}`;
+      ${this.renderTraitEditor()}
+      <br/>
+      ${this.renderPositionEditor()}
+    `;
   }
 
   /////////////////////////////////////////////// Event handling
@@ -32,6 +41,11 @@ export class ActorEditor extends EditorDialog {
     if (this.actor.traits.sort().join() !== newTraits.sort().join()) {
       nudge(this, (activity) => activity.info(`🥉 ${this.actor.name} now has traits: ${newTraits.join(", ")}`));
       this.actor.traits = newTraits;
+    }
+
+    if (this.actor.position !== this.data.position) {
+      nudge(this, (activity) => activity.info(`🚩 ${this.actor.name} moved to ${this.data.position}`));
+      this.actor.position = this.data.position;
     }
   }
 }

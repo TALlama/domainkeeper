@@ -84,7 +84,7 @@ export class ActorSheet extends RxElement {
     if (!this.actor || !this.actor.position) { return `` }
 
     let icons = [{icon: this.actor.icon, position: this.actor.position}];
-    return `<domain-map class="location" square zoom=".4" style="width: 200px" markers='${JSON.stringify(icons)}'></domain-map>`;
+    return `<domain-map id="loc-${this.actor.id}-${this.actor.position?.join("-")}" class="location" square zoom=".4" style="width: 200px" markers='${JSON.stringify(icons)}'></domain-map>`;
   }
 
   renderEventButton() {

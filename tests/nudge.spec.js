@@ -4,18 +4,13 @@ const { inTurnOne } = require('./fixtures/domains');
 const { leaders } = require('./fixtures/leaders');
 const { Ability } = require('../js/models/abilities');
 
-async function nudgeLog(dk) {
-  await expect(dk.topActivity().name).toHaveText("Nudge");
-  return dk.topActivity().log;
-}
-
 test.describe("Track changes to the domain's", () => {
   test('ability scores', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     let ability = Ability.random;
     await dk.statInput(ability).fill("4");
-    await expect(await nudgeLog(dk)).toContainText(`${ability} updated to 4, from 2`);
+    await expect(await dk.nudgeLog()).toContainText(`${ability} updated to 4, from 2`);
   });
 
   test('other stats', async ({ page }) => {
@@ -24,7 +19,7 @@ test.describe("Track changes to the domain's", () => {
     let stat = "Unrest Size XP Level".split(" ").random();
     let oldValue = await dk.stat(stat);
     await dk.statInput(stat).fill("4");
-    await expect(await nudgeLog(dk)).toContainText(`${stat} updated to 4, from ${oldValue}`);
+    await expect(await dk.nudgeLog()).toContainText(`${stat} updated to 4, from ${oldValue}`);
   });
 });
 
@@ -37,7 +32,7 @@ test.describe("Track when a structure is", () => {
     await page.locator(".structure-controls").getByRole("button", {name: "Build"}).click();
     await expect(dk.currentActorPowerups()).toHaveText(["Town Hall", "Herbalist"]);
 
-    await expect(await nudgeLog(dk)).toContainText(`Structure added to Capital: Herbalist`);
+    await expect(await dk.nudgeLog()).toContainText(`Structure added to Capital: Herbalist`);
   });
 
   test('destroyed', async ({ page }) => {
@@ -49,7 +44,7 @@ test.describe("Track when a structure is", () => {
     await page.getByRole("button", {name: "Destroy"}).click();
     await expect(dk.currentActorPowerups()).toHaveText([]);
 
-    await expect(await nudgeLog(dk)).toContainText(`Structure destroyed in Capital: Town Hall`);
+    await expect(await dk.nudgeLog()).toContainText(`Structure destroyed in Capital: Town Hall`);
   });
 });
 
@@ -59,7 +54,7 @@ test.describe("Track when an actor", () => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
     await dk.renameActor("Anne", "Lady Anne");
-    await expect(await nudgeLog(dk)).toContainText(`Kneel, Anne. Rise, Lady Anne!`);
+    await expect(await dk.nudgeLog()).toContainText(`Kneel, Anne. Rise, Lady Anne!`);
   });
 
   test('has traits are added', async ({ page }) => {
@@ -68,7 +63,7 @@ test.describe("Track when an actor", () => {
     expect(await dk.currentActorTraits()).toHaveText(["PC"]);
     await dk.addActorTraits("Anne", ["Famous"]);
     expect(await dk.currentActorTraits()).toHaveText(["Famous", "PC"]);
-    await expect(await nudgeLog(dk)).toContainText(`Anne now has traits: Famous, PC`);
+    await expect(await dk.nudgeLog()).toContainText(`Anne now has traits: Famous, PC`);
   });
 
   test('has traits are removed', async ({ page }) => {
@@ -76,6 +71,6 @@ test.describe("Track when an actor", () => {
 
     await dk.removeActorTraits("Anne", ["Famous"]);
     expect(await dk.currentActorTraits()).toHaveText(["PC"]);
-    await expect(await nudgeLog(dk)).toContainText(`Anne now has traits: PC`);
+    await expect(await dk.nudgeLog()).toContainText(`Anne now has traits: PC`);
   });
 });

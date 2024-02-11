@@ -13,6 +13,7 @@ export class EditorDialog extends RxElement {
 
     this.addEventListener("click", this);
     this.addEventListener("input", this);
+    this.addEventListener("domains:marker-placed", this.updatePosition.bind(this));
 
     this.setupTraitEditor(this.data.traits);
   }
@@ -91,6 +92,12 @@ export class EditorDialog extends RxElement {
     </sl-tag>`;
   }
 
+  renderPositionEditor(property = "position") {
+    return `<domain-map-legend prompt="Location" name="${property}" data-pos="${this.data[property]}" data-prop="${property}">
+      <domain-map editable markers='${JSON.stringify([{propertyName: property, icon: this.icon, position: this.data[property]}])}'></domain-map>
+    </domain-map-legend>`;
+  }
+
   /////////////////////////////////////////////// Event handling
 
   show() { return this.dialog.show() }
@@ -98,13 +105,23 @@ export class EditorDialog extends RxElement {
 
   updateProperty(event) {
     let formControl = event.target.closest("[name]");
-    let property = formControl?.name
+    let property = formControl?.name;
     if (property) {
       this.data[property] = this.propertyValue({property, formControl, event});
     }
   }
 
   propertyValue({property, formControl, event}) { return formControl.value }
+
+  updatePosition(event) {
+    let formControl = event.target.closest("[name]");
+    let property = formControl?.name || formControl?.getAttribute("name");
+    let oldValue = this.data[property];
+    let value = event.detail.position;
+    if (oldValue?.join(",") !== value?.join(",")) {
+      this.data[property] = value;
+    }
+  }
 
   finish(event) {
     this.update(event);
