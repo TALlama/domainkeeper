@@ -237,6 +237,7 @@ export class DomainMap extends RxElement {
       if (this._markers.length === 0) { this._markers = [this.makeMarker()] }
       this._ixCurrentMarker = this._markers.length - 1;
       
+      this.ghostMarker?.remove();
       this.ghostMarker = this.makeMarker();
       this.ghostMarker.classList.add('ghost');
 

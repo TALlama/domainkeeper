@@ -118,11 +118,13 @@ export default class DomainActivityLog extends RxElement {
 
   renderMap() {
     let markers = this.domain.markers.map(m => ({...m, editable: false}));
+    let markersJson = JSON.stringify(markers);
+    let hash = markersJson.split("").reduce((t, c) => t + c.charCodeAt(0), 0);
 
     return `
-      <details><summary>Map</summary>
+      <details id="map-hash-${hash}"><summary>Map</summary>
         <domain-map-legend prompt="Move stuff">
-          <domain-map editable markers='${JSON.stringify(markers)}'></domain-map>
+          <domain-map markers='${markersJson}'></domain-map>
         </domain-map-legend>
       </details>`;
   }

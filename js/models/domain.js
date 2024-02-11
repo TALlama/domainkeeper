@@ -41,7 +41,7 @@ export class Domain {
 
   get markers() {
     return [
-      ...this.settlements.map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
+      ...(this.settlements || []).map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
     ];
   }
   set markers(value) { /* ignore */ }

@@ -19,7 +19,7 @@ export class ActivityDecision {
     let template = {
       Location: {
         description(context) {
-          let icons = [...(this.activity.domain.icons ?? []), {}];
+          let icons = [...(this.activity.domain.markers ?? []), {}];
 
           return `<domain-map-legend prompt="${this.prompt}">
             <domain-map editable markers='${JSON.stringify(icons)}'></domain-map>
@@ -35,8 +35,9 @@ export class ActivityDecision {
           return position ? `${Number(position[0]).toFixed(1)}%, ${Number(position[1]).toFixed(1)}%` : value;
         },
         displayValue(value) {
+          let markers = [...(this.activity.domain.markers ?? []), {}, {position: this.activity.position}];
           return this.activity.position
-            ? `<domain-map zoom='.5' markers='${JSON.stringify([{position: this.activity.position}])}'></domain-map>`
+            ? `<domain-map zoom='.5' markers='${JSON.stringify(markers)}'></domain-map>`
             : "OK";
         },
         mutable: (activity, decision) => activity.decision("Roll")?.mutable,
