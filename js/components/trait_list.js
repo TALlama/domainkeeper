@@ -36,7 +36,7 @@ export class TraitList extends RxElement {
     });
   }
 
-  static tooltipFor(trait) { this.tooltips[trait] }
+  static tooltipFor(trait) { return this.tooltips[trait] }
   static get tooltips() {
     return {
       PC: "A player character, run by a real-world human",
@@ -53,6 +53,8 @@ export class TraitList extends RxElement {
       "Limit 2": "You can only build two of these per settlement",
       "Limit 3": "You can only build three of these per settlement",
       "Limit 4": "You can only build four of these per settlement",
+      Expensive: "This structure costs 2x its level instead of 1.5x its level",
+      ...Array.from({length: 100}, (_, ix) => [`Cost ${ix + 1}`, `This structure costs ${ix+1} to complete`]).toDictionary(),
 
       Culture: "Affects the Culture ability",
       Economy: "Affects the Economy ability",

@@ -19,8 +19,8 @@ Array.prototype.sum = Array.prototype.sum || function(fn, seed = 0) { fn ||= (i)
 Array.prototype.count = Array.prototype.count || function(fn) { return this.filter(fn).length }
 Array.prototype.toDictionary = Array.prototype.toDictionary || function(fn) {
   let retval = {};
-  this.forEach(element => {
-    let [key, value] = fn ? fn(element) : element;
+  this.forEach((element, ix, arr) => {
+    let [key, value] = fn ? fn(element, ix, arr) : element;
     retval[key] = value;
   });
   return retval;

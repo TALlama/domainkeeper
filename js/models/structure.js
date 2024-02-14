@@ -12,7 +12,12 @@ export class Structure extends Powerup {
     super(properties);
 
     this.addTrait(`Limit ${this.limit}`);
-    // TODO some stuff should take more than one turn to build…
+    this.addTrait(`Cost ${this.cost}`);
+  }
+
+  get cost() {
+    let multiplier = this.hasTrait("Expensive") ? 2 : 1.5;
+    return Math.floor(this.level * multiplier);
   }
 
   static type = "structure";
@@ -338,7 +343,7 @@ export class Structure extends Powerup {
     return [{ //////////////////////////////////////// Infrastructure improves hexes
       name: `Wall, Wooden`,
       level: 1,
-      traits: ["Building", "Infrastructure"],
+      traits: ["Building", "Infrastructure", "Expensive"],
       description: `Wooden walls provide serviceable defenses to a settlement.`,
       effects: `A wooden wall is built along the border of your settlement. The first time you build a wooden wall in each settlement, reduce Unrest by 1.`,
       added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
@@ -375,7 +380,7 @@ export class Structure extends Powerup {
     }, {
       name: `Wall, Stone`,
       level: 5,
-      traits: ["Infrastructure"],
+      traits: ["Infrastructure", "Expensive"],
       description: `Stone walls provide solid defenses to a settlement’s borders.`,
       effects: `A stone wall is built along the border of your settlement. The first time you build a stone wall in each settlement, reduce Unrest by 1.`,
       added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
@@ -567,8 +572,7 @@ export class Structure extends Powerup {
     return [{
       name: `Inn`,
       level: 1,
-      cost: 2,
-      traits: ["Building", "Residential"],
+      traits: ["Building", "Residential", "Expensive"],
       description: `A safe and secure place for a settlement’s visitors to rest.`,
       bonuses: [{activity, value: 1}], // WAS +1 Item bonus to Hire Adventurers
     }, {
@@ -585,13 +589,13 @@ export class Structure extends Powerup {
     }, {
       name: `Embassy`,
       level: 8,
-      traits: ["Building"],
+      traits: ["Building", "Expensive"],
       description: `An embassy gives a place for diplomatic visitors to your kingdom to stay and bolsters international relations.`,
       bonuses: [{activity, value: 2}], // TODO WAS +1 item bonus to Send Diplomatic Envoy and Request Foreign Aid
     }, {
       name: `Luxury Hotel`,
       level: 12,
-      traits: ["Building", "Residential"],
+      traits: ["Building", "Residential", "Expensive"],
       description: `Dedicated to making guests feel welcome, this structure is opulent and expensive.`,
       bonuses: [{activity, value: 2}],
     }];
@@ -832,7 +836,7 @@ export class Structure extends Powerup {
     }, {
       name: `Keep`,
       level: 3,
-      traits: ["Building"],
+      traits: ["Building", "Expensive"],
       description: `A keep is a high-walled defensive structure that guards the heart of a settlement. It includes practice and marshaling yards as well as a refuge for your leaders should danger strike the settlement.`,
       bonuses: [
         {activity: "Deploy Army", value: 1},
@@ -855,7 +859,7 @@ export class Structure extends Powerup {
     }, {
       name: `Castle`,
       level: 9,
-      traits: ["Building", "Famous", "Infamous"],
+      traits: ["Building", "Famous", "Infamous", "Expensive"],
       description: `A castle is a fortified structure that often serves as the seat of government for a kingdom.`,
       bonuses: [
         {activity: "Pledge of Fealty", value: 2},
@@ -877,7 +881,7 @@ export class Structure extends Powerup {
     }, {
       name: `Palace`,
       level: 15,
-      traits: ["Building", "Famous", "Infamous"],
+      traits: ["Building", "Famous", "Infamous", "Expensive"],
       description: `A palace is a grand and splendid seat of government for your leaders and other political functionaries.`,
       bonuses: [
         {activity: "Pledge of Fealty", value: 3},

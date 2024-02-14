@@ -7,14 +7,14 @@ export class BuildingSite extends Powerup {
     console.log(`Built BuildingSite with ${JSON.stringify(properties)}`);
     super(properties);
 
-    this.cost ??= this.structureTemplate.cost ?? 1;
+    this.cost ??= this.structure.cost ?? 1000;
     this.progress ??= 0;
   }
 
   get percentage() { return parseInt((this.progress / this.cost * 100).toFixed(1)) }
-  get structureTemplate() { return Structure.templates.find(t => t.name === this.incompleteTemplate) }
+  get structure() { return new Structure(this.incompleteTemplate) }
 
-  get name() { return `Incomplete ${this.structureTemplate?.name || this.incompleteTemplate || "Structure"} (${this.progress}/${this.cost ?? 1000})` }
+  get name() { return `Incomplete ${this.structure.name || this.incompleteTemplate || "Structure"} (${this.progress}/${this.cost ?? 1000})` }
   set name(value) { /* ignore */ }
 
   static type = "building-site";
