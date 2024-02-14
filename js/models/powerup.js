@@ -16,8 +16,8 @@ export class Powerup {
   setup({actor, powerup, activity}) {}
   added({actor, powerup, activity}) {}
 
-  static add({type, template, actor, activity, setup, added, makeContext}) {
-    let powerup = new type(template);
+  static add({type, template, attributes, actor, activity, setup, added, makeContext}) {
+    let powerup = new type({template, ...(attributes || {})});
     let context = {powerup, template, actor, activity};
     if (makeContext) { context = makeContext(context) }
 

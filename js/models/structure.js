@@ -567,6 +567,7 @@ export class Structure extends Powerup {
     return [{
       name: `Inn`,
       level: 1,
+      cost: 2,
       traits: ["Building", "Residential"],
       description: `A safe and secure place for a settlement’s visitors to rest.`,
       bonuses: [{activity, value: 1}], // WAS +1 Item bonus to Hire Adventurers

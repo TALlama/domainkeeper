@@ -33,10 +33,10 @@ export class Domain {
   get unavailableActors() { return this.actors.filter(a => a.unavailable) }
   set unavailableActors(value) { /* ignore */ }
 
-  get powerups() { return this.actors.flatMap(a => a.powerups) }
+  get powerups() { return this.actors.flatMap(a => a.powerups || []) }
   set powerups(v) { /* ignore */ }
 
-  get bonuses() { return this.powerups.flatMap(p => p.bonuses) }
+  get bonuses() { return this.powerups.flatMap(p => p.bonuses || []) }
   set bonuses(v) { /* ignore */ }
 
   get markers() {

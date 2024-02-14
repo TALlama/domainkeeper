@@ -6,6 +6,7 @@ import { ActorEditor } from "./actor_editor.js";
 import { RxElement } from "./rx_element.js";
 import { StructureChip } from "./structure_chip.js";
 import { TraitList } from "./trait_list.js";
+import { debugJSON, errorMessage } from "../helpers.js";
 
 export class ActorSheet extends RxElement {
   connectedCallback() {
@@ -66,7 +67,13 @@ export class ActorSheet extends RxElement {
   }
 
   renderPowerup(powerup) {
-    return `<structure-chip key="${powerup.id}" structure-id="${powerup.id}"></structure-chip>`;
+    if (powerup.type == "structure") {
+      return `<structure-chip key="${powerup.id}" structure-id="${powerup.id}">${powerup.name}</structure-chip>`;
+    } else if (powerup.type == "building-site") {
+      return `<building-site-chip key="${powerup.id}" building-site-id="${powerup.id}"><span class="powerup-name">${powerup.name}</span></building-site-chip>`; // TODO make a component
+    } else {
+      return errorMessage(`Unknown powerup: ${powerup.name} - ${powerup.type}`, powerup);
+    }
   }
 
   renderStructureControls() {

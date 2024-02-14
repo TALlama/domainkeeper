@@ -1,4 +1,5 @@
 import { Ability } from "../abilities.js";
+import { BuildingSite } from "../building_site.js";
 import { Structure } from "../structure.js";
 
 import { AvalableStructures } from "../../components/available_structures.js";
@@ -55,24 +56,45 @@ export var civicTemplates = [{
       criticalFailure: `Fail; Reduce a random Ability by 1`,
     },
   }],
+  findBuildingSite() {
+    return this.actor.powerups.matches({incompleteTemplate: this.structureName})[0] ||
+      BuildingSite.add({attributes: {incompleteTemplate: this.structureName}, actor: this.actor, activity: this});
+  },
+  makeProgresss(progress) {
+    if (progress === 0) { return }
+
+    let buildingSite = this.findBuildingSite();
+    buildingSite.progress += progress;
+    if (buildingSite.progress >= buildingSite.cost) {
+      this.actor.removePowerup(buildingSite);
+      Structure.add({template: this.structureName, actor: this.actor, activity: this,
+        added({activity, fullName}) {
+          activity.info(`🏛️ You built the ${fullName}!`)
+
+          activity.info("📈 If there are now 4+ buildings in the settlement, it's a town. Get Milestone XP!");
+          activity.info("📈 If there are now 8+ buildings in the settlement, it's a city. Get Milestone XP!");
+          activity.info("📈 If there are now 16+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
+        },
+      });
+    } else {
+      this.info(`🚧 ${buildingSite.name} is now ${buildingSite.percentage}% complete.`);
+    }
+  },
+  baseProgress() { return 1 },  // TODO make this dynamic
   criticalSuccess() {
-    this.info("😂 Everyone rallies to help.");
-    this.boost(Ability.random);
-    this.success();
+    this.info("🏗️ Progress is quick.");
+    this.makeProgresss(Math.ceil(this.baseProgress() * 1.5));
   },
   success() {
-    Structure.add({template: this.structureName, actor: this.actor, activity: this,
-      added({activity, fullName}) { activity.info(`🏛️ You built the ${fullName}!`) },
-    });
-    
-    this.info("📈 If there are now 4+ buildings in the settlement, it's a town. Get Milestone XP!");
-    this.info("📈 If there are now 8+ buildings in the settlement, it's a city. Get Milestone XP!");
-    this.info("📈 If there are now 16+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
+    this.info("📐 Progress is quick.");
+    this.makeProgresss(this.baseProgress());
   },
-  failure() { this.warning("❌ You fail to build the building") },
+  failure() {
+    this.info("🐛 Progress is slow.");
+    this.makeProgresss(Math.floor(this.baseProgress() * .5));
+  },
   criticalFailure() {
-    this.warning("💀 Some workers are killed in a construction accident");
-    this.reduce(Ability.random);
-    this.failure();
+    this.info("🚫 No progress is made.");
+    this.makeProgresss(0);
   },
 }].map(a => { return {type: "civic", ...a}});

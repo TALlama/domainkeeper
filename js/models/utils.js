@@ -9,7 +9,7 @@ export function addTransient(obj, {name, value, ...options} = {}) {
 };
 
 export function hydrateList(obj, {name, type, keepOrMake, make, keep, ...options} = {}) {
-  keep ??= (item) => item.constructor === type;
+  keep ??= (item) => item?.constructor === type;
   make ??= (...args) => new type(...args);
   keepOrMake ??= (item) => keep(item) ? item : make(item, obj)
 

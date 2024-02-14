@@ -1,10 +1,12 @@
 import { addTransient, hydrateList } from "./utils.js";
 import { makeId } from "./with_id.js";
 import { withTraits } from "./with_traits.js";
+import { BuildingSite } from "./building_site.js";
 import { Structure } from "./structure.js";
 
 let powerupClasses = {
   structure: Structure,
+  "building-site": BuildingSite,
 };
 function makePowerup(properties, actor) {
   return properties.constructor === Object
@@ -61,10 +63,9 @@ export class Actor {
   }
 
   removePowerup(powerup) {
-    let index = this.powerups.indexOf(powerup);
+    let index = this.powerups.findIndex(p => p.id === powerup.id);
     if (index > -1) {
-      this.powerups.splice(index, 1);
-      this.bumpVersion();
+      this.powerups = [...this.powerups.splice(0, index), ...this.powerups.splice(1)];
     }
   }
 
