@@ -21,6 +21,8 @@ export var systemTemplates = [{
   decisions: [{
     name: "Location",
     prompt: "Choose a hex to start in",
+    placeMarker() { return {icon: "⭐"} },
+    contextMarkers: () => [],
     picked(_, {decision}) {
       let pos = decision.position();
       this.position = pos;

@@ -55,15 +55,15 @@ export class DomainMap extends RxElement {
   nextMarker() { this.ixCurrentMarker++ }
   get ixCurrentMarker() { return this._ixCurrentMarker }
   set ixCurrentMarker(value) {
-    if (this._markers.filter(m => JSON.parse(m.dataset.properties).editable).length === 0) { return }
+    if (this.markers.filter(i => i.editable !== false).length === 0) { return }
 
-    this.marker.classList.remove('current');
+    this.marker?.classList.remove('current');
     this._ixCurrentMarker = value % this._markers.length;
     if (JSON.parse(this.marker.dataset.properties).editable === false) {
       this.ixCurrentMarker += 1;
     } else {
       this.marker.classList.add('current');
-      this.ghostMarker.textContent = this.marker.textContent;
+      if (this.ghostMarker) { this.ghostMarker.textContent = this.marker.textContent }
       this.fire("domains:marker-selected", {detail: {marker: this.marker.dataset.properties, element: this.marker}});
     }
   }
@@ -235,7 +235,7 @@ export class DomainMap extends RxElement {
       this._markers?.forEach(marker => marker.remove());
       this._markers = this.markers.map(info => this.makeMarker(info));
       if (this._markers.length === 0) { this._markers = [this.makeMarker()] }
-      this._ixCurrentMarker = this._markers.length - 1;
+      this.ixCurrentMarker = 0;
       
       this.ghostMarker?.remove();
       this.ghostMarker = this.makeMarker();

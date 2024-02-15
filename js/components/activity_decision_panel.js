@@ -49,6 +49,7 @@ export class ActivityDecisionPanel extends RxElement {
 
     return `
       <div class="description">${callOrReturn(decision.description || "", decision, {decision, activity})}</div>
+      ${this.renderEditor(activity, decision)}
       <fieldset class='pickable-group'>
         ${decision.options.length === 0 ? "🚫" : ""}
         ${Object.entries(decision.groupedOptions).flatMap(([group, options]) => {
@@ -68,6 +69,12 @@ export class ActivityDecisionPanel extends RxElement {
           })];
         }).join("")}
       </fieldset>`;
+  }
+
+  renderEditor(activity, decision) {
+    if (!decision.editor) return "";
+
+    return `<div class="editor">${callOrReturn(decision.editor, decision, {decision, activity})}</div>`;
   }
 
   renderSummary(activity, decision, option) {

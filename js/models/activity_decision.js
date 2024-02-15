@@ -18,16 +18,23 @@ export class ActivityDecision {
     let templateName = properties.template || properties.name || properties;
     let template = {
       Location: {
-        description(context) {
-          let icons = [...(this.activity.domain.markers ?? []), {}];
+        prompt: "Choose a location",
+        placeMarker() { return {} },
+        placedMarker() { return {...this.placeMarker(), position: this.activity.position} },
+        contextMarkers: () => this.activity.domain.markers,
+        editor(context) {
+          let icons = [this.placeMarker(), ...(this.contextMarkers() ?? [])];
 
           return `<domain-map-legend prompt="${this.prompt}">
             <domain-map editable markers='${JSON.stringify(icons)}'></domain-map>
           </domain-map-legend>`
         },
-        prompt: "Choose a location",
         options: ["OK"],
-        position() { return document.getElementById(this.activity.id).querySelector("domain-map").markers[0].position },
+        position() {
+          let map = document.getElementById(this.activity.id)?.querySelector("domain-map");
+          console.log(map, map ? map.markers[0]?.position : null);
+          return map ? map.markers[0]?.position : null;
+        },
         picked(_, {decision}) { this.position = decision.position() },
         unpicked() { this.position = null },
         displayTitleValue(value) {
@@ -35,7 +42,7 @@ export class ActivityDecision {
           return position ? `${Number(position[0]).toFixed(1)}%, ${Number(position[1]).toFixed(1)}%` : value;
         },
         displayValue(value) {
-          let markers = [...(this.activity.domain.markers ?? []), {}, {position: this.activity.position}];
+          let markers = [this.placedMarker(), ...(this.contextMarkers() ?? [])];
           return this.activity.position
             ? `<domain-map zoom='.5' markers='${JSON.stringify(markers)}'></domain-map>`
             : "OK";
@@ -52,7 +59,7 @@ export class ActivityDecision {
           let usedBy = this.abilityAlreadyUsedBy(ability);
           return usedBy.length ? `Already used or this activity this turn by ${usedBy.map(a => a.name).join(" & ")}` : null;
         },
-        description(context) { return context.decision.difficultyClass(context) },
+        editor(context) { return context.decision.difficultyClass(context) },
         difficultyClassOptions: {},
         difficultyClass({decision}) {
           let dcOpts = decision?.difficultyClassOptions || {};
