@@ -43,7 +43,34 @@ export var civicTemplates = [{
     mutable: (activity, decision) => activity.decision("Roll").mutable,
   }, {
     name: "Payment",
-    options: () => Ability.all,
+    options() {
+      let settlement = this.activity.actor;
+      let maxSpend = settlement ? (settlement.hasTrait("Metropolis") ? 4 : (settlement.hasTrait("City") ? 3 : (settlement.hasTrait("Town") ? 2 : 1))) : 0;
+
+      return [
+        ...Array.from({length: maxSpend}, (init, ix) => ix + 1).flatMap(n => Ability.all.map(a => `${a}:${n}`)),
+      ];
+    },
+    displayValue: (value) => value ? `Reduce ${value.split(":")[0]} by ${value.split(":")[1]} to proceed` : "…",
+    optionDisableReason(payment) {
+      let [ability, amount] = payment.split(":");
+      amount = parseInt(amount);
+
+      let current = this.domain[ability.toLowerCase()];
+      if (current <= amount) { return `${ability} is too low to afford this` }
+
+      let structureName = this.activity.structureName;
+      if (structureName) {
+        let cost = new Structure({template: structureName}).cost;
+        if (amount > cost) { return `${amount} is more than this structure costs` }
+      }
+    },
+    
+    nonAbilityPaid(payment, context) {
+      let [ability, amount] = payment.split(":");
+      this.amount = parseInt(amount);
+      this.picked(ability, context);
+    },
   }, {
     name: "Roll",
     options: ["Economy"],
@@ -80,7 +107,7 @@ export var civicTemplates = [{
       this.info(`🚧 ${buildingSite.name} is now ${buildingSite.percentage}% complete.`);
     }
   },
-  baseProgress() { return 1 },  // TODO make this dynamic
+  baseProgress() { return this.decision("Payment")?.amount || 1 },
   criticalSuccess() {
     this.info("🏗️ Progress is quick.");
     this.makeProgresss(Math.ceil(this.baseProgress() * 1.5));
