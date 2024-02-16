@@ -98,21 +98,20 @@ export class Structure extends Powerup {
       name: `General Store`,
       level: 1,
       traits: ["Building"],
-      bonuses: [{max: ability, value: 1}],
       effects: `A settlement without a general store or marketplace reduces its level for the purposes of determining what items can be purchased there by 2.`,
     }, {
       name: `Marketplace`,
       level: 4,
       traits: ["Building", "Residential"],
       description: `A marketplace is a large neighborhood of shops run by local vendors around an open area for traveling merchants and farmers to peddle their wares.`,
-      bonuses: [{max: ability, value: 2}],
+      bonuses: [{max: ability, value: 1}],
       effects: `A town without a general store or marketplace reduces its effective level for the purposes of determining what items can be purchased there by 2.`,
     }, {
       name: `Grand Bazaar`,
       level: 13,
       traits: ["Building", "Fame", "Infamy"],
       description: `This sprawling marketplace is a true hub of trade.`,
-      bonuses: [{max: ability, value: 3}],
+      bonuses: [{max: ability, value: 2}, {max: "Culture", value: 1}],
       effects: `A settlement with no general store, marketplace, or grand bazaar reduces its effective level for the purposes of determining what items can be purchased there by 2. The grand bazaar instead increases the settlement’s effective level for determining what items can be purchased by 2.`,
     }];
 
@@ -129,15 +128,15 @@ export class Structure extends Powerup {
       level: 8,
       traits: ["Yard"],
       description: `A harbor serves as a bustling port for passengers and cargo. The harbor is supported by facilities for shipping and shipbuilding, but also features boardwalks for foot traffic and fishers to ply their trade.`,
-      bonuses: [{max: ability, value: 2}],
-      effects: [riverRoads, `A settlement with at least 1 harbor increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement`].join("\n"),
+      bonuses: [{max: ability, value: 1}],
+      effects: [riverRoads, `A settlement with a harbor increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement`].join("\n"),
     }, {
       name: `Port`,
       level: 12,
       traits: ["Yard"],
       description: `A port is a bustling hub of transport that is practically its own community.`,
-      bonuses: [{max: ability, value: 3}],
-      effects: [riverRoads, `A settlement with at least 1 port increases its effective level by 2 for the purposes of determining what level of items can be purchased in that settlement.`].join("\n"),
+      bonuses: [{max: ability, value: 1}],
+      effects: [riverRoads, `A settlement with a port increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement.`].join("\n"),
     }];
     let financials = [{
       name: `Bank`,
@@ -166,7 +165,7 @@ export class Structure extends Powerup {
         level: 5,
         traits: ["Building", "Renowned"],
         description: `The government knows this group exists but allows it to continue doing its business as long as the guild doesn’t overstep its bounds.`,
-        bonuses: [{max: ability, value: 2}, {max: "Stability", value: -1}],
+        bonuses: [{max: ability, value: 1}, {max: "Stability", value: -1}],
         effects: `While in a settlement with a thieves’ guild, you gain a +1 item bonus to Create Forgeries.`,
       },
     );
@@ -180,11 +179,10 @@ export class Structure extends Powerup {
       or enact new laws? How do they react when other nations send spies or
       provocateurs into your lands to make trouble? If they support the
       kingdom’s leadership, the kingdom itself has a robust Loyalty score. */
-    let maxBoosters = [{
+    let memorials = [{
       name: `Cemetery`,
       level: 1,
       traits: ["Yard"],
-      limit: 2,
       description: `To bury the dead; can also include above-ground vaults or underground catacombs.`,
       bonuses: [{max: ability, value: 1}],
       effects: `Giving the citizens a place to bury and remember their departed loved ones helps to temper Unrest gained from dangerous events. If you have at least one cemetery in a settlement, reduce Unrest gained from any dangerous settlement events in that particular settlement by 1 (to a maximum of 4 for four cemeteries). The presence of a cemetery provides additional effects during certain kingdom events.`,
@@ -194,19 +192,44 @@ export class Structure extends Powerup {
       traits: ["Yard"],
       limit: 2,
       description: `An impressive stone structure built to commemorate a historical event, honor a beloved leader, memorialize a tragedy, or simply serve as an artistic display.`,
-      bonuses: [{max: ability, value: 2}],
+      bonuses: [{max: ability, value: 1}],
+    }];
+
+    let lawAndOrder = [{
+      name: `Jail`,
+      level: 2,
+      traits: ["Building"],
+      description: `A jail is a fortified structure that houses criminals, prisoners, or dangerous monsters separate from the rest of society.`,
+      bonuses: [{activity: "Quell Unrest", ability: "Loyalty", value: 1}, {max: ability, value: 1}], // WAS +1 item bonus to Quell Unrest using Intrigue
+    }, {
+      name: `Marshals Office`,
+      level: 5,
+      traits: ["Building"],
+      description: `The central office for a Marshal, who will patrol the surrounding territory.`,
+      bonuses: [{max: ability, value: 1}],
+    }, {
+      name: `Detective Agency`,
+      level: 8,
+      traits: ["Building"],
+      description: `This building has both a holding cell and an office space in which detectives can do their work.`,
+      bonuses: [
+        {activity: "Quell Unrest", ability, value: 1},
+        {max: ability, value: 1},
+      ], // WAS +2 to Quell Unrest (Intrigue) and to Repair Reputation (Crime)
+      effects: `The first time you build a detective agency each turn, reduce Unrest by 1.`,
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }, {
       name: `Court`,
       level: 9,
       traits: ["Building"],
       description: `Make your dedication to the rule of law concrete in a very real sense.`,
       bonuses: [
-        {max: ability, value: 2},
-        {activity: "Quell Unrest", ability, value: 1}
+        {activity: "Quell Unrest", ability, value: 1},
+        {max: ability, value: 1},
       ], // WAS +1 item bonus to Improve Lifestyle and to Quell Unrest using Politics
     }];
 
-    return this.#addTraitToAll("Economy", ...maxBoosters);
+    return this.#addTraitToAll("Economy", ...memorials, ...lawAndOrder);
   }
 
   static get stabilityStructures() {
@@ -233,12 +256,14 @@ export class Structure extends Powerup {
       bonuses: [{activity: "Build Structure", value: 1}, {max: ability, value: 2}], // WAS +1 item bonus to Build Structure and to Repair Reputation (Decay)
     }];
 
-    let lawAndOrder = [{
-      name: `Jail`,
+    let socialServices = [{
+      name: `Orphanage`,
       level: 2,
-      traits: ["Building"],
-      description: `A jail is a fortified structure that houses criminals, prisoners, or dangerous monsters separate from the rest of society.`,
-      bonuses: [{activity: "Quell Unrest", ability: "Loyalty", value: 1}, {max: ability, value: 1}], // WAS +1 item bonus to Quell Unrest using Intrigue
+      traits: ["Building", "Residential"],
+      description: `This sprawling residential building provides housing for orphans or even homeless citizens, but it can also help supply housing for refugees—but preferably not all at the same time, though!`,
+      bonuses: [{max: ability, value: 1}],
+      effects: `The first time you build an orphanage each turn, reduce Unrest by 1. Each time you would gain more than 1 Unrest due to citizen deaths or the destruction of residential structures or settlements, reduce the total Unrest gained by 1.`,
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }, {
       name: `Watchtower`,
       level: 3,
@@ -247,31 +272,9 @@ export class Structure extends Powerup {
       bonuses: [{max: ability, value: 1}], // WAS +1 item bonus to checks to resolve events affecting the settlement.
       effects: `The first time you build a watchtower each Kingdom turn, decrease Unrest by 1.`,
       added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
-    }, {
-      name: `Marshals Office`,
-      level: 5,
-      traits: ["Building"],
-      description: `The central office for a Marshal, who will patrol the surrounding territory.`,
-      bonuses: [{max: ability, value: 1}],
-    }, {
-      name: `Detective Agency`,
-      level: 8,
-      traits: ["Building"],
-      description: `This building has both a holding cell and an office space in which detectives can do their work.`,
-      bonuses: [{activity: "Quell Unrest", ability: "Loyalty", value: 1}, {max: ability, value: 2}], // WAS +2 to Quell Unrest (Intrigue) and to Repair Reputation (Crime)
-      effects: `The first time you build a detective agency each turn, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }];
 
-    let maxBoosters = [...builders, ...lawAndOrder, {
-      name: `Orphanage`,
-      level: 2,
-      traits: ["Building", "Residential"],
-      description: `This sprawling residential building provides housing for orphans or even homeless citizens, but it can also help supply housing for refugees—but preferably not all at the same time, though!`,
-      bonuses: [{max: ability, value: 1}],
-      effects: `The first time you build an orphanage each turn, reduce Unrest by 1. Each time you would gain more than 1 Unrest due to citizen deaths or the destruction of residential structures or settlements, reduce the total Unrest gained by 1.`,
-      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
-    }];
+    let maxBoosters = [...builders, ...socialServices];
 
     return this.#addTraitToAll("Stability", ...maxBoosters);
   }
@@ -451,6 +454,7 @@ export class Structure extends Powerup {
       traits: ["Building"],
       description: `An office stuffed full of bureaucrats and experience, plus records of past successes and failures.`,
       bonuses: [
+        {max: "Stability", value: 1},
         {activity: "Build Structure", value: 1},
         {activity: "Build Infrastructure", value: 1},
         {activity: "Establish Settlement", value: 1},
@@ -796,7 +800,7 @@ export class Structure extends Powerup {
       traits: ["Building"],
       description: `Artists appear in any sufficiently large settlement, but you have a special connection to this one, and you go here for inspiration.`,
       bonuses: [{activity, value: 1}],
-      effects: `The first time you build an opera house each Kingdom turn, reduce Unrest by 1. `,
+      effects: `The first time you build an Art Studio each Kingdom turn, reduce Unrest by 1. `,
       added({activity}) { activity.reduce({by: 1}, "Unrest") },
     }, {
       name: `Artists' District`,
@@ -804,7 +808,7 @@ export class Structure extends Powerup {
       traits: ["Yard"],
       description: `A section of this settlement has become home to a variety of artists..`,
       bonuses: [{activity, value: 2}],
-      effects: `The first time you build an opera house each Kingdom turn, reduce Unrest by 2. `,
+      effects: `The first time you build an Artists' District each Kingdom turn, reduce Unrest by 2. `,
       added({activity}) { activity.reduce({by: 2}, "Unrest") },
     }, {
       name: `Opera House`,
@@ -812,8 +816,9 @@ export class Structure extends Powerup {
       traits: ["Building", "Renowned"],
       description: `An opera house functions well as a venue for operas, plays, and concerts, but also includes extensive facilities to aid in the training of all manner of bardic pursuits. Often, an opera house becomes a grandiose landmark, either due to its outlandish colors or eye-catching architecture.`,
       bonuses: [
-        {activity: "Cool Down", ability: "Culture", value: 3},
-        {activity, value: 3},
+        {max: "Culture", value: 1},
+        {activity: "Cool Down", ability: "Culture", value: 2},
+        {activity, value: 2},
       ], // WAS +3 item bonus to Celebrate Holiday and Create a Masterpiece
       effects: `The first time you build an opera house each Kingdom turn, reduce Unrest by 4. While in a settlement with an opera house, you gain a +3 item bonus to Performance checks made to Earn Income.`,
       added({activity}) { activity.reduce({by: 4}, "Unrest") },
