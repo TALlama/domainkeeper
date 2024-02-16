@@ -48,7 +48,7 @@ export class TraitList extends RxElement {
       Building: "A collection of indoor sites",
       Yard: "Primarily an outdoor site",
       Infrastructure: "Benefits a whole settlement without occupying space",
-      Famous: "When built, adds one Fame to the Domain",
+      Renowned: "When built, adds one Fame to the Domain",
       "Limit 1": "You can only build one of these per settlement",
       "Limit 2": "You can only build two of these per settlement",
       "Limit 3": "You can only build three of these per settlement",

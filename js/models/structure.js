@@ -54,7 +54,7 @@ export class Structure extends Powerup {
     }, {
       name: `Museum`,
       level: 5,
-      traits: ["Building", "Famous", "Infamous"],
+      traits: ["Building", "Renowned"],
       description: `A museum displays art, objects of important cultural note, wonders of the natural world, and other marvels in a place where citizens can observe and learn.`,
       bonuses: [
         {max: ability, value: 1},
@@ -164,7 +164,7 @@ export class Structure extends Powerup {
       {
         name: `Thieves' Guild`,
         level: 5,
-        traits: ["Building", "Infamous"],
+        traits: ["Building", "Renowned"],
         description: `The government knows this group exists but allows it to continue doing its business as long as the guild doesn’t overstep its bounds.`,
         bonuses: [{max: ability, value: 2}, {max: "Stability", value: -1}],
         effects: `While in a settlement with a thieves’ guild, you gain a +1 item bonus to Create Forgeries.`,
@@ -490,7 +490,7 @@ export class Structure extends Powerup {
     }, {
       name: `University`,
       level: 15,
-      traits: ["Building", "Famous"],
+      traits: ["Building", "Renowned"],
       description: `A university is a sprawling institution of higher learning.`,
       bonuses: [{activity, value: 3}], // WAS +3 item bonus to Creative Solution
       effects: `While in a settlement with a university, you gain a +3 item bonus to Lore checks made to Recall Knowledge while Investigating, to Research checks (Gamemastery Guide 154), and to Decipher Writing.`,
@@ -542,7 +542,7 @@ export class Structure extends Powerup {
     }, {
       name: `Temple`,
       level: 7,
-      traits: ["Building", "Famous", "Infamous"],
+      traits: ["Building", "Renowned"],
       description: `A temple is a building devoted to worshipping a deity or faith.`,
       bonuses: [
         {activity, ability: "Culture", value: 1},
@@ -553,7 +553,7 @@ export class Structure extends Powerup {
     }, {
       name: `Cathedral`,
       level: 15,
-      traits: ["Building", "Famous", "Infamous"],
+      traits: ["Building", "Renowned"],
       description: `A cathedral serves as a focal point of spiritual worship in the settlement and the seat of regional power for a religion. Most cathedrals are astounding works of art and eye-catching marvels of architecture.`,
       bonuses: [
         {activity, ability: "Culture", value: 2},
@@ -741,7 +741,7 @@ export class Structure extends Powerup {
     }, {
       name: `Tavern, Luxury`,
       level: 9,
-      traits: ["Building", "Famous"],
+      traits: ["Building", "Renowned"],
       description: `A luxury tavern is a high-class establishment for entertainment, eating, and drinking. It may even include a built-in stage for performers to use.`,
       bonuses: [{activity, value: 2}], // WAS +2 item bonus to Hire Adventurers and to Rest and Relax using Trade
       effects: `The first time you build a luxury tavern in a Kingdom turn, reduce Unrest by 1d4+1. If attempt a Performance check to Earn Income in a settlement with a luxury tavern, you gain a +2 item bonus to the check. All checks made to Gather Information in a settlement with at least one luxury tavern gain a +2 item bonus.`,
@@ -749,7 +749,7 @@ export class Structure extends Powerup {
     }, {
       name: `Tavern, World-Class`,
       level: 15,
-      traits: ["Building", "Famous"],
+      traits: ["Building", "Renowned"],
       description: `A World-Class Tavern is a legendary establishment for entertainment, eating, and drinking. It has at least one venue for performances—perhaps multiple ones.`,
       bonuses: [{activity, value: 3}], // WAS +3 item bonus to Hire Adventurers, to Rest and Relax using Trade, and to Repair Reputation (Strife)
       effects: `The first time you build a world-class tavern in a turn, reduce Unrest by 2d4. If you try a Performance check to Earn Income in a settlement with a world-class tavern, you gain a +3 item bonus to the check. All checks made to Gather Information in a settlement with a world-class tavern gain a +3 item bonus.`,
@@ -809,7 +809,7 @@ export class Structure extends Powerup {
     }, {
       name: `Opera House`,
       level: 15,
-      traits: ["Building", "Famous", "Infamous"],
+      traits: ["Building", "Renowned"],
       description: `An opera house functions well as a venue for operas, plays, and concerts, but also includes extensive facilities to aid in the training of all manner of bardic pursuits. Often, an opera house becomes a grandiose landmark, either due to its outlandish colors or eye-catching architecture.`,
       bonuses: [
         {activity: "Cool Down", ability: "Culture", value: 3},
@@ -859,7 +859,7 @@ export class Structure extends Powerup {
     }, {
       name: `Castle`,
       level: 9,
-      traits: ["Building", "Famous", "Infamous", "Expensive"],
+      traits: ["Building", "Renowned", "Expensive"],
       description: `A castle is a fortified structure that often serves as the seat of government for a kingdom.`,
       bonuses: [
         {activity: "Pledge of Fealty", value: 2},
@@ -881,7 +881,7 @@ export class Structure extends Powerup {
     }, {
       name: `Palace`,
       level: 15,
-      traits: ["Building", "Famous", "Infamous", "Expensive"],
+      traits: ["Building", "Renowned", "Expensive"],
       description: `A palace is a grand and splendid seat of government for your leaders and other political functionaries.`,
       bonuses: [
         {activity: "Pledge of Fealty", value: 3},
@@ -917,7 +917,6 @@ export class Structure extends Powerup {
       ...this.activityTakeChargeStructures,
       ...this.activityHireAdventurersStructures,
       ...this.activityPrognosticationStructures,
-      ...this.activityCreateAMasterpieceStructures,
       ...this.activityCreateAMasterpieceStructures,
       ...this.activityWarfareStructures,
     ]
