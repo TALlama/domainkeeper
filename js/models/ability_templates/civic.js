@@ -39,7 +39,43 @@ export var civicTemplates = [{
     },
     displayValue: structureName => `<structure-description name="${structureName}"></structure-description>`,
     displayTitleValue: structureName => structureName,
-    picked(structureName) { this.decision("Roll").difficultyClassOptions.base = Structure.template(structureName)?.dc },
+    picked(structureName) {
+      let validFoundations = this.decision("Foundation").validOptions();
+      if (validFoundations.length === 1) {
+        this.decision("Foundation").resolution = validFoundations[0];
+      }
+      this.decision("Roll").difficultyClassOptions.base = Structure.template(structureName)?.dc;
+    },
+    mutable: (activity, decision) => activity.decision("Roll").mutable,
+  }, {
+    name: "Foundation",
+    saveAs: "foundationId",
+    options() {
+      let settlement = this.activity.actor;
+      let upgradables = settlement.powerups.filter(s => s.upgradeTo?.length);
+      return [...upgradables.map(s => s.id), "new"];
+    },
+    optionDisableReason(foundationId) {
+      if (foundationId === "new") { return null } // can always start from scratch
+
+      let settlement = this.activity.actor;
+      let foundation = settlement.powerup(foundationId);
+      if (!foundation) { return null } // can always start from scratch
+      
+      // Does this foundation match the structure picked?
+      let structureName = this.activity.structureName;
+      if (!foundation.upgradeTo) { return `Cannot upgrade ${foundation.name}` }
+      if (foundation.upgradeTo.length === 0) { return `Cannot upgrade ${foundation.name} into a ${structureName}` }
+      if (!foundation.upgradeTo.includes(structureName)) { return `Cannot upgrade ${foundation.name} into a ${structureName}` }
+
+      let existingBuildSite = settlement.powerups.find(p => p.foundationId === foundation.id);
+      if (existingBuildSite) { return `You are already building a ${existingBuildSite.name} on this foundation` }
+    },
+    displayValue(foundationId) {
+      let settlement = this.activity.actor;
+      let structure = foundationId ? settlement.powerup(foundationId) : null;
+      return structure ? `Upgrade ${structure.name}` : "Start from scratch"
+    },
     mutable: (activity, decision) => activity.decision("Roll").mutable,
   }, {
     name: "Payment",
@@ -85,7 +121,7 @@ export var civicTemplates = [{
   }],
   findBuildingSite() {
     return this.actor.powerups.matches({incompleteTemplate: this.structureName})[0] ||
-      BuildingSite.add({attributes: {incompleteTemplate: this.structureName}, actor: this.actor, activity: this});
+      BuildingSite.add({attributes: {incompleteTemplate: this.structureName, foundationId: this.foundationId}, actor: this.actor, activity: this});
   },
   makeProgresss(progress) {
     if (progress === 0) { return }
@@ -94,10 +130,12 @@ export var civicTemplates = [{
     buildingSite.progress += progress;
     if (buildingSite.progress >= buildingSite.cost) {
       this.actor.removePowerup(buildingSite);
+      this.actor.removePowerup(buildingSite.foundation);
       Structure.add({template: this.structureName, actor: this.actor, activity: this,
         added({activity, fullName}) {
           activity.info(`🏛️ You built the ${fullName}!`)
 
+          // TODO automate this (and maybe change thresholds)
           activity.info("📈 If there are now 4+ buildings in the settlement, it's a town. Get Milestone XP!");
           activity.info("📈 If there are now 8+ buildings in the settlement, it's a city. Get Milestone XP!");
           activity.info("📈 If there are now 16+ buildings in the settlement, it's a metropolis. Get Milestone XP!");

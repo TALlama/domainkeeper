@@ -16,6 +16,7 @@ let settlements = {
   withShrine: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: structureNames.starting}]},
   withLimitedStructure: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: structureNames.limited}]},
   withShrineAndIncompleteInn: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: structureNames.starting}, {name: structureNames.incompleteTwoStep, type: "building-site", progress: 1, incompleteTemplate: structureNames.twoStep}]},
+  withUpgradable: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: "General Store"}]},
 };
 
 test.describe("Progresses toward the selected structure", () => {
@@ -145,6 +146,55 @@ test.describe("Progresses toward the selected structure", () => {
         const dk = await setup(page);
         await go(dk, "Critical Failure");
         await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, structureNames.incompleteTwoStep]);
+      });
+    });
+
+    test.describe("When upgrading from an existing structure", () => {
+      let setup = async (page, size) => {
+        let settlement = {...settlements.withUpgradable, traits: [size || "Village"]};
+        const dk = await DomainkeeperPage.load(page, {...inTurnOne, culture: 3, level: 3, settlements: [settlement]});
+        await dk.setCurrentActor("Bigappel");
+        return dk;
+      };
+      let go = async (dk, outcome, {cost} = {}) => {
+        await dk.pickActivity("Build Structure", "Trade Shop", "Upgrade General Store", cost || "Reduce Culture by 1 to proceed", "Economy", outcome);
+        await dk.setCurrentActor("Bigappel");
+      };
+
+      test(`Critical Success: Progresses 150% of the amount spent (round up), which can make progress`, async ({ page }) => {
+        const dk = await setup(page);
+        await go(dk, "Critical Success");
+        await expect(dk.currentActorPowerups()).toHaveText(["General Store", "Incomplete Trade Shop (3/4), from General Store"]);
+      });
+
+      test(`Critical Success: Progresses 150% of the amount spent (round up), which can complete the build`, async ({ page }) => {
+        const dk = await setup(page, "Town");
+        await go(dk, "Critical Success", {cost: "Reduce Culture by 2 to proceed"});
+        await expect(dk.currentActorPowerups()).toHaveText(["Trade Shop"]);
+      });
+
+      test(`Success: Progresses 100% of the amount spent`, async ({ page }) => {
+        const dk = await setup(page);
+        await go(dk, "Success");
+        await expect(dk.currentActorPowerups()).toHaveText(["General Store", "Incomplete Trade Shop (2/4), from General Store"]);
+      });
+
+      test(`Failure: Progresses 50% of the amount spent, which can be a bit of progress`, async ({ page }) => {
+        const dk = await setup(page, "Town");
+        await go(dk, "Failure", {cost: "Reduce Culture by 2 to proceed"});
+        await expect(dk.currentActorPowerups()).toHaveText(["General Store", "Incomplete Trade Shop (2/4), from General Store"]);
+      });
+
+      test(`Failure: Progresses 50% of the amount spent, which can be no progress`, async ({ page }) => {
+        const dk = await setup(page);
+        await go(dk, "Failure");
+        await expect(dk.currentActorPowerups()).toHaveText(["General Store"]);
+      });
+
+      test(`Critical Failure: no progress`, async ({ page }) => {
+        const dk = await setup(page);
+        await go(dk, "Critical Failure");
+        await expect(dk.currentActorPowerups()).toHaveText(["General Store"]);
       });
     });
   });

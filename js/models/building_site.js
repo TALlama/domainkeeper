@@ -3,19 +3,27 @@ import { Powerup } from "./powerup.js";
 import { Structure } from "./structure.js";
 
 export class BuildingSite extends Powerup {
-  constructor(properties) {
-    console.log(`Built BuildingSite with ${JSON.stringify(properties)}`);
-    super(properties);
+  constructor(properties, settlement) {
+    super(properties, settlement);
 
     this.cost ??= this.structure.cost ?? 1000;
-    this.progress ??= 0;
+    this.progress ??= this.foundation?.cost || 0;
   }
 
   get percentage() { return parseInt((this.progress / this.cost * 100).toFixed(1)) }
   get structure() { return new Structure(this.incompleteTemplate) }
 
-  get name() { return `Incomplete ${this.structure.name || this.incompleteTemplate || "Structure"} (${this.progress}/${this.cost ?? 1000})` }
+  get name() { return `Incomplete ${this.structure.name || this.incompleteTemplate || "Structure"} (${this.progress}/${this.cost ?? 1000})${this.foundationName ? `, from ${this.foundationName}` : ""}` }
   set name(value) { /* ignore */ }
+
+  get settlement() { return this.holder }
+  set settlement(value) { return this.holder = value }
+
+  get foundation() { return this.settlement?.powerup(this.foundationId) }
+  set foundation(value) { this.foundationId = value?.id }
+
+  get foundationName() { return this.foundation?.name }
+  set foundationName(value) { /* ignore */ }
 
   static type = "building-site";
 

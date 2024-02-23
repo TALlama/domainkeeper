@@ -5,11 +5,15 @@
 /********************************************************************************/
 
 import "../extensions.js";
+import { Ability } from "./abilities.js";
 import { Powerup } from "./powerup.js";
 
 export class Structure extends Powerup {
   constructor(properties) {
     super(properties);
+
+    this.limit ??= 1;
+    this.upgradeTo ??= [];
 
     this.addTrait(`Limit ${this.limit}`);
     this.addTrait(`Cost ${this.cost}`);
@@ -46,10 +50,11 @@ export class Structure extends Powerup {
       name: `Festival Hall`,
       level: 3,
       traits: ["Building"],
+      upgradeTo: [`Theatre`],
       description: `A festival hall is a small building that gives performers a venue to entertain and citizens a place to gather for celebrations or simply to relax.`,
       bonuses: [
         {max: ability, value: 1},
-        {activity: "Cool Down", ability: "Culture", value: 1},
+        {activity: "Build Up", ability: "Culture", value: 1},
       ], // WAS +1 item bonus to Celebrate Holiday
     }, {
       name: `Museum`,
@@ -65,6 +70,7 @@ export class Structure extends Powerup {
       name: `Boardwalk`,
       level: 8,
       traits: ["Yard"],
+      upgradeTo: [`Harbor`],
       description: `A section of the waterfront has been set aside for amusements and merriment.`,
       bonuses: [
         {max: ability, value: 1},
@@ -75,6 +81,7 @@ export class Structure extends Powerup {
       name: `Theatre`,
       level: 9,
       traits: ["Building"],
+      upgradeTo: [`Opera House`],
       description: `A theater is a venue for concerts, plays, and dances, but can double as a place for debates or other events.`,
       bonuses: [
         {max: ability, value: 1},
@@ -98,11 +105,13 @@ export class Structure extends Powerup {
       name: `General Store`,
       level: 1,
       traits: ["Building"],
+      upgradeTo: [`Marketplace`, `Luxury Store`, `Trade Shop`, `Trade Shop, Fine`, `Magic Shop`],
       effects: `A settlement without a general store or marketplace reduces its level for the purposes of determining what items can be purchased there by 2.`,
     }, {
       name: `Marketplace`,
       level: 4,
       traits: ["Building", "Residential"],
+      upgradeTo: [`Grand Bazaar`],
       description: `A marketplace is a large neighborhood of shops run by local vendors around an open area for traveling merchants and farmers to peddle their wares.`,
       bonuses: [{max: ability, value: 1}],
       effects: `A town without a general store or marketplace reduces its effective level for the purposes of determining what items can be purchased there by 2.`,
@@ -120,6 +129,7 @@ export class Structure extends Powerup {
       name: `Pier`,
       level: 3,
       traits: ["Yard"],
+      upgradeTo: [`Boardwalk`, `Harbor`, `Port`],
       description: `Several wooden piers allow easy access to fishing and provide a convenient place to moor boats.`,
       bonuses: [{max: ability, value: 1}],
       effects: riverRoads,
@@ -127,6 +137,7 @@ export class Structure extends Powerup {
       name: `Harbor`,
       level: 8,
       traits: ["Yard"],
+      upgradeTo: [`Boardwalk`, `Port`],
       description: `A harbor serves as a bustling port for passengers and cargo. The harbor is supported by facilities for shipping and shipbuilding, but also features boardwalks for foot traffic and fishers to ply their trade.`,
       bonuses: [{max: ability, value: 1}],
       effects: [riverRoads, `A settlement with a harbor increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement`].join("\n"),
@@ -134,6 +145,7 @@ export class Structure extends Powerup {
       name: `Port`,
       level: 12,
       traits: ["Yard"],
+      upgradeTo: [`Grand Bazaar`],
       description: `A port is a bustling hub of transport that is practically its own community.`,
       bonuses: [{max: ability, value: 1}],
       effects: [riverRoads, `A settlement with a port increases its effective level by 1 for the purposes of determining what level of items can be purchased in that settlement.`].join("\n"),
@@ -205,6 +217,7 @@ export class Structure extends Powerup {
       name: `Marshals Office`,
       level: 5,
       traits: ["Building"],
+      upgradeTo: [`Detective Agency`],
       description: `The central office for a Marshal, who will patrol the surrounding territory.`,
       bonuses: [{max: ability, value: 1}],
     }, {
@@ -246,6 +259,7 @@ export class Structure extends Powerup {
       name: `Builders' Lot`,
       level: 3,
       traits: ["Yard"],
+      upgradeTo: [`Construction Yard`],
       description: `Dedicated builders live around and work from these lots, helping fix things up or keep new construction moving.`,
       bonuses: [{activity: "Build Structure", value: 1}, {max: ability, value: 1}], // WAS +1 to Build a Structure and to Repair Reputation (Decay)
     }, {
@@ -253,7 +267,7 @@ export class Structure extends Powerup {
       level: 10,
       traits: ["Yard"],
       description: `A construction yard supports the building of structures by providing a centralized place to gather supplies and craft components for larger projects.`,
-      bonuses: [{activity: "Build Structure", value: 1}, {max: ability, value: 2}], // WAS +1 item bonus to Build Structure and to Repair Reputation (Decay)
+      bonuses: [{activity: "Build Structure", value: 2}, {max: ability, value: 2}], // WAS +1 item bonus to Build Structure and to Repair Reputation (Decay)
     }];
 
     let socialServices = [{
@@ -268,6 +282,7 @@ export class Structure extends Powerup {
       name: `Watchtower`,
       level: 3,
       traits: ["Building"],
+      upgradeTo: [`Keep`, `Garrison`],
       description: `A watchtower serves as a guard post that grants a settlement advance warning to upcoming dangerous events.`,
       bonuses: [{max: ability, value: 1}], // WAS +1 item bonus to checks to resolve events affecting the settlement.
       effects: `The first time you build a watchtower each Kingdom turn, decrease Unrest by 1.`,
@@ -285,23 +300,25 @@ export class Structure extends Powerup {
       name: `Trade Shop`,
       level: 3,
       traits: ["Building"],
+      upgradeTo: [`Trade Shop, Fine`, `Trade Shop, World-Class`],
       description: `A trade shop is a store that focuses on providing services.`,
       effects: `When you build a trade shop, indicate the kind of shop it is, such as a bakery, carpenter, tailor, and so on. While in a settlement with a trade shop, you gain a +1 item bonus to all associated Crafting checks.`,
-      setup({settlement, structure, activity}) { this.name = prompt("What kind of shop is it?") },
+      setup({settlement, structure, activity}) { this.name = prompt("What kind of shop is it?") || this.name },
     }, {
       name: `Trade Shop, Fine`,
       level: 6,
       traits: ["Building"],
+      upgradeTo: [`Trade Shop, World-Class`],
       description: `A trade shop is a store that focuses on providing services.`,
       effects: `When you build a trade shop, indicate the kind of shop it is, such as a bakery, carpenter, tailor, and so on. While in a settlement with a trade shop, you gain a +2 item bonus to all associated Crafting checks.`,
-      setup({settlement, structure, activity}) { this.name = prompt("What kind of shop is it?") },
+      setup({settlement, structure, activity}) { this.name = prompt("What kind of shop is it?") || this.name },
     }, {
       name: `Trade Shop, World-Class`,
       level: 10,
       traits: ["Building"],
       description: `A trade shop is a store that focuses on providing services.`,
       effects: `When you build a trade shop, indicate the kind of shop it is, such as a bakery, carpenter, tailor, and so on. While in a settlement with a trade shop, you gain a +3 item bonus to all associated Crafting checks.`,
-      setup({settlement, structure, activity}) { this.name = prompt("What kind of shop is it?") },
+      setup({settlement, structure, activity}) { this.name = prompt("What kind of shop is it?") || this.name },
     }];
   }
 
@@ -327,6 +344,7 @@ export class Structure extends Powerup {
       name: `Luxury Store`,
       level: 6,
       traits: ["Building"],
+      upgradeTo: [`Magic Shop`],
       limit: 3,
       description: `This collection of stores specializes in expensive, rare, and exotic goods that cater to the wealthy.`,
       bonuses: [{activity: "Cool Down", ability: "Economy", value: 2}], // WAS +1 item bonus to Establish Trade Agreement
@@ -347,6 +365,7 @@ export class Structure extends Powerup {
       name: `Wall, Wooden`,
       level: 1,
       traits: ["Building", "Infrastructure", "Expensive"],
+      upgradeTo: [`Wall, Stone`],
       description: `Wooden walls provide serviceable defenses to a settlement.`,
       effects: `A wooden wall is built along the border of your settlement. The first time you build a wooden wall in each settlement, reduce Unrest by 1.`,
       added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
@@ -384,6 +403,7 @@ export class Structure extends Powerup {
       name: `Wall, Stone`,
       level: 5,
       traits: ["Infrastructure", "Expensive"],
+      upgradeTo: [`Wall, Magical`],
       description: `Stone walls provide solid defenses to a settlement’s borders.`,
       effects: `A stone wall is built along the border of your settlement. The first time you build a stone wall in each settlement, reduce Unrest by 1.`,
       added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
@@ -394,6 +414,13 @@ export class Structure extends Powerup {
       description: `This underground sanitation system helps keep the settlement clean and disease-free.`,
       // TODO bonuses: [{activity: "…", ability: "Loyalty", value: 1}], // WAS +1 item bonus to Clandestine Business
       effects: `Having a sewer system can affect certain kingdom events.`,
+    }, {
+      name: `Wall, Magical`,
+      level: 15,
+      traits: ["Infrastructure", "Expensive"],
+      description: `Force walls provide ephemeral defenses to a settlement’s borders.`,
+      effects: `A magical wall is summoned along the border of your settlement, with glowing runes marking the perimeter. The first time you build a magical wall in each settlement, reduce Unrest by 1.`,
+      added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
     }];
   }
 
@@ -402,6 +429,7 @@ export class Structure extends Powerup {
       name: `Hunters' Lodge`,
       level: 2,
       traits: ["Building"],
+      upgradeTo: [`Explorers' Hall`],
       description: `This lodge houses maps, training materials, and meat and hide processing areas for those who hunt game.`,
       bonuses: [
         {unlock: "Reconnoiter Hex"},
@@ -411,6 +439,7 @@ export class Structure extends Powerup {
       name: `Explorers' Hall`,
       level: 4,
       traits: ["Building"],
+      upgradeTo: [`Explorers' Guild`],
       description: `In addition to being a meeting space, this hall contains maps and trophies from local explorers and adventurers.`,
       bonuses: [
         {unlock: "Reconnoiter Hex"},
@@ -444,9 +473,10 @@ export class Structure extends Powerup {
       name: `Town Hall`,
       level: 2,
       traits: ["Building"],
+      upgradeTo: [`Castle`],
       description: `A town hall is a public venue for town meetings and a repository for town history and records.`,
       bonuses: [{activity: "Establish Settlement", value: 1}],
-      effects: `The first time you build a town hall each Kingdom turn, reduce Unrest by 1. A town hall in a capital allows PC leaders to take 3 Leadership activities during the Activity phase of a Kingdom turn rather than just 2.`,
+      effects: `The first time you build a town hall each Kingdom turn, reduce Unrest by 1.`,
       added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }, {
       name: `Planning Bureau`,
@@ -473,6 +503,7 @@ export class Structure extends Powerup {
       name: `School`,
       level: 5,
       traits: ["Building"],
+      upgradeTo: [`Academy`, `Mystic Academy`, `Military Academy`, `University`],
       description: `A public school cares for children and teaches people a broad set of useful skills, educating the citizenry.`,
       bonuses: [{activity, value: 2}], // WAS +1 to all Culture-based checks and to Improve Lifestyle
       effects: `The educated populace can sometimes point out problems with higher-minded citizens’ solutions. If the kingdom fails or critically fails an attempt at a Creative Solution, roll a DC 11 flat check; on a success, the degree of success for the creative solution is improved by one step.`,
@@ -480,6 +511,7 @@ export class Structure extends Powerup {
       name: `Academy`,
       level: 10,
       traits: ["Building"],
+      upgradeTo: [`Mystic Academy`, `Military Academy`, `University`],
       description: `An academy gives your citizens—and the PCs themselves— an institution where advanced study in many fields can be pursued, researched, and referenced.`,
       bonuses: [{activity, value: 2}], // WAS +2 item bonus to Creative Solution
       effects: `While in a settlement with an Academy, you gain a +2 item bonus to Lore checks made to Recall Knowledge while Investigating, to all checks made while Researching (Gamemastery Guide 154), and to Decipher Writing.`,
@@ -539,14 +571,16 @@ export class Structure extends Powerup {
       name: `Shrine`,
       level: 1,
       traits: ["Building"],
+      upgradeTo: [`Temple`],
       limit: 3,
       description: `A shrine is a small building devoted to the worship of a deity or faith. It can be attended by resident priests or visiting clergy.`,
-      bonuses: [{activity, value: 1}], // WAS +1 item bonus to Celebrate Holiday
+      bonuses: [{activity, ability: "Culture", value: 1}], // WAS +1 item bonus to Celebrate Holiday
       effects: `Treat the settlement’s level as one level higher than its actual level when determining what divine magic items are readily available for sale in that settlement. This effect stacks up to three times but does not stack with the same effect granted by temples or cathedrals.`,
     }, {
       name: `Temple`,
       level: 7,
       traits: ["Building", "Renowned"],
+      upgradeTo: [`Cathedral`],
       description: `A temple is a building devoted to worshipping a deity or faith.`,
       bonuses: [
         {activity, ability: "Culture", value: 1},
@@ -577,6 +611,7 @@ export class Structure extends Powerup {
       name: `Inn`,
       level: 1,
       traits: ["Building", "Residential", "Expensive"],
+      upgradeTo: [`Luxury Hotel`],
       description: `A safe and secure place for a settlement’s visitors to rest.`,
       bonuses: [{activity, value: 1}], // WAS +1 Item bonus to Hire Adventurers
     }, {
@@ -587,13 +622,14 @@ export class Structure extends Powerup {
       effects: `+1 Circumstance Bonus when using ${activity} with the associated group`,
       // TODO require naming the district when it's built to identify the group
       setup({settlement, structure, activity}) {
-        this.groupName = prompt("What group is represented in the district?");
+        this.groupName = prompt("What group is represented in the district?") || "The";
         this.name = `${this.groupName} ${this.name}`;
       },
     }, {
       name: `Embassy`,
       level: 8,
       traits: ["Building", "Expensive"],
+      upgradeTo: [`Luxury Hotel`],
       description: `An embassy gives a place for diplomatic visitors to your kingdom to stay and bolsters international relations.`,
       bonuses: [{activity, value: 2}], // TODO WAS +1 item bonus to Send Diplomatic Envoy and Request Foreign Aid
     }, {
@@ -612,6 +648,7 @@ export class Structure extends Powerup {
       name: `Library`,
       level: 2,
       traits: ["Building"],
+      upgradeTo: [`Academy`, `Community Center`],
       description: `A library contains collections of books, scrolls, writings, and records conducive to research. Some libraries specialize in certain topics, but it’s best to assume these libraries are well-rounded in what books they cover`,
       bonuses: [{activity, ability: "Culture", value: 1}], // WAS +1 item bonus to Rest and Relax using Scholarship checks
       effects: `While in a settlement with a library, you gain a +1 item bonus to Lore checks made to Recall Knowledge while Investigating, as well as to Researching (Gamemastery Guide 154), and to Decipher Writing.`,
@@ -622,7 +659,7 @@ export class Structure extends Powerup {
       limit: 2,
       description: `An arcanist’s tower is a home and laboratory for an arcane spellcaster (usually a wizard) and their apprentices, servants, and students.`,
       bonuses: [{activity, ability: "Culture", value: 1}], // WAS +1 item bonus to Quell Unrest using Magic
-      effects: `Treat the settlement’s level as one level higher than its actual level for the purposes of determining which arcane magic items are readily available for sale in that settlement. This effect stacks up to three times. While in a settlement with an arcanist’s tower, you gain a +1 item bonus to checks made to Borrow an Arcane Spell or Learn a Spell.`,
+      effects: `Treat the settlement’s level as one level higher than its actual level for the purposes of determining which arcane magic items are readily available for sale in that settlement. This effect stacks. While in a settlement with an arcanist’s tower, you gain a +1 item bonus to checks made to Borrow an Arcane Spell or Learn a Spell.`,
     }, {
       name: `Printing House`,
       level: 10,
@@ -642,6 +679,7 @@ export class Structure extends Powerup {
       name: `Arena`,
       level: 9,
       traits: ["Yard"],
+      upgradeTo: [`Gladitorial Arena`],
       description: `An Arena is a large public structure, traditionally open to the air, surrounded by seating and viewing areas. It’s used for staging competitions, athletics, gladiatorial combats, and elaborate entertainments and spectacles.`,
       bonuses: [
         {activity, ability: "Loyalty", value: 2},
@@ -664,6 +702,7 @@ export class Structure extends Powerup {
       name: `Herbalist`,
       level: 1,
       traits: ["Building"],
+      upgradeTo: [`Hospital`],
       description: `An herbalist consists of small medicinal gardens tended by those with knowledge of herbs and their uses to heal or to harm, as well as a storefront for customers.`,
       bonuses: [{activity, ability: "Stability", value: 1}], // WAS +1 item bonus to Provide Care
       effects: `Treat the settlement’s level as one higher than usual for the purpose of determining which alchemical healing items are available for sale; this effect stacks with similar effects to a max of three levels higher than usual. When in a settlement with an herbalist, you gain a +1 item bonus to Medicine checks to Treat Disease and Treat Wounds.`,
@@ -671,6 +710,7 @@ export class Structure extends Powerup {
       name: `Park`,
       level: 3,
       traits: ["Yard"],
+      upgradeTo: [`Sacred Grove`, `Managerie`],
       description: `A park is a plot of undeveloped land set aside for public use. This lot could be left as is, or the landscaping could be manipulated to have a specific look or type of terrain.`,
       bonuses: [{activity, ability: "Stability", value: 1}], // WAS +1 item bonus to Rest and Relax using Wilderness checks
       effects: `The first time you build a park each Kingdom turn, reduce Unrest by 1.`,
@@ -731,6 +771,7 @@ export class Structure extends Powerup {
       name: `Tavern, Dive`,
       level: 1,
       traits: ["Building"],
+      upgradeTo: [`Tavern, Popular`, `Pathfinder Society Outpost`],
       description: `A dive tavern is a rough-and-tumble establishment for entertainment, eating, and drinking.`,
       effects: `The first time you build a dive tavern in a Kingdom turn, reduce Unrest by 1.`,
       added({activity}) { activity.reduce("Unrest") },
@@ -738,6 +779,7 @@ export class Structure extends Powerup {
       name: `Tavern, Popular`,
       level: 3,
       traits: ["Building"],
+      upgradeTo: [`Tavern, Luxury`, `Pathfinder Society Outpost`],
       description: `A popular tavern is a respectable establishment for entertainment, eating, and drinking.`,
       bonuses: [{activity, value: 1}], // WAS +1 item bonus to Hire Adventurers and to Rest and Relax using Trade
       effects: `The first time you build a popular tavern in a Kingdom turn, reduce Unrest by 2. If you attempt a Performance check to Earn Income in a settlement with a popular tavern, you gain a +1 item bonus to the check. All checks made to Gather Information in a settlement with at least one popular tavern gain a +1 item bonus.`,
@@ -746,6 +788,7 @@ export class Structure extends Powerup {
       name: `Tavern, Luxury`,
       level: 9,
       traits: ["Building", "Renowned"],
+      upgradeTo: [`Tavern, World-Class`],
       description: `A luxury tavern is a high-class establishment for entertainment, eating, and drinking. It may even include a built-in stage for performers to use.`,
       bonuses: [{activity, value: 2}], // WAS +2 item bonus to Hire Adventurers and to Rest and Relax using Trade
       effects: `The first time you build a luxury tavern in a Kingdom turn, reduce Unrest by 1d4+1. If attempt a Performance check to Earn Income in a settlement with a luxury tavern, you gain a +2 item bonus to the check. All checks made to Gather Information in a settlement with at least one luxury tavern gain a +2 item bonus.`,
@@ -778,6 +821,7 @@ export class Structure extends Powerup {
       name: `Harrow Reader`,
       level: 3,
       traits: ["Building"],
+      upgradeTo: [`Occult Shop`],
       description: `This business employs magic to read auras, predict the future, and provide magical assistance with curses and similar mystical maleficium.`,
       bonuses: [{activity, value: 1}], // WAS +1 item bonus to Prognostication
       effects: `While in a settlement with a harrow reader, you gain a +1 item bonus to checks made to Identify Magic, Learn a Spell, or Learn a Facet. This bonus is increased to +2 for divination magics and curses.`,
@@ -798,6 +842,7 @@ export class Structure extends Powerup {
       name: `Art Studio`,
       level: 5,
       traits: ["Building"],
+      upgradeTo: [`Artists' District`],
       description: `Artists appear in any sufficiently large settlement, but you have a special connection to this one, and you go here for inspiration.`,
       bonuses: [{activity, value: 1}],
       effects: `The first time you build an Art Studio each Kingdom turn, reduce Unrest by 1. `,
@@ -806,6 +851,7 @@ export class Structure extends Powerup {
       name: `Artists' District`,
       level: 9,
       traits: ["Yard"],
+      upgradeTo: [`Opera House`],
       description: `A section of this settlement has become home to a variety of artists..`,
       bonuses: [{activity, value: 2}],
       effects: `The first time you build an Artists' District each Kingdom turn, reduce Unrest by 2. `,
@@ -830,6 +876,7 @@ export class Structure extends Powerup {
       name: `Barracks`,
       level: 3,
       traits: ["Building", "Residential"],
+      upgradeTo: [`Keep`, `Garrison`, `Castle`],
       description: `Barracks are focused on housing and training guards, militia, soldiers, and military forces.`,
       bonuses: [
         {activity: "Garrison Army", ability: "Loyalty", value: 1},
@@ -842,6 +889,7 @@ export class Structure extends Powerup {
       name: `Keep`,
       level: 3,
       traits: ["Building", "Expensive"],
+      upgradeTo: [`Garrison`, `Castle`],
       description: `A keep is a high-walled defensive structure that guards the heart of a settlement. It includes practice and marshaling yards as well as a refuge for your leaders should danger strike the settlement.`,
       bonuses: [
         {activity: "Deploy Army", value: 1},
@@ -854,6 +902,7 @@ export class Structure extends Powerup {
       name: `Garrison`,
       level: 5,
       traits: ["Building", "Residential"],
+      upgradeTo: [`Castle`],
       description: `A garrison is a complex of barracks, training yards, and weapons storage and repair for maintaining your military.`,
       bonuses: [
         {activity: "Outfit Army", value: 1},
@@ -865,6 +914,7 @@ export class Structure extends Powerup {
       name: `Castle`,
       level: 9,
       traits: ["Building", "Renowned", "Expensive"],
+      upgradeTo: [`Palace`],
       description: `A castle is a fortified structure that often serves as the seat of government for a kingdom.`,
       bonuses: [
         {activity: "Pledge of Fealty", value: 2},

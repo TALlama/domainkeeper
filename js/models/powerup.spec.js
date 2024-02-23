@@ -49,7 +49,10 @@ Eris.test("Powerups", makeSure => {
   });
 
   makeSure.describe(".add will handle the lifecycle events", makeSure => {
-    makeSure.let("actor", () => { return {powerups: []} });
+    makeSure.let("actor", () => {
+      let powerups = [];
+      return {addPowerup(p) { powerups.push(p) }, powerups}
+    });
 
     makeSure.it("adds to the actor", ({assert, actor}) => {
       let powerup = ColorPowerup.add({type: ColorPowerup, template: "red", actor});

@@ -63,6 +63,8 @@ export class Actor {
   }
 
   removePowerup(powerup) {
+    if (!powerup) { return }
+
     let index = this.powerups.findIndex(p => p.id === powerup.id);
     if (index > -1) {
       this.powerups = [...this.powerups.splice(0, index), ...this.powerups.splice(1)];

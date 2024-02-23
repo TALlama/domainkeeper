@@ -236,4 +236,8 @@ export class ActivityDecision {
   abilityAlreadyUsedBy(ability) {
     return this.activity.peerActivities().filter(a => a.ability === ability).map(a => a.actor);
   }
+
+  validOptions() {
+    return this.options.filter(o => !this.optionDisableReason(o))
+  }
 }
