@@ -10,18 +10,23 @@ export class AvalableStructures extends RxElement {
   get domainSheet() { return document.querySelector("domain-sheet") }
   get domainLevel() { return this.domainSheet?.domain?.level || 0 }
 
-  get templates() {
-    let level = this.domainLevel;
-    return Structure.templates.filter(t => t.level <= level);
-  }
+  get allTemplates() { return Structure.templates }
+  get availableTemplates() { return Structure.availableTemplates(this.domainLevel) }
   get names() { return this.templates.map(t => t.name) }
 
   /////////////////////////////////////////////// Rendering
 
   render() {
+    return [
+      this.renderList(this.allTemplates, {id: "all-structures"}),
+      this.renderList(this.availableTemplates, {id: "available-structures"}),
+    ].join("");
+  }
+
+  renderList(templates, {id}) {
     return `
-      <datalist id="available-structures">
-        ${this.templates.map(n => `<option>${n.name}</option>`).join("")}
+      <datalist id="${id}">
+        ${templates.map(t => `<option value="${t.name}">Level ${t.level}: ${t.traits.join(", ")}</option>`).join("")}
       </datalist>`;
   }
 }

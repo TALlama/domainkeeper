@@ -83,7 +83,7 @@ export class ActorSheet extends RxElement {
 
     return `<li class="structure-controls">
       <label for="nudge-structure">🔧 Add structure:</label>
-      <input id="nudge-structure" name="name" list="available-structures"/>
+      <input id="nudge-structure" name="name" list="all-structures"/>
       <button data-action="doAddStructure">Build</button>
     </li>`;
   }
