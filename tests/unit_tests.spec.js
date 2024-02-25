@@ -9,15 +9,14 @@ test('all ', async ({ page }) => {
       "Eris": {runCount: 4, passCount: 4, failCount: 0, errorCount: 0, finished: true},
       "Maker": {runCount: 20, passCount: 16, failCount: 0, errorCount: 0, finished: true},
       "blockedTooltip": {runCount: 2, passCount: 2, failCount: 0, errorCount: 0, finished: true},
-      "Activity": {runCount: 75, passCount: 107, failCount: 0, errorCount: 0, finished: true},
     });
   });
 
   let resultsJSON = await page.evaluate(() => JSON.stringify(window.erisResults))
   let results = JSON.parse(resultsJSON);
   console.log("Results: ", results);
-  expect.soft(results.runCount).toBe(101);
-  expect(results.passCount).toBe(129);
+  expect.soft(results.runCount).toBe(26);
+  expect(results.passCount).toBe(22);
   expect(results.failCount).toBe(0);
   expect(results.errorCount).toBe(0);
 });

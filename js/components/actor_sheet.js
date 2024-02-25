@@ -5,6 +5,7 @@ import { ActivityPicker } from "./activity_picker.js";
 import { ActorEditor } from "./actor_editor.js";
 import { RxElement } from "./rx_element.js";
 import { StructureChip } from "./structure_chip.js";
+import { StructureDescription } from "./structure_description.js";
 import { TraitList } from "./trait_list.js";
 import { debugJSON, errorMessage } from "../helpers.js";
 

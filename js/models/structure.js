@@ -987,4 +987,8 @@ export class Structure extends Powerup {
       })
       .sortBy("name")
       .sortBy("-level") }
+  
+  static availableTemplates(level) {
+    return Structure.templates.filter(t => t.level <= level);
+  }
 }

@@ -2,9 +2,6 @@ import { Ability } from "../abilities.js";
 import { BuildingSite } from "../building_site.js";
 import { Structure } from "../structure.js";
 
-import { AvalableStructures } from "../../components/available_structures.js";
-import { StructureDescription } from "../../components/structure_description.js";
-
 export var civicTemplates = [{
   icon: "💰",
   name: "Contribute",
@@ -28,7 +25,7 @@ export var civicTemplates = [{
     name: "Pick a structure",
     description() { return "Choose a structure you want to build." },
     saveAs: "structureName",
-    options: () => new AvalableStructures().names,
+    options() { return Structure.availableTemplates(this.domain.level).map(s => s.name) },
     groupOptionsBy: structureName => `Level ${Structure.template(structureName).level}`,
     optionDisableReason(structureName) {
       let alreadyBuilt = this.actor.powerups.matches({template: structureName});
