@@ -332,7 +332,7 @@ class DomainSheet extends RxElement {
 
   get diceTray() { return document.querySelector(".dice-tray") }
 
-  roll({die, modifier, itemBonus, level, dc}) {
+  roll({die, activity, modifier, itemBonus, level, dc}) {
     let modifierValue = (modifier ? this.domain[modifier.toLocaleLowerCase()] : 0);
     let levelValue = (level === false ? 0 : this.domain.level);
 
@@ -355,7 +355,7 @@ class DomainSheet extends RxElement {
 
     let roller = Maker.tag(
       "dice-roller",
-      {dice: die || 20, modifier: modifierTotal, "data-ability": modifier},
+      {dice: die || 20, modifier: modifierTotal, "data-ability": modifier, "data-activity": activity},
     );
     if (dc !== false) {
       dc = dc || this.domain.controlDC;

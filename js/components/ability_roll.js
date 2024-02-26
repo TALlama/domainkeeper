@@ -48,7 +48,7 @@ export class AbilityRoll extends RxElement {
   handleEvent(event) { this.roll() }
 
   roll() {
-    this.domainSheet.roll({modifier: this.ability, itemBonus: this.itemBonus, dc: this.difficultyClass});
+    this.domainSheet.roll({modifier: this.ability, itemBonus: this.itemBonus, dc: this.difficultyClass, activity: this.getAttribute("activity")});
   }
 }
 AbilityRoll.define("ability-roll");

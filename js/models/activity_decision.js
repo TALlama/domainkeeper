@@ -59,7 +59,7 @@ export class ActivityDecision {
       Roll: {
         saveAs: "ability",
         options: Ability.all,
-        displayValue: (ability) => `<ability-roll ability="${ability}">${ability}</ability-roll>`,
+        displayValue(ability) { return `<ability-roll ability="${ability}" activity="${this.activity.template}">${ability}</ability-roll>` },
         displayTitleValue: (ability) => ability,
         displayResolvedValue: (ability) => ability,
         optionDisableReason(ability) {

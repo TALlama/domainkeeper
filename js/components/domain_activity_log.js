@@ -54,21 +54,19 @@ export default class DomainActivityLog extends RxElement {
     }
   }
 
-  reroll(event) {
+  reroll(event, {forAbility, forActivity} = (event.detail || {})) {
+    let consumable = event.target.closest(".consumable");
+    forAbility ||= consumable.dataset.ability;
+    forActivity ||= consumable.dataset.activities?.split(",");
+
     let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
-    if (!lastRoll) { return denyUse(event.target.closest(".consumable")) }
+    if (!lastRoll) { return denyUse(consumable) }
+
+    if (forAbility && lastRoll.dataset.ability !== forAbility) { return denyUse(consumable) }
+    if (forActivity && !forActivity.includes(lastRoll.dataset.activity)) { return denyUse(consumable) }
 
     lastRoll.shadowRoot.querySelector("*").click(); // Ew
     this.expire(event);
-  }
-
-  rerollEconomy(event) {
-    let consumable = event.target.closest(".consumable");
-    let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
-    if (!lastRoll) { return denyUse(consumable) }
-    if (lastRoll.dataset.ability !== "Economy") { return denyUse(consumable) }
-    
-    this.reroll(event);
   }
 
   doActivity(event, {actionTarget}) {
@@ -135,7 +133,7 @@ export default class DomainActivityLog extends RxElement {
     return `<ul class="consumables">
       ${Object.values(this.domainSheet.domain.consumables).map(consumable => `
         <li>
-          <button class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
+          <button class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} ${consumable.activities ? `data-activities="${consumable.activities}"` : ""} ${consumable.ability ? `data-ability="${consumable.ability}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
             <span class="name">${consumable.name}</span>
             <div class="description">${consumable.description}</div>
           </button>

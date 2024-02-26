@@ -34,10 +34,30 @@ test('mint rerolls only economy rolls', async ({ page }) => {
 
   // if there is a roll, we'll reroll it
   await dk.rollAbility("Economy");
-  await monitor({ // now there's an Economy roll; fame can reroll it
+  await monitor({ // now there's an Economy roll; Mint can reroll it
     shouldChange: () => dk.rollText(dk.lastRoll),
     shouldNotChange: () => dk.rolls.length,
     when: () => dk.consumables.withName("Mint").click(),
+  });
+  await expect(dk.consumables.names).toContainText(["Fame"]);
+});
+
+test('Pathfinder Society Outpost rerolls only "Clear/Claim Hex" rolls', async ({ page }) => {
+  const dk = await DomainkeeperPage.load(page, {...onTurnOne, settlements: [{name: "Denver", powerups: [{name: "Pathfinder Society Outpost"}]}]});
+
+  // ineligble roll; fame won't get used
+  await dk.rollAbility("Economy");
+  await monitor({ // no roll; fame won't get used
+    shouldNotChange: () => dk.consumables.names,
+    when: () => dk.consumables.withName("Pathfinder Society Outpost").click(),
+  });
+
+  // if there is an eligible roll, we'll reroll it
+  await dk.pickActivity(["Claim Hex", "Clear Hex"].random(), [74, 51], ["Stability", "Economy"].random(), "Failure");
+  await monitor({ // now there's an eligible roll; PSO can reroll it
+    shouldChange: () => dk.rollText(dk.lastRoll),
+    shouldNotChange: () => dk.rolls.length,
+    when: () => dk.consumables.withName("Pathfinder Society Outpost").click(),
   });
   await expect(dk.consumables.names).toContainText(["Fame"]);
 });

@@ -162,9 +162,9 @@ export class Structure extends Powerup {
       traits: ["Building"],
       description: `A mint allows the kingdom to produce its own coinage to augment its economy. It can also include fortified underground chambers to help serve as a treasury.`,
       newTurn({domain}) {
-        domain.addConsumable({name: this.name, description: "Reroll Economy", action: "rerollEconomy"});
+        domain.addConsumable({name: this.name, description: "Reroll Economy", action: "reroll", ability: "Economy"});
       },
-      effects: `Once per turn, you may reroll an Economy roll.`,
+      effects: `Once your domain has a palace, you can reroll one Economy role per turn.`,
     }];
 
     let maxBoosters = [...markets, ...financials, ...boats];
@@ -809,8 +809,10 @@ export class Structure extends Powerup {
       traits: ["Building"],
       description: `When a Domain is as interesting as yours is, the Society takes notice`,
       bonuses: [{activity, value: 2}],
-      effects: `Each turn, you may roll one die when using Clear A Hex or Claim A Hex.`,
-      newTurn() { } // TODO add consumable
+      effects: `Each turn, you may roll one die when using Clear Hex or Claim Hex.`,
+      newTurn({domain}) {
+        domain.addConsumable({name: this.name, description: "Reroll Clear/Claim Hex", action: "reroll", activities: ["Clear Hex", "Claim Hex"]});
+      },
     }];
   }
 
