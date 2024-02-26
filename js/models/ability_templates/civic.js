@@ -49,14 +49,14 @@ export var civicTemplates = [{
     saveAs: "foundationId",
     options() {
       let settlement = this.activity.actor;
-      let upgradables = settlement.powerups.filter(s => s.upgradeTo?.length);
+      let upgradables = settlement?.powerups?.filter(s => s.upgradeTo?.length) || [];
       return [...upgradables.map(s => s.id), "new"];
     },
     optionDisableReason(foundationId) {
       if (foundationId === "new") { return null } // can always start from scratch
 
       let settlement = this.activity.actor;
-      let foundation = settlement.powerup(foundationId);
+      let foundation = settlement?.powerup(foundationId);
       if (!foundation) { return null } // can always start from scratch
       
       // Does this foundation match the structure picked?
@@ -110,10 +110,10 @@ export var civicTemplates = [{
   }, {
     name: "Outcome",
     summaries: {
-      criticalSuccess: `Build it; Boost a random Ability by 1`,
-      success: `Build it`,
-      failure: `Fail`,
-      criticalFailure: `Fail; Reduce a random Ability by 1`,
+      criticalSuccess: `Progress 150% of what you spent`,
+      success: `Progress 100% of what you spent`,
+      failure: `Progress 50% of what you spent`,
+      criticalFailure: `Make no progress`,
     },
   }],
   findBuildingSite() {
