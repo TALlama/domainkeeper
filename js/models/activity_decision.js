@@ -11,7 +11,14 @@ export class ActivityDecision {
       set(value) { this.transient.activity = value },
     });
     Object.defineProperty(this, "options", {enumerable: true,
-      get() { return callOrReturn(this.transient.options, this) || [] },
+      get() {
+        let val = this.transient.options;
+        if (val?.call) {
+          val = callOrReturn(val, this);
+          if (val?.length) { return (this.transient.options = val) || [] }
+        }
+        return val || [];
+      },
       set(value) { this.transient.options = value },
     });
 
@@ -230,7 +237,7 @@ export class ActivityDecision {
   get mutable() { return callOrReturn(this._mutable, this.activity, this.activity, this) }
   set mutable(value) { this._mutable = value }
 
-  get resolved() { return this.options.length === 0 || !!this.resolution }
+  get resolved() { return !!this.resolution || this.options.length === 0 }
   get displayResolutionValue() { return this.displayResolvedValue(this.resolutionValue) }
 
   abilityAlreadyUsedBy(ability) {
