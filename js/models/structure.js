@@ -65,7 +65,7 @@ export class Structure extends Powerup {
         {max: ability, value: 1},
         {activity: "Quell Unrest", ability, value: 1},
       ], // WAS +1 item bonus to Rest and Relax using Arts
-      effects: `A magic item of level 6 or higher that has a particular import or bears significant historical or regional value (at the GM’s discretion) can be donated to a museum. Each time such an item is donated, reduce Unrest by 1. If that item is later removed from display, increase Unrest by 1.`,
+      effects: `A magic item of level 6 or higher that has a particular import or bears significant historical or regional value (at the GM’s discretion) can be donated to a museum. Each time such an item is donated, gain 1 Fame or reduce Unrest by 1. If that item is later removed from display, increase Unrest by 1.`,
     }, {
       name: `Boardwalk`,
       level: 8,
@@ -197,7 +197,7 @@ export class Structure extends Powerup {
       traits: ["Yard"],
       description: `To bury the dead; can also include above-ground vaults or underground catacombs.`,
       bonuses: [{max: ability, value: 1}],
-      effects: `Giving the citizens a place to bury and remember their departed loved ones helps to temper Unrest gained from dangerous events. If you have at least one cemetery in a settlement, reduce Unrest gained from any dangerous settlement events in that particular settlement by 1 (to a maximum of 4 for four cemeteries). The presence of a cemetery provides additional effects during certain kingdom events.`,
+      effects: `Giving the citizens a place to bury and remember their departed loved ones helps to temper Unrest gained from dangerous events. If you have at least one cemetery in a settlement, reduce Unrest gained from any dangerous settlement events in that particular settlement by 1. The presence of a cemetery provides additional effects during certain kingdom events.`,
     }, {
       name: `Monument`,
       level: 4,
@@ -397,6 +397,7 @@ export class Structure extends Powerup {
       level: 5,
       traits: ["Infrastructure"],
       description: `Magical streetlamps are everburning torches that have been fitted within lampposts along the streets. At your option, these magical lights might even be free-floating spheres of light or other unusual forms of illumination.`,
+      bonuses: [{max: "Loyalty", value: 1}],
       effects: `Magical streetlamps provide nighttime illumination for an entire settlement. The first time you build magical streetlamps in a Kingdom turn, reduce Unrest by 1.`,
       added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/turn
     }, {
@@ -449,7 +450,7 @@ export class Structure extends Powerup {
         {activity: "Clear Hex", value: 1},
         {activity: "Reconnoiter Hex", value: 1},
       ], // WAS +1 to Hire Adventurers and to Abandon, Claim, Clear, or Reconnoiter a Hex
-      effects: `Hunters allow you to Reconnoiter Hexes as a Leadership Activity, but only within 3 hexes of this settlement.`,
+      effects: `Explorers allow you to Reconnoiter Hexes as a Leadership Activity, but only within 5 hexes of this settlement.`,
     }, {
       name: `Explorers' Guild`,
       level: 8,
@@ -463,7 +464,10 @@ export class Structure extends Powerup {
         {activity: "Clear Hex", value: 2},
         {activity: "Reconnoiter Hex", value: 2},
       ], // WAS +2 to Hire Adventurers and to Abandon, Claim, Clear, or Reconnoiter a Hex
-      effects: `The first time you build an exploration guild each turn, gain 1 Fame. Whenever you resolve a Monster Activity or similar kingdom event (at GM discretion), you gain 1 Fame at the start of the next kingdom turn.`,
+      effects:
+        `The first time you build an exploration guild each turn, gain 1 Fame. Whenever you resolve a Monster Activity or similar kingdom event (at GM discretion), you gain 1 Fame at the start of the next kingdom turn.`
+        + "\n" +
+        `Explorers allow you to Reconnoiter Hexes as a Leadership Activity, but only within 7 hexes of this settlement.`,
       added({activity}) { activity.addFame() }, // TODO limit to 1/turn
     }];
   }
@@ -507,6 +511,9 @@ export class Structure extends Powerup {
       description: `A public school cares for children and teaches people a broad set of useful skills, educating the citizenry.`,
       bonuses: [{activity, value: 2}], // WAS +1 to all Culture-based checks and to Improve Lifestyle
       effects: `The educated populace can sometimes point out problems with higher-minded citizens’ solutions. If the kingdom fails or critically fails an attempt at a Creative Solution, roll a DC 11 flat check; on a success, the degree of success for the creative solution is improved by one step.`,
+      newTurn({domain}) {
+        domain.addConsumable({name: this.name, description: "Creative Solution Failure Protection"});
+      },
     }, {
       name: `Academy`,
       level: 10,
@@ -522,7 +529,9 @@ export class Structure extends Powerup {
       description: `A mystic academy is dedicated to the study of the mystic arts and the training of elite clerics, mages, and mystics.`,
       bonuses: [{activity, ability: "Culture", value: 2}], // WAS +2 to Supernatural Solution
       effects: `Once each each turn, you can choose to reduce Culture by 1 to increase any other Ability by 1.`,
-      newTurn() { /* add consumable */ },
+      newTurn({domain}) {
+        domain.addConsumable({name: this.name, description: "Culture => Other Stat"});
+      },
     }, {
       name: `University`,
       level: 15,
@@ -665,7 +674,10 @@ export class Structure extends Powerup {
       level: 10,
       traits: ["Building"],
       description: `A printing house gives your citizens – and the PCs themselves – a place to create newspapers and books.`,
-      bonuses: [{activity, ability: "Culture", value: 2}], // WAS +2 to Quell Unrest and to Repair Reputation (Corruption, Strife)
+      bonuses: [
+        {max: "Culture", value: 1},
+        {activity, ability: "Culture", value: 2},
+      ], // WAS +2 to Quell Unrest and to Repair Reputation (Corruption, Strife)
       effects: `[Complete Linzi’s quest before this can be built] A PC in a settlement with a printing house gains a +2 item bonus to checks to Gather Information or to Research any topic which might appear in a library.`,
     }];
     let usingEconomy = []; // TODO these seem like they should exist. Circuses?
@@ -854,7 +866,7 @@ export class Structure extends Powerup {
       level: 9,
       traits: ["Yard"],
       upgradeTo: [`Opera House`],
-      description: `A section of this settlement has become home to a variety of artists..`,
+      description: `A section of this settlement has become home to a variety of artists.`,
       bonuses: [{activity, value: 2}],
       effects: `The first time you build an Artists' District each Kingdom turn, reduce Unrest by 2. `,
       added({activity}) { activity.reduce({by: 2}, "Unrest") },
@@ -946,8 +958,11 @@ export class Structure extends Powerup {
         {activity: "Recover Army", value: 3},
         {activity: "Recruit Army", value: 3},
       ], // WAS +3 item bonus to New Leadership, Pledge of Fealty, and Send Diplomatic Envoy, and +3 item bonus to Garrison Army, Recover Army, or Recruit Army (see the appendix starting on page 71)
-      effects: `A palace can only be built in your capital. The first time you build a palace, reduce Unrest by 10.\nOnce your kingdom has a palace, a PC in the Ruler leadership role gains a +3 item bonus to checks made to resolve Leadership activities.`,
+      effects: `A palace can only be built in your capital. The first time you build a palace, reduce Unrest by 10.\nOnce your domain has a palace, you can reroll one Loyalty role per turn.`,
       added({activity}) { activity.reduce({by: 10}, "Unrest") }, // TODO limit to 1/ever
+      newTurn({domain}) {
+        domain.addConsumable({name: this.name, description: "Reroll Loyalty", action: "reroll", ability: "Loyalty"});
+      },
     }];
   }
 
