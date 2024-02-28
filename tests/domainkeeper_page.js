@@ -160,6 +160,8 @@ export class DomainkeeperPage extends LocatorLike {
   currentActorTraits() { return this.locator(`actor-sheet trait-list li.trait .badge`) }
   currentActorPowerups() { return this.locator(`actor-sheet .powerups li .powerup-name`) }
 
+  pickLeader(value) { return value ? this.setCurrentActor(value) : this.locator(".leaders-section .actor .name").first().click() }
+
   async addStructure(settlementName, properties) {
     return this.page.evaluate((opts) =>
       document.querySelector("domain-sheet").settlement(opts.settlementName).addPowerup(opts.properties),
@@ -168,6 +170,10 @@ export class DomainkeeperPage extends LocatorLike {
 
   rollAbility(name) {
     return this.page.getByRole("link", {name: `Roll ${name}`}).click();
+  }
+
+  useSettlementActivities(ability) {
+    return this.pickActivity("Contribute", `Boost ${ability || "Culture"} by 1`, );
   }
 
   async pickActivity(name, ...decisions) {

@@ -21,6 +21,7 @@ test.describe("Can establish a settlement", () => {
   
   test(`with the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
   
     await establishSettlement(dk, {outcome: outcomes.random(), settlementName: "Lowercase"});
     return expect(dk.settlementNames).toHaveText(["Capital", "Lowercase"]);
@@ -30,6 +31,7 @@ test.describe("Can establish a settlement", () => {
 test.describe("Cost", () => {
   test(`Critical Success is free`, async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     let before = await dk.abilitiesTotal();
     await establishSettlement(dk, {outcome: "Critical Success", paymnet: "Not needed"});
@@ -38,6 +40,7 @@ test.describe("Cost", () => {
 
   test(`Success costs 1`, async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     let before = await dk.abilitiesTotal();
     await establishSettlement(dk, {outcome: "Success"});
@@ -46,6 +49,7 @@ test.describe("Cost", () => {
 
   test(`Failure costs 2`, async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     let before = await dk.abilitiesTotal();
     await establishSettlement(dk, {outcome: "Failure"});

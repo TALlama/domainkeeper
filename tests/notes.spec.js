@@ -45,6 +45,7 @@ test.describe("Notes", () => {
 
   test('can change activity summaries', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     await dk.pickActivity("Prognostication");
     await expect(dk.currentActivity.summary).toHaveText("You use the mystic arts to forsee future events and prepare for them.");

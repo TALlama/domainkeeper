@@ -26,7 +26,7 @@ export class Domain {
   get currentActivity() { return this.currentTurn?.currentActivity }
 
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
-  get actors() { return [...this.leaders, ...this.settlements] }
+  get actors() { return [...this.settlements, ...this.leaders] }
   set actors(value) { /* ignore */ }
   get availableActors() { return this.actors.filter(a => a.available) }
   set availableActors(value) { /* ignore */ }

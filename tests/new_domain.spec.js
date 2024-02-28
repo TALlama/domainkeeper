@@ -53,10 +53,10 @@ test.describe("first run", () => {
     await dk.setCapital();
     await dk.setDomainConcept();
 
-    // Current Actor is offered activities
+    // Current Actor (the capital) is offered activities
     await expect(dk.currentActorName).toHaveText(/.*/);
     expect(dk.activityPicker.root).toHaveAttribute("open");
-    await expect(dk.activityPicker.availableActvities).toHaveCount(18);
+    await expect(dk.activityPicker.availableActvities).toHaveCount(2);
 
     // Consumables refresh each turn
     await expect(dk.consumables.withName("Fame")).toHaveCount(1);
@@ -77,10 +77,10 @@ test.describe("first run", () => {
       unrest: 0, size: 1, xp: 0, level: 1,
     });
 
-    // Current Actor is offered activities
+    // Current Actor (the capital) is offered activities
     await expect(dk.currentActorName).toHaveText(/.*/);
     expect(dk.activityPicker.root).toHaveAttribute("open");
-    await expect(dk.activityPicker.availableActvities).toHaveCount(18);
+    await expect(dk.activityPicker.availableActvities).toHaveCount(2);
 
     // Consumables refresh each turn
     await expect(dk.consumables.withName("Fame")).toHaveCount(1);

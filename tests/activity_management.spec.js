@@ -4,9 +4,10 @@ const { onTurnOne, inTurnOne, endTurnOne } = require('./fixtures/domains');
 const { leaders } = require("./fixtures/leaders");
 const { monitor } = require('./helpers');
 
-test.describe("when it's your turn", () => {
+test.describe("when it's a leader's turn", () => {
   test('you can pick two activities', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack});
+    await dk.useSettlementActivities();
 
     await expect(dk.currentActorName).toHaveText("Anne");
     await dk.pickActivity("Clear Hex", [50, 50], "Economy", "Success");
@@ -18,6 +19,7 @@ test.describe("when it's your turn", () => {
 
   test('actors must pick two different activities', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack});
+    await dk.useSettlementActivities();
 
     await expect(dk.currentActorName).toHaveText("Anne");
     await dk.pickActivity("Clear Hex", [50, 50], "Economy", "Success"),
@@ -26,6 +28,7 @@ test.describe("when it's your turn", () => {
 
   test('initiative set the default order, but you can override it', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack}, {expectTurn: "Domain Creation"});
+    await dk.useSettlementActivities();
 
     await expect(dk.currentActorName).toHaveText("Anne");
     await dk.setCurrentActor("Ned");
@@ -42,14 +45,15 @@ test.describe("when it's your turn", () => {
 
   test('picking activities lowers the number of activities you have left, but canceling returns them', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...onTurnOne, leaders: [leaders.anne, leaders.zack]});
+    await dk.useSettlementActivities();
 
     await expect(dk.currentActorActivitiesLeft).toHaveText("2");
-    await expect(await dk.turn("Turn 1").activities).toHaveCount(1);
+    await expect(await dk.turn("Turn 1").activities).toHaveCount(2);
     await dk.pickActivity("Clear Hex"),
     await expect(dk.currentActorActivitiesLeft).toHaveText("1");
-    await expect(await dk.turn("Turn 1").activities).toHaveCount(2);
+    await expect(await dk.turn("Turn 1").activities).toHaveCount(3);
     await dk.cancelActivity();
     await expect(dk.currentActorActivitiesLeft).toHaveText("2");
-    await expect(await dk.turn("Turn 1").activities).toHaveCount(1);
+    await expect(await dk.turn("Turn 1").activities).toHaveCount(2);
   });
 });

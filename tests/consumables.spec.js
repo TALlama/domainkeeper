@@ -44,6 +44,7 @@ test('mint rerolls only economy rolls', async ({ page }) => {
 
 test('Pathfinder Society Outpost rerolls only "Clear/Claim Hex" rolls', async ({ page }) => {
   const dk = await DomainkeeperPage.load(page, {...onTurnOne, settlements: [{name: "Denver", powerups: [{name: "Pathfinder Society Outpost"}]}]});
+  await dk.pickLeader();
 
   // ineligble roll; fame won't get used
   await dk.rollAbility("Economy");

@@ -10,6 +10,7 @@ let settlements = {
 test.describe("Critical success", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     await expect(dk.actorActivitiesLeft("Capital")).toHaveText("1");
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Success");
@@ -18,6 +19,7 @@ test.describe("Critical success", () => {
 
   test('Increases stability or loyalty at random', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     let before = 4 + await dk.stat('Loyalty') + await dk.stat('Stability');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Success");
@@ -28,6 +30,7 @@ test.describe("Critical success", () => {
 test.describe("Success", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     await expect(dk.actorActivitiesLeft("Capital")).toHaveText("1");
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Success");
@@ -38,6 +41,7 @@ test.describe("Success", () => {
 test.describe("Failure", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     await expect(dk.actorActivitiesLeft("Capital")).toHaveText("1");
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Failure");
@@ -46,6 +50,7 @@ test.describe("Failure", () => {
 
   test('Increases unrest', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     let before = await dk.stat('Unrest');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Failure");
@@ -56,6 +61,7 @@ test.describe("Failure", () => {
 test.describe("Critical Failure", () => {
   test('Increases unrest', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     let before = await dk.stat('Unrest');
     expect(before).toBe(0);
@@ -65,6 +71,7 @@ test.describe("Critical Failure", () => {
 
   test('Decreases stability or loyalty at random', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
+    await dk.pickLeader();
 
     let before = 4 + await dk.stat('Loyalty') + await dk.stat('Stability');
     await dk.pickActivity("Take Charge", "Capital", "Economy", "Critical Failure");
@@ -74,6 +81,7 @@ test.describe("Critical Failure", () => {
 
 test('can be cancelled until you roll', async ({ page }) => {
   const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne]});
+  await dk.pickLeader();
 
   await expect(dk.currentActorActivitiesLeft).toHaveText("2");
   await dk.pickActivity("Take Charge", "Capital");

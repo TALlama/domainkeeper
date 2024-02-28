@@ -197,8 +197,8 @@ class DomainSheet extends RxElement {
     return `
       <h3 class="domain-header">${this.renderName()}</h3>
       <section class="stats">${this.renderStats()}</section>
-      <section class="leaders-section">${this.renderLeaders()}</section>
-      <section class="settlements-section">${this.renderSettlements()}</section>`;
+      <section class="settlements-section">${this.renderSettlements()}</section>
+      <section class="leaders-section">${this.renderLeaders()}</section>`;
   }
 
   renderStats() {

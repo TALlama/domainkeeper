@@ -7,6 +7,7 @@ const { monitor } = require('../helpers');
 test.describe("Critical Success", () => {
   test('the NPC gains a second activity', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    await dk.pickLeader();
 
     await expect(dk.actorActivitiesLeft("Ned")).toHaveText("1");
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Success");
@@ -17,6 +18,7 @@ test.describe("Critical Success", () => {
 test.describe("Success", () => {
   test('gives the chosen NPC more activity choices', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    await dk.pickLeader();
 
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Success");
     // TODO check this
@@ -26,6 +28,7 @@ test.describe("Success", () => {
 test.describe("Failure", () => {
   test('nothing happens', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    await dk.pickLeader();
 
     await monitor({
       shouldNotChange: () => dk.actorActivitiesLeft("Ned").textContent(),
@@ -37,6 +40,7 @@ test.describe("Failure", () => {
 test.describe("Critical Failure", () => {
   test('trainee abandons their post', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    await dk.pickLeader();
 
     await expect(dk.leaderNames).toHaveText(["Anne", "Ned"]);
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Critical Failure");
@@ -47,6 +51,7 @@ test.describe("Critical Failure", () => {
 test.describe("Picking an NPC to train", () => {
   test('cannot train yourself', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [{...leaders.pc, initiative: 1}, leaders.npc]});
+    await dk.pickLeader();
 
     await dk.pickActivity("Train Lieutenant");
 
@@ -58,6 +63,7 @@ test.describe("Picking an NPC to train", () => {
 
   test('if no NPCs are available, lets you know', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc]});
+    await dk.pickLeader();
 
     await dk.pickActivity("Train Lieutenant");
     await expect(dk.currentActivity.getByText("There's no one to train")).toBeVisible();
@@ -67,6 +73,7 @@ test.describe("Picking an NPC to train", () => {
 test.describe("Cancelling", () => {
   test('can be cancelled until you roll', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    await dk.pickLeader();
 
     await expect(dk.currentActorActivitiesLeft).toHaveText("2");
     await dk.pickActivity("Train Lieutenant", "Ned");
