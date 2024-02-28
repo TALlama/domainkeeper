@@ -337,7 +337,7 @@ export var leadershipTemplates = [{
 }, {
   icon: "🛠️",
   name: "Build Up",
-  summary: "You lead a party to harvest the bounty of this realm.",
+  summary: "You organize an effort to speed up the workings of the domain.",
   description() { return `
     <p>This boosts the ability above the one you roll:</p>
     <ol>
@@ -352,19 +352,25 @@ export var leadershipTemplates = [{
   }, {
     name: "Outcome",
     summaries: {
-      criticalSuccess: `Boost Ability by 2`,
-      success: `Boost Ability by 1`,
+      criticalSuccess: `Boost Ability by max/3`,
+      success: `Boost Ability by max/4`,
       failure: `Fail`,
       criticalFailure: `Unrest`,
     },
   }],
+  doBoost(min, divisor) {
+    let targetAbility = Ability.previous(this.ability);
+    let max = this.domain.max(targetAbility);
+    let divided = Math.floor(max / divisor);
+    this.boost({by: Math.max(min, divided)}, targetAbility);
+  },
   criticalSuccess() {
     this.info("🎁 You make good time and find plentiful resources!");
-    this.boost({by: 2}, Ability.previous(this.ability));
+    this.doBoost(2, 3);
   },
   success() {
     this.info("🎉 A fruitful expedition");
-    this.boost(Ability.previous(this.ability));
+    this.doBoost(1, 4);
   },
   failure() { this.warning("❌ Your expedition yields naught") },
   criticalFailure() {
@@ -374,7 +380,7 @@ export var leadershipTemplates = [{
 }, {
   icon: "🍹",
   name: "Cool Down",
-  summary: "You organize a festival where the populace can enjoy themselves.",
+  summary: "You organize a festival where the populace can slow down and enjoy themselves.",
   description() { return `
     <p>You declare a day of celebration. Holidays may be religious, historical, martial, or simply festive, but all relieve your citizens from their labors and give them a chance to make merry at the domain’s expense.</p>
     <p>This boosts the ability below the one you roll:</p>
@@ -390,19 +396,25 @@ export var leadershipTemplates = [{
   }, {
     name: "Outcome",
     summaries: {
-      criticalSuccess: `Boost Ability by 2`,
-      success: `Boost Ability by 1`,
+      criticalSuccess: `Boost Ability by max/3`,
+      success: `Boost Ability by max/4`,
       failure: `Fail`,
       criticalFailure: `Unrest`,
     },
   }],
+  doBoost(min, divisor) {
+    let targetAbility = Ability.next(this.ability);
+    let max = this.domain.max(targetAbility);
+    let divided = Math.floor(max / divisor);
+    this.boost({by: Math.max(min, divided)}, targetAbility);
+  },
   criticalSuccess() {
     this.info(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
-    this.boost({by: 2}, Ability.next(this.ability));
+    this.doBoost(2, 3);
   },
   success() {
     this.info(`🎉 Your holiday is a success.`);
-    this.boost(Ability.next(this.ability))
+    this.doBoost(1, 4);
   },
   failure() {
     this.warning("❌ The holiday passes with little enthusiasm, but is still expensive.");
