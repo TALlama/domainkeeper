@@ -58,6 +58,7 @@ export class Domain {
     this.unrest ??= 0;
     this.size ??= 1;
     this.xp ??= 0;
+    this.milestones ??= {};
     this.level ??= 1;
 
     this.consumables ??= [];
@@ -117,7 +118,8 @@ export class Domain {
     names.forEach(name => {
       let key = name.toLocaleLowerCase();
       let current = this[key];
-      let target = current + by;
+      let min = this.min(name);
+      let target = Math.max(min, current + by);
       let max = this.max(name);
       let overage = target - max;
       this[key] = Math.min(max, target);
