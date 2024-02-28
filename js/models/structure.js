@@ -483,19 +483,30 @@ export class Structure extends Powerup {
       effects: `The first time you build a town hall each Kingdom turn, reduce Unrest by 1.`,
       added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }, {
-      name: `Planning Bureau`,
+      name: `Masonic Lodge`,
       level: 5,
       traits: ["Building"],
-      description: `An office stuffed full of bureaucrats and experience, plus records of past successes and failures.`,
+      upgradeTo: [`Planning Bureau`],
+      description: `A social club interested in investing in their community.`,
       bonuses: [
         {max: "Stability", value: 1},
         {activity: "Build Structure", value: 1},
         {activity: "Build Infrastructure", value: 1},
         {activity: "Establish Settlement", value: 1},
       ], // WAS +1 to all Stability-based checks, Establish Work Site, Build Roads, and Irrigation
-      effects: `During the civic step of the Activity phase, declare one civic activity you plan to take during the next kingdom turn. At the start of the next kingdom turn’s Activity phase, you must perform the planned activity without using any standard activities; if for any reason you can’t perform the planned activity, gain 1d6 Unrest.`,
-      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
-      newTurn() { /* TODO add consumable plan */ },
+      effects: `When this settlement uses Build Structure, all Payments are reduced by 1.`,
+    }, {
+      name: `Planning Bureau`,
+      level: 10,
+      traits: ["Building"],
+      description: `An office stuffed full of bureaucrats and experience, plus records of past successes and failures. They're always looking for opportunities to invest and ways to cut costs.`,
+      bonuses: [
+        {max: "Stability", value: 1},
+        {activity: "Build Structure", value: 2},
+        {activity: "Build Infrastructure", value: 1},
+        {activity: "Establish Settlement", value: 1},
+      ], // WAS +1 to all Stability-based checks, Establish Work Site, Build Roads, and Irrigation
+      effects: `When this settlement uses Build Structure, all Payments are reduced by 2.`,
     }];
   }
 

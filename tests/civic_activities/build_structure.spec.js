@@ -4,20 +4,9 @@ const { inTurnOne } = require("../fixtures/domains");
 const { monitor } = require('../helpers');
 const { Structure } = require('../../js/models/structure');
 
-let structureNames = {
-  starting: "Shrine",
-  oneStep: "Cemetery",
-  twoStep: "Inn",
-  incompleteTwoStep: `Incomplete Inn (1/2)`,
-  limited: "Inn",
-};
-
-let settlements = {
-  withShrine: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: structureNames.starting}]},
-  withLimitedStructure: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: structureNames.limited}]},
-  withShrineAndIncompleteInn: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: structureNames.starting}, {name: structureNames.incompleteTwoStep, type: "building-site", progress: 1, incompleteTemplate: structureNames.twoStep}]},
-  withUpgradable: {name: "Bigappel", id: "nyc", traits: ["Village"], powerups: [{name: "General Store"}]},
-};
+function makeSettlement({size, structures}) {
+  return {name: "Bigappel", id: "nyc", traits: [size || "Village"], powerups: (structures || []).map(s => {return {name: s}})};
+}
 
 test.describe("Progresses toward the selected structure", () => {
   test.describe("A cost-one structure", () => {
@@ -26,36 +15,37 @@ test.describe("Progresses toward the selected structure", () => {
     let noProgressOutcomes = ["Failure", "Critical Failure"];
 
     test(`Can be built immediately with any of the following outcomes: ${progressOutcomes.join("; ")}`, async ({ page }) => {
-      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withShrine]});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({structures: ["Shrine"]})]});
       await dk.setCurrentActor("Bigappel");
   
-      await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting]);
+      await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
       await dk.pickActivity("Build Structure", costOneStructure, "Reduce Culture by 1 to proceed", "Economy", progressOutcomes.random());
       await dk.setCurrentActor("Bigappel");
-      await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, costOneStructure]);
+      await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costOneStructure]);
     });
     
     test(`On any of the following outcomes: ${noProgressOutcomes.join("; ")}`, async ({ page }) => {
-      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withShrine]});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({structures: ["Shrine"]})]});
       await dk.setCurrentActor("Bigappel");
 
-      await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting]);
+      await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
       await dk.pickActivity("Build Structure", costOneStructure, "Reduce Culture by 1 to proceed", "Economy", noProgressOutcomes.random()),
       await dk.setCurrentActor("Bigappel");
-      await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting]);
+      await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
     });
   });
 
   test.describe("A higher-cost structure", () => {
     let costOneStructure = "Cemetery";
     let costTwoStructure = "Inn";
+    let costTwoBuildingSite = `Incomplete Inn (1/2)`;
 
     test.describe("On a clean start", () => {
       let setup = async (page, size) => {
-        let settlement = {...settlements.withShrine, traits: [size || "Village"]};
+        let settlement = makeSettlement({size, structures: ["Shrine"]});
         const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlement]});
         await dk.setCurrentActor("Bigappel");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
         return dk;
       };
       let go = async (dk, outcome, {structure, cost} = {}) => {
@@ -66,49 +56,49 @@ test.describe("Progresses toward the selected structure", () => {
       test(`Critical Success: Progresses 150% of the amount spent (round up)`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Critical Success");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, costTwoStructure]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoStructure]);
       });
 
       test(`Success: Progresses 100% of the amount spent, which can complete a structure`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Success", {structure: costOneStructure});
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, costOneStructure]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costOneStructure]);
       });
 
       test(`Success: Progresses 100% of the amount spent, which can end with an incomplete structure`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Success");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, structureNames.incompleteTwoStep]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoBuildingSite]);
       });
 
       test(`Failure: Progresses 50% of the amount spent, which can complete the structure`, async ({ page }) => {
         const dk = await setup(page, "Town");
         await go(dk, "Failure", {structure: costOneStructure, cost: "Reduce Culture by 2 to proceed"});
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, costOneStructure]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costOneStructure]);
       });
 
       test(`Failure: Progresses 50% of the amount spent, which can be a bit of progress`, async ({ page }) => {
         const dk = await setup(page, "Town");
         await go(dk, "Failure", {cost: "Reduce Culture by 2 to proceed"});
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, structureNames.incompleteTwoStep]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoBuildingSite]);
       });
 
       test(`Failure: Progresses 50% of the amount spent, which can be no progress`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Failure");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
       });
 
       test(`Critical Failure: no progress`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Critical Failure");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
       });
     });
     
     test.describe("When already started", () => {
       let setup = async (page, size) => {
-        let settlement = {...settlements.withShrineAndIncompleteInn, traits: [size || "Village"]};
+        let settlement = {...makeSettlement({size}), powerups: [{name: "Shrine"}, {name: costTwoBuildingSite, type: "building-site", progress: 1, incompleteTemplate: costTwoStructure}]}
         const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlement]});
         await dk.setCurrentActor("Bigappel");
         return dk;
@@ -121,37 +111,37 @@ test.describe("Progresses toward the selected structure", () => {
       test(`Critical Success: Progresses 150% of the amount spent (round up)`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Critical Success");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, costTwoStructure]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoStructure]);
       });
 
       test(`Success: Progresses 100% of the amount spent`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Success");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, costTwoStructure]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoStructure]);
       });
 
       test(`Failure: Progresses 50% of the amount spent, which can be a bit of progress`, async ({ page }) => {
         const dk = await setup(page, "Town");
         await go(dk, "Failure", {cost: "Reduce Culture by 2 to proceed"});
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, costTwoStructure]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoStructure]);
       });
 
       test(`Failure: Progresses 50% of the amount spent, which can be no progress`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Failure");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, structureNames.incompleteTwoStep]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoBuildingSite]);
       });
 
       test(`Critical Failure: no progress`, async ({ page }) => {
         const dk = await setup(page);
         await go(dk, "Critical Failure");
-        await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting, structureNames.incompleteTwoStep]);
+        await expect(dk.currentActorPowerups()).toHaveText(["Shrine", costTwoBuildingSite]);
       });
     });
 
     test.describe("When upgrading from an existing structure", () => {
       let setup = async (page, size) => {
-        let settlement = {...settlements.withUpgradable, traits: [size || "Village"]};
+        let settlement = makeSettlement({size, structures: ["General Store"]});
         const dk = await DomainkeeperPage.load(page, {...inTurnOne, culture: 3, level: 3, settlements: [settlement]});
         await dk.setCurrentActor("Bigappel");
         return dk;
@@ -201,12 +191,12 @@ test.describe("Progresses toward the selected structure", () => {
 });
 
 test.describe("Cost to Build", () => {
-  let highCostStructure = "Barracks";
-  let setup = async (page, size) => {
-    let settlement = {...settlements.withShrine, traits: [size]};
+  let highCostStructure = "Keep";
+  let setup = async (page, size, ...structures) => {
+    let settlement = makeSettlement({size, structures: ["Shrine", ...structures]})
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, culture: 5, level: 3, settlements: [settlement]});
     await dk.setCurrentActor("Bigappel");
-    await expect(dk.currentActorPowerups()).toHaveText([structureNames.starting]);
+    await expect(dk.currentActorPowerups()).toHaveText(["Shrine", ...structures]);
     return dk;
   };
   let go = async (dk, cost) => {
@@ -215,7 +205,7 @@ test.describe("Cost to Build", () => {
     await dk.setCurrentActor("Bigappel");
   };
 
-  test('In a village, reduces an ability you choose by 1', async ({ page }) => {
+  test('By default, reduces an ability you choose by 1', async ({ page }) => {
     const dk = await setup(page, "Village");
 
     let before = await dk.stat("Culture");
@@ -246,11 +236,29 @@ test.describe("Cost to Build", () => {
     await go(dk, 4);
     expect(await dk.stat("Culture")).toEqual(before - 4);
   });
+
+  test('With a Masonic Lodge, payments cost 1 less', async ({ page }) => {
+    const dk = await setup(page, "City", "Masonic Lodge");
+
+    let before = await dk.stat("Culture");
+    await go(dk, 3);
+    expect(await dk.stat("Culture")).toEqual(before - 3);
+    await expect(dk.currentActorPowerups()).toHaveText(["Shrine", "Masonic Lodge", "Incomplete Keep (4/6)"]);
+  });
+
+  test('With a Planning Bureau, payments cost 2 less', async ({ page }) => {
+    const dk = await setup(page, "City", "Planning Bureau");
+
+    let before = await dk.stat("Culture");
+    await go(dk, 3);
+    expect(await dk.stat("Culture")).toEqual(before - 3);
+    await expect(dk.currentActorPowerups()).toHaveText(["Shrine", "Planning Bureau", "Incomplete Keep (5/6)"]);
+  });
 });
 
 test.describe("Available structures", () => {
   test('are constrained by domain level', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withShrine]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({structures: ["Shrine"]})]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");
@@ -265,10 +273,10 @@ test.describe("Available structures", () => {
   });
 
   test('are constrained by their limit traits', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [settlements.withLimitedStructure]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({structures: ["Inn"]})]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");
-    await expect(dk.currentActivity.decisionPanel("Pick a structure").locator(".looks-disabled")).toContainText(structureNames.limited);
+    await expect(dk.currentActivity.decisionPanel("Pick a structure").locator(".looks-disabled")).toContainText("Inn");
   });
 });

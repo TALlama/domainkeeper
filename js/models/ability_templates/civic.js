@@ -139,10 +139,15 @@ export var civicTemplates = [{
         },
       });
     } else {
+      console.log(`Hooray.`);
       this.info(`🚧 ${buildingSite.name} is now ${buildingSite.percentage}% complete.`);
     }
   },
-  baseProgress() { return this.decision("Payment")?.amount || 1 },
+  baseProgress() {
+    let outlay = this.decision("Payment")?.amount || 1;
+    let bonus = this.actor.powerup("Planning Bureau") ? 2 : (this.actor.powerup("Masonic Lodge") ? 1 : 0);
+    return outlay + bonus;
+  },
   criticalSuccess() {
     this.info("🏗️ Progress is quick.");
     this.makeProgresss(Math.ceil(this.baseProgress() * 1.5));

@@ -8,6 +8,7 @@ export class BuildingSite extends Powerup {
 
     this.cost ??= this.structure.cost ?? 1000;
     this.progress ??= this.foundation?.cost || 0;
+    this.foundationId ??= "new";
   }
 
   get percentage() { return parseInt((this.progress / this.cost * 100).toFixed(1)) }
@@ -22,7 +23,7 @@ export class BuildingSite extends Powerup {
   get foundation() { return this.settlement?.powerup(this.foundationId) }
   set foundation(value) { this.foundationId = value?.id }
 
-  get foundationName() { return this.foundation?.name }
+  get foundationName() { return this.foundationId == "new" ? null : this.foundation?.name }
   set foundationName(value) { /* ignore */ }
 
   static type = "building-site";

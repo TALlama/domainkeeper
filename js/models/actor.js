@@ -55,7 +55,7 @@ export class Actor {
 
   // Powerups
 
-  powerup(id) { return this.powerups.find(p => p.id === id) }
+  powerup(id) { return this.powerups.find(p => p.id === id || p.name === id) }
 
   addPowerup(powerup) {
     this.powerups = [...this.powerups, powerup];

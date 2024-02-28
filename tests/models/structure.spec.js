@@ -106,7 +106,7 @@ test.describe("Domain Ability Maximums", () => {
       Ability.all.forEach(ability => {
         let structures = structuresByAbility[ability];
         expect.soft(structures.length, `${structures.length} structures boost ${ability}: ${structures.join("; ")}`).toBeGreaterThanOrEqual(6);
-        expect.soft(structures.length, `${structures.length} structures boost ${ability}: ${structures.join("; ")}`).toBeLessThanOrEqual(7);
+        expect.soft(structures.length, `${structures.length} structures boost ${ability}: ${structures.join("; ")}`).toBeLessThanOrEqual(8);
       });
     });
   });
