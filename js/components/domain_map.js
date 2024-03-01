@@ -147,7 +147,7 @@ export class DomainMap extends RxElement {
         }
       </style>
       <div id="viewport" style="zoom: ${this.#zoom};">
-        <slot><img src="/images/map.webp"/></slot>
+        <slot><img src="images/map.webp"/></slot>
       </div>
     `;
     this.cacheDom();
