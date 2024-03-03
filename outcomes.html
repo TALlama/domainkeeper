@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Pathfinder - Outcomes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.1/cdn/themes/light.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.13.1/cdn/shoelace.js" ></script>
+    <style>
+      @import url("style/all.css");
+
+      .roll-outcomes {
+        grid-column: 1 / -1;
+
+        .controls {
+          font-size: var(--step-1);
+          margin-block-end: var(--external-margin);
+          padding: var(--internal-margin);
+          border: 3px solid currentColor;
+
+          .implicit-target-number-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+          }
+          label {
+            font-weight: 600;
+            width: 15ch;
+            display: inline-block;
+            text-align: end;
+          }
+          small {
+            opacity: .8;
+            font-size: var(--step--1);
+          }
+          input[type="number"] {
+            width: 5ch;
+            font-size: var(--step-1);
+            border: none;
+            text-align: end;
+          }
+        }
+
+        table.dc-setting {
+          width: 100%;
+          font-size: var(--step--1);
+          margin-block-start: var(--internal-margin);
+
+          th:not([scope="row"]) {
+            font-weight: 600;
+          }
+
+          th { text-align: start; }
+          td, th:first-child { text-align: end; }
+
+          th, td { padding: 0 var(--internal-margin) }
+        }
+
+        table.outcomes {
+          border-inline-end: 3px solid currentColor;
+          border-block-end: 3px solid currentColor;
+
+          .outcome-column {
+            width: 25%;
+          }
+
+          [data-outcome="Critical Failure"] { --outcome-color: var(--color-critical-failure-bg) }
+          [data-outcome="Failure"] { --outcome-color: var(--color-failure-bg) }
+          [data-outcome="All Failures"] { --outcome-color: var(--color-failure-bg) }
+          [data-outcome="Success"] { --outcome-color: var(--color-success-bg) }
+          [data-outcome="Critical Success"] { --outcome-color: var(--color-critical-success-bg) }
+          [data-outcome="All Successes"] { --outcome-color: var(--color-success-bg) }
+
+          th {
+            color: var(--outcome-color, black);
+            text-align: center;
+            padding: var(--internal-margin);
+
+            thead &, &[scope="row"] {
+              background-color: var(--outcome-color, black);
+              color: white;
+              font-weight: 600;
+            }
+
+            tbody &:nth-child(1) { font-weight: 800; background-color: black; }
+            tbody &:nth-child(2), tbody &:nth-child(3) { font-weight: 400; color: black; }
+          }
+
+          td {
+            text-align: center;
+            padding: var(--internal-margin);
+            
+            &:not(.engaged):after {
+              content: "•";
+              opacity: 0.5;
+            }
+
+            &.engaged { background-color: var(--outcome-color) }
+          }
+
+          tfoot {
+            border-top: 3px solid currentColor;
+          }
+
+          tr.summary { font-size: var(--step--1) }
+          tr.percentages th:not([scope]) { font-size: var(--step-2)}
+          tr.percentages.summary th:not([scope]) { font-size: var(--step-1)}
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="roll-outcomes">
+      <article class="controls">
+        <article class="implicit-target-number-controls">
+          <div>
+
+            <sl-tooltip>
+              <div slot="content">
+                The Difficulty Class for the roll. This is the number you have to beat to succeed, adding together your roll and modifier.
+
+                <table class="dc-setting">
+                  <thead>
+                    <tr><th>DC</th><th>Simple DCs by Proficiency Rank</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>10</td><th scope="row">Untrained</th></tr>
+                    <tr><td>15</td><th scope="row">Trained</th></tr>
+                    <tr><td>20</td><th scope="row">Expert</th></tr>
+                    <tr><td>30</td><th scope="row">Master</th></tr>
+                    <tr><td>40</td><th scope="row">Legendary</th></tr>
+                  </tbody>
+
+                  <thead>
+                    <tr><th>DC</th><th>Level Based DCs</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>14</td><th scope="row">Level 0</th></tr>
+                    <tr><td>15</td><th scope="row">Level 1</th></tr>
+                    <tr><td>16</td><th scope="row">Level 2</th></tr>
+                    <tr><td>18</td><th scope="row">Level 3</th></tr>
+                    <tr><td>19</td><th scope="row">Level 4</th></tr>
+                    <tr><td>20</td><th scope="row">Level 5</th></tr>
+                    <tr><td>22</td><th scope="row">Level 6</th></tr>
+                    <tr><td>23</td><th scope="row">Level 7</th></tr>
+                    <tr><td>24</td><th scope="row">Level 8</th></tr>
+                    <tr><td>26</td><th scope="row">Level 9</th></tr>
+                    <tr><td>27</td><th scope="row">Level 10</th></tr>
+                    <tr><td>28</td><th scope="row">Level 11</th></tr>
+                    <tr><td>30</td><th scope="row">Level 12</th></tr>
+                    <tr><td>31</td><th scope="row">Level 13</th></tr>
+                    <tr><td>32</td><th scope="row">Level 14</th></tr>
+                    <tr><td>34</td><th scope="row">Level 15</th></tr>
+                    <tr><td>35</td><th scope="row">Level 16</th></tr>
+                    <tr><td>36</td><th scope="row">Level 17</th></tr>
+                    <tr><td>38</td><th scope="row">Level 18</th></tr>
+                    <tr><td>39</td><th scope="row">Level 19</th></tr>
+                    <tr><td>40</td><th scope="row">Level 20</th></tr>
+                    <tr><td>42</td><th scope="row">Level 21</th></tr>
+                    <tr><td>44</td><th scope="row">Level 22</th></tr>
+                    <tr><td>46</td><th scope="row">Level 23</th></tr>
+                    <tr><td>48</td><th scope="row">Level 24</th></tr>
+                    <tr><td>50</td><th scope="row">Level 25</th></tr>
+                  </tbody>
+                </table>
+              </div>
+
+
+              <label for="dc">DC</label>
+            </sl-tooltip>
+            <input type="range" name="dc" value="15" min="-20" max="60" />
+            <input type="number" name="dc" id="dc" value="15" min="-20" max="60" />
+          </div>
+          <div>
+            <sl-tooltip>
+              <div slot="content">
+                The modifier to the roll. Add to the die roll to get the total; try to beat the DC.
+
+                <table class="dc-setting">
+                  <thead>
+                    <tr><th>Proficiency Bonus</th><th>Proficiency Rank</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>0</th><th scope="row">Untrained</th></tr>
+                    <tr><td>PC level + 2</td><th scope="row">Trained</th></tr>
+                    <tr><td>PC level + 4</td><th scope="row">Expert</th></tr>
+                    <tr><td>PC level + 6</td><th scope="row">Master</th></tr>
+                    <tr><td>PC level + 8</td><th scope="row">Legendary</th></tr>
+                  </tbody>
+                </table>
+              </div>
+              <label for="modifier">Modifier</label>
+            </sl-tooltip>
+            <input type="range" name="modifier" value="7" min="-9" max="40" />
+            <input type="number" name="modifier" id="modifier" value="7" min="-9" max="40" />
+          </div>
+        </article>
+
+        <sl-tooltip>
+          <div slot="content">
+            This is the number you have to roll on the die to beat the DC; it's DC - modifier.
+          </div>
+          <label for="rollTarget">Roll Target</label>
+        </sl-tooltip>
+        <input type="range" name="rollTarget" value="0" min="-9" max="30" />
+        <input type="number" name="rollTarget" id="rollTarget" value="0" min="-9" max="30" autofocus />
+      </article>
+
+      <table class="outcomes">
+        <thead>
+          <tr>
+            <th>Roll</th>
+            <th>Total</th>
+            <th>Diff</th>
+            <th class="outcome-column">Critical Failure</th>
+            <th class="outcome-column">Failure</th>
+            <th class="outcome-column">Success</th>
+            <th class="outcome-column">Critical Success</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr class="percentages">
+            <th scope="row" colspan="3" rowspan="2">Percentages</th>
+            <th class="summary" data-outcome="Critical Failure">-</th>
+            <th class="summary" data-outcome="Failure">-</th>
+            <th class="summary" data-outcome="Success">-</th>
+            <th class="summary" data-outcome="Critical Success">-</th>
+          </tr>
+          <tr class="percentages summary">
+            <th colspan="2" class="summary" data-outcome="All Failures">-</th>
+            <th colspan="2" class="summary" data-outcome="All Successes">-</th>
+          </tr>
+          <tr class="roll-counts">
+            <th scope="row" colspan="3" rowspan="2">Counts</th>
+            <th class="summary" data-outcome="Critical Failure">-</th>
+            <th class="summary" data-outcome="Failure">-</th>
+            <th class="summary" data-outcome="Success">-</th>
+            <th class="summary" data-outcome="Critical Success">-</th>
+          </tr>
+          <tr class="roll-counts summary">
+            <th colspan="2" class="summary" data-outcome="All Failures">-</th>
+            <th colspan="2" class="summary" data-outcome="All Successes">-</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    
+    <script>
+      let Outcomes = ["Critical Failure", "Failure", "Success", "Critical Success"];
+
+      function outcomeForRoll(rollTarget, roll) {
+        if (roll === 1) { return outcomeForRoll.nat1(rollTarget) }
+        if (roll === 20) { return outcomeForRoll.nat20(rollTarget) }
+
+        let difference = roll - rollTarget;
+        if (difference >= 10) { return "Critical Success" }
+        if (difference >= 0) { return "Success" }
+        if (difference >= -9) { return "Failure" }
+        return "Critical Failure";
+      }
+      outcomeForRoll.nat1 = function(rollTarget, roll = 1) {
+        let difference = roll - rollTarget;
+        if (difference >= 10) { return "Success" }
+        if (difference >= 0) { return "Failure" }
+        return "Critical Failure";
+      }
+      outcomeForRoll.nat20 = function(rollTarget, roll = 20) {
+        let difference = roll - rollTarget;
+        if (difference >= 0) { return "Critical Success" }
+        if (difference >= -9) { return "Success" }
+        return "Failure";
+      }
+
+      function updateInputs(name, value) {
+        document.querySelectorAll(`input[name='${name}']`).forEach(input => input.value = value);
+      }
+
+      function updateTableBody(rollTarget, dc) {
+        let modifier = parseInt(document.querySelector("input[name='modifier']").value);
+        dc = dc ?? rollTarget + modifier;
+
+        updateInputs("rollTarget", rollTarget);
+        updateInputs("dc", dc);
+
+        const rolls = {};
+        Outcomes.forEach(outcome => rolls[outcome] = 0);
+        
+        const tbody = document.querySelector("table.outcomes tbody");
+        tbody.innerHTML = "";
+        Array.from({length: 20}).forEach((_, i) => {
+          const roll = i + 1;
+          const total = roll + modifier;
+          const diff = total - dc;
+          const outcome = outcomeForRoll(rollTarget, roll);
+          const rollDescription = `Natural ${roll} + mod ${modifier}`;
+          const fullDescription = `${outcome}: ${rollDescription} = ${total}`;
+
+          const tr = document.createElement("tr");
+          tr.dataset.roll = roll;
+          tr.dataset.outcome = outcome;
+
+          const th = document.createElement("th");
+          th.scope = "row";
+          th.textContent = tr.dataset.roll;
+          tr.appendChild(th);
+
+          const thTotal = document.createElement("th");
+          thTotal.scope = "row";
+          thTotal.textContent = total;
+          thTotal.innerHTML = `
+                <sl-tooltip content="${fullDescription}">
+                  <span>${total}</span>
+                </sl-tooltip>`;
+          tr.appendChild(thTotal);
+
+          const thDiff = document.createElement("th");
+          thDiff.scope = "row";
+          thDiff.textContent = diff;
+          thDiff.innerHTML = `
+                <sl-tooltip>
+                  <span slot="content">
+                    ${diff === 0 ? "Meets" : (diff < 0 ? "Misses" : "Beats")} the DC by ${Math.abs(diff)}
+                    <div>
+                      ${roll === 1 ? " then one degree lower due to natural 1" : ""}
+                      ${roll === 20 ? " then one degree higher due to natural 20" : ""}
+                    </div>
+                  </span>
+                  <span>${diff < 0 ? diff : `+${diff}`}</span>
+                </sl-tooltip>`;
+          tr.appendChild(thDiff);
+
+          Outcomes.forEach(column => {
+            let engaged = outcome === column;
+            if (engaged) { rolls[column]++ }
+
+            const td = document.createElement("td");
+            td.classList.toggle("engaged", engaged);
+            td.dataset.outcome = column;
+            if (engaged) {
+              td.innerHTML = `
+                <sl-tooltip content="${fullDescription}">
+                  <span>${roll + modifier}</span>
+                </sl-tooltip>`;
+            }
+            tr.appendChild(td);
+          });
+
+          tbody.appendChild(tr);
+        });
+
+        const setPercentage = function(el, percentage, outcome) {
+          el.innerHTML = `
+            <sl-tooltip content="${percentage}% of rolls will end with ${outcome}">
+              <span>${percentage}%</span>
+            </sl-tooltip>`;
+        }
+        const setCount = function(el, count, outcome) {
+          el.innerHTML = `
+            <sl-tooltip content="${count} of the 20 possible rolls will end with ${outcome}">
+              <span>${count} <small>/ 20</small></span>
+            </sl-tooltip>`;
+        }
+
+        const tfoot = document.querySelector("table.outcomes tfoot");
+        Outcomes.forEach(outcome => {
+          setPercentage(tfoot.querySelector(`.percentages th[data-outcome="${outcome}"]`), 100.0 * rolls[outcome] / 20, outcome);
+          setCount(tfoot.querySelector(`.roll-counts th[data-outcome="${outcome}"]`), rolls[outcome], outcome);
+        });
+        let allFailures = rolls["Critical Failure"] + rolls["Failure"];
+        let allSuccesses = rolls["Critical Success"] + rolls["Success"];
+        setPercentage(tfoot.querySelector(`.percentages th[data-outcome="All Failures"]`), 100.0 * allFailures / 20, "some kind of failure");
+        setPercentage(tfoot.querySelector(`.percentages th[data-outcome="All Successes"]`), 100.0 * allSuccesses / 20, "some kind of success");
+        setCount(tfoot.querySelector(`.roll-counts th[data-outcome="All Failures"]`), allFailures, "some kind of failure");
+        setCount(tfoot.querySelector(`.roll-counts th[data-outcome="All Successes"]`), allSuccesses, "some kind of success");
+      }
+      updateTableBody(8, 15);
+
+      document.addEventListener("input", e => {
+        console.log(e.target);
+        if (e.target.closest("input[name='rollTarget']")) {
+          updateTableBody(parseInt(e.target.value));
+        } else if (e.target.closest("input[name='dc'], input[name='modifier']")) {
+          const source = e.target.name;
+          const dc = parseInt(source === "dc" ? e.target.value : document.querySelector("input[name='dc']").value);
+          const modifier = parseInt(source === "modifier" ? e.target.value : document.querySelector("input[name='modifier']").value);
+          updateInputs("dc", dc);
+          updateInputs("modifier", modifier);
+          updateTableBody(dc - modifier, dc);
+        }
+      });
+    </script>
+  </body>
+</html>
