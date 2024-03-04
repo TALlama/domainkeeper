@@ -5,6 +5,7 @@ import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 import { Actor } from "../models/actor.js";
 import { Domain } from "../models/domain.js";
+import { DomainRoll } from "../models/domain_roll.js";
 import { Structure } from "../models/structure.js";
 
 import { nudge } from "./event_helpers.js";
@@ -315,9 +316,6 @@ class DomainSheet extends RxElement {
   structure(structureId) { return this.structures.find(s => s.id === structureId) }
   get structures() { return this.domain.actors.flatMap(a => a.powerups.matches({type: Structure.type})) }
 
-  findBonuses({ability, ...pattern}) { return this.bonuses.matches(pattern).filter(b => !b.ability || b.ability === ability).sortBy("-value") }
-  get bonuses() { return this.structures.flatMap(s => (s.bonuses || []).map(b => { return {...b, structure: s}})) }
-
   mod(ability) {
     let score = this.domain[ability.toLocaleLowerCase()];
     return mod(score);
@@ -325,42 +323,24 @@ class DomainSheet extends RxElement {
 
   info(message) { this.activityLog?.currentActivity?.info(message) }
 
-  get unrestModifier() {
-    let unrest = this.domain.unrest;
-    return unrest >= 15 ? -4 : (unrest >= 10 ? -3 : (unrest >= 5 ? -2 : (unrest >= 1 ? -1 : 0)));
-  }
-
   get diceTray() { return document.querySelector(".dice-tray") }
 
-  roll({die, activity, modifier, itemBonus, level, dc}) {
-    let modifierValue = (modifier ? this.domain[modifier.toLocaleLowerCase()] : 0);
-    let levelValue = (level === false ? 0 : this.domain.level);
-
-    let components = [[modifier, modifierValue]];
-    itemBonus && components.push(["Item", itemBonus]); // TODO it'd be nice to name the source
-    components.push(["Level", levelValue]);
-    components.push(["Unrest", this.unrestModifier]);
-    let modifierTotal = 0;
-
+  roll({die, domainRoll, dc}) {
     let header = Maker.tag("h6");
     let componentsEl = Maker.tag("span", {class: "components", appendTo: header});
-    components.forEach((component) => {
-      let [name, value] = component;
-      if (value !== 0) {
-        componentsEl.append(Maker.tag("span", ` ${mod(value)} (${name})`));
-        modifierTotal += value;
-      }
+    domainRoll.bonuses.forEach((bonus) => {
+      if (bonus.value !== 0) { componentsEl.append(Maker.tag("span", ` ${mod(bonus.value)} ${bonus.name || bonus.source?.name}`, {title: bonus.type})) }
     })
-    header.prepend(Maker.tag("span", {class: "total"}, mod(modifierTotal)));
+    header.prepend(Maker.tag("span", {class: "total"}, mod(domainRoll.bonus)));
 
     let roller = Maker.tag(
       "dice-roller",
-      {dice: die || 20, modifier: modifierTotal, "data-ability": modifier, "data-activity": activity},
+      {dice: die || 20, modifier: domainRoll.bonus, "data-ability": domainRoll.ability, "data-activity": domainRoll.activity},
     );
     if (dc !== false) {
       dc = dc || this.domain.controlDC;
       header.append(Maker.tag("span", {class: "dc"}, ` ${dc}`));
-      dc -= modifierTotal; // see https://github.com/colinaut/dice-roller/issues/1
+      dc -= domainRoll.bonus; // see https://github.com/colinaut/dice-roller/issues/1
       roller.setAttribute("difficulty", Math.max(1, dc));
     }
     this.diceTray.prepend(roller);
@@ -372,5 +352,5 @@ DomainSheet.define("domain-sheet");
 
 document.addEventListener("click", (event) => {
   let trigger = event.target.closest(".ability-roll");
-  if (trigger) { document.querySelector("domain-sheet").roll({modifier: trigger.dataset.ability}) }
+  if (trigger) { document.querySelector("domain-sheet").roll({domainRoll: new DomainRoll({domain: document.querySelector("domain-sheet").domain, ability: trigger.dataset.ability})}) }
 });

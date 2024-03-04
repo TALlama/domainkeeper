@@ -129,8 +129,8 @@ export var leadershipTemplates = [{
   },
   failure() { this.warning(`❌ You fail to claim the hex`) },
   criticalFailure() {
-    this.error(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of your next turn.`);
-    this.addConsumable({name: "Status: Disaster", description: "-1 Stability (Circumstance penalty)"});
+    this.error(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of this turn.`);
+    this.addConsumable({name: "Disaster", description: "-1 Stability (Circumstance penalty)", bonuses: [{type: "circumstance", ability: "Stability", value: -1}]});
   },
 }, {
   icon: "🏃‍♂️",

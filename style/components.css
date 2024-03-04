@@ -118,6 +118,7 @@
         > .components {
           display: flex;
           flex-direction: column;
+          font-size: var(--step--2);
         }
 
         > .dc {
@@ -180,7 +181,7 @@
       position: relative;
       display: grid;
       grid-template-columns: auto 1fr auto auto;
-      gap: var(--internal-margin);
+      gap: var(--small-margin) var(--internal-margin);
       padding-inline: var(--small-margin);
 
       &:before {

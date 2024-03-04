@@ -51,7 +51,7 @@ test.describe("Adds a circumstance penalty", () => {
     await dk.pickLeader();
 
     await dk.pickActivity("Claim Hex", [50, 50], "Economy", "Critical Failure");
-    expect(dk.consumables.names).toHaveText(["Status: Disaster"]);
+    expect(dk.consumables.names).toHaveText(["Disaster"]);
   });
 });
 

@@ -76,6 +76,7 @@ export class DomainkeeperPage extends LocatorLike {
   get rolls() { return this.locator("dice-roller") }
   get lastRoll() { return this.rolls.nth(0) }
   async rollText(roll) { return roll.evaluate(r => r.shadowRoot?.textContent) }
+  get rollBanners() { return this.locator(".dice-tray h6") }
 
   get activityPicker() { return new ActivityPicker(this.page, this.locator('activity-picker')) }
   get consumables() { return new Consumables(this.page, this.locator('ul.consumables')) }
@@ -199,8 +200,10 @@ export class DomainkeeperPage extends LocatorLike {
 
     let pick = picks[0];
     if (typeof pick[0] === "number" && typeof pick[1] === "number") {
-      this.makeLocationDecision(pick, opts);
+      console.log("Picking", pick, "as a location");
+      await this.makeLocationDecision(pick, opts);
     } else {
+      console.log("Picking", pick, "as a button");
       await this.makeDecision(pick, opts);
     }
     return this.makeDecisions(picks.slice(1), opts);

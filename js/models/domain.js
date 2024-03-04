@@ -36,8 +36,16 @@ export class Domain {
   get powerups() { return this.actors.flatMap(a => a.powerups || []) }
   set powerups(v) { /* ignore */ }
 
-  get bonuses() { return this.powerups.flatMap(p => p.bonuses || []) }
+  get bonuses() { return [...this.powerups, ...this.consumables].flatMap(p => p.bonuses?.map(b => { return {...b, source: p} }) || []) }
   set bonuses(v) { /* ignore */ }
+  findBonuses({activity, ability, ...pattern}) {
+    return this.bonuses.matches(pattern)
+      .filter(b => {
+        const activityMatches = !b.activity || b.activity === activity;
+        const abilityMatches = !b.ability || b.ability === ability;
+        return activityMatches && abilityMatches;
+      }).sortBy("-value")
+  }
 
   get markers() {
     return [

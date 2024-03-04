@@ -62,3 +62,12 @@ test('Pathfinder Society Outpost rerolls only "Clear/Claim Hex" rolls', async ({
   });
   await expect(dk.consumables.names).toContainText(["Fame"]);
 });
+
+test("Can affect rolls by giving circumstance bonuses", async ({ page }) => {
+  const dk = await DomainkeeperPage.load(page, onTurnOne);
+  await dk.pickLeader();
+
+  await dk.pickActivity("Claim Hex", [50, 50], "Economy", "Critical Failure");
+  await dk.rollAbility("Stability");
+  await expect(dk.rollBanners.first()).toContainText("-1 Disaster");
+});

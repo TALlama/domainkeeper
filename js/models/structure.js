@@ -1011,6 +1011,10 @@ export class Structure extends Powerup {
         template.dc ??= (template.level || 99) * 2 + 10;
         template.limit ??= 1;
 
+        template.bonuses.forEach(b => {
+          if (b.activity) { b.type = "item" }
+        });
+
         return template;
       })
       .sortBy("name")
