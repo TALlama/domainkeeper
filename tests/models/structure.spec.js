@@ -7,22 +7,23 @@ var structures = Structure.names.map(n => new Structure(n));
 function findStructure(name) { return structures.find(s => s.name === name) }
 
 test.describe("Cost", () => {
-  test("Is 1.5x the structure's level by default", () => {
-    let structure = new Structure({template: "Example", level: 2});
-    expect(structure.cost).toEqual(3);
-
-    structure = new Structure({template: "Example", level: 3});
-    expect(structure.cost, "Round down").toEqual(4);
+  test("Is 1.25x the structure's level by default", () => {
+    expect(new Structure({template: "Example", level: 1}).cost).toEqual(1);
+    expect(new Structure({template: "Example", level: 2}).cost).toEqual(2);
+    expect(new Structure({template: "Example", level: 3}).cost).toEqual(3);
+    expect(new Structure({template: "Example", level: 4}).cost).toEqual(5);
   });
 
-  test("Is 2x the structure's level if the structure is expensive", () => {
-    let structure = new Structure({template: "Example", level: 2, traits: ["Expensive"]});
-    expect(structure.cost).toEqual(4);
+  test("Is 1.75x the structure's level if the structure is expensive (round down)", () => {
+    expect(new Structure({template: "Example", level: 1, traits: ["Expensive"]}).cost).toEqual(1);
+    expect(new Structure({template: "Example", level: 2, traits: ["Expensive"]}).cost).toEqual(3);
+    expect(new Structure({template: "Example", level: 3, traits: ["Expensive"]}).cost).toEqual(5);
+    expect(new Structure({template: "Example", level: 4, traits: ["Expensive"]}).cost).toEqual(7);
   });
 
   test("Is reflected in a cost trait", () => {
     let structure = new Structure({template: "Example", level: 2});
-    expect(structure.traits).toContain("Cost 3");
+    expect(structure.traits).toContain("Cost 2");
   });
 });
 

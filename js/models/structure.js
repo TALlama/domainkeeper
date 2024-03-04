@@ -20,7 +20,7 @@ export class Structure extends Powerup {
   }
 
   get cost() {
-    let multiplier = this.hasTrait("Expensive") ? 2 : 1.5;
+    let multiplier = this.hasTrait("Expensive") ? 1.75 : 1.25;
     return Math.floor(this.level * multiplier);
   }
 
@@ -629,7 +629,7 @@ export class Structure extends Powerup {
 
     return [{
       name: `Inn`,
-      level: 1,
+      level: 2,
       traits: ["Building", "Residential", "Expensive"],
       upgradeTo: [`Luxury Hotel`],
       description: `A safe and secure place for a settlement’s visitors to rest.`,
