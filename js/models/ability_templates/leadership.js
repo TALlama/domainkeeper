@@ -222,6 +222,8 @@ export var leadershipTemplates = [{
     let settlement = new Actor({name, icon: "🏠", traits: ["Village"], position: this.position});
     this.settlementId = settlement.id;
     this.domain.settlements.push(settlement);
+
+    this.domain.checkMilestones("settlements", this);
   },
   criticalSuccess() {
     this.info(`😃 You establish the settlement largely with the aid of enthusiastic volunteers.`);

@@ -23,8 +23,10 @@ test.describe("Can establish a settlement", () => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
     await dk.pickLeader();
   
+    const xpBefore = await dk.stat("xp");
     await establishSettlement(dk, {outcome: outcomes.random(), settlementName: "Lowercase"});
-    return expect(dk.settlementNames).toHaveText(["Capital", "Lowercase"]);
+    await expect(dk.settlementNames).toHaveText(["Capital", "Lowercase"]);
+    await expect(await dk.stat("xp")).toEqual(xpBefore + 40); // second settlement
   });
 });
 

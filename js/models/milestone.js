@@ -30,4 +30,6 @@ withTemplates(Milestone, () => [
 
   {icon: "⭐", name: "Capital founded", xp: 40, trigger: "settlements",
     check(domain) { return domain.settlements.filter(s => s.position).length > 0 }},
+  {icon: "🛰️", name: "Second settlement founded", xp: 40, trigger: "settlements",
+    check(domain) { return domain.settlements.length === 2 }},
 ]);

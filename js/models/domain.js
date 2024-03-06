@@ -20,6 +20,7 @@ export class Domain {
 
     this.#addDefaultActors();
     this.#addDefaultTurns();
+    "size settlements".split(" ").forEach(trigger => this.checkMilestones(trigger));
   }
 
   /////////////////////////////////////////////// Associations

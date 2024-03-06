@@ -30,3 +30,11 @@ test.describe("Can get all milestones that the current domain hit", () => {
     expect(Milestone.check("size", {milestones: {}, size: 25}).map(m => m.name)).toEqual(["Domain size 25"]);
   });
 });
+
+test("No two templates can have the same name", ({ page }) => {
+  let uniqueNames = new Set();
+  Milestone.templates.map(t => t.name).forEach(name => {
+    expect.soft(uniqueNames.has(name), name).toBeFalsy();
+    uniqueNames.add(name);
+  });
+});
