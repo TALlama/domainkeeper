@@ -23,7 +23,7 @@ export var systemTemplates = [{
     prompt: "Choose a hex to start in",
     placeMarker() { return {icon: "⭐"} },
     contextMarkers: () => [],
-    picked(_, {decision}) {
+    picked(_, {decision, activity}) {
       let pos = decision.position();
       this.position = pos;
       if (pos) {
@@ -32,6 +32,8 @@ export var systemTemplates = [{
 
         let name = prompt("And what will you name your capital?", "Capital");
         if (name) { settlement.name = name }
+
+        this.domain.checkMilestones("settlements", activity);
       } else {
         this.location = null;
       }

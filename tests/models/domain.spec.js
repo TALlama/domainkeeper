@@ -118,8 +118,8 @@ test.describe("Stats", () => {
 });
 
 test.describe("Markers", () => {
-  test("Shows the settlements", () => {
-    expect(new Domain({}).markers).toEqual([{editable: false, icon: "⭐", position: [80, 25]}]);
+  test("Shows the settlements that have positions", () => {
+    expect(new Domain({}).markers).toEqual([]);
     expect(new Domain({settlements: [
       {icon: "1️⃣", position: [11, 11]},
       {icon: "2️⃣", position: [22, 22]},

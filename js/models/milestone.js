@@ -27,4 +27,7 @@ withTemplates(Milestone, () => [
   ...[[2, 20], [10, 40], [25, 60], [50, 80], [100, 120]].map(([size, xp]) =>
     ({icon: "🏅", name: `Domain size ${size}`, xp, trigger: "size", threshold: size})
   ),
+
+  {icon: "⭐", name: "Capital founded", xp: 40, trigger: "settlements",
+    check(domain) { return domain.settlements.filter(s => s.position).length > 0 }},
 ]);

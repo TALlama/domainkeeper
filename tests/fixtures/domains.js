@@ -1,9 +1,20 @@
 import { domainConcepts, ruin, buildUp, prognostication, contribute, placeCapital, domainSummary } from "./activities";
 import { leaders } from "./leaders";
 
+export const settlements = {
+  forks: {
+    icon: "⭐",
+    name: "Capital",
+    position: [85, 20],
+    traits: ["Village"],
+    powerups: [{name: "Town Hall"}],
+  },
+}
+
 export const domainCreationTurn = {
   number: 0,
   name: "Domain Creation",
+  settlements: [settlements.forks],
   activities: [
     domainConcepts.complete,
     placeCapital.forks,
@@ -13,12 +24,14 @@ export const domainCreationTurn = {
 
 export const onTurnOne = {
   name: "Founded Yesterday",
+  settlements: [settlements.forks],
   leaders: leaders.threePack,
   turns: [domainCreationTurn],
 };
 
 export const inTurnOne = {
   name: "Founded Yesterday",
+  settlements: [settlements.forks],
   leaders: leaders.threePack,
   turns: [domainCreationTurn, {
     number: 1,
@@ -28,8 +41,8 @@ export const inTurnOne = {
 
 export const endTurnOne = {
   name: "Founded Yesterday",
-  leaders: [leaders.anne],
   settlements: [{id: "settlement-starter", name: "Starter", traits: ["Village"]}],
+  leaders: [leaders.anne],
   turns: [domainCreationTurn, {
     number: 1,
     activities: [ruin.allGood, {

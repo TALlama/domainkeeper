@@ -6,6 +6,7 @@ export const placeCapital = {
   forks: {
     name: "Place Capital",
     actorId: "system",
+    position: [85, 20],
     location: "OK",
   },
 };

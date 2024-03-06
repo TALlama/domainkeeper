@@ -13,7 +13,7 @@ test.describe("first run", () => {
     // Domain Concept sets starting stats
     await dk.shouldHaveStats({
       culture: 2, economy: 2, loyalty: 2, stability: 2,
-      unrest: 0, size: 1, xp: 0, level: 1,
+      unrest: 0, size: 1, xp: 40, level: 1,
     });
 
     let concept = await dk.currentActivity;

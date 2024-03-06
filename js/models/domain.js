@@ -51,7 +51,9 @@ export class Domain {
 
   get markers() {
     return [
-      ...(this.settlements || []).map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
+      ...(this.settlements || [])
+        .filter(s => s.position)
+        .map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
     ];
   }
   set markers(value) { /* ignore */ }
@@ -89,7 +91,7 @@ export class Domain {
 
     if (this.settlements.length === 0) {
       this.settlements = [
-        {traits: "Village".split(" "), name: "Capital", icon: "⭐", powerups: [new Structure("Town Hall")], position: [80, 25]},
+        {traits: "Village".split(" "), name: "Capital", icon: "⭐", powerups: [new Structure("Town Hall")]},
       ];
     }
   }
