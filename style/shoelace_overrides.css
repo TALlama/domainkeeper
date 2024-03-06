@@ -1,0 +1,28 @@
+sl-dialog {
+  --sl-dialog-horizontal-padding: 20px;
+
+  &::part(panel) {
+    border: 3px solid black;
+    border-radius: 0;
+  }
+
+  &::part(header) {
+    background-color: black;
+    color: white;
+  }
+
+  h2, h3, h4 {
+    background-color: black;
+    color: white;
+    margin-block: var(--external-margin);
+    margin-inline: calc(-1 * var(--sl-dialog-horizontal-padding));
+    padding-block: var(--internal-margin);
+    padding-inline: var(--sl-dialog-horizontal-padding);
+  }
+}
+
+sl-button {
+  &::part(base) {
+    border-radius: 0;
+  }
+}

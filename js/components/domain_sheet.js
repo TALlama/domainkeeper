@@ -9,8 +9,9 @@ import { DomainRoll } from "../models/domain_roll.js";
 import { Structure } from "../models/structure.js";
 
 import { nudge } from "./event_helpers.js";
-import { RxElement } from "./rx_element.js";
 import { notify } from "./toast.js";
+import { RxElement } from "./rx_element.js";
+import { DomainEditor } from "./domain_editor.js";
 
 let nudgeValue = function(el, name, data, key, newValue) {
   let was = data[key];
@@ -47,9 +48,10 @@ class DomainSheet extends RxElement {
   get domain() { return this._data.current }
   get changed() { return !this._pristineDomain || JSON.stringify(this.domain) !== this._pristineDomain }
 
-  renameDomain() {
-    let newName = prompt("Name your domain", this.domain.name);
-    if (newName) { this.domain.name = newName }
+  editDomain() {
+    const editor = new DomainEditor();
+    editor.setAttribute("label", this.domain.name);
+    document.body.append(editor);
   }
 
   doSaveData() {
@@ -246,7 +248,7 @@ class DomainSheet extends RxElement {
   renderName() {
     return `
       <span class="domain-name">${this.domain.name}</span>
-      <a href="#" data-action="renameDomain" class="icon-link" aria-label="Rename domain">📝</a>
+      <a href="#" data-action="editDomain" class="icon-link" aria-label="Edit domain">📝</a>
       <span class="domain-data-management">
         <a href="#" data-action="doSaveData" class="icon-link ${this.changed ? "necessary" : "unnecessary"}">💾</a>
         <a href="#" data-action="swapSaveSlot" class="icon-link">🔀</a>

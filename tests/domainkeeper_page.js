@@ -34,7 +34,7 @@ export class DomainkeeperPage extends LocatorLike {
     this.saveSlots = new SaveSlots(this.page, this.page);
 
     this.name = this.locator(".domain-name");
-    this.renameLink = this.getByLabel("Rename domain");
+    this.editDomainLink = this.getByLabel("Edit domain");
 
     this.saveLink = this.getByRole('link', {name: '💾'});
     this.swapLink = this.getByRole('link', {name: '🔀'});
@@ -94,10 +94,11 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   // Actions
-  async rename(name) {
-    this.page.once('dialog', async dialog => { await dialog.accept(name) });
-    await this.renameLink.click();
-    return expect(this.name).toHaveText(name);
+  async rename(newName) {
+    await this.editDomainLink.click();
+    const editor = this.locator("sl-dialog[open]");
+    await editor.getByLabel("Name").fill(newName);
+    return editor.getByRole("button", {name: "Update"}).click();
   }
 
   async renameActor(oldName, newName) {
