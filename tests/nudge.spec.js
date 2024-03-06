@@ -10,7 +10,10 @@ test.describe("Track changes to the domain's", () => {
 
     let ability = Ability.random;
     await dk.statInput(ability).fill("4");
-    await expect(await dk.nudgeLog()).toContainText(`${ability} updated to 4, from 2`);
+    await expect(await dk.nudgeLog()).toContainText(`Nudge: Boosted ${ability} by 2, to 4`);
+
+    await dk.statInput(ability).fill("1");
+    await expect(await dk.nudgeLog()).toContainText(`Nudge: Reduced ${ability} by 3, to 1`);
   });
 
   test('other stats', async ({ page }) => {
@@ -19,7 +22,9 @@ test.describe("Track changes to the domain's", () => {
     let stat = "Unrest Size XP Level".split(" ").random();
     let oldValue = await dk.stat(stat);
     await dk.statInput(stat).fill("4");
-    await expect(await dk.nudgeLog()).toContainText(`${stat} updated to 4, from ${oldValue}`);
+    await expect(await dk.nudgeLog()).toContainText(`Nudge: Boosted ${stat} by ${4 - oldValue}, to 4`);
+    await dk.statInput(stat).fill("3");
+    await expect(await dk.nudgeLog()).toContainText(`Nudge: Reduced ${stat} by 1, to 3`);
   });
 });
 

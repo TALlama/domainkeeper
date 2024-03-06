@@ -4,7 +4,6 @@ export class DomainRoll {
   constructor({domain, ability, activity, ...properties}) {
     addTransient(this, {value: {}});
     Object.assign(this, {...properties, domain, ability, activity});
-    console.log({on: "obj", domain: this.domain, ability: this.ability, activity: this.activity});
     this.availableBonuses = [...domain.findBonuses({activity, ability}).sortBy("value"), ...this.unrestBonuses];
   }
 
@@ -49,7 +48,7 @@ export class DomainRoll {
   get untypedBonuses() { return this.divideBonuses("untyped").used }
 
   // Numeric bonus of the used bonuses
-  get bonus() { console.log(this.bonuses); return this.bonuses.sum("value") }
+  get bonus() { return this.bonuses.sum("value") }
   get abilityBonus() { return this.domain[this.ability.toLowerCase()] }
   get levelBonus() { return this.domain.level }
   get itemBonus() { return this.divideBonuses("item").modifier }

@@ -126,6 +126,7 @@ export var leadershipTemplates = [{
   success() {
     this.info(`🎉 You claim the hex and immediately add it to your territory, increasing Size by 1 (this affects all statistics determined by Size; see page 38).`);
     this.boost("Size");
+    this.boost({by: 10}, "xp");
   },
   failure() { this.warning(`❌ You fail to claim the hex`) },
   criticalFailure() {

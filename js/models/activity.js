@@ -52,25 +52,27 @@ export class Activity {
   /////////////////////////////////////////////// Actions
 
   boost(...abilities) {
-    let {by} = abilities[0];
+    let {by, prefix} = abilities[0];
     by && abilities.shift();
     by ??= 1;
-    if (by < 0) { return this.reduce({by}, ...abilities) }
+    if (by < 0) { return this.reduce({by, prefix}, ...abilities) }
+    prefix = prefix ? `${prefix}: ` : "";
     abilities.forEach(ability => {
       this.domain.boost({by, activity: this}, ability);
-      this.info(`📈 Boosted ${ability} by ${by} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
+      this.info(`📈 ${prefix}Boosted ${ability} by ${by}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }
 
   reduce(...abilities) {
-    let {by} = abilities[0];
+    let {by, prefix} = abilities[0];
     by && abilities.shift();
     by ??= -1;
 
-    if (by > 0) { return this.boost({by}, ...abilities) }
+    if (by > 0) { return this.boost({by, prefix}, ...abilities) }
+    prefix = prefix ? `${prefix}: ` : "";
     abilities.forEach(ability => {
       this.domain.boost({by, activity: this}, ability);
-      this.warning(`📉 Reduced ${ability} by ${Math.abs(by)} <small>, to ${this.domain[ability.toLowerCase()]}</small>`);
+      this.warning(`📉 ${prefix}Reduced ${ability} by ${Math.abs(by)}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
     });
   }
 

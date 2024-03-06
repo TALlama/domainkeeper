@@ -15,8 +15,7 @@ import { DomainEditor } from "./domain_editor.js";
 
 let nudgeValue = function(el, name, data, key, newValue) {
   let was = data[key];
-  nudge(el, (activity) => activity.info(`💹 ${name} updated to ${newValue}<span class="metadata">, from ${was}</span>`));
-  data[key] = Number(newValue)
+  nudge(el, activity => activity.boost({prefix: "Nudge", by: newValue - was, activity}, name));
 }
 
 class DomainSheet extends RxElement {
@@ -308,7 +307,6 @@ class DomainSheet extends RxElement {
   get allActivitiesLeft() { return this.leadershipActivitiesLeft + this.civicActivitiesLeft }
 
   get currentTurn() { return this.domain.turns.last() }
-  get previousTurn() { let turns = this.domain.turns || []; return turns[turns.length - 2]; }
   get currentActor() { return this.domain.currentActorId ? this.domain.actor(this.domain.currentActorId) : this.readyActors.first() }
 
   readyActor(actorId) { return this.readyActors.find(a => a.id === actorId) }

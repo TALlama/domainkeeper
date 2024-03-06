@@ -4,6 +4,7 @@ import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
 import { Turn } from "./turn.js";
 import { nudge } from "../components/event_helpers.js";
+import { Milestone } from "./milestone.js";
 
 let abilitiesStartAt = 2;
 
@@ -23,6 +24,7 @@ export class Domain {
 
   /////////////////////////////////////////////// Associations
   get currentTurn() { return this.turns.last() }
+  get previousTurn() { const turns = this.turns || []; return turns[turns.length - 2]; }
   get currentActivity() { return this.currentTurn?.currentActivity }
 
   actor(actorId) { return this.actors.find(a => a.id === actorId) }
@@ -99,6 +101,16 @@ export class Domain {
     }
   }
 
+  /////////////////////////////////////////////// XP & Milestones
+
+  checkMilestones(trigger, activity) {
+    Milestone.check(trigger, this).forEach(milestone => {
+      this.milestones[milestone.name] = activity?.id || "--the-distant-past--";
+      activity?.info(milestone.message);
+      this.boost({by: milestone.xp, activity}, "xp");
+    });
+  }
+
   /////////////////////////////////////////////// Stats
 
   min(stat) {
@@ -131,6 +143,7 @@ export class Domain {
       let max = this.max(name);
       let overage = target - max;
       this[key] = Math.min(max, target);
+      this.checkMilestones(key, activity);
       if (overage > 0) {
         (activity || this).info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
         this.xp += overage * 50;

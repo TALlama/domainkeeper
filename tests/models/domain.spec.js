@@ -138,7 +138,7 @@ test.describe("Milestones", () => {
 
   test("Milestones, once set, are preserved", () => {
     const domain = new Domain({});
-    domain.milestones["Claim your first new Hex"] = true;
-    expect(roundtrip(domain).milestones["Claim your first new Hex"]).toBe(true);
+    domain.milestones["Pet the dog"] = true;
+    expect(roundtrip(domain).milestones["Pet the dog"]).toBe(true);
   });
 });

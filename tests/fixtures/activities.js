@@ -44,4 +44,8 @@ export const contribute = {
   economy: {...activityRecord("Contribute"), contribution: "Economy"},
   loyalty: {...activityRecord("Contribute"), contribution: "Loyalty"},
   stability: {...activityRecord("Contribute"), contribution: "Stability"},
-}
+};
+
+export const domainSummary = {
+  auto: {name: "Domain Summary"},
+};

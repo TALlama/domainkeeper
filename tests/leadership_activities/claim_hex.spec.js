@@ -20,6 +20,33 @@ test.describe("Increases size", () => {
   });
 });
 
+test.describe("Earns XP", () => {
+  let outcomes = ["Critical Success", "Success"];
+
+  test.describe(`On any of the following outcomes: ${outcomes.join("; ")}`, () => {
+    test("When hitting a milestone (2, 10, 25, 50, 100)", async ({ page }) => {
+      const newSize = [2, 10, 25, 50, 100].random();
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: newSize - 1});
+      await dk.pickLeader();
+
+      const before = await dk.stat("xp");
+      const delta = {2: 20, 10: 40, 25: 60, 50: 80, 100: 120}[newSize];
+      await dk.pickActivity("Claim Hex", [50, 50], abilities.random(), outcomes.random());
+      expect(await dk.stat("xp"), `When growing to ${newSize}, should get ${delta} + 10 XP`).toEqual(before + delta + 10);
+    });
+
+    test("When NOT hitting a milestone", async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: 2});
+      await dk.pickLeader();
+
+      const before = await dk.stat("xp");
+      const delta = 10;
+      await dk.pickActivity("Claim Hex", [50, 50], abilities.random(), outcomes.random());
+      expect(await dk.stat("xp"), `When growing to ${2}, should get ${delta} XP`).toEqual(before + delta);
+    });
+  });
+});
+
 test.describe("Increases a random ability", () => {
   test('On a critical success', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
