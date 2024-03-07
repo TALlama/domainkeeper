@@ -107,6 +107,7 @@ export class Domain {
   /////////////////////////////////////////////// XP & Milestones
 
   checkMilestones(trigger, activity) {
+    activity ??= this.currentActivity;
     Milestone.check(trigger, this).forEach(milestone => {
       this.milestones[milestone.name] = activity?.id || "--the-distant-past--";
       activity?.info(milestone.message);

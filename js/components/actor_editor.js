@@ -39,8 +39,11 @@ export class ActorEditor extends EditorDialog {
 
     let newTraits = this.toggleToList(this.data.traits);
     if (this.actor.traits.sort().join() !== newTraits.sort().join()) {
-      nudge(this, (activity) => activity.info(`🥉 ${this.actor.name} now has traits: ${newTraits.join(", ")}`));
-      this.actor.traits = newTraits;
+      nudge(this, (activity) => {
+        activity.info(`🥉 ${this.actor.name} now has traits: ${newTraits.join(", ")}`);
+        this.actor.traits = newTraits;
+        this.actor.traitsChanged({activity});
+      });
     }
 
     if (this.actor.position !== this.data.position) {

@@ -32,4 +32,10 @@ withTemplates(Milestone, () => [
     check(domain) { return domain.settlements.filter(s => s.position).length > 0 }},
   {icon: "🛰️", name: "Second settlement founded", xp: 40, trigger: "settlements",
     check(domain) { return domain.settlements.length === 2 }},
+  {icon: "🛖", name: "First Town", xp: 60, trigger: "settlements",
+    check(domain) { return domain.settlements.filter(s => s.hasTrait("Town")).length > 0 }},
+  {icon: "🏢", name: "First City", xp: 80, trigger: "settlements",
+    check(domain) { return domain.settlements.filter(s => s.hasTrait("City")).length > 0 }},
+  {icon: "🌇", name: "First Metropolis", xp: 120, trigger: "settlements",
+    check(domain) { return domain.settlements.filter(s => s.hasTrait("Metropolis")).length > 0 }},
 ]);

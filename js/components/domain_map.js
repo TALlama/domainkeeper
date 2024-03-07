@@ -284,8 +284,8 @@ export class DomainMap extends RxElement {
   /////////////////////////////////////////////// Event Handling
 
   ghostCursorTrack(event) { this.placeMarker(this.imgOffsetToPosition(event), this.ghostMarker) }
-  ghostCursorShow(event) { this.ghostMarker.classList.remove('hidden') }
-  ghostCursorHide(event) { this.ghostMarker.classList.add('hidden') }
+  ghostCursorShow(event) { this.ghostMarker?.classList.remove('hidden') }
+  ghostCursorHide(event) { this.ghostMarker?.classList.add('hidden') }
 
   dropMarker(event) {
     const lag = event.timeStamp - this.#dragStarted;

@@ -27,6 +27,7 @@ export class Actor {
   }
 
   get domain() { return this.transient.domain }
+  set domain(value) { /* ignore */ }
   get currentTurn() { return this.domain?.turns?.last() }
 
   get available() { return !this.hasTrait("AWOL", "Retired") }
@@ -53,7 +54,12 @@ export class Actor {
     }
   }
 
-  // Powerups
+  /////////////////////////////////////////////// Traits
+  traitsChanged({activity}) {
+    this.domain.checkMilestones(this.isLeader ? "leaders" : "settlements", activity);
+  }
+
+  /////////////////////////////////////////////// Powerups
 
   powerup(id) { return this.powerups.find(p => p.id === id || p.name === id) }
 
