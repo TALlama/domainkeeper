@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require("../fixtures/domains");
+const { testMilestone } = require('./milestones.spec');
 const { monitor } = require('../helpers');
 
 test.describe("Availability", () => {
@@ -17,4 +18,9 @@ test.describe("Availability", () => {
 
     await expect(dk.activityPicker.getByRole("button", {name: "Abandon Hex"})).toBeEnabled();
   });
+});
+
+testMilestone("Abandon Hex", {
+  domain: {...inTurnOne, size: 2},
+  decisions: [[50, 50], "Stability", "--outcome--"],
 });

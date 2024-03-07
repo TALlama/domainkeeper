@@ -1,16 +1,17 @@
 const { test, expect } = require('@playwright/test');
 const { Milestone } = require('../../js/models/milestone');
+const { Actor } = require('../../js/models/actor');
 
 test.describe("Given a milestone name, finds other properties", () => {
   test("For a milestone with a template", ({ page }) => {
-    const milestone = new Milestone("Domain size 2");
-    expect.soft(milestone.name).toEqual("Domain size 2");
+    const milestone = new Milestone("Domain size 5");
+    expect.soft(milestone.name).toEqual("Domain size 5");
     expect.soft(milestone.xp).toEqual(20);
     expect.soft(milestone.trigger).toEqual("size");
     expect.soft(milestone.message).toBeDefined();
-    expect.soft(milestone.check({size: 1})).toBeFalsy()
-    expect.soft(milestone.check({size: 2})).toBeTruthy();
-    expect.soft(milestone.check({size: 3})).toBeFalsy();
+    expect.soft(milestone.check({size: 4})).toBeFalsy()
+    expect.soft(milestone.check({size: 5})).toBeTruthy();
+    expect.soft(milestone.check({size: 6})).toBeFalsy();
   });
 
   test("For a milestone with a non-existant template", ({ page }) => {
@@ -24,10 +25,32 @@ test.describe("Given a milestone name, finds other properties", () => {
 });
 
 test.describe("Can get all milestones that the current domain hit", () => {
+  function makeDomain(properties = {}) { return {milestones: {}, size: 1, settlements: [], properties} };
+  function check(trigger, domain) { return Milestone.check(trigger, domain).map(m => m.name) }
+
   test("When we hit a certain size", () => {
-    expect(Milestone.check("size", {milestones: {}, size: 1}).map(m => m.name)).toEqual([]);
-    expect(Milestone.check("size", {milestones: {}, size: 2}).map(m => m.name)).toEqual(["Domain size 2"]);
-    expect(Milestone.check("size", {milestones: {}, size: 25}).map(m => m.name)).toEqual(["Domain size 25"]);
+    expect(check("size", makeDomain({size: 1}))).toEqual([]);
+    expect(check("size", makeDomain({size: 5}))).toEqual(["Domain size 5"]);
+    expect(check("size", makeDomain({size: 25}))).toEqual(["Domain size 25"]);
+  });
+
+  test.describe("When settlements", () => {
+    test("by default, have nothing", ({ page }) => {
+      expect(check("settlements", makeDomain())).toEqual([]);
+    });
+
+    test("Are placed", ({ page }) => {
+      let domain = makeDomain();
+      domain.settlements.push(new Actor({name: "Capital!", position: [0, 0]}));
+      expect(check("settlements", domain)).toEqual(["Capital founded"]);
+    });
+
+    test("Number 2", ({ page }) => {
+      let domain = makeDomain();
+      domain.settlements.push(new Actor({name: "Capital!", position: [0, 0]}));
+      domain.settlements.push(new Actor({name: "Not the Capital!", position: [10, 10]}));
+      expect(check("settlements", domain)).toEqual(["Capital founded", "Second settlement founded"]);
+    });
   });
 });
 

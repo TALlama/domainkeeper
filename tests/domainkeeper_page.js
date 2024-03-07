@@ -75,7 +75,7 @@ export class DomainkeeperPage extends LocatorLike {
 
   get rolls() { return this.locator("dice-roller") }
   get lastRoll() { return this.rolls.nth(0) }
-  async rollText(roll) { return roll.evaluate(r => r.shadowRoot?.textContent) }
+  async rollText(roll) { await expect(roll).toBeAttached(); return roll.evaluate(r => r.shadowRoot?.textContent) }
   get rollBanners() { return this.locator(".dice-tray h6") }
 
   get activityPicker() { return new ActivityPicker(this.page, this.locator('activity-picker')) }
@@ -182,7 +182,7 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   useSettlementActivities(ability) {
-    return this.pickActivity("Contribute", `Boost ${ability || "Culture"} by 1`, );
+    return this.pickActivity("Contribute", `Boost ${ability || "Culture"} by 1`);
   }
 
   async pickActivity(name, ...decisions) {

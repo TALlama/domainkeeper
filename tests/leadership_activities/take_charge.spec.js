@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require("../fixtures/domains");
 const { leaders } = require("../fixtures/leaders");
+const { testMilestone } = require('./milestones.spec');
 
 let settlements = {
   capital: {name: "Capital", id: "settlement-capital", traits: ["Village"]},
@@ -108,4 +109,8 @@ test.describe("Loading", () => {
     await expect(takeCharge.decisionPanel("Roll").root).toContainText("Roll Economy");
     await expect(takeCharge.decisionPanel("Outcome").root).toContainText("Outcome Success");
   });
+});
+
+testMilestone("Take Charge", {
+  decisions: ["Capital", "--ability--", "--outcome--"],
 });

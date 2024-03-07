@@ -2,8 +2,9 @@ const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
 const { Ability } = require('../../js/models/abilities');
+const { testMilestone } = require('./milestones.spec');
 
-async function establishSettlement(dk, {ability, outcome, settlementName, payment}) {
+async function establishSettlement(dk, {ability, outcome, existingSettlements, settlementName, payment}) {
   settlementName = settlementName ?? "Lowercase";
   outcome = outcome ?? "Critical Success"
   let amount = {"Critical Success": 0, "Success": 1, "Failure": 2}[outcome];
@@ -13,7 +14,10 @@ async function establishSettlement(dk, {ability, outcome, settlementName, paymen
   dk.page.once('dialog', async dialog => { await dialog.accept(settlementName) });
   await dk.makeDecisions([ability || Ability.random, outcome]);
   if (amount) { await dk.makeDecision(payment || `Reduce ${Ability.random} by ${amount} to proceed`) }
-  return expect(dk.settlementNames).toHaveText(["Capital", settlementName]);
+  return expect(dk.settlementNames).toHaveText([
+    ...(existingSettlements || ["Capital"]),
+    ...(outcome === "Critical Failure" ? [] : [settlementName]),
+  ]);
 };
 
 test.describe("Can establish a settlement", () => {
@@ -26,7 +30,7 @@ test.describe("Can establish a settlement", () => {
     const xpBefore = await dk.stat("xp");
     await establishSettlement(dk, {outcome: outcomes.random(), settlementName: "Lowercase"});
     await expect(dk.settlementNames).toHaveText(["Capital", "Lowercase"]);
-    await expect(await dk.stat("xp")).toEqual(xpBefore + 40); // second settlement
+    await expect(await dk.stat("xp")).toEqual(xpBefore + 40 + 20); // 40 for second settlement 20 for irst success
   });
 });
 
@@ -82,3 +86,8 @@ test.describe("Loading", () => {
   });
 });
 
+testMilestone("Establish Settlement", {
+  domain: {...inTurnOne, settlements: [{name: "One", position: [50, 50]}, {name: "Two"}]},
+  pickSuccess: async (dk) => await establishSettlement(dk, {outcome: ["Critical Success", "Success"].random(), existingSettlements: ["One", "Two"]}),
+  pickFailure: async (dk) => await establishSettlement(dk, {outcome: ["Critical Failure"].random(), existingSettlements: ["One", "Two"]}),
+});

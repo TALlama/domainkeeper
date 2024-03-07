@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
 const { Ability } = require('../../js/models/abilities');
+const { testMilestone } = require('./milestones.spec');
 
 test.describe("Boosts the ability above the one rolled", () => {
   Ability.all.forEach(ability => {
@@ -74,3 +75,5 @@ test.describe("Boosts the ability above the one rolled", () => {
     });
   });
 });
+
+testMilestone("Build Up", {decisions: ["--ability--", "--outcome--"]});

@@ -3,7 +3,9 @@ const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
 const { leaders } = require('../fixtures/leaders');
 const { monitor } = require('../helpers');
+const { testMilestone } = require('./milestones.spec');
 
+const abilities = ["Loyalty"];
 test.describe("Critical Success", () => {
   test('the NPC gains a second activity', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
@@ -103,3 +105,7 @@ test.describe("Loading", () => {
   });
 });
 
+testMilestone("Train Lieutenant", {
+  domain: {...inTurnOne, leaders: [leaders.pc, leaders.npc]},
+  decisions: ["Ned", abilities.random(), "--outcome--"],
+});

@@ -16,10 +16,20 @@ test.describe("Track changes to the domain's", () => {
     await expect(await dk.nudgeLog()).toContainText(`Nudge: Reduced ${ability} by 3, to 1`);
   });
 
+  test('xp', async ({ page }) => {
+    const dk = await DomainkeeperPage.load(page, inTurnOne);
+
+    let oldValue = await dk.stat("xp");
+    await dk.statInput("XP").fill("1000");
+    await expect(await dk.nudgeLog()).toContainText(`Nudge: Boosted XP by ${1000 - oldValue}, to 1000`);
+    await dk.statInput("XP").fill("10");
+    await expect(await dk.nudgeLog()).toContainText(`Nudge: Reduced XP by 990, to 10`);
+  });
+
   test('other stats', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
-    let stat = "Unrest Size XP Level".split(" ").random();
+    let stat = "Unrest Size Level".split(" ").random();
     let oldValue = await dk.stat(stat);
     await dk.statInput(stat).fill("4");
     await expect(await dk.nudgeLog()).toContainText(`Nudge: Boosted ${stat} by ${4 - oldValue}, to 4`);

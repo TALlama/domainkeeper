@@ -1,3 +1,4 @@
+import { leadershipTemplates } from "./ability_templates/leadership.js";
 import { withTemplates } from "./with_templates.js";
 
 export class Milestone {
@@ -24,10 +25,12 @@ export class Milestone {
   }
 }
 withTemplates(Milestone, () => [
-  ...[[2, 20], [10, 40], [25, 60], [50, 80], [100, 120]].map(([size, xp]) =>
+  // Domain size milestones
+  ...[[5, 20], [10, 40], [25, 60], [50, 80], [100, 120]].map(([size, xp]) =>
     ({icon: "🏅", name: `Domain size ${size}`, xp, trigger: "size", threshold: size})
   ),
 
+  // Settlement milestones
   {icon: "⭐", name: "Capital founded", xp: 40, trigger: "settlements",
     check(domain) { return domain.settlements.filter(s => s.position).length > 0 }},
   {icon: "🛰️", name: "Second settlement founded", xp: 40, trigger: "settlements",
@@ -38,4 +41,17 @@ withTemplates(Milestone, () => [
     check(domain) { return domain.settlements.filter(s => s.hasTrait("City")).length > 0 }},
   {icon: "🌇", name: "First Metropolis", xp: 120, trigger: "settlements",
     check(domain) { return domain.settlements.filter(s => s.hasTrait("Metropolis")).length > 0 }},
+  
+  // Activity milestones
+  ...leadershipTemplates.map(leadershipActivity => ({
+    icon: leadershipActivity.icon || "☝🏻",
+    name: `First successful ${leadershipActivity.name}`,
+    xp: 20,
+    trigger: "activity",
+    check(domain) {
+      return domain.currentTurn
+        .activitiesNamed(leadershipActivity.name)
+        .find(a => ["criticalSuccess", "success"].includes(a.outcome));
+    },
+  })),
 ]);

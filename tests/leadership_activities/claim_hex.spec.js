@@ -3,6 +3,7 @@ const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require("../fixtures/domains");
 const { leaders } = require("../fixtures/leaders");
 const { monitor } = require('../helpers');
+const { testMilestone } = require('./milestones.spec');
 
 let abilities = ["Economy", "Stability"];
 
@@ -25,18 +26,18 @@ test.describe("Earns XP", () => {
 
   test.describe(`On any of the following outcomes: ${outcomes.join("; ")}`, () => {
     test("When hitting a milestone (2, 10, 25, 50, 100)", async ({ page }) => {
-      const newSize = [2, 10, 25, 50, 100].random();
-      const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: newSize - 1});
+      const newSize = [5, 10, 25, 50, 100].random();
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: newSize - 1, milestones: {"First successful Claim Hex": "some-activity-id"}});
       await dk.pickLeader();
 
       const before = await dk.stat("xp");
-      const delta = {2: 20, 10: 40, 25: 60, 50: 80, 100: 120}[newSize];
+      const delta = {5: 20, 10: 40, 25: 60, 50: 80, 100: 120}[newSize];
       await dk.pickActivity("Claim Hex", [50, 50], abilities.random(), outcomes.random());
       expect(await dk.stat("xp"), `When growing to ${newSize}, should get ${delta} + 10 XP`).toEqual(before + delta + 10);
     });
 
     test("When NOT hitting a milestone", async ({ page }) => {
-      const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: 2});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: 2, milestones: {"First successful Claim Hex": "some-activity-id"}});
       await dk.pickLeader();
 
       const before = await dk.stat("xp");
@@ -112,4 +113,10 @@ test.describe("Loading", () => {
     await expect(takeCharge.decisionPanel("Roll").root).toContainText("Roll Economy");
     await expect(takeCharge.decisionPanel("Outcome").root).toContainText("Outcome Success");
   });
+});
+
+testMilestone("Claim Hex", {
+  domain: {...inTurnOne, size: 2},
+  decisions: [[50, 50], abilities.random(), "--outcome--"],
+  xp: 30, // 20 for milestone + 10 for growing
 });

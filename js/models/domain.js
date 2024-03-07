@@ -231,6 +231,8 @@ export class Domain {
     if (activity.actorId === this.currentActorId && activity.actor.activitiesLeft === 0) {
       delete this.currentActorId; // TODO move that into turn
     }
+
+    this.checkMilestones("activity", activity);
   }
 
   turnResolved({turn}) {

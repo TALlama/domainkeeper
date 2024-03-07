@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
-const { monitor } = require('../helpers');
+const { testMilestone } = require('./milestones.spec');
 
 let leaders = {
   pc: {name: "Polly", id: "leader-polly", traits: ["PC"], initiative: 20},
@@ -121,3 +121,7 @@ test.describe("Loading", () => {
   });
 });
 
+testMilestone("New Leadership", {
+  domain: {...inTurnOne, leaders: [leaders.pc, leaders.npc]},
+  decisions: ["Loyalty", "--outcome--", "Don't Remove", "Don't Add"],
+});
