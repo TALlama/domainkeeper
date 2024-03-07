@@ -38,7 +38,7 @@ export class DomainMap extends RxElement {
   get initialFocus() {
     let fallback = [50, 50];
     if (this.hasAttribute("focus-x") || this.hasAttribute("focus-y")) { return [focusX, focusY] }
-    if (this._markers.length === 1) { return JSON.parse(this._markers[0].dataset.properties).position || fallback }
+    if (this.markers.filter(m => m.editable !== false).length === 1) { return JSON.parse(this._markers[0].dataset.properties).position || fallback }
     return fallback
   }
   get markers() { return JSON.parse(this.getAttribute('markers') || "[]") }
