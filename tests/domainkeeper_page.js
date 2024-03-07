@@ -101,13 +101,20 @@ export class DomainkeeperPage extends LocatorLike {
     return editor.getByRole("button", {name: "Update"}).click();
   }
 
-  async renameActor(oldName, newName) {
-    await this.setCurrentActor(oldName);
-    await this.getByLabel(`Update ${oldName}`).click();
+  async editActor(name, fn) {
+    await this.setCurrentActor(name);
+    await this.getByLabel(`Update ${name}`).click();
+
     
     const editor = this.locator("sl-dialog[open]");
-    await editor.getByLabel("Name").fill(newName);
+    await fn(editor);
     return editor.getByRole("button", {name: "Update"}).click();
+  }
+
+  async renameActor(oldName, newName) {
+    return this.editActor(oldName, async editor => {
+      await editor.getByLabel("Name").fill(newName);
+    });
   }
 
   async addActorTraits(actorName, newTraits) {
@@ -159,7 +166,7 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   async setCurrentActor(value) { return this.locator(`:is(.leaders-section, .settlements-section) .actor:has-text("${value}")`).click() }
-  currentActorTraits() { return this.locator(`actor-sheet trait-list li.trait .badge`) }
+  currentActorTraits() { return this.locator(`actor-sheet h3 trait-list li.trait .badge`) }
   currentActorPowerups() { return this.locator(`actor-sheet .powerups li .powerup-name`) }
 
   pickLeader(value) { return value ? this.setCurrentActor(value) : this.locator(".leaders-section .actor .name").first().click() }
@@ -401,4 +408,18 @@ export class DecisionPanel extends LocatorLike {
 
   // Actions
   makeDecision(option) { this.optionButton(option).click({force: true}) }
+}
+
+export class TraitEditor extends LocatorLike {
+  trait(name) { return this.locator("sl-tag", {hasText: name}) }
+
+  async addTrait(trait) {
+    const addField = this.getByLabel("Add a trait");
+    await addField.fill(trait);
+    await addField.press("Enter");
+  }
+
+  async removeTrait(trait) {
+    await this.trait(trait).getByLabel('Remove').click();
+  }
 }

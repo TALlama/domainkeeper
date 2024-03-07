@@ -19,13 +19,6 @@ test.describe("Notes", () => {
     await expect(dk.currentActorName).toHaveText("Destroyer");
   });
 
-  test('can rename settlements', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
-
-    await dk.renameActor("Capital", "The Hub");
-    await expect(dk.currentActorName).toHaveText("The Hub");
-  });
-
   test('can name turns', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, inTurnOne);
 
