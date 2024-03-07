@@ -217,13 +217,24 @@ export class DomainMap extends RxElement {
 
   focus({position, behavior}={}) {
     const viewport = this.dom.viewport;
-    const percentX = position[0] / 100;
-    const percentY = position[1] / 100;
-    viewport.scroll({
-      top: viewport.scrollHeight * percentY - viewport.clientHeight / 2,
-      left: viewport.scrollWidth * percentX - viewport.clientWidth / 2,
-      behavior: behavior || "smooth",
-    });
+    if (viewport.clientWidth === 0 && !this._observer) {
+      this._observer = new IntersectionObserver(entries => {
+        if (entries.find(e => e.isIntersecting)) {
+          this.focus({position, behavior});
+          this._observer.unobserve(viewport);
+          this._observer.disconnect();
+        }
+      });
+      this._observer.observe(viewport);
+    } else {
+      const percentX = position[0] / 100;
+      const percentY = position[1] / 100;
+      viewport.scroll({
+        top: viewport.scrollHeight * percentY - viewport.clientHeight / 2,
+        left: viewport.scrollWidth * percentX - viewport.clientWidth / 2,
+        behavior: behavior || "smooth",
+      });
+    }
   }
 
   /////////////////////////////////////////////// Markers
