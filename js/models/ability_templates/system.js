@@ -23,10 +23,10 @@ export var systemTemplates = [{
     prompt: "Choose a hex to start in",
     placeMarker() { return {icon: "⭐"} },
     contextMarkers: () => [],
-    picked(_, {decision, activity}) {
+    picked(picked, {decision, activity}) {
       let pos = decision.position();
       this.position = pos;
-      if (pos) {
+      if (picked && pos) {
         let settlement = this.domain.settlements[0];
         settlement.position = pos;
 
@@ -37,7 +37,8 @@ export var systemTemplates = [{
       } else {
         this.location = null;
       }
-    }
+    },
+    mutable: (activity, decision) => activity.domain.currentTurn.number === 0,
   }],
 }, { // TODO it'd be nice if this prevented you from overflowing your ability scores
   icon: "🌱",
