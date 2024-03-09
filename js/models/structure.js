@@ -30,6 +30,20 @@ export class Structure extends Powerup {
     Powerup.add({type: this, template, actor, setup, added, activity,
       makeContext(ctx) { return {...ctx, settlement: actor, structure: ctx.powerup} },
     });
+
+    let structureCount = actor.powerups.matches({type: "structure"}).length;
+    const upgradeSettlementType = (oldType, newType, threshold) => {
+      if (actor.hasTrait(oldType) && structureCount >= threshold) {
+        activity.info(`📈 With ${structureCount} structures, ${actor.name} is now a ${newType}!`);
+        actor.removeTrait(oldType, {activity});
+        actor.addTrait(newType, {activity});
+        activity.domain.checkMilestones("settlements", activity);
+      }
+    };
+
+    upgradeSettlementType("Village", "Town", 4);
+    upgradeSettlementType("Town", "City", 8);
+    upgradeSettlementType("City", "Metropolis", 16);
   }
 
   /////////////////////////////////////////////// Templates

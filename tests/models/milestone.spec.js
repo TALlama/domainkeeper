@@ -25,13 +25,13 @@ test.describe("Given a milestone name, finds other properties", () => {
 });
 
 test.describe("Can get all milestones that the current domain hit", () => {
-  function makeDomain(properties = {}) { return {milestones: {}, size: 1, settlements: [], properties} };
+  function makeDomain(properties = {}) { return {milestones: {}, size: 1, settlements: [], ...properties} };
   function check(trigger, domain) { return Milestone.check(trigger, domain).map(m => m.name) }
 
   test("When we hit a certain size", () => {
-    expect(check("size", makeDomain({size: 1}))).toEqual([]);
-    expect(check("size", makeDomain({size: 5}))).toEqual(["Domain size 5"]);
-    expect(check("size", makeDomain({size: 25}))).toEqual(["Domain size 25"]);
+    expect.soft(check("size", makeDomain({size: 1}))).toEqual([]);
+    expect.soft(check("size", makeDomain({size: 5}))).toEqual(["Domain size 5"]);
+    expect.soft(check("size", makeDomain({size: 25}))).toEqual(["Domain size 25"]);
   });
 
   test.describe("When settlements", () => {

@@ -573,7 +573,7 @@ export var leadershipTemplates = [{
     picked(leaderId) {
       if (leaderId == "no-one") { return }
       let leader = this.domain.actor(leaderId);
-      leader && leader.addTrait("Retired");
+      leader && leader.addTrait("Retired", {activity: this});
     },
   }, {
     name: "Add a Leader",
@@ -655,7 +655,7 @@ export var leadershipTemplates = [{
   }],
   criticalSuccess() {
     if (this.trainee.activitiesPerTurn < 2) {
-      this.trainee.addTrait("Apt Pupil");
+      this.trainee.addTrait("Apt Pupil", {activity: this});
       this.info(`🧠 ${this.trainee.name} is an apt pupil! They can now perform ${this.trainee.activitiesPerTurn} action${this.trainee.activitiesPerTurn == 1 ? "" : "s"} per turn.`);
     } else { this.success() }
   },
@@ -668,7 +668,7 @@ export var leadershipTemplates = [{
   },
   criticalFailure() {
     this.error(`🤬 You alientate your pupil and they leave their post. They will not return until you apologize.`);
-    this.trainee.addTrait("AWOL");
+    this.trainee.addTrait("AWOL", {activity: this});
   },
 }, {
   icon: "🛡️",

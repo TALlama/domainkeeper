@@ -129,13 +129,8 @@ export var civicTemplates = [{
       this.actor.removePowerup(buildingSite);
       this.actor.removePowerup(buildingSite.foundation);
       Structure.add({template: this.structureName, actor: this.actor, activity: this,
-        added({activity, fullName}) {
-          activity.info(`🏛️ You built the ${fullName}!`)
-
-          // TODO automate this (and maybe change thresholds)
-          activity.info("📈 If there are now 4+ buildings in the settlement, it's a town. Get Milestone XP!");
-          activity.info("📈 If there are now 8+ buildings in the settlement, it's a city. Get Milestone XP!");
-          activity.info("📈 If there are now 16+ buildings in the settlement, it's a metropolis. Get Milestone XP!");
+        added: ({fullName}) => {
+          this.info(`🏛️ You built the ${fullName}!`)
         },
       });
     } else {
