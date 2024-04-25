@@ -80,41 +80,60 @@ export var systemTemplates = [{
       Republic: ["Stability", "Loyalty"],
       Thaumacracy: ["Economy", "Culture"],
       Yeomanry: ["Loyalty", "Culture"],
+
+      ...Ability.all.toDictionary(a => [a, [a]]),
     };
-    let summaryValue = (option) => {
-      let abilities = boosts[option] || [];
-      return abilities.length === 0 ? `Free boost` : `Boost ${abilities.join(" and ")}`;
+    let recalculate = (activity) => {
+      activity.domain.culture = activity.domain.economy = activity.domain.loyalty = activity.domain.stability = 2;
+      activity.log = [];
+      activity.decisions.forEach(decision => {
+        const mods = boosts[decision.resolution];
+        if (mods) activity.boost(...mods);
+      });
     };
-    let picked = (option, {activity}) => activity.boost(...boosts[option]);
+    let shared = {
+      summaryValue: (option) => {
+        let abilities = boosts[option] || [];
+        return abilities.length === 0 ? `Free boost` : `Boost ${abilities.join(" and ")}`;
+      },
+      optionDisableReason: (option, {activity}) => {
+        let domain = activity.domain;
+        let abilities = boosts[option] || [];
+        let over = abilities.find(a => domain[a.toLocaleLowerCase()] >= 5);
+        return over ? `${over} is already maxed` : null;
+      },
+      picked: (option, {activity}) => recalculate(activity),
+      unpicked: (option, {activity}) => recalculate(activity),
+      mutable: (activity, decision) => {
+        return activity.domain.currentTurn.number === 0;
+      },
+    }
 
     return [{
       name: "Heartland",
       saveAs: "heartland",
       options: "Forest Swamp Hill Plain Lake River Mountain Ruins".split(" "),
-      picked,
-      summaryValue,
+      ...shared,
     }, {
       name: "Charter",
       saveAs: "charter",
       options: "Conquest Expansion Exploration Grant".split(" "),
-      picked,
-      summaryValue,
+      ...shared,
     }, {
       name: "Free Charter Boost",
       saveAs: "freeCharterBoost",
       options: Ability.all,
-      picked: (ability, {activity}) => activity.boost(ability),
+      ...shared,
     }, {
       name: "Government",
       saveAs: "government",
       options: "Despotism Feudalism Oligarchy Republic Thaumacracy Yeomanry".split(" "),
-      picked,
-      summaryValue,
+      ...shared,
     }, {
       name: "Free Government Boost",
       saveAs: "freeGovernmentBoost",
       options: Ability.all,
-      picked: (ability, {activity}) => activity.boost(ability),
+      ...shared,
     }];
   })(),
 }, {

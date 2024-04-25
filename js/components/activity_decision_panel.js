@@ -58,7 +58,7 @@ export class ActivityDecisionPanel extends RxElement {
             let value = decision.saveValue(option);
             let name = `${activity.id}__${decision.name}`;
             let id = `${name}__${value}`;
-            let whyDisabled = decision.optionDisableReason(option);
+            let whyDisabled = decision.optionDisableReason(option, {activity, decision});
             let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""}' for="${id}" data-value="${value}" data-display-title-value="${decision.displayTitleValue(option)}">
               <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
               ${decision.displayValue(option)}
@@ -89,8 +89,9 @@ export class ActivityDecisionPanel extends RxElement {
   }
 
   undoPick(event) {
+    let resolutionWas = this.decision.resolution;
     this.decision.resolution = null;
-    this.decision.unpicked?.call(this.activity, {activity: this.activity, decision: this.decision});
+    this.decision.unpicked?.call(this.activity, resolutionWas, {activity: this.activity, decision: this.decision});
   }
 }
 ActivityDecisionPanel.define("activity-decision-panel");
