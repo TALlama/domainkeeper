@@ -163,13 +163,14 @@ export var systemTemplates = [{
     picked(resolution, context) {
       let {activity, decision} = context;
       decision.resolutions[resolution](context);
-      activity.domain.useAllConsumables({useBy: "end-of-turn"});
+      activity.boost({by: 30}, "XP");
     },
   }, {
     name: "Next",
     options: ["End turn", "Add another event"],
     picked(resolution, {activity}) {
       if (resolution === "End turn") {
+        activity.domain.useAllConsumables({useBy: "end-of-turn"});
         activity.domain.newTurn();
       } else if (resolution === "Add another event") {
         activity.domain.currentTurn.addActivity({name: "Additional Event", template: "Event"});

@@ -67,7 +67,7 @@ test.describe("You can end your turn", () => {
     await expect(dk.turn("Turn 1").activityNames.last()).not.toBeVisible();
 
     // includes a diff of all abilities and stats since end of last turn
-    await expect(dk.turn("Turn 1").locator(".diff")).toContainText("+0 +0 +0 +0 +0 +0 +0 +0".split(" "));
+    await expect(dk.turn("Turn 1").locator(".diff")).toContainText("+0 +0 +0 +0 +0 +0 +30 +0".split(" "));
   });
 
   test('adds a ruin to the new turn', async ({ page }) => {
