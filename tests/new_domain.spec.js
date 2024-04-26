@@ -1,11 +1,12 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { domainConcepts, placeCapital } = require('./fixtures/activities');
+const { welcomeDomainkeeper, domainConcepts, placeCapital } = require('./fixtures/activities');
 const { DomainkeeperPage } = require("./domainkeeper_page");
 
 test.describe("first run", () => {
-  test('asks for capital location and domain concept, which builds your abilities then starts turn 1', async ({ page }) => {
+  test('asks for capital, domain concept, and leaders; builds your domain then starts turn 1', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page);
+    await dk.startDomain();
 
     // Place Capital assigns position
     await dk.setCapital({position: [84, 61]});
@@ -44,15 +45,20 @@ test.describe("first run", () => {
     await dk.shouldHaveStats({loyalty: 5});
     await expect(page.getByText('Free Government Boost Loyalty')).toBeAttached(); // hides under previous turn
 
+    await dk.setDomainLeaders({Anne: "PC"});
+
     // Start of turn 1
     await expect(dk.getByText("Turn 1")).toBeVisible();
   });
 
   test('turn 1 start gives you what you need to begin', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page);
+    await dk.startDomain();
     await dk.setCapital();
     await dk.setDomainConcept();
-
+    await dk.setDomainLeaders({Anne: "PC"});
+    await dk.expectTurn(1);
+    
     // Current Actor (the capital) is offered activities
     await expect(dk.currentActorName).toHaveText(/.*/);
     expect(dk.activityPicker.root).toHaveAttribute("open");
@@ -69,7 +75,7 @@ test.describe("first run", () => {
     const dk = await DomainkeeperPage.load(page, {
       name: "Whoville",
       culture: 5, economy: 3, loyalty: 3, stability: 3,
-      turns: [{activities: [domainConcepts.complete, placeCapital.forks]}],
+      turns: [{activities: [welcomeDomainkeeper.complete, placeCapital.forks, domainConcepts.complete]}],
     });
 
     await dk.shouldHaveStats({

@@ -161,7 +161,10 @@ export class ActivityDecision {
         if (activity.callbacksEnabled) {
           decision.picked?.call(activity, value, {decision, activity});
           activity.decisionResolved?.call(activity, decision, {value, activity});
-          if (activity.resolved && activity.turn) { activity.turn.activityResolved(activity) }
+          if (activity.resolved) {
+            activity.onResolved();
+            if (activity.turn) { activity.turn.activityResolved(activity) }
+          }
         }
       },
     });

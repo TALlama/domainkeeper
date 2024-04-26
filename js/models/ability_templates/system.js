@@ -6,14 +6,21 @@ export var systemTemplates = [{
   icon: "👑",
   name: "Welcome, Domainkeeper",
   summary: "You've got a new domain. Let's see how it goes.",
-  decisions: [],
+  decisions: [{
+    name: "Ready?",
+    saveAs: "ready",
+    options: ["Let's go!"],
+  }],
   description: () => `
-    <p>💡 Here's a little app to do the math so we can see if this system works. Is it too easy? Too hard? Do these activities make sense? Poke around and play to find out!</p>
-    <p>👑 Click the buttons above to do activities. You can cancel activities until you click buttons to roll or spend, so feel free to explore.</p>
-    <p>♻️ When you're out of activities each turn, click "Event" to wrap up. Then you'll see a summary of what's changed and start the next turn.</p>
-    <p>💾 At the end of every turn, we auto-save the domain. If you want to start all over again, click the ❌ at the top of the domain sidebar.</p>
-    <p>🎯 Your goal is to keep running and expanding the Kingdom while making sure no Ability drops to 0 and Unrest never gets to 20.</p>
+    <p>👑 This is a simplified version of <a href="https://2e.aonprd.com/Rules.aspx?ID=1739">Kingmaker 2E's Kingdom rules</a>. Skills, Feats, RP, Commodoties, Consumption, Influence, and Roles are all removed.</p>
+    <p>📈 The domain has four Abilities: Culture, Economy, Loyalty, and Stability. It also has four Stats: Unrest, Size, XP, Level. Build up the Ability scores and Stats by doing activities. Spend down the Ability scores to build stuff that helps your domain run and grow.</p>
+    <p>🏙️ You start with one settlement, but can build more later. Each turn, every settlement does one activity. You roll one of the domain's Abilities to see how well the activity goes. Settlements can build Structures, which cost Ability points but offer a variety of long-term benefits.</p>
+    <p>👥 The PCs are the leaders of the domain (they don't have specific roles). Each turn, every leader does two activities. You roll one of the domain's Abilities to see how well the activity goes. A leader can't take the same activity twice, and no two leaders can use the same ability for the same activity in a turn.</p>
+    <p>♻️ When all activities are complete, an event occurs (there's no roll; an event occurs every turn). You roll one of the Abilities to see how the event plays out. Then you'll start the next turn with a summary of what's changed.</p>
+    <p>🎯 Your goal is to keep your Domain running and expanding. If any Ability drops to 0, the Domain will fall into Ruin and you lose control. Similarly, if Unrest ever climbs to 20, the Domain falls into Anarchy.</p>
+    <p>💾 Domains save at the end of every turn, or any time you hit the icon. Click 🔀 to manage your saves.</p>
   `,
+  onResolved() { this.turn.addUniqueActivity({name: "Place Capital"}) },
 }, {
   icon: "⭐",
   name: "Place Capital",
@@ -40,20 +47,21 @@ export var systemTemplates = [{
     },
     mutable: (activity, decision) => activity.domain.currentTurn.number === 0,
   }],
+  onResolved() { this.turn.addUniqueActivity({name: "Domain Concept"}) },
 }, { // TODO it'd be nice if this prevented you from overflowing your ability scores
   icon: "🌱",
   name: "Domain Concept",
   summary: "Let's pick some starting stats",
   description: () => `
-    <p>Use the buttons below to pick your stats, or allocate them as you like.</p>
+    <p>Use the buttons below to assign the Domain's stats.</p>
     <ol>
-      <li>Start each ability at 2</li>
-      <li>Heartland will boost one stat by 1</li>
-      <li>Charter will boost two different stats by 1 each</li>
-      <li>Government will boost three different stats by 1 each</li>
+      <li>Each ability starts at 2. No stat can go above 5 yet; you have to build Structures to increase capacity first.</li>
+      <li>Heartland will boost a stat by 1.</li>
+      <li>Charter will boost a stat by 1.</li>
+      <li>Governments will boost two different stats by 1 each.</li>
+      <li>You can choose one stat to boost by 1.</li>
     </ol>
-    <p>This should end with a 5/4/3/2 spread if you want to max one stat.</p>
-    <p>But maybe that makes things too hard or too easy! We ca adjust this!</p>
+    <p>I'd suggest a 5/4/3/2 spread, but you can also manage 5/5/2/2, or 5/3/3/3, or 4/4/3/3, or other possibilities.</p>
   `,
   decisions: (() => {
     let boosts = {
@@ -136,6 +144,33 @@ export var systemTemplates = [{
       ...shared,
     }];
   })(),
+  onResolved() { this.turn.addUniqueActivity({name: "Domain Leadership"}) },
+}, {
+  icon: "👥",
+  name: "Domain Leadership",
+  summary: `Let's make clear who's in charge around here`,
+  decisions: [{
+  //   name: "Role",
+  //   options: "Ruler Councilor General Emissary Magister Treasurer Viceroy Warden".split(" "),
+  //   mutable: (activity, decision) => !activity.decision("PC or NPC").resolved,
+  // }, {
+    name: "Type",
+    saveAs: "leaderType",
+    options: ["PC", "NPC"],
+    picked(option, {activity}) {
+      const name = activity.leaderName = prompt("What's their name?", "Leader");
+      activity.domain.leaders.push({name, role: activity.role, traits: [activity.leaderType]});
+    },
+  }, {
+    name: "Done?",
+    saveAs: "done",
+    options: ["Add another leader", "That's all"],
+    picked(option, {activity}) {
+      if (option === "Add another leader") {
+        activity.domain.currentTurn.addActivity({name: "Domain Leadership"});
+      }
+    },
+  }],
 }, {
   icon: "💥",
   name: "Event",

@@ -2,6 +2,13 @@ export function activityRecord(name, ability, outcome) {
   return {name, ability, outcome};
 }
 
+export const welcomeDomainkeeper = {
+  complete: {
+    name: "Welcome, Domainkeeper",
+    ready: "Let's go!",
+  },
+};
+
 export const placeCapital = {
   forks: {
     name: "Place Capital",

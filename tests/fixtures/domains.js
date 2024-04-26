@@ -1,4 +1,4 @@
-import { domainConcepts, ruin, buildUp, prognostication, contribute, placeCapital, domainSummary } from "./activities";
+import { welcomeDomainkeeper, domainConcepts, ruin, buildUp, prognostication, contribute, placeCapital, domainSummary } from "./activities";
 import { leaders } from "./leaders";
 
 export const settlements = {
@@ -16,8 +16,9 @@ export const domainCreationTurn = {
   name: "Domain Creation",
   settlements: [settlements.forks],
   activities: [
-    domainConcepts.complete,
+    welcomeDomainkeeper.complete,
     placeCapital.forks,
+    domainConcepts.complete,
     domainSummary.auto,
   ],
 };

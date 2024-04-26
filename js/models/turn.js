@@ -13,8 +13,6 @@ export class Turn {
     this.name ??= "";
 
     if (this.number === 0) {
-      this.addUniqueActivity({name: "Domain Concept"});
-      this.addUniqueActivity({name: "Place Capital"});
       this.addUniqueActivity({name: "Welcome, Domainkeeper"});
     }
   }

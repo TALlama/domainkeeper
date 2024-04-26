@@ -24,7 +24,7 @@ test("Defaults", () => {
   expect.soft(roundtripped.consumables, "default consumables").toEqual([]);
   
   expect.soft(roundtripped.settlements.map(s => s.name), "default settlements").toEqual(["Capital"]);
-  expect.soft(roundtripped.leaders.map(s => s.name), "default leaders").toEqual(["Seth", "Ben", "David", "Morgan", "Joe", "Bertie"]);
+  expect.soft(roundtripped.leaders.map(s => s.name), "default leaders").toEqual([]);
   expect.soft(roundtripped.turns.map(s => s.number), "default turns").toEqual([0]);
   expect.soft(roundtripped.turns.map(s => s.name), "default turns").toEqual(["Domain Creation"]);
 

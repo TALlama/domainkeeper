@@ -242,6 +242,10 @@ export class DomainkeeperPage extends LocatorLike {
     return el.click({force: true, position: {x: position[0] / 100 * size[0], y: position[1] / 100 * size[1]}});
   }
 
+  async startDomain() {
+    return this.activity("Welcome, Domainkeeper").makeDecision("Let's go!");
+  }
+
   async setCapital({position} = {}) {
     position = position ?? [80, 25];
 
@@ -252,6 +256,23 @@ export class DomainkeeperPage extends LocatorLike {
     return this.expectSettlementToHavePosition("Capital", position);
   }
 
+  async setDomainLeaders(leaders) {
+    for (const [name, traits] of Object.entries(leaders)) {
+      await this.addLeader(name, traits);
+    }
+
+    await this.makeDecision("That's all");
+  }
+
+  async addLeader(name, leaderType) {
+    if (this.locator(".settlements .actor").length > 0) {
+      await this.makeDecision("Add another leader")
+    }
+
+    this.page.once('dialog', async dialog => { await dialog.accept(name) });
+    await this.makeDecision(leaderType);
+  }
+
   async setDomainConcept(opts = {}) {
     await expect(this.locator('activity-sheet:not([resolved])')).toHaveCount(1);
     await this.makeDecisions([
@@ -260,7 +281,10 @@ export class DomainkeeperPage extends LocatorLike {
       opts.charterFree || "Loyalty",
       opts.govt || "Republic",
       opts.govtFree || "Loyalty"]);
-    await expect(this.getByText('Turn 1')).toBeVisible();
+  }
+
+  async expectTurn(number) {
+    await expect(this.getByText(`Turn ${number}`)).toBeVisible();
   }
 
   async loadDomain(data, expectTurn = "Turn 1") {

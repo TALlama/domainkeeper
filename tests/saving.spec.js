@@ -12,8 +12,11 @@ test.describe("Autosaves", () => {
   test('saves at the start of each new turn', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page);
 
+    await dk.startDomain();
     await dk.setCapital();
     await dk.setDomainConcept();
+    await dk.setDomainLeaders({Anne: "PC"});
+    await dk.expectTurn(1);
     expect(await dk.saveSlots.raw()).toBeDefined();
   });
 });

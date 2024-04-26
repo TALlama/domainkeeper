@@ -51,6 +51,8 @@ export class Activity {
   
   /////////////////////////////////////////////// Actions
 
+  onResolved() {}
+
   boost(...abilities) {
     let {by, prefix} = abilities[0];
     by && abilities.shift();

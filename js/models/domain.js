@@ -80,14 +80,7 @@ export class Domain {
 
   #addDefaultActors() {
     if (this.leaders.length === 0) {
-      this.leaders = [
-        {traits: "PC".split(" "), name: "Seth"},
-        {traits: "PC".split(" "), name: "Ben"},
-        {traits: "PC".split(" "), name: "David"},
-        {traits: "PC".split(" "), name: "Morgan"},
-        {traits: "PC".split(" "), name: "Joe"},
-        {traits: "NPC".split(" "), name: "Bertie"},
-      ];
+      this.leaders = [];
     }
 
     if (this.settlements.length === 0) {
