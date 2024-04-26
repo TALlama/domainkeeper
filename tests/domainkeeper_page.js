@@ -242,7 +242,8 @@ export class DomainkeeperPage extends LocatorLike {
     return el.click({force: true, position: {x: position[0] / 100 * size[0], y: position[1] / 100 * size[1]}});
   }
 
-  async startDomain() {
+  async startDomain(name = "Anvilania") {
+    this.page.once('dialog', async dialog => { await dialog.accept(name) });
     return this.activity("Welcome, Domainkeeper").makeDecision("Let's go!");
   }
 

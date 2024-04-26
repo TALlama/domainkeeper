@@ -10,9 +10,13 @@ export var systemTemplates = [{
     name: "Ready?",
     saveAs: "ready",
     options: ["Let's go!"],
+    picked(option, {activity}) {
+      const name = prompt("What's the name of your domain?", activity.domain.name || "Anvilania");
+      activity.domain.name = name;
+    },
   }],
   description: () => `
-    <p>👑 This is a simplified version of <a href="https://2e.aonprd.com/Rules.aspx?ID=1739">Kingmaker 2E's Kingdom rules</a>. Skills, Feats, RP, Commodoties, Consumption, Influence, and Roles are all removed.</p>
+    <p>👑 This is a simplified version of <a href="https://2e.aonprd.com/Rules.aspx?ID=1739">Kingmaker 2E's Kingdom rules</a>. Skills, Feats, RP, Commodities, Consumption, Influence, and Roles are all removed.</p>
     <p>📈 The domain has four Abilities: Culture, Economy, Loyalty, and Stability. It also has four Stats: Unrest, Size, XP, Level. Build up the Ability scores and Stats by doing activities. Spend down the Ability scores to build stuff that helps your domain run and grow.</p>
     <p>🏙️ You start with one settlement, but can build more later. Each turn, every settlement does one activity. You roll one of the domain's Abilities to see how well the activity goes. Settlements can build Structures, which cost Ability points but offer a variety of long-term benefits.</p>
     <p>👥 The PCs are the leaders of the domain (they don't have specific roles). Each turn, every leader does two activities. You roll one of the domain's Abilities to see how well the activity goes. A leader can't take the same activity twice, and no two leaders can use the same ability for the same activity in a turn.</p>
