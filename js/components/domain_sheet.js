@@ -53,7 +53,13 @@ class DomainSheet extends RxElement {
     document.body.append(editor);
   }
 
-  doSaveData() {
+  async doSaveData() {
+    // see https://webkit.org/blog/14403/updates-to-storage-policy/
+    if (navigator.storage && navigator.storage.persisted) {
+      const persistent = await navigator.storage.persisted();
+      if (!persistent) await navigator.storage.persist();
+    }
+
     this.saveData();
   }
 
