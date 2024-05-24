@@ -3,6 +3,7 @@ import { Ability } from "./abilities.js";
 import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
 import { Turn } from "./turn.js";
+import { Feat } from "./feat.js";
 import { nudge } from "../components/event_helpers.js";
 import { Milestone } from "./milestone.js";
 
@@ -14,6 +15,7 @@ export class Domain {
     hydrateList(this, {name: "leaders", type: Actor});
     hydrateList(this, {name: "settlements", type: Actor});
     hydrateList(this, {name: "turns", type: Turn});
+    hydrateList(this, {name: "feats", type: Feat});
 
     this.#setDefaults();
     Object.assign(this, properties);
@@ -39,7 +41,7 @@ export class Domain {
   get powerups() { return this.actors.flatMap(a => a.powerups || []) }
   set powerups(v) { /* ignore */ }
 
-  get bonuses() { return [...this.powerups, ...this.consumables].flatMap(p => p.bonuses?.map(b => { return {...b, source: p} }) || []) }
+  get bonuses() { return [...(this.powerups || []), ...(this.consumables || [])].flatMap(p => p.bonuses?.map(b => { return {...b, source: p} }) || []) }
   set bonuses(v) { /* ignore */ }
   findBonuses({activity, ability, ...pattern}) {
     return this.bonuses.matches(pattern)
@@ -126,7 +128,6 @@ export class Domain {
 
     if (Ability.all.map(a => a.toLocaleLowerCase()).includes(stat)) { return 5 }
     if ("unrest level".split(" ").includes(stat)) { return 20 }
-    if ("xp".split(" ").includes(stat)) { return 1000 }
     if ("size".split(" ").includes(stat)) { return 200 }
     return 99999;
   }
@@ -207,8 +208,6 @@ export class Domain {
   }
 
   newTurn(properties = {}) {
-    this.turns.last().addActivity({name: "Domain Summary"});
-
     this.leaders.forEach(l => l.rollInitiative()); // TODO this too
 
     let turn = this.#addTurn(properties);
@@ -229,7 +228,24 @@ export class Domain {
   }
 
   turnResolved({turn}) {
-    if (turn.number === 0) { this.newTurn() }
+    if (turn.number === 0) { this.endTurn({turn}) }
+  }
+
+  endTurn({turn}) {
+    if (this.xp >= 1000) {
+      turn.addUniqueActivity({name: "Level Up"});
+    } else {
+      this.turns.last().addActivity({name: "Domain Summary"});
+      this.useAllConsumables({useBy: "end-of-turn"});
+      this.newTurn();
+    }
+  }
+
+  /////////////////////////////////////////////// Feat Management
+
+  addFeat(properties = {}) {
+    this.feats = [...this.feats, {...properties}];
+    return this.feats.last();
   }
 
   /////////////////////////////////////////////// Consumable Management

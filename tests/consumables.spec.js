@@ -13,7 +13,7 @@ test('fame rerolls the last roll', async ({ page }) => {
     when: () => dk.consumables.withName("Fame").click(),
   });
 
-  dk.rollAbility(abilities[2]);
+  await dk.rollAbility(abilities[2]);
   await monitor({ // now there's a roll; fame can reroll it
     shouldChange: () => dk.rollText(dk.lastRoll),
     shouldNotChange: () => expect(dk.rolls).toHaveCount(1),
@@ -54,7 +54,9 @@ test('Pathfinder Society Outpost rerolls only "Clear/Claim Hex" rolls', async ({
   });
 
   // if there is an eligible roll, we'll reroll it
-  await dk.pickActivity(["Claim Hex", "Clear Hex"].random(), [74, 51], ["Stability", "Economy"].random(), "Failure");
+  let activity = ["Claim Hex", "Clear Hex"].random();
+  await dk.pickActivity(activity, [74, 51], ["Stability", "Economy"].random(), "Failure");
+  await dk.waitForRoll({activity});
   await monitor({ // now there's an eligible roll; PSO can reroll it
     shouldChange: () => dk.rollText(dk.lastRoll),
     shouldNotChange: () => dk.rolls.length,
@@ -68,6 +70,9 @@ test("Can affect rolls by giving circumstance bonuses", async ({ page }) => {
   await dk.pickLeader();
 
   await dk.pickActivity("Claim Hex", [50, 50], "Economy", "Critical Failure");
+  await expect(dk.consumables.names).toHaveText(["Fame", "Disaster"]);
+
   await dk.rollAbility("Stability");
   await expect(dk.rollBanners.first()).toContainText("-1 Disaster");
+  await expect(dk.consumables.names).toHaveText(["Fame"]);
 });

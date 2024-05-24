@@ -1,6 +1,7 @@
 import { withDiffs } from "../../helpers.js";
 
 import { Ability } from "../abilities.js";
+import { Feat } from "../feat.js";
 
 export var systemTemplates = [{
   icon: "👑",
@@ -52,7 +53,7 @@ export var systemTemplates = [{
     mutable: (activity, decision) => activity.domain.currentTurn.number === 0,
   }],
   onResolved() { this.turn.addUniqueActivity({name: "Domain Concept"}) },
-}, { // TODO it'd be nice if this prevented you from overflowing your ability scores
+}, {
   icon: "🌱",
   name: "Domain Concept",
   summary: "Let's pick some starting stats",
@@ -209,8 +210,7 @@ export var systemTemplates = [{
     options: ["End turn", "Add another event"],
     picked(resolution, {activity}) {
       if (resolution === "End turn") {
-        activity.domain.useAllConsumables({useBy: "end-of-turn"});
-        activity.domain.newTurn();
+        activity.domain.endTurn({turn: activity.turn});
       } else if (resolution === "Add another event") {
         activity.domain.currentTurn.addActivity({name: "Additional Event", template: "Event"});
       }
@@ -294,4 +294,40 @@ export var systemTemplates = [{
   name: "Nudge",
   summary: "You tweaked something",
   decisions: [],
+}, {
+  icon: "👑",
+  name: "Level Up",
+  summary: "The domain grows in renown and stature",
+  decisions: [{
+    name: "Choose wisely",
+    options: [],
+  }],
+  added() {
+    this.domain.level += 1;
+    this.domain.xp -= 1000;
+    this.info(`🎉 The domain is now level ${this.domain.level}!`);
+    this.warning(`🎯 The Control DC has increased to ${this.domain.controlDC}`);
+
+    // add level-up stuff here
+
+    this.decisions[0] = {
+      name: "Kingdon Feat",
+      options: Feat.names,
+      picked(feat, {activity}) {
+        activity.domain.addFeat({name: feat});
+        activity.info(`🤯 The domain gained the ${feat} feat`);
+      },
+      groupOptionsBy: featName => `Level ${Feat.template(featName).level}`,
+      optionDisableReason(featName) {
+        let feat = Feat.template(featName);
+        if (feat.level > this.domain.level) { return `Requires level ${feat.level}` }
+      },
+      
+      displayValue: featName => `<feat-description name="${featName}"></feat-description>`,
+      displayTitleValue: featName => featName,
+    };
+  },
+  onResolved() {
+    this.turn.addUniqueActivity({name: "Domain Summary"});
+  },
 }].map(a => { return {type: "system", actorId: "system", ...a}});

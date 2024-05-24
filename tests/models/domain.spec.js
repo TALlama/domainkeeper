@@ -32,6 +32,7 @@ test("Defaults", () => {
     "name",
     "culture",
     "economy",
+    "feats",
     "loyalty",
     "stability",
     "unrest",
@@ -66,7 +67,6 @@ test.describe("Stats", () => {
       expect.soft(domain.max("unrest")).toEqual(20);
       expect.soft(domain.max("level")).toEqual(20);
 
-      expect.soft(domain.max("xp")).toEqual(1000);
       expect.soft(domain.max("size")).toEqual(200);
 
       expect.soft(domain.max("anything else")).toEqual(99999);

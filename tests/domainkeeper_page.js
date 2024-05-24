@@ -177,8 +177,17 @@ export class DomainkeeperPage extends LocatorLike {
       {settlementName, properties});
   }
 
-  rollAbility(name) {
-    return this.page.getByRole("link", {name: `Roll ${name}`}).click();
+  async rollAbility(ability) {
+    await this.page.getByRole("link", {name: `Roll ${ability}`}).click();
+    await this.waitForRoll({ability});
+  }
+
+  async waitForRoll({activity, ability}={}) {
+    let selector = `dice-roller`;
+    selector += activity ? `[data-activity="${activity}"]` : "";
+    selector += ability ? `[data-ability="${ability}"]` : "";
+
+    await expect(this.locator(selector)).toContainText("TOTAL");
   }
 
   useSettlementActivities(ability) {

@@ -12,6 +12,7 @@ import { nudge } from "./event_helpers.js";
 import { notify } from "./toast.js";
 import { RxElement } from "./rx_element.js";
 import { DomainEditor } from "./domain_editor.js";
+import { FeatDescription } from "./feat_description.js";
 
 let nudgeValue = function(el, name, data, key, newValue) {
   let was = data[key];

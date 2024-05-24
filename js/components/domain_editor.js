@@ -19,7 +19,23 @@ export class DomainEditor extends EditorDialog {
       <br/>
       ${"this.renderTraitEditor()"}
       <br/>
+      ${this.renderFeats()}
+      <br/>
       ${this.renderMilestones()}
+    `;
+  }
+
+  renderFeats() {
+    return `
+      <h3>Feats</h3>
+      <ul>
+        ${this.domain.feats.map(feat => `
+          <li>
+            ${feat.name}
+            <span class='metadata'>${feat.description}</span>
+          </li>
+        `).join("")}
+      </ul>
     `;
   }
 

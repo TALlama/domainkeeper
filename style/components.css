@@ -692,14 +692,16 @@
     }
   }
 
-  structure-description {
+  structure-description,
+  feat-description {
     display: grid;
     gap: var(--internal-margin);
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr;
     grid-template-areas:
-      "name    stats"
-      "traits  traits"
-      "body    body";
+      "name         stats"
+      "traits       traits"
+      "requirements requirements"
+      "body         body";
     font-weight: 400;
     
     > .header {
@@ -721,13 +723,19 @@
       text-align: end;
 
       display: flex;
+      justify-content: end;
       gap: var(--internal-margin);
 
+      > .level { width: max-content }
       > .dc { display: none }
     }
 
     trait-list {
       grid-area: traits;
+    }
+
+    requirement-list {
+      grid-area: requirements;
     }
 
     > .body {
@@ -743,9 +751,11 @@
 
       > .bonuses {
         float: inline-end;
-        margin-inline-start: var(--internal-margin);
-        margin-block-end: var(--internal-margin);
-        max-width: 40%;
+        padding: var(--small-margin) var(--internal-margin);
+        translate: var(--small-margin);
+        max-width: min-content;
+        background-color: hsla(0, 0%, 0%, 0.05);
+        font-size: var(--step--2);
 
         li {
           padding-left: 3ch;
@@ -856,7 +866,7 @@
 
     .option-group {
       grid-column: 1 / -1;
-      margin-block: var(--external-margin) 0;
+      margin-block: 0;
       padding: var(--internal-margin) calc(2 * var(--internal-margin));
     }
 
