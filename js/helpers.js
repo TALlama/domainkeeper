@@ -16,6 +16,18 @@ export function displayBonus(bonus) {
   }
 }
 
+export function describeRoll({activity, ability, unit, structure}) {
+  let parts = [
+    activity ? (Array.isArray(activity) ? activity.join(" or ") : activity) : null,
+    unit ? `for ${unit}` : null,
+    structure ? `for ${structure}` : null,
+    (ability && activity) ? `using` : null,
+    ability ? ability : null,
+  ].filter(Boolean);
+  
+  return parts.length ? parts.join(" ") : "any check";
+}
+
 export function errorMessage(msg, ...consoleArgs) {
   console.error(msg, ...consoleArgs);
   return `<span class="internal-error">💥 ERROR: ${msg} 💥</span>`;

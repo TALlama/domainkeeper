@@ -331,12 +331,12 @@ export var leadershipTemplates = [{
   },
   success() {
     this.info(`🎉 You can call upon the solution to aid in resolving any Domain check made during the remainder of this turn. Do so when a check is rolled, but before you learn the result. Immediately reroll that check with a +2 circumstance bonus; you must take the new result.`);
-    this.addConsumable({name: "Creative Solution", action: "reroll", description: "Reroll +2"});
+    this.addReroll({name: "Creative Solution", description: "Reroll +2"});
   },
   failure() { this.warning("❌ You spend time thinking the problem through, but no solution shows itself.") },
   criticalFailure() {
     this.error(`Your scholars and thinkers are so frustrated that you take a –1 circumstance penalty to Culture checks until the end of the NEXT Domain turn.`)
-    this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)"});
+    this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)", bonuses: [{type: "circumstance", ability: "Culture", value: -1}]});
   },
 }, {
   icon: "🛠️",

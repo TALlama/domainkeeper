@@ -176,7 +176,7 @@ export class Structure extends Powerup {
       traits: ["Building"],
       description: `A mint allows the kingdom to produce its own coinage to augment its economy. It can also include fortified underground chambers to help serve as a treasury.`,
       newTurn({domain}) {
-        domain.addConsumable({name: this.name, description: "Reroll Economy", action: "reroll", ability: "Economy"});
+        domain.addReroll({name: this.name, ability: "Economy"});
       },
       effects: `Once your domain has a palace, you can reroll one Economy role per turn.`,
     }];
@@ -848,7 +848,7 @@ export class Structure extends Powerup {
       bonuses: [{activity, value: 2}],
       effects: `Each turn, you may roll one die when using Clear Hex or Claim Hex.`,
       newTurn({domain}) {
-        domain.addConsumable({name: this.name, description: "Reroll Clear/Claim Hex", action: "reroll", activities: ["Clear Hex", "Claim Hex"]});
+        domain.addReroll({name: this.name, activity: ["Clear Hex", "Claim Hex"]});
       },
     }];
   }
@@ -986,7 +986,7 @@ export class Structure extends Powerup {
       effects: `A palace can only be built in your capital. The first time you build a palace, reduce Unrest by 10.\nOnce your domain has a palace, you can reroll one Loyalty role per turn.`,
       added({activity}) { activity.reduce({by: 10}, "Unrest") }, // TODO limit to 1/ever
       newTurn({domain}) {
-        domain.addConsumable({name: this.name, description: "Reroll Loyalty", action: "reroll", ability: "Loyalty"});
+        domain.addReroll({name: this.name, ability: "Loyalty"});
       },
     }];
   }

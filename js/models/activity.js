@@ -83,6 +83,11 @@ export class Activity {
     this.domain.addConsumable(attrs);
   }
 
+  addReroll(attrs, logMessage) {
+    this.info(logMessage || `➕ Added ${attrs.name}`);
+    this.domain.addReroll(attrs);
+  }
+
   addFame() {
     this.info("👩🏻‍🎤 Add fame");
     this.domain.addFame({activity: this});

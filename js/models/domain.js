@@ -1,3 +1,4 @@
+import { describeRoll } from "../helpers.js";
 import { addTransient, hydrateList } from "./utils.js";
 import { Ability } from "./abilities.js";
 import { Actor } from "./actor.js";
@@ -270,10 +271,18 @@ export class Domain {
   addFame({activity} = {}) {
     let existing = this.findConsumables({name: "Fame"});
     if (existing.length < 3) {
-      this.addConsumable({name: "Fame", description: "Reroll", action: "reroll", useBy: "end-of-time"});
+      this.addReroll({name: "Fame", useBy: "end-of-time"});
     } else {
       (activity || this).info(`👨🏻‍🎤 Cannot have more than three Fame; added 100xp instead`);
       this.xp += 100;
     }
+  }
+
+  addReroll(attrs={}) {
+    let description = attrs.description || `Reroll ${describeRoll(attrs)}`;
+    this.addConsumable({action: "reroll", description, ...attrs});
+  }
+
+    this.addConsumable({action, ability, description, ...attrs, action: "reroll"});
   }
 }
