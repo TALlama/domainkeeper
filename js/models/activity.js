@@ -88,6 +88,11 @@ export class Activity {
     this.domain.addReroll(attrs);
   }
 
+  addRollBonus(attrs, logMessage) {
+    this.info(logMessage || `➕ Added ${attrs.name}`);
+    this.domain.addRollBonus(attrs);
+  }
+
   addFame() {
     this.info("👩🏻‍🎤 Add fame");
     this.domain.addFame({activity: this});

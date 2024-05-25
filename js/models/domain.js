@@ -1,4 +1,4 @@
-import { describeRoll } from "../helpers.js";
+import { describeRoll, mod } from "../helpers.js";
 import { addTransient, hydrateList } from "./utils.js";
 import { Ability } from "./abilities.js";
 import { Actor } from "./actor.js";
@@ -283,6 +283,13 @@ export class Domain {
     this.addConsumable({action: "reroll", description, ...attrs});
   }
 
-    this.addConsumable({action, ability, description, ...attrs, action: "reroll"});
+  addRollBonus({value, type, actorType, bonus, action, description, ...attrs}) {
+    value = value ?? 1;
+    type = type ?? "circumstance";
+    bonus = {type, value, actorType, ...bonus};
+
+    action = action ?? "roll-bonus";
+    description = description ?? `${mod(value)} ${describeRoll(bonus)} (${type})`;
+    this.addConsumable({action, description, bonuses: [bonus], ...attrs});
   }
 }

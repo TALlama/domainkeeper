@@ -132,7 +132,7 @@ export var leadershipTemplates = [{
   failure() { this.warning(`❌ You fail to claim the hex`) },
   criticalFailure() {
     this.error(`💀 You fail to claim the hex, and a number of early settlers and explorers are lost, causing you to take a –1 circumstance penalty to Stability-based checks until the end of this turn.`);
-    this.addConsumable({name: "Disaster", description: "-1 Stability (Circumstance penalty)", bonuses: [{type: "circumstance", ability: "Stability", value: -1}]});
+    this.addRollBonus({name: "Disaster", ability: "Stability", value: -1});
   },
 }, {
   icon: "🏃‍♂️",
@@ -336,7 +336,7 @@ export var leadershipTemplates = [{
   failure() { this.warning("❌ You spend time thinking the problem through, but no solution shows itself.") },
   criticalFailure() {
     this.error(`Your scholars and thinkers are so frustrated that you take a –1 circumstance penalty to Culture checks until the end of the NEXT Domain turn.`)
-    this.addConsumable({name: "Status: Frustrated", description: "-1 Culture (Circumstance penalty)", bonuses: [{type: "circumstance", ability: "Culture", value: -1}]});
+    this.addRollBonus({name: "Frustrated", ability: "Culture", value: -1, useBy: "end-of-turn"});
   },
 }, {
   icon: "🛠️",
@@ -727,18 +727,18 @@ export var leadershipTemplates = [{
   }],
   criticalSuccess() {
     this.info(`🧿 Gain a +2 circumstance bonus to the check to resolve the event.`);
-    this.addConsumable({name: "Status: Prepared 2", description: "+2 Event Resolution (Circumstance bonus)"});
+    this.addRollBonus({name: "Clear Prognosis", activity: "Event", type: "circumstance", value: 2})
   },
   success() {
     this.info(`🎴 Gain a +1 circumstance bonus to the check to resolve the event.`);
-    this.addConsumable({name: "Status: Prepared 1", description: "+1 Event Resolution (Circumstance bonus)"});
+    this.addRollBonus({name: "Cloudy Prognosis", activity: "Event", type: "circumstance", value: 1})
   },
   failure() {
     this.warning(`❌ Your spellcasters divine no aid.`);
   },
   criticalFailure() {
     this.error(`💥 Your spellcasters provide inaccurate readings of the future. Take a -1 circumstance penalty to the check to resolve the event`);
-    this.addConsumable({name: "Status: Ill-Prepared", description: "-1 Event Resolution (Circumstance bonus)"});
+    this.addRollBonus({name: "Mistaken Prognosis", activity: "Event", type: "circumstance", value: -1})
   },
 }, {
   icon: "🎨",

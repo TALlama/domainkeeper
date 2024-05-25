@@ -8,8 +8,7 @@ export const generalFeats = withTrait([
     description: "An active citizenry gives one settlement a bonus each turn.",
     effects: "Your domain is administered by its citizens, who keep things moving even when the leaders are otherwise occupied. Each turn, one settlement can add a +2 circumstance bonus to its first activity.",
     newTurn({domain}) {
-      // TODO don't use during leadership rolls
-      domain.addConsumable({name: this.name, description: "+2 Civic (Status bonus)", bonuses: [{type: "circumstance", value: +2}]});
+      domain.addRollBonus({name: this.name, value: +2, actorType: `settlement`});
     },
   },
 ], "General");
