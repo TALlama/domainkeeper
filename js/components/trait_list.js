@@ -56,6 +56,8 @@ export class TraitList extends RxElement {
       Expensive: "This structure costs 2x its level instead of 1.5x its level",
       ...Array.from({length: 100}, (_, ix) => [`Cost ${ix + 1}`, `This structure costs ${ix+1} to complete`]).toDictionary(),
 
+      Fortification: "Part of the domain's defensese",
+
       Culture: "Affects the Culture ability",
       Economy: "Affects the Economy ability",
       Loyalty: "Affects the Loyalty ability",

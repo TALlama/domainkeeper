@@ -295,7 +295,7 @@ export class Structure extends Powerup {
     }, {
       name: `Watchtower`,
       level: 3,
-      traits: ["Building"],
+      traits: ["Building", "Fortification"],
       upgradeTo: [`Keep`, `Garrison`],
       description: `A watchtower serves as a guard post that grants a settlement advance warning to upcoming dangerous events.`,
       bonuses: [{max: ability, value: 1}], // WAS +1 item bonus to checks to resolve events affecting the settlement.
@@ -378,7 +378,7 @@ export class Structure extends Powerup {
     return [{ //////////////////////////////////////// Infrastructure improves hexes
       name: `Wall, Wooden`,
       level: 1,
-      traits: ["Building", "Infrastructure", "Expensive"],
+      traits: ["Building", "Infrastructure", "Fortification", "Expensive"],
       upgradeTo: [`Wall, Stone`],
       description: `Wooden walls provide serviceable defenses to a settlement.`,
       effects: `A wooden wall is built along the border of your settlement. The first time you build a wooden wall in each settlement, reduce Unrest by 1.`,
@@ -417,7 +417,7 @@ export class Structure extends Powerup {
     }, {
       name: `Wall, Stone`,
       level: 5,
-      traits: ["Infrastructure", "Expensive"],
+      traits: ["Building", "Infrastructure", "Fortification", "Expensive"],
       upgradeTo: [`Wall, Magical`],
       description: `Stone walls provide solid defenses to a settlement’s borders.`,
       effects: `A stone wall is built along the border of your settlement. The first time you build a stone wall in each settlement, reduce Unrest by 1.`,
@@ -432,7 +432,7 @@ export class Structure extends Powerup {
     }, {
       name: `Wall, Magical`,
       level: 15,
-      traits: ["Infrastructure", "Expensive"],
+      traits: ["Building", "Infrastructure", "Fortification", "Expensive"],
       description: `Force walls provide ephemeral defenses to a settlement’s borders.`,
       effects: `A magical wall is summoned along the border of your settlement, with glowing runes marking the perimeter. The first time you build a magical wall in each settlement, reduce Unrest by 1.`,
       added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
@@ -914,7 +914,7 @@ export class Structure extends Powerup {
     return [{
       name: `Barracks`,
       level: 3,
-      traits: ["Building", "Residential"],
+      traits: ["Building", "Residential", "Fortification"],
       upgradeTo: [`Keep`, `Garrison`, `Castle`],
       description: `Barracks are focused on housing and training guards, militia, soldiers, and military forces.`,
       bonuses: [
@@ -927,7 +927,7 @@ export class Structure extends Powerup {
     }, {
       name: `Keep`,
       level: 3,
-      traits: ["Building", "Expensive"],
+      traits: ["Building", "Expensive", "Fortification"],
       upgradeTo: [`Garrison`, `Castle`],
       description: `A keep is a high-walled defensive structure that guards the heart of a settlement. It includes practice and marshaling yards as well as a refuge for your leaders should danger strike the settlement.`,
       bonuses: [
@@ -940,7 +940,7 @@ export class Structure extends Powerup {
     }, {
       name: `Garrison`,
       level: 5,
-      traits: ["Building", "Residential"],
+      traits: ["Building", "Residential", "Fortification"],
       upgradeTo: [`Castle`],
       description: `A garrison is a complex of barracks, training yards, and weapons storage and repair for maintaining your military.`,
       bonuses: [
@@ -952,7 +952,7 @@ export class Structure extends Powerup {
     }, {
       name: `Castle`,
       level: 9,
-      traits: ["Building", "Renowned", "Expensive"],
+      traits: ["Building", "Fortification", "Renowned", "Expensive"],
       upgradeTo: [`Palace`],
       description: `A castle is a fortified structure that often serves as the seat of government for a kingdom.`,
       bonuses: [
