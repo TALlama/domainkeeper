@@ -357,10 +357,12 @@ class DomainSheet extends RxElement {
       roller.setAttribute("difficulty", Math.max(1, dc));
     }
 
+    let activity = this.activityLog?.currentActivity;
+    if (activity?.name !== domainRoll.activity) { activity = null }
     domainRoll.bonuses.forEach((bonus) => {
       let source = bonus.source || {};
       if (source.action === "roll-bonus" && source.id) {
-        this.domain.useConsumable({id: source.id});
+        (activity || this.domain).useConsumable({id: source.id});
       }
     });
 

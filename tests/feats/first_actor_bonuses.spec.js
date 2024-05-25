@@ -13,6 +13,7 @@ test.describe("Civil Service", () => {
 
     await dk.pickActivity("Build Structure", "Cemetery", "Reduce Culture by 1 to proceed", "Economy", "Success");
     await expect(dk.rollBanners.first()).toContainText("+2 Civil Service");
+    await expect(dk.topActivity().log).toContainText("Used Civil Service");
     await expect(dk.consumables.names).toHaveText(["Fame"]);
   });
 
@@ -39,6 +40,7 @@ test.describe("Cooperative Leadership", () => {
     await dk.pickLeader();
     await dk.pickActivity("Build Up", "Economy", "Success");
     await expect(dk.rollBanners.first()).toContainText("+2 Cooperative Leadership");
+    await expect(dk.topActivity().log).toContainText("Used Cooperative Leadership");
     await expect(dk.consumables.names).toHaveText(["Fame"]);
   });
 

@@ -49,7 +49,7 @@ export default class DomainActivityLog extends RxElement {
     let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
     if (consumableId) {
       useUp(event.target.closest(".consumable")).then(() =>
-        this.domainSheet.domain.useConsumable({id: consumableId})
+        (this.currentActivity || this.domain).useConsumable({id: consumableId})
       );
     }
   }

@@ -260,7 +260,7 @@ export class Domain {
 
   useConsumable(pattern) {
     let index = this.consumables.findIndex(c => Object.matches(c, pattern));
-    index > -1 && this.consumables.splice(index, 1);
+    return (index > -1) ? this.consumables.splice(index, 1)[0] : null;
   }
 
   useAllConsumables(pattern) {

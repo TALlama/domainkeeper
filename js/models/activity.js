@@ -103,6 +103,11 @@ export class Activity {
     actor.bonusActivities += 1;
   }
 
+  useConsumable(pattern) {
+    let consumed = this.domain.useConsumable(pattern);
+    if (consumed) { this.info(`🗑️ Used ${consumed.name}`) }
+  }
+
   requirePayment(properties = {}) {
     let decision = this.decision("Payment");
     if (decision) {
