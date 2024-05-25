@@ -31,9 +31,9 @@ test.describe("Notes", () => {
   test('can rename activities taken', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, endTurnOne);
 
-    await expect(dk.turn(1).activityNames).toHaveText(["Prognostication", "Build Up", "Contribute", "Ruin"]);
+    await expect(dk.turn(1).activityNames).toHaveText(["Prognostication", "Build Up", "Contribute", "News"]);
     await dk.topActivity().rename("Farsight Ceremony");
-    await expect(dk.turn(1).activityNames).toHaveText(["Farsight Ceremony", "Build Up", "Contribute", "Ruin"]);
+    await expect(dk.turn(1).activityNames).toHaveText(["Farsight Ceremony", "Build Up", "Contribute", "News"]);
   });
 
   test('can change activity summaries', async ({ page }) => {

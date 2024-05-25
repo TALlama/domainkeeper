@@ -29,9 +29,9 @@ export const domainConcepts = {
   },
 };
 
-export const ruin = {
+export const news = {
   allGood: {
-    name: "Ruin",
+    name: "News",
     ruin5: "Unmet",
     ruin10: "Unmet",
     ruin15: "Unmet",

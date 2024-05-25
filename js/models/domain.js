@@ -213,10 +213,10 @@ export class Domain {
 
     let turn = this.#addTurn(properties);
     if (turn.number > 0) {
-      turn.addUniqueActivity({name: "Ruin"});
-      this.addFame();
-      this.powerups.forEach(powerup => powerup.newTurn && powerup.newTurn({domain: this, powerup}));
-      this.feats.forEach(feat => feat.newTurn && feat.newTurn({domain: this, feat}));
+      let news = turn.addUniqueActivity({name: "News"});
+      news.addFame();
+      this.powerups.forEach(powerup => powerup.newTurn && powerup.newTurn({domain: this, activity: news, powerup}));
+      this.feats.forEach(feat => feat.newTurn && feat.newTurn({domain: this, activity: news, feat}));
     }
     document.querySelector("domain-sheet").saveData();
   }

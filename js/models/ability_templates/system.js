@@ -257,12 +257,12 @@ export var systemTemplates = [{
     `;
   },
 }, {
-  icon: "😢",
-  name: "Ruin",
-  summary: "If Unrest is too high, random stats get reduced",
+  icon: "📜",
+  name: "News",
+  summary: "What's the situation in the domain?",
   decisions: [5, 10, 15].map(threshold => {
     return {
-      name: `Threshold ${threshold}`,
+      name: `Ruin - threshold ${threshold}`,
       options: ["Unmet", "Met"],
       threshold,
       saveAs: `ruin${threshold}`,

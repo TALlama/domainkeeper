@@ -1,4 +1,4 @@
-import { welcomeDomainkeeper, domainConcepts, ruin, buildUp, prognostication, contribute, placeCapital, domainSummary } from "./activities";
+import { welcomeDomainkeeper, domainConcepts, news, buildUp, prognostication, contribute, placeCapital, domainSummary } from "./activities";
 import { leaders } from "./leaders";
 
 export const settlements = {
@@ -36,7 +36,7 @@ export const inTurnOne = {
   leaders: leaders.threePack,
   turns: [domainCreationTurn, {
     number: 1,
-    activities: [ruin.allGood],
+    activities: [news.allGood],
   }],
 };
 
@@ -46,7 +46,7 @@ export const endTurnOne = {
   leaders: [leaders.anne],
   turns: [domainCreationTurn, {
     number: 1,
-    activities: [ruin.allGood, {
+    activities: [news.allGood, {
       ...contribute.culture, actorId: "settlement-starter",
     }, {
       ...buildUp.cultureFailure, actorId: leaders.anne.id,

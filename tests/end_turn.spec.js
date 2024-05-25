@@ -60,7 +60,7 @@ test.describe("You can end your turn", () => {
     const dk = await DomainkeeperPage.load(page, endTurnOne);
     
     await expect(dk.turn("Turn 1").activityNames).not.toContainText(["Domain Summary"]);
-    await expect(dk.turn("Turn 1").activityNames).toContainText(["Ruin"]);
+    await expect(dk.turn("Turn 1").activityNames).toContainText(["News"]);
     await dk.readyEventButton.click();
     await eventPicks(dk);
     await expect(dk.turn("Turn 1").activityNames).toContainText(["Domain Summary"]);
@@ -70,12 +70,12 @@ test.describe("You can end your turn", () => {
     await expect(dk.turn("Turn 1").locator(".diff")).toContainText("+0 +0 +0 +0 +0 +0 +30 +0".split(" "));
   });
 
-  test('adds a ruin to the new turn', async ({ page }) => {
+  test('adds a news activity to the new turn', async ({ page }) => {
     const dk = await DomainkeeperPage.load(page, endTurnOne);
     
-    await expect(dk.turn("Turn 2").activityNames).not.toContainText(["Ruin"]);
+    await expect(dk.turn("Turn 2").activityNames).not.toContainText(["News"]);
     await dk.readyEventButton.click();
     await eventPicks(dk);
-    await expect(dk.turn("Turn 2").activityNames).toContainText(["Ruin"]);
+    await expect(dk.turn("Turn 2").activityNames).toContainText(["News"]);
   });
 });
