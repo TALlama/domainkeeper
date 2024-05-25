@@ -1,5 +1,10 @@
 const maxStat = (maxAbility, value) => { return {maxAbility, value} };
 const investedIn = (ability) => maxStat(ability, 7);
+const minStat = (ability, value) => { return {ability, value} };
+const trainedIn = (ability) => minStat(ability, 4);
+const expertIn = (ability) => minStat(ability, 7);
+const masterIn = (ability) => minStat(ability, 10);
+const legendaryIn = (ability) => minStat(ability, 13);
 
 const withTrait = (list, ...traits) => list.map(feat => { return {...feat, traits: [...(feat.traits || []), ...traits]} });
 
@@ -78,18 +83,102 @@ export const generalFeats = withTrait([
 ], "General");
 
 ///////////////////////////////////////////////// Culture Feats
+export const artFeats = [
+  {
+    name: "Impressive Accoutrements",
+    level: 1,
+    prerequisites: [trainedIn("culture")], //WAS: trained in Arts
+    description: "A refined culture makes diplomacy easier.",
+    // WAS: description: "Cultural refinement aids in diplomatic relations",
+    // WAS: new activity burns luxury goods to boost Send Diplomatic Envoy, Request Foreign Aid, and Establish Trade Agreement
+    effects: "You supply your diplomats with extravagant yet tasteful accoutrements which project power and position to those they speak to on your domain’s behalf. Once per turn, you can add a +2 circumstance bonus any check using Loyalty.",
+    newTurn({activity}) {
+      activity.addRollBonus({name: this.name, value: 2, ability: "Loyalty"});
+    },
+  }
+];
+
+export const faithFeats = [
+  {
+    name: "Unifying Faith",
+    level: 1,
+    prerequisites: [trainedIn("loyalty")], //WAS: trained in Folklore
+    description: "A national faith unifies your people’s values",
+    // WAS: bonus to Celebrate Holiday, Quell Unrest, and Repair Reputation
+    effects: "Your people share a collective faith, whether of a single deity or a particular national pantheon. The first time Culture would be reduced each turn, prevent 1 point of the reduction.",
+    newTurn({activity}) {
+      activity.addRollBonus({name: this.name, value: 2, ability: "Culture"});
+    },
+  },
+];
+
+export const magicFeats = [
+];
+
+export const scholarlyFeats = [
+];
+
+export const statecraftFeats = [
+];
+
 export const cultureFeats = withTrait([
+  ...artFeats,
+  ...faithFeats,
+  ...magicFeats,
+  ...scholarlyFeats,
+  ...statecraftFeats,
 ], "Culture");
 
 ///////////////////////////////////////////////// Economy Feats
+export const boatingFeats = [
+];
+
+export const explorationFeats = [
+];
+
+export const industryFeats = [
+  {
+    name: "Frugal",
+    level: 1,
+    prerequisites: [trainedIn("economy")],
+    description: "Once per turn, gain a bonus to a stabiity check",
+    effects: "The domain is known for its frugality and careful planning. Once per turn, add a +2 circumstance bonus to a stability check.",
+    newTurn({activity}) {
+      activity.addRollBonus({name: this.name, value: 2, ability: "Stability"});
+    },
+  },
+];
+
+export const tradeFeats = [
+];
+
 export const economyFeats = withTrait([
+  ...boatingFeats,
+  ...explorationFeats,
+  ...industryFeats,
+  ...tradeFeats,
 ], "Economy");
 
 ///////////////////////////////////////////////// Loyalty Feats
+export const infiltrationFeats = [
+];
+
+export const politicsFeats = [
+];
+
+export const warfareFeats = [
+]
+
 export const loyaltyFeats = withTrait([
+  ...infiltrationFeats,
+  ...politicsFeats,
+  ...warfareFeats,
 ], "Loyalty");
 
 ///////////////////////////////////////////////// Stability Feats
+export const agrictultureFeats = [
+];
+
 export const defenseFeats = [
   {
     name: "Continual Care",
@@ -104,8 +193,27 @@ export const defenseFeats = [
   },
 ];
 
+export const constructionFeats = [
+];
+
+export const wildernessFeats = [
+  {
+    name: "Friends of the Wild",
+    level: 1,
+    prerequisites: [trainedIn("stability")],
+    description: "Your people identify and make use of the natural resources all around them.",
+    effects: "The settlements of your domain incorporate the riches of the land. Once per turn, you can add a +2 circumstance bonus any check using Economy.",
+    newTurn({activity}) {
+      activity.addRollBonus({name: this.name, value: 2, ability: "Economy"});
+    },
+  },
+];
+
 export const stabilityFeats = withTrait([
+  ...agrictultureFeats,
   ...defenseFeats,
+  ...constructionFeats,
+  ...wildernessFeats,
 ], "Stability");
 
 ///////////////////////////////////////////////// Summary Feat List

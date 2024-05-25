@@ -284,10 +284,10 @@ export class Domain {
     this.addConsumable({action: "reroll", description, ...attrs});
   }
 
-  addRollBonus({value, type, actorType, bonus, action, description, ...attrs}) {
+  addRollBonus({value, type, activity, ability, actorType, bonus, action, description, ...attrs}) {
     value = value ?? 1;
     type = type ?? "circumstance";
-    bonus = {type, value, actorType, ...bonus};
+    bonus = {value, type, activity, ability, actorType, ...bonus};
 
     action = action ?? "roll-bonus";
     description = description ?? `${mod(value)} ${describeRoll(bonus)} (${type})`;
