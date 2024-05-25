@@ -95,7 +95,19 @@ export const artFeats = [
     newTurn({activity}) {
       activity.addRollBonus({name: this.name, value: 2, ability: "Loyalty"});
     },
-  }
+  }, {
+    name: "National Specialty",
+    level: 1,
+    prerequisites: [trainedIn("culture")], //WAS: trained in Arts
+    description: "The domain is renowned for a specific artform, which is broadly useful.",
+    // WAS: description: "Artists produce better specific luxury goods",
+    // WAS: +1 to Rest and Relax and to Create a Masterpiece & two more activities
+    effects: "Your domain is known for its mastery of a particular artform, which is widely appreciated and sought after. You gain a +1 circumstance bonus to several abilities using Culture.",
+    bonuses: [
+      {type: "circumstance", activity: "Cool Down", ability: "Culture", value: 1},
+      {type: "circumstance", activity: "Create A Masterpiece", ability: "Culture", value: 1},
+    ],
+  },
 ];
 
 export const faithFeats = [
@@ -167,6 +179,31 @@ export const politicsFeats = [
 ];
 
 export const warfareFeats = [
+  {
+    name: "Crush Dissent",
+    level: 1,
+    prerequisites: [trainedIn("loyalty")], //WAS: trained in Warfare
+    description: "Stifle dissent before it has a chance to spread",
+    // WAS: description: "Stifle dissent before it has a chance to spread",
+    // WAS: use Warfare to avoid unrest
+    effects: "Your rule brooks no dissent and stamps out traitors, making harsh examples of them.",
+    bonuses: [
+      {type: "circumstance", activity: "Quell Unrest", ability: "Loyalty", value: 1},
+      {type: "circumstance", activity: "Take Charge", ability: "Loyalty", value: 1},
+    ],
+  }, {
+    name: "Militant Peace-Keeping",
+    level: 1,
+    prerequisites: [trainedIn("loyalty")], //WAS: trained in Warfare
+    description: "The threat of force keeps the peace.",
+    // WAS: description: "Use Warfare for some Defense-related checks",
+    // WAS: use Warfare instead of Defense for Fortify Hex and Repair Reputation (Crime); use Warfare on criminal events
+    effects: "Your people know that your military is always ready to act, and this readiness helps to keep the peace.",
+    bonuses: [
+      {type: "circumstance", activity: "Build Up", ability: "Loyalty", value: 1},
+      {type: "circumstance", activity: "Cool Down", ability: "Loyalty", value: 1},
+    ],
+  },
 ]
 
 export const loyaltyFeats = withTrait([
@@ -177,6 +214,30 @@ export const loyaltyFeats = withTrait([
 
 ///////////////////////////////////////////////// Stability Feats
 export const agrictultureFeats = [
+  {
+    name: "Beasts of Burden",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Agriculture
+    description: "Use domestic animals to make work easier",
+    // WAS: description: "Use domestic animals to make work easier",
+    // WAS: bonus to Agriculture, Engineering, and Wilderness checks
+    effects: "Your people use domesticated animals like horses, oxen, and the like to make their work easier. With animals serving as transport for people and goods, powering mills and towing plows, the domain gains a +1 circumstance bonus to a number of activities.",
+    bonuses: [
+      {type: "circumstance", activity: "Build Up", ability: "Stability", value: 1},
+      {type: "circumstance", activity: "Build Infrastructure", ability: "Stability", value: 1},
+    ],
+  }, {
+    name: "Medicinal Crops",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Agriculture
+    description: "Enhance your domain’s healing skills",
+    effects: "Your farmers and other agricultural producers dedicate a portion of their efforts to medicinal crops, making sure your healers are always stocked with what they need." +
+      "Additionally, you gain a +2 circumstance bonus to any event regarding disease or curses, such as the Plague and Undead Uprising random events.",
+    bonuses: [
+      {type: "circumstance", activity: "Cool Down", ability: "Stability", value: 1},
+      {type: "circumstance", activity: "Quell Unrest", ability: "Stability", value: 1},
+    ],
+  },
 ];
 
 export const defenseFeats = [
@@ -194,6 +255,17 @@ export const defenseFeats = [
 ];
 
 export const constructionFeats = [
+  {
+    name: "Dedicated Builders",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Engineering
+    description: "Gain a bonus to all attempts to build",
+    effects: "Expansion and upgrades to structures and infrastructure are a constant feature of your people’s lives, and they are always ready to lend a hand in the construction of new buildings and roads. The domain gains a +1 circumstance bonus to all stability checks to Build Structures and Build Infrastructure.",
+    bonuses: [
+      {type: "circumstance", activity: "Build Structure", ability: "Stability", value: 1},
+      {type: "circumstance", activity: "Build Infrastructure", ability: "Stability", value: 1},
+    ],
+  },
 ];
 
 export const wildernessFeats = [
