@@ -42,14 +42,14 @@ export class Domain {
   get powerups() { return this.actors.flatMap(a => a.powerups || []) }
   set powerups(v) { /* ignore */ }
 
-  get bonuses() { return [...(this.powerups || []), ...(this.consumables || [])].flatMap(p => p.bonuses?.map(b => { return {...b, source: p} }) || []) }
+  get bonuses() { return [...(this.powerups || []), ...(this.consumables || []), ...(this.feats || [])].flatMap(p => p.bonuses?.map(b => { return {...b, source: p} }) || []) }
   set bonuses(v) { /* ignore */ }
-  findBonuses({activity, ability, ...pattern}) {
+  findBonuses({activity, ability, actorType, ...pattern}) {
     return this.bonuses.matches(pattern)
       .filter(b => {
-        const activityMatches = !b.activity || b.activity === activity;
-        const abilityMatches = !b.ability || b.ability === ability;
-        return activityMatches && abilityMatches;
+        return Object.entries({activity, ability, actorType}).all(([prop, value]) => {
+          return !b[prop] || b[prop] === value || (Array.isArray(b[prop]) && b[prop].includes(value));
+        });
       }).sortBy("-value")
   }
 
@@ -215,7 +215,8 @@ export class Domain {
     if (turn.number > 0) {
       turn.addUniqueActivity({name: "Ruin"});
       this.addFame();
-      this.powerups.forEach(pu => pu.newTurn && pu.newTurn({domain: this, powerup: pu}));
+      this.powerups.forEach(powerup => powerup.newTurn && powerup.newTurn({domain: this, powerup}));
+      this.feats.forEach(feat => feat.newTurn && feat.newTurn({domain: this, feat}));
     }
     document.querySelector("domain-sheet").saveData();
   }

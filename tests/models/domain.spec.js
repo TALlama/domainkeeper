@@ -47,6 +47,120 @@ test("Defaults", () => {
   ].sort());
 });
 
+test.describe("Bonuses", () => {
+  test.describe("findBonuses", () => {
+    test("has no bonuses to start", () => {
+      const domain = new Domain({settlements: [{name: "Capital"}]});
+      expect.soft(domain.bonuses).toEqual([]);
+    });
+
+    test("will find bonuses that apply to all checks", () => {
+      const domain = new Domain({
+        settlements: [{name: "Capital"}],
+        feats: [{bonuses: [{value: 1}]}],
+      });
+      expect.soft(domain.findBonuses({})).toEqual([{value: 1, source: domain.feats[0]}]);
+    });
+
+    test("sorts bonuses with biggest first", () => {
+      const domain = new Domain({
+        settlements: [{name: "Capital"}],
+        feats: [{bonuses: [{value: 1}, {value: 2}].shuffle()}],
+      });
+      expect.soft(domain.findBonuses({})).toEqual([
+        {value: 2, source: domain.feats[0]},
+        {value: 1, source: domain.feats[0]},
+      ]);
+    });
+
+    test.describe("activity filtering", () => {
+      test("no constraint on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{value: 1}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({activity: "A"})).toEqual([
+          {value: 1, source: domain.feats[0]},
+        ]);
+      });
+
+      test("single value on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{activity: "A", value: 1}, {activity: "B", value: 2}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({activity: "A"})).toEqual([
+          {activity: "A", value: 1, source: domain.feats[0]},
+        ]);
+      });
+
+      test("multiple values on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{activity: "A", value: 1}, {activity: ["B", "C"], value: 2}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({activity: "B"})).toEqual([
+          {activity: ["B", "C"], value: 2, source: domain.feats[0]},
+        ]);
+      });
+    });
+
+    test.describe("ability filtering", () => {
+      test("no constraint on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{value: 1}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({ability: "A"})).toEqual([
+          {value: 1, source: domain.feats[0]},
+        ]);
+      });
+
+      test("single value on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{ability: "A", value: 1}, {ability: "B", value: 2}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({ability: "A"})).toEqual([
+          {ability: "A", value: 1, source: domain.feats[0]},
+        ]);
+      });
+
+      test("multiple values on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{ability: "A", value: 1}, {ability: ["B", "C"], value: 2}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({ability: "B"})).toEqual([
+          {ability: ["B", "C"], value: 2, source: domain.feats[0]},
+        ]);
+      });
+    });
+
+    test.describe("actorType filtering", () => {
+      test("no constraint on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{value: 1}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({actorType: "A"})).toEqual([
+          {value: 1, source: domain.feats[0]},
+        ]);
+      });
+
+      test("single value on bonus", () => {
+        const domain = new Domain({
+          settlements: [{name: "Capital"}],
+          feats: [{bonuses: [{actorType: "A", value: 1}, {actorType: "B", value: 2}].shuffle()}],
+        });
+        expect.soft(domain.findBonuses({actorType: "A"})).toEqual([
+          {actorType: "A", value: 1, source: domain.feats[0]},
+        ]);
+      });
+    });
+  });
+});
+
 test.describe("Stats", () => {
   test("Have minimums", () => {
     const domain = new Domain({});

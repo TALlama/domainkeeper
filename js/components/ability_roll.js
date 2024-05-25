@@ -5,7 +5,7 @@ import { RxElement } from "./rx_element.js";
 export class AbilityRoll extends RxElement {
   connectedCallback() {
     reef.component(this, () => this.render());
-    this.domainRoll = new DomainRoll({domain: this.domain, ability: this.ability, activity: this.activityName});
+    this.domainRoll = new DomainRoll({domain: this.domain, ability: this.ability, activity: this.activityName, actorType: this.actorType});
     this.addEventListener("click", this);
   }
 
@@ -14,6 +14,7 @@ export class AbilityRoll extends RxElement {
 
   get difficultyClass() { return this.closest("*:has(difficulty-class").querySelector("difficulty-class").total }
   get activityName() { return this.closest("activity-sheet").activity.name }
+  get actorType() { return this.closest("activity-sheet")?.activity?.actor?.type || "domain" }
 
   get modifier() { return this.domainRoll.modifier }
 

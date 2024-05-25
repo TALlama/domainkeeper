@@ -34,6 +34,7 @@ export class Actor {
   get unavailable() { return !this.available }
   get isLeader() { return this.hasTrait("PC", "NPC") }
   get isSettlement() { return this.hasTrait("Village", "Town", "City", "Metropolis") }
+  get type() { return this.isLeader ? "leader" : this.isSettlement ? "settlement" : "domain" }
 
   // Activities
 

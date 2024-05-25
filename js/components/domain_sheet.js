@@ -342,7 +342,13 @@ class DomainSheet extends RxElement {
 
     let roller = Maker.tag(
       "dice-roller",
-      {dice: die || 20, modifier: domainRoll.bonus, "data-ability": domainRoll.ability, "data-activity": domainRoll.activity},
+      {
+        dice: die || 20,
+        modifier: domainRoll.bonus,
+        "data-ability": domainRoll.ability,
+        "data-activity": domainRoll.activity,
+        "data-actor-type": domainRoll.actorType,
+      },
     );
     if (dc !== false) {
       dc = dc || this.domain.controlDC;
@@ -350,6 +356,14 @@ class DomainSheet extends RxElement {
       dc -= domainRoll.bonus; // see https://github.com/colinaut/dice-roller/issues/1
       roller.setAttribute("difficulty", Math.max(1, dc));
     }
+
+    domainRoll.bonuses.forEach((bonus) => {
+      let source = bonus.source || {};
+      if (source.action === "roll-bonus" && source.id) {
+        this.domain.useConsumable({id: source.id});
+      }
+    });
+
     this.diceTray.prepend(roller);
     this.diceTray.prepend(header);
     roller.shadowRoot.querySelector("div").click(); // Ew

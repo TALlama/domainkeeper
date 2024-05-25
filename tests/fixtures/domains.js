@@ -47,11 +47,11 @@ export const endTurnOne = {
   turns: [domainCreationTurn, {
     number: 1,
     activities: [ruin.allGood, {
+      ...contribute.culture, actorId: "settlement-starter",
+    }, {
       ...buildUp.cultureFailure, actorId: leaders.anne.id,
     }, {
       ...prognostication.success, actorId: leaders.anne.id,
-    }, {
-      ...contribute.culture, actorId: "settlement-starter",
     }],
   }]
 };
