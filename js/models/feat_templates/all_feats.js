@@ -130,6 +130,14 @@ export const faithFeats = [
     newTurn({activity}) {
       activity.addRollBonus({name: this.name, value: 2, ability: "Culture"});
     },
+  }, {
+    name: "Sanctified Settlements",
+    level: 15,
+    prerequisites: [legendaryIn("culture"), {feat: "Unifying Faith"}], //WAS: legendary in Folklore; Unifying Faith
+    description: "Your people’s faith is strong enough to resonate within the very streets and halls of their homes",
+    // WAS: description: "Your people’s faith is strong enough to resonate within the very streets and halls of their homes",
+    // WAS: all land is consecrated; can burn rp to enhance to 8th level
+    effects: "Your people’s faith echoes throughout the land. All land or other areas within the influence of one or more of your settlements is constantly under the effects of the consecrate ritual. Each domain turn, you may choose to reduce one ability score to instead grant the effects of an 8th-rank consecrate.",
   },
 ];
 
@@ -145,10 +153,31 @@ export const magicFeats = [
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Culture", boost: "Economy"});
     },
+  }, {
+    name: "Mage Corps",
+    level: 2,
+    prerequisites: [expertIn("culture")], //WAS: expert in Magic
+    description: "Recruit special units of mages into your armies",
+    effects: "Some of your domain's mages are studied in the application of war magics. You can add Mage Corps special units to your armies",
+    bonuses: [
+      {unlock: "Recruit Army", unit: "Mage Corps"},
+    ],
   },
 ];
 
 export const scholarlyFeats = [
+  {
+    name: "Alchemy Corps",
+    level: 2,
+    prerequisites: [expertIn("culture")], //WAS: expert in Scholarship
+    description: "Access special units which grant utility and healing",
+    // WAS: description: "Access special units which grant utility and healing",
+    // WAS: can recruit Alchemy Corps units
+    effects: "A subset of your domain's alchemical scholars receive training to work with your armies, passing out bombs, elixirs, and mutagens to enhance the army’s effects. You can add Alchemy Corps special units to your armies.",
+    bonuses: [
+      {unlock: "Recruit Army", unit: "Alchemy Corps"},
+    ],
+  },
 ];
 
 export const statecraftFeats = [
@@ -174,6 +203,24 @@ export const cultureFeats = withTrait([
 
 ///////////////////////////////////////////////// Economy Feats
 export const boatingFeats = [
+  {
+    name: "Naval Regiments",
+    level: 1,
+    prerequisites: [trainedIn("economy")], //WAS: trained in Boating
+    description: "Your vessels are also make good war engines.",
+    // WAS: description: "Your vessels are also make good war engines",
+    // WAS: can build Naval Corps units; army deploy bonus
+    effects: "Life on the water is a focus for your people, and they know how to leverage their naval skills during warfare. You can add Naval Corps special units to your armies.",
+    bonuses: [
+      {unlock: "Recruit Army", unit: "Naval Corps"},
+    ],
+  }, {
+    name: "Unfettered Sails",
+    level: 15,
+    prerequisites: [legendaryIn("economy")], //WAS: legendary in Boating, master in Magic or in Scholarship
+    description: "Through clever magics or ingenious invention, your people have learned the secrets to sailing the skies, no longer tied only to waterways",
+    effects: "With a bit of help from magicians or scholars, your sea-faring folk have learned to sail the skies. Your kingdom treats any above-ground areas as if they were connected by navigable waterways.",
+  }
 ];
 
 export const explorationFeats = [
@@ -245,6 +292,28 @@ export const infiltrationFeats = [
     newTurn({activity}) {
       activity.addTrade({name: this.name, description: "Increase Economy and Unrest", reduce: "Unrest", reduceBy: 1, boost: "Economy"});
     }
+  }, {
+    name: "Strategic Sabotage",
+    level: 2,
+    prerequisites: [expertIn("loyalty")], //WAS: expert in Intrigue
+    description: "Infiltrate enemy armies and sabotage their efforts",
+    // WAS: description: "Infiltrate enemy armies and sabotage their efforts",
+    // WAS: new army action to sabotage before attacking
+    // PROPOSED: same
+  }, {
+    name: "Preternatural Precautions",
+    level: 7,
+    prerequisites: [masterIn("loyalty")], //WAS: master in Intrigue
+    description: "Avoid magical inquiries into your operations",
+    effects: "Your kingdom’s operatives are well-versed in avoiding even magical detections. When using Intrigue, the DC is never increased due to special circumstances which you may not have been aware of, such as the presence of detection or scrying magics.\n" +
+      "In addition, your kingdom cannot be scried upon, and your leadership knows if someone has attempted to do so. The Emissary and Magister may choose a heavily- guarded secret means of overcoming this kingdom-wide protection against scrying, determining who has access to the method. If the kingdom is at least master in Magic, the Emissary and Magister may also choose for those attempting to scry on you to observe a false reality instead of simply blocking the effect.",
+  }, {
+    name: "Unceasing Infiltration",
+    level: 15,
+    prerequisites: [legendaryIn("loyalty")], //WAS: legendary in Intrigue
+    description: "You have spies everywhere, keeping you appraised",
+    effects: "Your nation’s network of spies is extensive and always on the look-out for new information that may be beneficial.\n" +
+      "At the start of the Activity phase of each domain turn, you may choose to attempt up to three free Infiltrations. You may instead choose to attempt only a single free Infiltration; if you do, treat your result as one degree of success better.",
   },
 ];
 
@@ -323,6 +392,14 @@ export const agrictultureFeats = [
       {type: "circumstance", activity: "Quell Unrest", ability: "Stability", value: 1},
     ],
   }, {
+    name: "Beast Mounts",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Agriculture
+    description: "Domesticate powerful animals to serve as mounts",
+    // WAS: description: "Domesticate powerful animals to serve as mounts",
+    // WAS: cavalry units get +2 bonus on melee attacks OR varied weapons tactic
+    effects: "Your ranchers are exceptionally talented, capable of taming and raising wilder animals, such as bears, lions, or wolves. When tamed, these beasts can serve as mounts for the armies.",
+  }, {
     name: "Subsidize Agriculture",
     level: 2,
     prerequisites: [expertIn("stability")], //WAS: expert in Agriculture
@@ -333,11 +410,47 @@ export const agrictultureFeats = [
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Economy", boost: "Stability"});
     },
+  }, {
+    name: "Monstrous Husbandry",
+    level: 7,
+    prerequisites: [masterIn("stability"), {feat: "Beast Mounts"}], //WAS: master in Agriculture; Beast Mounts
+    description: "Domesticate even more powerful creatures",
+    // WAS: description: "Domesticate even more powerful creatures",
+    // WAS: increase Beasts of Burden bonus by 1; cavalry units get a bonus tactic depending on the type of creature your domain has reared (GM discretion): Aerial Battalion, Aquatic Battalion, Darkvision, Merciless, or Tough Soldiers.
+    effects: "Your kingdom has learned to rear more than just animals, raising and taming drakes, troll-hounds, or gorgons, or even living with and rearing more intelligent creatures such as dragons, pegasi, or even the elusive phoenix. The GM determines which monstrous creatures are available for your kingdom to raise.",
+    bonuses: [
+      {type: "circumstance", activity: "Build Up", ability: "Stability", value: 2},
+      {type: "circumstance", activity: "Build Infrastructure", ability: "Stability", value: 2},
+    ],
   },
 ];
 
 export const defenseFeats = [
   {
+    name: "Medic Corps",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Defense
+    description: "Access special units which grant healing",
+    // WAS: description: "Access special units which grant healing",
+    // WAS: can recruit Medic Corps units
+    effects: "Collections of physicians, surgeons, clerics, shamans, and other healers march with your armies to tend to their wounds in the fields of battle. You can add Medic Corps special units to your armies.",
+    bonuses: [
+      {unlock: "Recruit Army", unit: "Medic Corps"},
+    ],
+  }, {
+    name: "Culture of Vigilance",
+    level: 2,
+    prerequisites: [expertIn("stability")], //WAS: expert in Defense
+    description: "Bonus against Intrigue and dangerous events",
+    effects: "Your people are constantly alert to potential threats of all kinds, and specifically to the threats posed by outsiders. The kingdom gains a +1 circumstance bonus against all dangerous events.\n" +
+      "The circumstance bonus from this feat is increased by 1 for Assassination Attempt, Bandit Activity, Cult Activity, Drug Den, Sacrifices, Sensational Crime, Vandals, and any other dangerous event contingent on criminal or espionage activity",
+  }, {
+    name: "Siege Preparation",
+    level: 2,
+    prerequisites: [expertIn("stability")], //WAS: expert in Defense
+    description: "Settlements can survive siege longer",
+    effects: "Your settlements are set up to defend more easily from siege tactics, reinforcing any fortifications they possess and storing additional supplies. The fortification statistics for your settlements increase AC by 5 and increase HP by half (round up). In addition, armies garrisoned in a settlement gain the Increased Ammunition tactic as a bonus tactic, so long as they have a ranged attack.",
+  }, {
     name: "Continual Care",
     level: 5,
     prerequisites: [investedIn("stability")], //WAS: expert in Defense
@@ -347,6 +460,12 @@ export const defenseFeats = [
     newTurn({domain, activity}) {
       activity.reduce({by: -Math.ceil(domain.stability / 5)}, "unrest");
     },
+  }, {
+    name: "Unconquerable",
+    level: 15,
+    prerequisites: [legendaryIn("stability")], //WAS: legendary in Defense; Culture of Vigilance
+    description: "You might completely ignore dangerous events, find spies with ease, and rally defenses rapidly",
+    effects: "Your people are truly prepared for anything. Whenever the kingdom is faced with a dangerous event, you may choose to attempt a DC 6 flat check: on a success, the kingdom automatically succeeds the check to resolve the event, or critically succeeds if the flat check is a critical success. If the flat check fails, roll to resolve the event normally.",
   },
 ];
 
@@ -370,6 +489,12 @@ export const constructionFeats = [
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Loyalty", boost: "Stability"});
     },
+  }, {
+    name: "Efficient Repairs",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Engineering
+    description: "Repair structures faster and with less resources",
+    effects: "When the kingdom attempts to use Build Structure to repair a structure, you may choose to either attempt an additional Build Structure activity for free but only to repair a structure, or to ignore the cost of repairing the single structure.",
   },
 ];
 
@@ -383,6 +508,26 @@ export const wildernessFeats = [
     newTurn({activity}) {
       activity.addRollBonus({name: this.name, value: 2, ability: "Economy"});
     },
+  }, {
+    name: "Harmonious Blending",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Wilderness
+    description: "Settlements blend right into the wilds",
+    // WAS: description: "Settlements blend right into the wilds",
+    // WAS: bonus against events dependent on the status of the wilderness; free walls
+    effects: "Your people build their settlements such that they blend directly into the wilds, granting better guerrilla tactics in warfare and mitigating potential dangers environmental effects pose to structures that stand out more from natural terrain. The kingdom gains a +1 circumstance bonus against Food Shortage, Food Surplus, Good Weather, Natural Disaster, and other events dependent on the status of the wilderness.\n" +
+      "In addition, your villages and towns count as having wooden walls for the purpose of fortifications, and your cities count as having stone walls for the purpose of fortifications.",
+    // TODO add banner to events; dc -2
+    // TODO when settlement added/upgraded, add walls
+  }, {
+    name: "Natural Almanac",
+    level: 2,
+    prerequisites: [expertIn("stability")], //WAS: expert in Wilderness
+    description: "Meticulous records make it easier to predict and adapt to natural phenomena",
+    // WAS: description: "Meticulous records make it easier to predict and adapt to natural phenomena",
+    // WAS: bonus to Establish Farmland, Harvest Crops & Livestock, and Hunt & Forage; bonus vs weather events
+    effects: "Rangers, farmers, druids, and others who are attuned to nature keep careful track of the turning of the seasons and other natural cycles in the area. The domain gains a +4 circumstance bonus to Good Weather, Natural Disaster, and other events dependent on the weather and other natural cycles (at GM discretion).",
+    // TODO add banner to weather events
   },
 ];
 
