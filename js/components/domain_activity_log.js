@@ -45,27 +45,60 @@ export default class DomainActivityLog extends RxElement {
     })
   }
 
+  consumableFromEvent(event) {
+    let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
+    return this.domain.findConsumables({id: consumableId})[0];
+  };
+
   expire(event) {
     let consumableId = event.target.closest(".consumable")?.dataset?.consumableId;
     if (consumableId) {
-      useUp(event.target.closest(".consumable")).then(() =>
-        (this.currentActivity || this.domain).useConsumable({id: consumableId})
-      );
+      useUp(event.target.closest(".consumable"))
+        .then(() => {
+          (this.currentActivity || this.domain).useConsumable({id: consumableId})
+        });
     }
   }
 
   reroll(event, {forAbility, forActivity} = (event.detail || {})) {
-    let consumable = event.target.closest(".consumable");
-    forAbility ||= consumable.dataset.ability;
-    forActivity ||= consumable.dataset.activity?.split(",");
+    let consumable = this.consumableFromEvent(event);
+    if (consumable.used) { return }
+    consumable.used = true;
 
+    forAbility ||= consumable.ability;
+    forActivity ||= consumable.activity;
+
+    let consumableEl = event.target.closest(".consumable");
     let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
-    if (!lastRoll) { return denyUse(consumable) }
+    if (!lastRoll) { return denyUse(consumableEl) }
 
-    if (forAbility && lastRoll.dataset.ability !== forAbility) { return denyUse(consumable) }
-    if (forActivity && !forActivity.includes(lastRoll.dataset.activity)) { return denyUse(consumable) }
+    if (forAbility && lastRoll.dataset.ability !== forAbility) { return denyUse(consumableEl) }
+    if (forActivity && !forActivity.includes(lastRoll.dataset.activity)) { return denyUse(consumableEl) }
 
     lastRoll.shadowRoot.querySelector("*").click(); // Ew
+    this.expire(event);
+  }
+
+  trade(event, {reduce, reduceBy, boost, boostBy} = (event.detail || {})) {
+    let consumable = this.consumableFromEvent(event);
+    if (consumable.used) { return }
+    consumable.used = true;
+
+    reduce = reduce || consumable.reduce;
+    reduceBy = reduceBy || consumable.reduceBy || -1;
+    boost = boost || consumable.boost;
+    boostBy = boostBy || consumable.boostBy || 1;
+    console.log({reduce, reduceBy, boost, boostBy});
+
+    let consumableEl = event.target.closest(".consumable");
+    if (!reduce || !boost) { return denyUse(consumableEl) }
+
+    let domain = this.domain;
+    let reduceValue = domain[reduce.toLowerCase()];
+    if (reduceValue + reduceBy <= 0) { return denyUse(consumableEl) }
+
+    domain.reduce({by: reduceBy}, reduce);
+    domain.boost({by: boostBy}, boost);
     this.expire(event);
   }
 
@@ -133,7 +166,7 @@ export default class DomainActivityLog extends RxElement {
     return `<ul class="consumables">
       ${Object.values(this.domainSheet.domain.consumables).map(consumable => `
         <li>
-          <button class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} ${consumable.activity ? `data-activity="${consumable.activity}"` : ""} ${consumable.ability ? `data-ability="${consumable.ability}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
+          <button class="consumable" ${consumable.action ? `data-action="${consumable.action}"` : ""} data-use-by="${consumable.useBy ?? "end-of-game"}" data-consumable-id="${consumable.id}">
             <span class="name">${consumable.name}</span>
             <div class="description">${consumable.description}</div>
           </button>

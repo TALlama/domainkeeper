@@ -89,7 +89,7 @@ export class Activity {
   }
 
   addRollBonus(attrs, logMessage) {
-    this.info(logMessage || `➕ Added ${attrs.name}`);
+    this.info(logMessage || `🎲 Added ${attrs.name}`);
     this.domain.addRollBonus(attrs);
   }
 
@@ -101,6 +101,11 @@ export class Activity {
   addBonusActivity(actor) {
     this.info(`🛟 Added bonus activity for ${actor.name}`);
     actor.bonusActivities += 1;
+  }
+
+  addTrade(attrs, logMessage) {
+    this.info(logMessage || `🔄 Added ${attrs.name}`);
+    this.domain.addTrade(attrs);
   }
 
   useConsumable(pattern) {

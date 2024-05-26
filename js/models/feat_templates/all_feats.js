@@ -96,6 +96,15 @@ export const artFeats = [
       activity.addRollBonus({name: this.name, value: 2, ability: "Loyalty"});
     },
   }, {
+    name: "Art Festivals",
+    level: 2,
+    prerequisites: [trainedIn("culture")],
+    description: "Your domain sets aside time from work to enjoy the fruits of their labor.",
+    effects: "Most citizens perform at the festivals, but everyone attends. Once per turn, you may reduce Economy by 1 to boost Culture by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Economy", boost: "Culture"});
+    },
+  }, {
     name: "National Specialty",
     level: 1,
     prerequisites: [trainedIn("culture")], //WAS: trained in Arts
@@ -125,12 +134,34 @@ export const faithFeats = [
 ];
 
 export const magicFeats = [
+  {
+    name: "Conjure Commodities",
+    level: 2,
+    prerequisites: [expertIn("culture")], //WAS: trained in Magic
+    description: "Use magic to conjure the commodities you need",
+    // WAS: description: "Use Luxuries to conjure other commodities",
+    // WAS: new activity burns 1 luxury to make 2 other commodities
+    effects: "You lead your spellcasters in a coordinated ritual to produce the commodities your domain needs. Once per turn, you can reduce Culture by 1 to boost Economy by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Culture", boost: "Economy"});
+    },
+  },
 ];
 
 export const scholarlyFeats = [
 ];
 
 export const statecraftFeats = [
+  {
+    name: "Folk Stories",
+    level: 2,
+    prerequisites: [trainedIn("loyalty")],
+    description: "There is a rich array of stories valorizing your domain's history and accomplishments.",
+    effects: "A shared story helps people feel connected to their community. Once per turn, you may reduce Culture by 1 to boost Loyalty by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Culture", boost: "Loyalty"});
+    },
+  },
 ];
 
 export const cultureFeats = withTrait([
@@ -158,10 +189,31 @@ export const industryFeats = [
     newTurn({activity}) {
       activity.addRollBonus({name: this.name, value: 2, ability: "Stability"});
     },
+  }, {
+    name: "Supply Chain",
+    level: 2,
+    prerequisites: [expertIn("economy")], //WAS: expert in Industry
+    description: "Keep commodities moving to where they're most needed",
+    // WAS: description: "Keep commodities moving to where they're most needed",
+    // WAS: if commodities are gathered, bonus to Build Structure, Build Roads, Craft Luxuries, Create Masterpiece, Establish Settlement, and Trade Commodities
+    effects: "Your domain has methods in place to quickly move raw materials where they need to be for the economy to function smoothly. Once per turn, you can reduce Economy by 1 to boost Stability by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Stability", boost: "Economy"});
+    },
   },
 ];
 
 export const tradeFeats = [
+  {
+    name: "County Fairs",
+    level: 5,
+    prerequisites: [expertIn("economy")], //WAS: expert in Trade
+    description: "County fairs bring the domain together, reducing unrest and benefiting the economy.",
+    effects: "Your domain’s county fairs are a time of celebration and commerce, where the rural and urban economies come together. Once per turn, you can reduce Stability by 1 to boost Economy by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Unrest", boost: "Economy"});
+    },
+  },
 ];
 
 export const economyFeats = withTrait([
@@ -173,9 +225,42 @@ export const economyFeats = withTrait([
 
 ///////////////////////////////////////////////// Loyalty Feats
 export const infiltrationFeats = [
+  {
+    name: "Patronage System",
+    level: 2,
+    prerequisites: [trainedIn("loyalty")],
+    description: "The wealthy members of your society compete to patronize the arts.",
+    effects: "Conspicuous consumption makes the arts grow, but fuels quiet fueds. Once per turn, you may reduce Loyalty by 1 to boost Culture by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Loyalty", boost: "Culture"});
+    }
+    }, {
+    name: "Covert Collusion",
+    level: 2,
+    prerequisites: [trainedIn("loyalty")], //WAS: expert in Intrigue
+    description: "Turning a blind eye to certain activities can be beneficial.",
+    // WAS: description: "Reduce difficulty of continual clandestine business",
+    // WAS: subsequent attempt at Clandestine Business only increases the DC by 1; no unrest on success
+    effects: "In the shadows, your people are able to conduct business without the prying eyes of the law. Once per turn, you may boost Unrest by 1 to boost Economy by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, description: "Increase Economy and Unrest", reduce: "Unrest", reduceBy: 1, boost: "Economy"});
+    }
+  },
 ];
 
 export const politicsFeats = [
+  {
+    name: "Appeal to Tradition",
+    level: 2,
+    prerequisites: [trainedIn("loyalty")], //WAS: trained in Politics
+    description: "You adhere to tradition to inspire your citizens",
+    // WAS: description: "You adhere to tradition to inspire your citizens",
+    // WAS: +1 status bonus to Celebrate Holiday, New Leadership, and Quell Unrest when not using Warfare. This bonus increases to +2 if the domain’s at least master in Politics.
+    effects: "Your leaders are well-versed in the values and traditions of your people, which grants them an exceptional ability to inspire the public to come together. Once per turn, you can reduce Stability by 1 to boost Loyalty by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Stability", boost: "Loyalty"});
+    },
+  },
 ];
 
 export const warfareFeats = [
@@ -237,6 +322,17 @@ export const agrictultureFeats = [
       {type: "circumstance", activity: "Cool Down", ability: "Stability", value: 1},
       {type: "circumstance", activity: "Quell Unrest", ability: "Stability", value: 1},
     ],
+  }, {
+    name: "Subsidize Agriculture",
+    level: 2,
+    prerequisites: [expertIn("stability")], //WAS: expert in Agriculture
+    description: "Pay to keep farms growing sustainably.",
+    // WAS: description: "Spend RP to improve crop harvests",
+    // WAS: new free activity that burns RP to make food
+    effects: "Your nation’s farmers are more willing to take risks and support the kingdom’s need for food if they have some assurance that they won’t have to rely on the whims of weather and crop yield. Once per turn, you can reduce Economy by 1 to boost Stability by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Economy", boost: "Stability"});
+    },
   },
 ];
 
@@ -265,6 +361,15 @@ export const constructionFeats = [
       {type: "circumstance", activity: "Build Structure", ability: "Stability", value: 1},
       {type: "circumstance", activity: "Build Infrastructure", ability: "Stability", value: 1},
     ],
+  }, {
+    name: "National Service",
+    level: 2,
+    prerequisites: [expertIn("stability")],
+    description: "Citizens continually work to make the nation a better place.",
+    effects: "The populace has organized to prioritize upkeep and modernization for their fellow citizens. Once per turn, you can reduce Loyalty by 1 to boost Stability by 1.",
+    newTurn({activity}) {
+      activity.addTrade({name: this.name, reduce: "Loyalty", boost: "Stability"});
+    },
   },
 ];
 

@@ -293,4 +293,9 @@ export class Domain {
     description = description ?? `${mod(value)} ${describeRoll(bonus)} (${type})`;
     this.addConsumable({action, description, bonuses: [bonus], ...attrs});
   }
+
+  addTrade({reduce, boost, ...attrs}) {
+    let description = attrs.description || `Trade ${reduce} for ${boost}`;
+    this.addConsumable({action: "trade", description, reduce, boost, ...attrs});
+  }
 }

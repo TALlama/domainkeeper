@@ -17,9 +17,11 @@ export function addAnimationClass(el, className) {
     el.addEventListener("animationend", (event) => {
       let {animationName} = event;
       el.classList.remove(className);
+      clearTimeout(timeout);
       resolve(el);
     }, {once: true});
   
     el.classList.add(className);
+    let timeout = setTimeout(() => resolve(el), 1000);
   })
 }
