@@ -13,6 +13,7 @@ import { notify } from "./toast.js";
 import { RxElement } from "./rx_element.js";
 import { DomainEditor } from "./domain_editor.js";
 import { FeatDescription } from "./feat_description.js";
+import { DiceRoll } from "./dice_roll.js";
 
 let nudgeValue = function(el, name, data, key, newValue) {
   let was = data[key];
@@ -341,10 +342,9 @@ class DomainSheet extends RxElement {
     header.prepend(Maker.tag("span", {class: "total"}, mod(domainRoll.bonus)));
 
     let roller = Maker.tag(
-      "dice-roller",
+      "dice-roll",
+      `1d20+${domainRoll.bonus}`,
       {
-        dice: die || 20,
-        modifier: domainRoll.bonus,
         "data-ability": domainRoll.ability,
         "data-activity": domainRoll.activity,
         "data-actor-type": domainRoll.actorType,
@@ -353,8 +353,7 @@ class DomainSheet extends RxElement {
     if (dc !== false) {
       dc = dc || this.domain.controlDC;
       header.append(Maker.tag("span", {class: "dc"}, ` ${dc}`));
-      dc -= domainRoll.bonus; // see https://github.com/colinaut/dice-roller/issues/1
-      roller.setAttribute("difficulty", Math.max(1, dc));
+      roller.setAttribute("target", Math.max(1, dc));
     }
 
     let activity = this.activityLog?.currentActivity;
@@ -368,7 +367,6 @@ class DomainSheet extends RxElement {
 
     this.diceTray.prepend(roller);
     this.diceTray.prepend(header);
-    roller.shadowRoot.querySelector("div").click(); // Ew
   }
 }
 DomainSheet.define("domain-sheet");

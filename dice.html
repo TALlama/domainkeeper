@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Dice Roller</title>
+    <style>
+      :root {
+        --color-critical-success-bg: lch(75% 55 200);
+        --color-success-bg: lch(65% 55 150);
+        --color-failure-bg: lch(65% 55 0);
+        --color-critical-failure-bg: lch(65% 55 300);
+      }
+    </style>
+    <link rel="stylesheet" href="style/components/dice_roll.css" />
+  </head>
+  <body>
+    <dice-roll>d20</dice-roll>
+    <dice-roll>d20+4</dice-roll>
+    <dice-roll>d20-4</dice-roll>
+    <dice-roll>100-d20</dice-roll>
+    <dice-roll>10d9-3d20</dice-roll>
+    <dice-roll>-4d5+2</dice-roll>
+
+    <hr/>
+    <dice-roll target="15">1d20+5</dice-roll>
+    <dice-roll target="15">1d20+5</dice-roll>
+    <dice-roll target="15">1d20+5</dice-roll>
+    <dice-roll target="15">1d20+5</dice-roll>
+    <dice-roll target="15">1d20+5</dice-roll>
+
+    <script type="module">
+      import { DiceRoll } from './js/components/dice_roll.js';
+
+      "pool-rolled pool-outcome pool-succeeded pool-failed".split(" ").forEach(eventName => {
+        document.addEventListener(eventName, event => {
+          console.log(eventName, event.target, event.detail);
+        });
+      });
+
+      "criticalSuccess success failure criticalFailure".split(" ").forEach(outcome => {
+        document.addEventListener(`pool-outcome-${outcome}`, event => {
+          console.log(`pool-outcome-${outcome}`, event.target, event.detail);
+        });
+      });
+    </script>
+  </body>
+</html>

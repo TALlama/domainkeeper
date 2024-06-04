@@ -55,3 +55,34 @@ String.prototype.escapeHtml = String.prototype.escapeHtml || function() {
   el.innerText = this;
   return el.innerHTML;
 }
+
+class Die {
+  constructor(sides, {value, target}) {
+    this.sides = Array.from({length: sides}, (_, i) => i + 1);
+    this.target = target;
+    this.value = value || this.roll();
+  }
+
+  roll() { return this.value = this.sides.random() }
+
+  get diff() { return this.value - this.target }
+  get outcome() {
+    let outcomes = ["criticalFailure", "failure", "success", "criticalSuccess"];
+    let index = 0;
+
+    let diff = this.diff;
+    if (diff > -10) { index++ }
+    if (diff >= 0) { index++ }
+    if (diff >= 10) { index++ }
+    if (this.value === 1) { index-- }
+    if (this.value === 20) { index++ }
+
+    index = Math.max(0, Math.min(3, index));
+    return outcomes[index];
+  }
+
+  get succeeded() { return this.outcome === "success" || this.outcome === "criticalSuccess" }
+  get failed() { return !this.succeeded }
+
+  static flatCheck(dc) { return new Die(20, {target: dc}).succeeded }
+}

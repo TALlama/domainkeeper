@@ -11,6 +11,8 @@ class LocatorLike {
     this.root = root;
   }
 
+  get dk() { return new DomainkeeperPage(this.page) }
+
   locator(...args) { return this.root.locator(...args) }
   getByRole(...args) { return this.root.getByRole(...args) }
   getByText(...args) { return this.root.getByText(...args) }
@@ -73,9 +75,9 @@ export class DomainkeeperPage extends LocatorLike {
   get currentActorActivitiesLeft() { return this.locator(".actor.current .badge") }
   actorActivitiesLeft(actorName) { return this.locator(`.actor:has(.name:has-text("${actorName}")) .badge`) }
 
-  get rolls() { return this.locator("dice-roller") }
+  get rolls() { return this.locator("dice-roll") }
   get lastRoll() { return this.rolls.nth(0) }
-  async rollText(roll) { await expect(roll).toBeAttached(); return roll.evaluate(r => r.shadowRoot?.textContent) }
+  async rollInfo(roll) { await expect(roll).toBeAttached(); return roll.evaluate(r => r.dataset) }
   get rollBanners() { return this.locator(".dice-tray h6") }
 
   get activityPicker() { return new ActivityPicker(this.page, this.locator('activity-picker')) }
@@ -183,11 +185,20 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   async waitForRoll({activity, ability}={}) {
-    let selector = `dice-roller`;
+    let selector = `dice-roll`;
     selector += activity ? `[data-activity="${activity}"]` : "";
     selector += ability ? `[data-ability="${ability}"]` : "";
 
-    await expect(this.locator(selector)).toContainText("TOTAL");
+    await expect(this.locator(selector).first()).toHaveAttribute("data-outcome");
+  }
+
+  async waitForReroll({activity, ability}={}) {
+    let selector = `dice-roll`;
+    selector += activity ? `[data-activity="${activity}"]` : "";
+    selector += ability ? `[data-ability="${ability}"]` : "";
+
+    await expect(this.locator(selector).first()).not.toHaveAttribute("data-outcome");
+    await this.waitForRoll({activity, ability});
   }
 
   useSettlementActivities(ability) {
@@ -365,6 +376,11 @@ export class Consumables extends LocatorLike {
   withName(name) { return this.items.filter({has: this.page.getByText(name)}) }
 
   get names() { return this.items.locator(".name") }
+
+  async rerollWith(name) {
+    await this.withName(name).click();
+    await this.dk.waitForReroll(this.dk.lastRoll);
+  }
 }
 
 export class Turn extends LocatorLike {

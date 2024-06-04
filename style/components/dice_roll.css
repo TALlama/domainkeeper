@@ -1,0 +1,104 @@
+@layer components {
+  dice-roll {
+    --color-text: black;
+    --color-muted-text: var(--color-border);
+    --color-bg: #f9f9f9;
+    --color-border: #ccc;
+
+    display: inline-grid;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    grid-template:
+      "value    reroll  description" min-content
+      "value    reroll  summary    " min-content
+      "outcome  outcome diff       " auto
+      / min-content min-content minmax(auto, 4em);
+    place-items: baseline start;
+
+    &[data-outcome] { --color-border: black; }
+    &[data-outcome="criticalSuccess"] { --color-bg: var(--color-critical-success-bg); }
+    &[data-outcome="success"] { --color-bg: var(--color-success-bg); }
+    &[data-outcome="failure"] { --color-bg: var(--color-failure-bg); }
+    &[data-outcome="criticalFailure"] { --color-bg: var(--color-critical-failure-bg); }
+
+    .value {
+      grid-area: value;
+      font-weight: 800;
+      font-size: 150%;
+      min-width: 1.2em;
+      place-self: center end;
+    }
+
+    .description, .summary {
+      line-height: 1;
+    }
+
+    .description {
+      grid-area: description;
+      font-size: 0.5em;
+      place-self: start end;
+    }
+
+    &:not([data-value]) {
+      button[data-action="reroll"] {
+        opacity: 0;
+      }
+    }
+
+    &[target]:not([data-outcome]) {
+      .summary, .outcome, .diff {
+        display: none;
+      }
+
+      .summary-pending, .outcome-pending {
+        display: block;
+        color: var(--color-muted-text);
+        &:before { content: "…"; }
+      }
+    }
+
+    .summary, .summary-pending {
+      grid-area: summary;
+      font-weight: 600;
+      font-size: 0.75em;
+      place-self: baseline end;
+    }
+
+    .outcome, .outcome-pending {
+      grid-area: outcome;
+    }
+
+    &[data-diff] .diff {
+      grid-area: diff;
+      place-self: end start;
+
+      &:before {
+        content: "by ";
+        margin-inline-start: 0.3rem;
+      }
+      &::after { content: ""}
+    }
+
+    button {
+      border: none;
+      background: transparent;
+    }
+
+    button[data-action="reroll"] {
+      grid-area: reroll;
+      font-size: 100%;
+      padding-inline: 0.5rem;
+      place-self: stretch stretch;
+    }
+
+    &:not([data-value]) button[data-action="reroll"] {
+      display: none;
+    }
+
+    &:not(:hover, :focus-within) button[data-action="reroll"] {
+      opacity: 0;
+    }
+  }
+}

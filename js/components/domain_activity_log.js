@@ -18,6 +18,11 @@ export default class DomainActivityLog extends RxElement {
 
     let activityFinder = this.searchParams.get("activity");
     activityFinder && this.activity({name: activityFinder});
+
+    document.addEventListener("pool-outcome", event => {
+      let decision = this.currentActivity?.decision("Outcome");
+      if (decision) { decision.outcomeHint = event.detail.outcome }
+    });
   }
 
   kickoffEvent(event) {
@@ -63,19 +68,19 @@ export default class DomainActivityLog extends RxElement {
   reroll(event, {forAbility, forActivity} = (event.detail || {})) {
     let consumable = this.consumableFromEvent(event);
     if (consumable.used) { return }
-    consumable.used = true;
 
     forAbility ||= consumable.ability;
     forActivity ||= consumable.activity;
 
     let consumableEl = event.target.closest(".consumable");
-    let lastRoll = this.domainSheet.diceTray.querySelector("dice-roller");
+    let lastRoll = this.domainSheet.diceTray.querySelector("dice-roll");
     if (!lastRoll) { return denyUse(consumableEl) }
-
+    
     if (forAbility && lastRoll.dataset.ability !== forAbility) { return denyUse(consumableEl) }
     if (forActivity && !forActivity.includes(lastRoll.dataset.activity)) { return denyUse(consumableEl) }
 
-    lastRoll.shadowRoot.querySelector("*").click(); // Ew
+    consumable.used = true;
+    lastRoll.reroll();
     this.expire(event);
   }
 

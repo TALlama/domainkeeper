@@ -15,9 +15,9 @@ test('fame rerolls the last roll', async ({ page }) => {
 
   await dk.rollAbility(abilities[2]);
   await monitor({ // now there's a roll; fame can reroll it
-    shouldChange: () => dk.rollText(dk.lastRoll),
+    shouldChange: () => dk.rollInfo(dk.lastRoll),
     shouldNotChange: () => expect(dk.rolls).toHaveCount(1),
-    when: () => dk.consumables.withName("Fame").click(),
+    when: () => dk.consumables.rerollWith("Fame"),
   });
   await expect(dk.consumables.names).toContainText([]);
 });
@@ -35,9 +35,9 @@ test('mint rerolls only economy rolls', async ({ page }) => {
   // if there is a roll, we'll reroll it
   await dk.rollAbility("Economy");
   await monitor({ // now there's an Economy roll; Mint can reroll it
-    shouldChange: () => dk.rollText(dk.lastRoll),
+    shouldChange: () => dk.rollInfo(dk.lastRoll),
     shouldNotChange: () => dk.rolls.length,
-    when: () => dk.consumables.withName("Mint").click(),
+    when: () => dk.consumables.rerollWith("Mint"),
   });
   await expect(dk.consumables.names).toContainText(["Fame"]);
 });
@@ -58,9 +58,9 @@ test('Pathfinder Society Outpost rerolls only "Clear/Claim Hex" rolls', async ({
   await dk.pickActivity(activity, [74, 51], ["Stability", "Economy"].random(), "Failure");
   await dk.waitForRoll({activity});
   await monitor({ // now there's an eligible roll; PSO can reroll it
-    shouldChange: () => dk.rollText(dk.lastRoll),
+    shouldChange: () => dk.rollInfo(dk.lastRoll),
     shouldNotChange: () => dk.rolls.length,
-    when: () => dk.consumables.withName("Pathfinder Society Outpost").click(),
+    when: () => dk.consumables.rerollWith("Pathfinder Society Outpost"),
   });
   await expect(dk.consumables.names).toContainText(["Fame"]);
 });
