@@ -7,12 +7,14 @@ test.describe("Flat", () => {
       let unrolled = new Flat(2);
       expect(unrolled.sides).toEqual([2]);
       expect(unrolled.value).toEqual(2);
+      expect(unrolled.values).toEqual([2]);
     });
 
     test("negative", () => {
       let unrolled = new Flat(-2);
       expect(unrolled.sides).toEqual([-2]);
       expect(unrolled.value).toEqual(-2);
+      expect(unrolled.values).toEqual([-2]);
     });
   });
 
@@ -42,6 +44,7 @@ test.describe("Die", () => {
       let rolled = new Die(4, {value: 2});
       expect(rolled.size).toEqual(4);
       expect(rolled.value).toEqual(2);
+      expect(rolled.values).toEqual([2]);
     });
 
     test("with target", () => {
@@ -110,11 +113,20 @@ test.describe("DieSet", () => {
       expect([2, 3, 4, 5, 6, 7, 8]).toContain(unrolled.value);
     });
 
+    test("with values", () => {
+      let rolled = new DieSet(2, 4, {values: [1, 2]});
+      expect(rolled.length).toEqual(2);
+      expect(rolled.size).toEqual(4);
+      expect(rolled.values).toEqual([1, 2]);
+      expect(rolled.value).toEqual(3);
+    });
+
     test("with value", () => {
       let rolled = new DieSet(2, 4, {value: 3});
       expect(rolled.length).toEqual(2);
       expect(rolled.size).toEqual(4);
       expect(rolled.value).toEqual(3);
+      expect(rolled.values).toEqual([2, 1]);
     });
 
     test("with target", () => {
@@ -133,8 +145,8 @@ test.describe("DieSet", () => {
     });
 
     test.describe("summary", () => {
-      test("shows the values rolled", () => expect(new DieSet(2, 6, {value: 3}).summary).toEqual("(3 + 3)"));
-      test("negative", () => expect(new DieSet(2, 6, {value: 3, sign: -1}).summary).toEqual("-(3 + 3)"));
+      test("shows the values rolled", () => expect(new DieSet(2, 6, {value: 3}).summary).toEqual("(2 + 1)"));
+      test("negative", () => expect(new DieSet(2, 6, {value: 3, sign: -1}).summary).toEqual("-(2 + 1)"));
     });
   });
 });
@@ -147,6 +159,10 @@ test.describe("Pools", () => {
       expect(pool.target).toEqual(10);
       expect(pool.value).toBeGreaterThan(10);
       expect(pool.value).toBeLessThanOrEqual(30);
+      expect(pool.values).toHaveLength(2);
+      expect(pool.values[0]).toEqual(10);
+      expect(pool.values[1]).toBeGreaterThanOrEqual(1);
+      expect(pool.values[1]).toBeLessThanOrEqual(20);
     });
 
     test.describe("parsing", () => {
@@ -166,49 +182,99 @@ test.describe("Pools", () => {
         expect(pool.elements.map(e => e.sign)).toEqual([-1]);
       });
 
-      test("a single die, explicitly counted", () => {
-        let pool = DicePool.parse("1d20");
-        expect(pool.elements).toHaveLength(1);
-        expect(pool.elements[0]).toBeInstanceOf(Die);
-        expect(pool.elements.map(e => e.size)).toEqual([20]);
+      test.describe("a single die, explicitly counted", () => {
+        test("unrolled", () => {
+          let pool = DicePool.parse("1d20");
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+        });
+
+        test("with result given", () => {
+          let pool = DicePool.parse("1d20", {values: [15], target: 10});
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+          expect(pool.elements.map(e => e.value)).toEqual([15]);
+          expect(pool.value).toEqual(15);
+          expect(pool.target).toEqual(10);
+          expect(pool.diff).toEqual(5);
+          expect(pool.outcome).toEqual("success");
+          expect(pool.succeeded).toEqual(true);
+        });
       });
 
-      test("a single die, implicitly counted", () => {
-        let pool = DicePool.parse("d20");
-        expect(pool.elements).toHaveLength(1);
-        expect(pool.elements[0]).toBeInstanceOf(Die);
-        expect(pool.elements.map(e => e.size)).toEqual([20]);
+      test.describe("a single die, implicitly counted", () => {
+        test("unrolled", () => {
+          let pool = DicePool.parse("d20");
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+        });
+
+        test("with result given", () => {
+          let pool = DicePool.parse("d20", {values: [15], target: 10});
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+          expect(pool.elements.map(e => e.value)).toEqual([15]);
+          expect(pool.value).toEqual(15);
+          expect(pool.target).toEqual(10);
+          expect(pool.diff).toEqual(5);
+          expect(pool.outcome).toEqual("success");
+          expect(pool.succeeded).toEqual(true);
+        });
       });
 
-      test("multiple dice of the same size", () => {
-        let pool = DicePool.parse("2d20");
-        expect(pool.elements).toHaveLength(1);
-        expect(pool.elements[0]).toBeInstanceOf(DieSet);
-        expect(pool.elements.map(e => e.length)).toEqual([2]);
-        expect(pool.elements.map(e => e.size)).toEqual([20]);
+      test.describe("multiple dice of the same size", () => {
+        test("unrolled", () => {
+          let pool = DicePool.parse("2d20");
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(DieSet);
+          expect(pool.elements.map(e => e.length)).toEqual([2]);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+        });
+
+        test("with result given", () => {
+          let pool = DicePool.parse("2d20", {values: [[2, 13]], target: 10});
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(DieSet);
+          expect(pool.elements.map(e => e.length)).toEqual([2]);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+          expect(pool.elements.map(e => e.value)).toEqual([15]);
+          expect(pool.value).toEqual(15);
+          expect(pool.target).toEqual(10);
+          expect(pool.diff).toEqual(5);
+          expect(pool.outcome).toEqual("success");
+          expect(pool.succeeded).toEqual(true);
+        });
       });
 
-      test("multiple elements of different sizes", () => {
-        let pool = DicePool.parse("1d8+    2d20    +3");
-        expect(pool.elements).toHaveLength(3);
-        expect(pool.elements[0]).toBeInstanceOf(Die);
-        expect(pool.elements[1]).toBeInstanceOf(DieSet);
-        expect(pool.elements[2]).toBeInstanceOf(Flat);
-        expect(pool.elements.map(e => e.length)).toEqual([1, 2, 1]);
-        expect(pool.elements.map(e => e.size)).toEqual([8, 20, undefined]);
-        expect(pool.elements[2].value).toEqual(3);
+      test.describe("multiple elements of different sizes", () => {
+        test("unrolled", () => {
+          let pool = DicePool.parse("1d8+    2d20    +3");
+          expect(pool.elements).toHaveLength(3);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements[1]).toBeInstanceOf(DieSet);
+          expect(pool.elements[2]).toBeInstanceOf(Flat);
+          expect(pool.elements.map(e => e.length)).toEqual([1, 2, 1]);
+          expect(pool.elements.map(e => e.size)).toEqual([8, 20, undefined]);
+          expect(pool.elements[2].value).toEqual(3);
+        });
       });
 
-      test("multiple elements with different signs", () => {
-        let pool = DicePool.parse("2d100-3d2   -   4");
-        expect(pool.elements).toHaveLength(3);
-        expect(pool.elements[0]).toBeInstanceOf(DieSet);
-        expect(pool.elements[1]).toBeInstanceOf(DieSet);
-        expect(pool.elements[2]).toBeInstanceOf(Flat);
-        expect(pool.elements.map(e => e.length)).toEqual([2, 3, 1]);
-        expect(pool.elements.map(e => e.size)).toEqual([100, 2, undefined]);
-        expect(pool.elements.map(e => e.sign)).toEqual([1, -1, -1]);
-        expect(pool.elements[2].value).toEqual(-4);
+      test.describe("multiple elements with different signs", () => {
+        test("unrolled", () => {
+          let pool = DicePool.parse("2d100-3d2   -   4");
+          expect(pool.elements).toHaveLength(3);
+          expect(pool.elements[0]).toBeInstanceOf(DieSet);
+          expect(pool.elements[1]).toBeInstanceOf(DieSet);
+          expect(pool.elements[2]).toBeInstanceOf(Flat);
+          expect(pool.elements.map(e => e.length)).toEqual([2, 3, 1]);
+          expect(pool.elements.map(e => e.size)).toEqual([100, 2, undefined]);
+          expect(pool.elements.map(e => e.sign)).toEqual([1, -1, -1]);
+          expect(pool.elements[2].value).toEqual(-4);
+        });
       });
     });
   });
