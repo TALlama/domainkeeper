@@ -4,14 +4,14 @@ import { RxElement } from "./rx_element.js";
 
 export class DifficultyClass extends RxElement {
   connectedCallback() {
-    reef.component(this, () => this.render());
-    this.addEventListener("change", this);
-
     this.state = reef.signal({
       other: 0,
       options: JSON.parse(this.getAttribute("options") || `[]`),
     });
     (this.getAttribute("selected") || "").split(";").map(o => o.trim()).forEach(name => name && this.checkOption(name));
+
+    reef.component(this, () => this.render());
+    this.addEventListener("change", this);
   }
 
   get base() { return Number(this.getAttribute("base") || 10) }

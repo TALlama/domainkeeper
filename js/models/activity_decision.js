@@ -68,10 +68,15 @@ export class ActivityDecision {
         },
         editor(context) { return context.decision.difficultyClass(context) },
         difficultyClassOptions: {},
-        difficultyClass({decision}) {
-          let dcOpts = decision?.difficultyClassOptions || {};
-          dcOpts.base ??= this.domain?.controlDC || 15;
-          return Maker.tag("difficulty-class", dcOpts).outerHTML;
+        difficultyClass({decision, ...context}) {
+          let optContext = {...context, activity: this.activity, decision};
+          let defaults = {base: this.domain?.controlDC || 15, options: [], selected: []};
+          let domainOpts = callOrReturn(this.domain?.difficultyClassOptions, this.domain || {}, optContext) || {};
+          let activityOpts = callOrReturn(decision?.difficultyClassOptions, this, optContext) || {};
+          return Maker.tag("difficulty-class", {...defaults, ...domainOpts, ...activityOpts,
+            selected: [...defaults.selected, ...(domainOpts.selected || []), ...(activityOpts.selected || [])].join(";"),
+            options: JSON.stringify([...defaults.options, ...(domainOpts.options || []), ...(activityOpts.options || [])]),
+          }).outerHTML;
         },
       },
       Outcome: {
@@ -126,6 +131,7 @@ export class ActivityDecision {
       groupOptionsBy: (value) => "",
       optionDisableReason: (value) => null,
       mutable: () => !this.resolved,
+      options: [],
       ...template,
       ...properties};
     Object.assign(this, props);

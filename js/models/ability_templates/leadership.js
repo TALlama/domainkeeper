@@ -25,7 +25,7 @@ export var leadershipTemplates = [{
   }, {
     name: "Roll",
     options: ["Economy", "Stability"],
-    difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
+    difficultyClassOptions: {options: hexDCOptions},
   }, {
     name: "Outcome",
     summaries: {
@@ -67,11 +67,11 @@ export var leadershipTemplates = [{
     name: "Roll",
     options: ["Economy", "Stability"],
     difficultyClassOptions: {
-      selected: "Outside Domain",
-      options: JSON.stringify([
+      selected: ["Outside Domain"],
+      options: [
         {name: "Outside Domain", value: 2},
         ...hexDCOptions,
-      ]),
+      ],
     },
   }, {
     name: "Outcome",
@@ -280,7 +280,7 @@ export var leadershipTemplates = [{
     prompt: "Choose a hex to build in",
   }, {
     name: "Roll",
-    difficultyClassOptions: {options: JSON.stringify(hexDCOptions)},
+    difficultyClassOptions: {options: hexDCOptions},
   }, {
     name: "Outcome",
     summaries: {

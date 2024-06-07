@@ -52,6 +52,19 @@ export class Domain {
         });
       }).sortBy("-value")
   }
+  difficultyClassOptions({activity, decision}) {
+    let bonuses = this.findBonuses({
+      activity: activity.name,
+      ability: activity.roll,
+      actorType: activity.actorType,
+      type: "dcModifier",
+    });
+
+    return {
+      options: bonuses.map(b => { return {name: b.label || b.source.name, value: b.value} }),
+      selected: bonuses.filter(b => b.enabledByDefault).map(b => b.label || b.source.name),
+    }
+  }
 
   get markers() {
     return [

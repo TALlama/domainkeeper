@@ -420,6 +420,7 @@ export class ActivitySheet extends LocatorLike {
   // Parts
   get name() { return this.locator(".activity-name") }
   get summary() { return this.locator(".summary .value") }
+  get difficultyClass() { return new DifficultyClass(this.page, this.locator("difficulty-class")) }
   get log() { return this.locator("section.log") }
   decisionPanel(name) { return new DecisionPanel(this.page, this.locator(`activity-decision-panel[name="${name}"]`)) }
 
@@ -458,6 +459,12 @@ export class DecisionPanel extends LocatorLike {
 
   // Actions
   makeDecision(option) { this.optionButton(option).click({force: true}) }
+}
+
+export class DifficultyClass extends LocatorLike {
+  // Parts
+  get options() { return this.locator('[data-option-name]') }
+  get selected() { return this.locator('[data-option-name]:has(input:checked)') }
 }
 
 export class TraitEditor extends LocatorLike {

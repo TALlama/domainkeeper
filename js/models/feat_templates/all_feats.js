@@ -79,6 +79,15 @@ export const generalFeats = withTrait([
     newTurn({domain, activity}) {
       activity.reduce({by: -Math.ceil(domain.culture / 5)}, "unrest");
     },
+  }, {
+    name: "Quick Recovery",
+    level: 3,
+    prerequisites: [investedIn("stability")], //WAS: Stability 14
+    description: "Harmful events are easier to end.",
+    effects: "Your domain is known for its resilience. When you attempt to end an ongoing event, reduce the DC by 4.",
+    bonuses: [
+      {type: "dcModifier", value: -4, activity: "Event", label: "Ongoing Event"},
+    ],
   },
 ], "General");
 
@@ -190,6 +199,18 @@ export const statecraftFeats = [
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Culture", boost: "Loyalty"});
     },
+  }, {
+    name: "Strong Reputation",
+    level: 2,
+    prerequisites: [expertIn("loyalty")], //WAS: expert in Statecraft
+    description: "Establish diplomatic ties and fealty more easily",
+    // WAS: description: "Establish diplomatic ties and fealty more easily",
+    // WAS: reduces the Negotiation DCs of other groups
+    effects: "Your reputation as a fair and amicable nation (whether or not true) makes others more willing to interact with you. Your kingdom reduces the Negotiation DCs of other groups by 2.",
+    bonuses: [
+      {type: "dcModifier", value: -2, activity: "Pledge of Fealty", enabledByDefault: true},
+      {type: "dcModifier", value: -2, activity: "Request Foreign Aid", enabledByDefault: true},
+    ],
   },
 ];
 
@@ -427,6 +448,18 @@ export const agrictultureFeats = [
 
 export const defenseFeats = [
   {
+    name: "Fortified Fiefs",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Defense
+    description: "Bonus to Build defensive features",
+    // WAS: description: "Bonus to Fortify or to Build certain Structures",
+    // WAS: reduced DCs for Fortify Hex activity and when you use Build a Structure for a Barracks, Castle, Garrison, Keep, Wall, or Watchtower
+    effects: "Your vassals take their duty to protect those under their stewardship seriously, and your engineers emphasize the value of a strong defense when building settlements and fortifications, reducing their cost by combining them with the rest of the settlement seamlessly",
+    bonuses: [
+      {type: "dcModifier", value: -2, activity: "Build Structure", label: "Building Fortifications"},
+      {type: "dcModifier", value: -2, activity: "Build Infrastructure", label: "Building Fortifications"},
+    ],
+  }, {
     name: "Medic Corps",
     level: 1,
     prerequisites: [trainedIn("stability")], //WAS: trained in Defense
@@ -495,6 +528,15 @@ export const constructionFeats = [
     prerequisites: [trainedIn("stability")], //WAS: trained in Engineering
     description: "Repair structures faster and with less resources",
     effects: "When the kingdom attempts to use Build Structure to repair a structure, you may choose to either attempt an additional Build Structure activity for free but only to repair a structure, or to ignore the cost of repairing the single structure.",
+  }, {
+    name: "With What You’ve Got",
+    level: 1,
+    prerequisites: [trainedIn("stability")], //WAS: trained in Engineering
+    description: "Suit the land to your needs more efficiently",
+    effects: "Your engineers and builders are quite skillful in working with the land they build upon. When the domain attempts to Build Structures or Build Infrastructure, ignore the DC penalty for working on rough terrain by 2.",
+    bonuses: [
+      {type: "dcModifier", value: -2, activity: "Build Infrastructure", label: "Difficult Terrain"},
+    ],
   },
 ];
 
