@@ -115,6 +115,12 @@ export class Domain {
 
   /////////////////////////////////////////////// XP & Milestones
 
+  decisionPicked(decision, opts={}) {
+    this.feats.forEach(feat => feat.decisionPicked && feat.decisionPicked({domain: this, decision, feat, ...opts}));
+  }
+
+  /////////////////////////////////////////////// XP & Milestones
+
   checkMilestones(trigger, activity) {
     activity ??= this.currentActivity;
     Milestone.check(trigger, this).forEach(milestone => {

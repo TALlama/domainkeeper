@@ -90,6 +90,22 @@ export const generalFeats = withTrait([
     bonuses: [
       {type: "dcModifier", value: -4, activity: "Event", label: "Ongoing Event"},
     ],
+  }, {
+    name: "Fame and Fortune",
+    level: 11,
+    description: "Success is celebrated with additional Fame.",
+    // WAS: description: "Gain RP when you critically succeed using skills",
+    // WAS: crit success -> +1 FIP + 1d RP
+    effects: "Your domain's reputation has spread far and wide, bringing in visitors to behold the spectacle of your greatness and pay their respects. Whenever you critically succeed at an activity, gain 1 Fame.",
+    decisionPicked({domain, activity, decision}) {
+      console.log({name: decision.name, outcome: activity.outcome, decision});
+
+      if (decision.name !== "Outcome") { return }
+      if (activity.outcome !== "criticalSuccess") { return }
+
+      activity.info("👨🏻‍🎤 News of this deed spreads far and wide!");
+      domain.addFame({activity});
+    },
   },
 ], "General");
 
