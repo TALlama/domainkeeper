@@ -9,8 +9,27 @@ class PoolElement {
     this.length = 1;
   }
 
-  roll() { return this.value = this.sign * this.sides.random() }
-  _firstRoll() { if (this.value === undefined) { this.roll() } }
+  roll({rigged=false}={}) {
+    let face;
+    if (rigged && Die.rig.length && this.sides.length > 1) {
+      face = Math.max(this.min, Math.min(this.max, Die.rig.shift()));
+    } else {
+      face = this.sides.random();
+    }
+    return this.value = this.sign * face;
+  }
+  _firstRoll(opts={}) { if (this.value === undefined) { this.roll(opts) } }
+
+  get _min() { return this.sign * (this.length) }
+  get _max() { return this.sign * (this.length * this.size) }
+
+  get range() {
+    let min = this._min;
+    let max = this._max;
+    return (min < max) ? {min, max} : {min: max, max: min};
+  }
+  get min() { return this.range.min }
+  get max() { return this.range.max }
 
   get values() { return [this.value] }
   get diff() { return this.value - this.target }
@@ -31,6 +50,9 @@ export class Flat extends PoolElement {
     this.value ?? this.roll();
   }
 
+  get _min() { return this.value }
+  get _max() { return this.value }
+
   get unsignedDescription() { return Math.abs(this.value).toString() }
   get unsignedSummary() { return this.unsignedDescription }
 
@@ -42,24 +64,26 @@ export class Die extends PoolElement {
   constructor(size, {...opts}={}) {
     super({sides: Array.from({length: size}, (_, i) => i + 1), ...opts});
     this.size = size;
-    this._firstRoll();
+    this._firstRoll(opts);
   }
 
   get unsignedDescription() { return `d${this.size}` }
   get unsignedSummary() { return Math.abs(this.value).toString() }
 
-  static flatCheck(dc = 11) { return new Die(20, {target: dc}).succeeded }
-  static d4() { return new Die(4).value }
-  static d6() { return new Die(6).value }
-  static d8() { return new Die(8).value }
-  static d10() { return new Die(10).value }
-  static d12() { return new Die(12).value }
-  static d20() { return new Die(20).value }
+  static flatCheck(dc = 11, opts={}) { return new Die(20, {target: dc, rigged: true, ...opts}).succeeded }
+  static d4(opts={}) { return new Die(4, opts).value }
+  static d6(opts={}) { return new Die(6, opts).value }
+  static d8(opts={}) { return new Die(8, opts).value }
+  static d10(opts={}) { return new Die(10, opts).value }
+  static d12(opts={}) { return new Die(12, opts).value }
+  static d20(opts={}) { return new Die(20, opts).value }
+
+  static rig = [];
 }
 
 export class DieSet extends PoolElement {
   constructor(length, size, {value, values, ...opts}={}) {
-    values = values ?? DieSet.valuesFor(length, size, value);
+    values = DieSet.valuesFor({length, size, value, values});
     super({...opts});
     this.length = length;
     this.size = size;
@@ -72,27 +96,37 @@ export class DieSet extends PoolElement {
   get unsignedDescription() { return `${this.length}d${this.size}` }
   get unsignedSummary() { return `(${this.dice.map(d => d.unsignedSummary).join(" + ")})` }
 
-  roll() { return this.value = this.dice.reduce((sum, e) => sum + e.roll(), 0) }
+  roll(opts) { return this.value = this.dice.reduce((sum, e) => sum + e.roll(opts), 0) }
 
-  static valuesFor(length, size, value) {
-    if (value === undefined) { return [] }
-
-    let values = [];
-    let remaining = value;
-    for (let i = 0; i < length; i++) {
-      let dieValue = Math.min(remaining - (length - i - 1), size);
-      values.push(dieValue);
-      remaining -= dieValue;
+  static valuesFor({length, size, value, values}) {
+    if (Array.isArray(values)) {
+      return values;
+    } else if (values === undefined) {
+      if (value === undefined) { return [] }
+      values = [];
+      let remaining = value;
+      for (let i = 0; i < length; i++) {
+        let dieValue = Math.min(remaining - (length - i - 1), size);
+        values.push(dieValue);
+        remaining -= dieValue;
+      }
+      return values;
+    } else {
+      let remaining = values;
+      let each = Math.floor(remaining / length);
+      let remainder = remaining - (each * length);
+      values = Array.from({length}, () => each);
+      values[0] += remainder;
+      return values;
     }
-    return values;
   }
 }
 
 export class DicePool extends PoolElement {
-  constructor({elements, target}={}) {
+  constructor({elements, target, ...opts}={}) {
     super({sides: [], target});
     this.elements = elements;
-    this._firstRoll();
+    this._firstRoll(opts);
   }
 
   #buildString(fn) {
@@ -104,13 +138,28 @@ export class DicePool extends PoolElement {
   get description() { return this.#buildString(e => e.unsignedDescription) }
   get summary() { return this.#buildString(e => e.unsignedSummary) }
 
-  roll() { return this.elements.reduce((sum, e) => sum + e.roll(), 0) }
+  roll({rigged=false, ...opts}={}) {
+    if (rigged && DicePool.rig.length) {
+      return this.value = Math.max(this.min, Math.min(this.max, DicePool.rig.shift()));
+    }
+    opts = {rigged, ...opts};
+    return this.elements.reduce((sum, e) => sum + e.roll(opts), 0);
+  }
+
+  get _min() { return this.elements.reduce((sum, element) => sum + element.min, 0) }
+  get _max() { return this.elements.reduce((sum, element) => sum + element.max, 0) }
 
   get values() { return this.elements.reduce((agg, e) => {
     let v = e.values;
     return (v.length === 1) ? [...agg, ...v] : [...agg, v];
   }, []) }
+  
   get value() { return this.elements.reduce((sum, element) => sum + element.value, 0) }
+  set value(value) {
+    let values = DicePool.valuesFor({str: this.description, value});
+    this.elements.forEach((e, index) => e.value = values[index]);
+  }
+
   get diff() { return this.value - this.target }
   get outcome() {
     let outcomes = ["criticalFailure", "failure", "success", "criticalSuccess"];
@@ -129,8 +178,23 @@ export class DicePool extends PoolElement {
   get succeeded() { return this.outcome === "success" || this.outcome === "criticalSuccess" }
   get failed() { return !this.succeeded }
 
-  static parse(str, {values, ...options}={}) {
-    values = values ?? [];
+  static valuesFor({str, value, values}) {
+    if (Array.isArray(values)) { return values }
+    if (value === undefined) { return [] }
+
+    let elements = DicePool.parse(str, {values: []}).elements;
+    values = elements.map(e => e.min);
+    let remaining = value - values.reduce((sum, v) => sum + v, 0);
+    elements.forEach((e, index) => {
+      let eat = Math.min(e.max - e.min, remaining);
+      values[index] += eat;
+      remaining -= eat;
+    });
+    return values;
+  }
+
+  static parse(str, {value, values, ...options}={}) {
+    values = DicePool.valuesFor({str, value, values});
 
     let sign = 1;
     let elements = str.split(/\s*([+-])\s*/).flatMap(part => {
@@ -146,4 +210,6 @@ export class DicePool extends PoolElement {
     });
     return new this({elements, ...options});
   }
+
+  static rig = [];
 }

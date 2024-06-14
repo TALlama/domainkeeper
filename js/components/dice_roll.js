@@ -1,6 +1,17 @@
-import { DicePool } from "../dice.js";
+import { Die, DicePool } from "../dice.js";
 
 import { RxElement } from "./rx_element.js";
+
+document.addEventListener("rig-next-die", ({detail}) => {
+  Die.rig.push(detail.value);
+});
+document.addEventListener("rig-next-pool", ({detail}) => {
+  DicePool.rig.push(detail.value);
+});
+
+let params = new URL(document.location).searchParams;
+params.getAll("rig-die").forEach(value => Die.rig.push(value));
+params.getAll("rig-pool").forEach(value => DicePool.rig.push(value));
 
 export class DiceRoll extends RxElement {
   connectedCallback() {
@@ -42,6 +53,14 @@ export class DiceRoll extends RxElement {
         previousTimestamp = timestamp;
         window.requestAnimationFrame(step);
       } else {
+        let valueStr = this.getAttribute("value");
+        if (valueStr) {
+          this.pool.value = parseInt(valueStr);
+          this.setAttribute("value", valueStr.split(",").slice(1).join(","));
+        } else {
+          this.pool.roll({rigged: true});
+        }
+
         this.updateUI();
         this.fireRolledEvents();
       }

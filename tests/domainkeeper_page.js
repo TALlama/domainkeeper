@@ -48,10 +48,10 @@ export class DomainkeeperPage extends LocatorLike {
   /**
    * @returns {Promise<DomainkeeperPage>}
    */
-  static async load(page, domain, opts = {}) {
+  static async load(page, domain, {path, expectTurn, ...opts} = {}) {
     const dk = new DomainkeeperPage(page);
-    return page.goto(opts.path || '/')
-      .then(() => domain && dk.loadDomain(domain, opts.expectTurn))
+    return page.goto(path || '/')
+      .then(() => domain && dk.loadDomain(domain, expectTurn))
       .then(() => dk);
   }
 
@@ -93,6 +93,32 @@ export class DomainkeeperPage extends LocatorLike {
   async nudgeLog() {
     await expect(this.topActivity().name).toHaveText("Nudge");
     return this.topActivity().log;
+  }
+
+  // Setup
+  async loadDomain(data, expectTurn = "Turn 1") {
+    await this.page.evaluate((data) => document.querySelector("domain-sheet").load(data), data);
+    await expect(this.getByText(expectTurn, {exact: true})).toBeVisible();
+  }
+
+  async rigDieRoll(value) {
+    await this.page.evaluate((value) => {
+      document.dispatchEvent(new CustomEvent("rig-next-die", {
+        detail: {value},
+        bubbles: true,
+        cancelable: true,
+      }));
+    }, value);
+  }
+
+  async rigPoolRoll(value) {
+    await this.page.evaluate((value) => {
+      document.dispatchEvent(new CustomEvent("rig-next-pool", {
+        detail: {value},
+        bubbles: true,
+        cancelable: true,
+      }));
+    }, value);
   }
 
   // Actions
@@ -306,11 +332,6 @@ export class DomainkeeperPage extends LocatorLike {
 
   async expectTurn(number) {
     await expect(this.getByText(`Turn ${number}`)).toBeVisible();
-  }
-
-  async loadDomain(data, expectTurn = "Turn 1") {
-    await this.page.evaluate((data) => document.querySelector("domain-sheet").load(data), data);
-    await expect(this.getByText(expectTurn, {exact: true})).toBeVisible();
   }
 
   async swapToDomain(domainName) {

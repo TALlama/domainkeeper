@@ -93,7 +93,6 @@ export default class DomainActivityLog extends RxElement {
     reduceBy = reduceBy || consumable.reduceBy || -1;
     boost = boost || consumable.boost;
     boostBy = boostBy || consumable.boostBy || 1;
-    console.log({reduce, reduceBy, boost, boostBy});
 
     let consumableEl = event.target.closest(".consumable");
     if (!reduce || !boost) { return denyUse(consumableEl) }

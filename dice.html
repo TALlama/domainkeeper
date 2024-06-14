@@ -23,13 +23,29 @@
     <dice-roll>-4d5+2</dice-roll>
 
     <hr/>
+    <p>These dice have targets:</p>
     <dice-roll target="15">1d20+5</dice-roll>
     <dice-roll target="15">1d20+5</dice-roll>
     <dice-roll target="15">1d20+5</dice-roll>
     <dice-roll target="15">1d20+5</dice-roll>
     <dice-roll target="15">1d20+5</dice-roll>
 
+    <hr/>
+    <p>These dice are rigged:</p>
+    <dice-roll target="15" value="5,10,5,10">1d20+4</dice-roll>
+    <dice-roll target="15" value="10">1d20+5</dice-roll>
+    <dice-roll target="15" value="15">1d20+5</dice-roll>
+    <dice-roll target="15" value="20">1d20+5</dice-roll>
+    <dice-roll target="15" value="25,25,25,25,25,25,25,25">1d20+5</dice-roll>
+
+    <hr/>
+    <p>Rigging</p>
+    <label>Rig the next roll: <input type="number" id="rig-value"/></label>
+    <button id="rig-it">Rig it!</button>
+    <p>Rig queue: <output id="rig-queue"></output></p>
+
     <script type="module">
+      import { DicePool } from './js/dice.js';
       import { DiceRoll } from './js/components/dice_roll.js';
 
       "pool-rolled pool-outcome pool-succeeded pool-failed".split(" ").forEach(eventName => {
@@ -42,6 +58,22 @@
         document.addEventListener(`pool-outcome-${outcome}`, event => {
           console.log(`pool-outcome-${outcome}`, event.target, event.detail);
         });
+      });
+
+      function updateRigQueue() {
+        document.getElementById("rig-queue").textContent = JSON.stringify(DicePool.rig, null, 2);
+      }
+
+      document.addEventListener("pool-rolled", updateRigQueue);
+      document.addEventListener("click", event => {
+        if (event.target.id === "rig-it") {
+          document.dispatchEvent(new CustomEvent("rig-next-pool", {
+            detail: {value: parseInt(document.getElementById("rig-value").value)},
+            bubbles: true,
+            cancelable: true,
+          }));
+          updateRigQueue();
+        }
       });
     </script>
   </body>

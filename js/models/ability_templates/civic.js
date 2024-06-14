@@ -134,7 +134,6 @@ export var civicTemplates = [{
         },
       });
     } else {
-      console.log(`Hooray.`);
       this.info(`🚧 ${buildingSite.name} is now ${buildingSite.percentage}% complete.`);
     }
   },

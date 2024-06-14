@@ -18,6 +18,16 @@ test.describe("Flat", () => {
     });
   });
 
+  test.describe("ranges", () => {
+    test("Positive", () => {
+      expect(new Flat(4).range).toEqual({min: 4, max: 4});
+    });
+
+    test("Negative", () => {
+      expect(new Flat(-4).range).toEqual({min: -4, max: -4});
+    });
+  });
+
   test.describe("stringifying", () => {
     test.describe("description", () => {
       test("positive", () => expect(new Flat(2).description).toEqual("2"));
@@ -52,6 +62,16 @@ test.describe("Die", () => {
       expect(rolled.size).toEqual(20);
       expect(rolled.value).toEqual(12);
       expect(rolled.target).toEqual(10);
+    });
+  });
+
+  test.describe("ranges", () => {
+    test("d4", () => {
+      expect(new Die(4).range).toEqual({min: 1, max: 4});
+    });
+
+    test("Sign", () => {
+      expect(new Die(4, {sign: -1}).range).toEqual({min: -4, max: -1});
     });
   });
 
@@ -102,6 +122,74 @@ test.describe("Die", () => {
       test("shows the value rolled", () => expect(new Die(6, {value: 3}).summary).toEqual("3"));
     });
   });
+
+  test.describe("rolls", () => {
+    test("is always within the range", () => {
+      let die = new Die(100);
+      for (let i = 0; i < 100; i++) {
+        die.roll();
+        expect(die.value).toBeGreaterThanOrEqual(die.min);
+        expect(die.value).toBeLessThanOrEqual(die.max);
+      }
+    });
+
+    test.describe("rigged rolls", () => {
+      test("determine the roll", () => {
+        let die = new Die(20);
+        Die.rig.push("20");
+
+        die.roll({rigged: true});
+        expect(die.value).toEqual(20);
+      });
+
+      test("get used up", () => {
+        let die = new Die(20);
+        Die.rig.push("13");
+        Die.rig.push(5);
+
+        die.roll({rigged: true});
+        expect(die.value).toEqual(13);
+        die.roll({rigged: true});
+        expect(die.value).toEqual(5);
+      });
+
+      test("cannot force an impossibly high value; you end up with the max", () => {
+        let die = new Die(20);
+        Die.rig.push("100");
+
+        die.roll({rigged: true});
+        expect(die.value).toEqual(20);
+      });
+
+      test("cannot force an impossibly low value; you end up with the min", () => {
+        let die = new Die(20);
+        Die.rig.push(-100);
+
+        die.roll({rigged: true});
+        expect(die.value).toEqual(1);
+      });
+    });
+  });
+
+  test.describe("flatCheck", () => {
+    test("returns true or false", () => {
+      expect([true, false]).toContain(Die.flatCheck());
+    });
+
+    test("defaults to DC 11", () => {
+      Die.rig.push([11, 20].random());
+      expect(Die.flatCheck(), "Success or critical success is true").toBeTruthy();
+      Die.rig.push([1, 10].random());
+      expect(Die.flatCheck(), "Failure or critical failure is false").toBeFalsy();
+    });
+
+    test("can set the DC", () => {
+      Die.rig.push([19, 20].random());
+      expect(Die.flatCheck(19), "Success or critical success is true").toBeTruthy();
+      Die.rig.push([1, 18].random());
+      expect(Die.flatCheck(19), "Failure or critical failure is false").toBeFalsy();
+    });
+  });
 });
 
 test.describe("DieSet", () => {
@@ -135,6 +223,26 @@ test.describe("DieSet", () => {
       expect(rolled.size).toEqual(4);
       expect(rolled.value).toEqual(3);
       expect(rolled.target).toEqual(6);
+    });
+  });
+
+  test.describe("ranges", () => {
+    test("Single die", () => {
+      let die = new DieSet(1, 4);
+      expect(die.min).toEqual(1);
+      expect(die.max).toEqual(4);
+    });
+
+    test("Multiple dice", () => {
+      let die = new DieSet(3, 6);
+      expect(die.min).toEqual(3);
+      expect(die.max).toEqual(18);
+    });
+
+    test("Multiple dice, signed", () => {
+      let die = new DieSet(3, 6, {sign: -1});
+      expect(die.min).toEqual(-18);
+      expect(die.max).toEqual(-3);
     });
   });
 
@@ -190,7 +298,7 @@ test.describe("Pools", () => {
           expect(pool.elements.map(e => e.size)).toEqual([20]);
         });
 
-        test("with result given", () => {
+        test("with element values given", () => {
           let pool = DicePool.parse("1d20", {values: [15], target: 10});
           expect(pool.elements).toHaveLength(1);
           expect(pool.elements[0]).toBeInstanceOf(Die);
@@ -212,8 +320,21 @@ test.describe("Pools", () => {
           expect(pool.elements.map(e => e.size)).toEqual([20]);
         });
 
-        test("with result given", () => {
+        test("with element values given", () => {
           let pool = DicePool.parse("d20", {values: [15], target: 10});
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+          expect(pool.elements.map(e => e.value)).toEqual([15]);
+          expect(pool.value).toEqual(15);
+          expect(pool.target).toEqual(10);
+          expect(pool.diff).toEqual(5);
+          expect(pool.outcome).toEqual("success");
+          expect(pool.succeeded).toEqual(true);
+        });
+
+        test("with total value given", () => {
+          let pool = DicePool.parse("d20", {value: 15, target: 10});
           expect(pool.elements).toHaveLength(1);
           expect(pool.elements[0]).toBeInstanceOf(Die);
           expect(pool.elements.map(e => e.size)).toEqual([20]);
@@ -235,7 +356,7 @@ test.describe("Pools", () => {
           expect(pool.elements.map(e => e.size)).toEqual([20]);
         });
 
-        test("with result given", () => {
+        test("with element values given", () => {
           let pool = DicePool.parse("2d20", {values: [[2, 13]], target: 10});
           expect(pool.elements).toHaveLength(1);
           expect(pool.elements[0]).toBeInstanceOf(DieSet);
@@ -243,6 +364,22 @@ test.describe("Pools", () => {
           expect(pool.elements.map(e => e.size)).toEqual([20]);
           expect(pool.elements.map(e => e.value)).toEqual([15]);
           expect(pool.value).toEqual(15);
+          expect(pool.values).toEqual([[2, 13]]);
+          expect(pool.target).toEqual(10);
+          expect(pool.diff).toEqual(5);
+          expect(pool.outcome).toEqual("success");
+          expect(pool.succeeded).toEqual(true);
+        });
+
+        test("with total value given", () => {
+          let pool = DicePool.parse("2d20", {value: 15, target: 10});
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(DieSet);
+          expect(pool.elements.map(e => e.length)).toEqual([2]);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+          expect(pool.elements.map(e => e.value)).toEqual([15]);
+          expect(pool.value).toEqual(15);
+          expect(pool.values).toEqual([[8, 7]]);
           expect(pool.target).toEqual(10);
           expect(pool.diff).toEqual(5);
           expect(pool.outcome).toEqual("success");
@@ -261,6 +398,30 @@ test.describe("Pools", () => {
           expect(pool.elements.map(e => e.size)).toEqual([8, 20, undefined]);
           expect(pool.elements[2].value).toEqual(3);
         });
+
+        test("with element values given", () => {
+          let pool = DicePool.parse("1d8+    2d20    +3", {values: [5, [2, 13], 3]});
+          expect(pool.elements).toHaveLength(3);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements[1]).toBeInstanceOf(DieSet);
+          expect(pool.elements[2]).toBeInstanceOf(Flat);
+          expect(pool.elements.map(e => e.length)).toEqual([1, 2, 1]);
+          expect(pool.elements.map(e => e.size)).toEqual([8, 20, undefined]);
+          expect(pool.values).toEqual([5, [2, 13], 3]);
+          expect(pool.value).toEqual(23);
+        });
+
+        test("with total value given", () => {
+          let pool = DicePool.parse("1d8+    2d20    +3", {value: 23});
+          expect(pool.elements).toHaveLength(3);
+          expect(pool.elements[0]).toBeInstanceOf(Die);
+          expect(pool.elements[1]).toBeInstanceOf(DieSet);
+          expect(pool.elements[2]).toBeInstanceOf(Flat);
+          expect(pool.elements.map(e => e.length)).toEqual([1, 2, 1]);
+          expect(pool.elements.map(e => e.size)).toEqual([8, 20, undefined]);
+          expect(pool.values).toEqual([8, [6, 6], 3]);
+          expect(pool.value).toEqual(23);
+        });
       });
 
       test.describe("multiple elements with different signs", () => {
@@ -275,7 +436,60 @@ test.describe("Pools", () => {
           expect(pool.elements.map(e => e.sign)).toEqual([1, -1, -1]);
           expect(pool.elements[2].value).toEqual(-4);
         });
+
+        test("with element values given", () => {
+          let pool = DicePool.parse("2d100-3d2   -   4", {values: [[2, 99], [-1, -2, -1], -4]});
+          expect(pool.elements).toHaveLength(3);
+          expect(pool.elements[0]).toBeInstanceOf(DieSet);
+          expect(pool.elements[1]).toBeInstanceOf(DieSet);
+          expect(pool.elements[2]).toBeInstanceOf(Flat);
+          expect(pool.elements.map(e => e.length)).toEqual([2, 3, 1]);
+          expect(pool.elements.map(e => e.size)).toEqual([100, 2, undefined]);
+          expect(pool.values).toEqual([[2, 99], [-1, -2, -1], -4]);
+          expect(pool.value).toEqual(93);
+        });
+
+        test.describe("with total value given", () => {
+          test("with total value given", () => {
+            let pool = DicePool.parse("2d100 - 3d2 - 4", {value: 93});
+            expect(pool.values).toEqual([[52, 51], [-2, -2, -2], -4]);
+            expect(pool.value).toEqual(93);
+          });
+
+          test("where negative must be minimized", () => {
+            let pool = DicePool.parse("1d10 - 3d2", {value: 7});
+            expect(pool.values).toEqual([10, [-1, -1, -1]]);
+            expect(pool.value).toEqual(7);
+          });
+
+          test("where negative must be minimized, with negative flat", () => {
+            let pool = DicePool.parse("1d10 - 3d2 - 4", {value: 3});
+            expect(pool.values).toEqual([10, [-1, -1, -1], -4]);
+            expect(pool.value).toEqual(3);
+          });
+
+          test("where negative must be minimized, with positive flat", () => {
+            let pool = DicePool.parse("1d10 - 3d2 + 4", {value: -1});
+            expect(pool.values).toEqual([1, [-2, -2, -2], 4]);
+            expect(pool.value).toEqual(-1);
+          });
+        });
       });
+    });
+  });
+
+  test.describe("ranges", () => {
+    test("Single element pool is the same as its element", () => {
+      expect(DicePool.parse("1d4").range).toEqual({min: 1, max: 4});
+    });
+
+    test("Multiple element pool is the sum as its elements", () => {
+      expect(DicePool.parse("2d4 + 1d8 + 3").range).toEqual({min: 6, max: 19});
+    });
+
+    test("Multiple element pool is the sum as its elements, even if some are negative", () => {
+      expect(DicePool.parse("2d4 - 1d8 + 3").range).toEqual({min: -3, max: 10});
+      expect(DicePool.parse("2d4 + 1d8 - 3").range).toEqual({min: 0, max: 13});
     });
   });
 
@@ -421,6 +635,61 @@ test.describe("Pools", () => {
       test("handles negative sets later in expression", () => {
         let pool = DicePool.parse("30-2d1");
         expect(pool.summary).toEqual("30 - (1 + 1)");
+      });
+    });
+  });
+
+  test.describe("rolls", () => {
+    test("is always in range", () => {
+      let desc = [`2d20`, ["+", "-"].random(), [`1d4`, 4, `10d2`]].join(" ");
+      let pool = DicePool.parse(desc);
+
+      for (let i = 0; i < 100; i++) {
+        pool.roll();
+        expect(pool.value).toBeGreaterThanOrEqual(pool.min);
+        expect(pool.value).toBeLessThanOrEqual(pool.max);
+      }
+    });
+
+    test.describe("rigged rolls", () => {
+      test("determine the roll", () => {
+        let pool = DicePool.parse("d20 + 4");
+        DicePool.rig.push("24");
+
+        pool.roll({rigged: true});
+        expect(pool.value).toEqual(24);
+        expect(pool.values).toEqual([20, 4]);
+      });
+
+      test("get used up", () => {
+        let pool = DicePool.parse("d20 + 4");
+        DicePool.rig.push("24");
+        DicePool.rig.push(5);
+
+        pool.roll({rigged: true});
+        expect(pool.value).toEqual(24);
+        expect(pool.values).toEqual([20, 4]);
+        pool.roll({rigged: true});
+        expect(pool.value).toEqual(5);
+        expect(pool.values).toEqual([1, 4]);
+      });
+
+      test("cannot force an impossibly high value; you end up with the max", () => {
+        let pool = DicePool.parse("d20 + 4");
+        DicePool.rig.push("100");
+
+        pool.roll({rigged: true});
+        expect(pool.value).toEqual(24);
+        expect(pool.values).toEqual([20, 4]);
+      });
+
+      test("cannot force an impossibly low value; you end up with the min", () => {
+        let pool = DicePool.parse("d20 + 4");
+        DicePool.rig.push(-100);
+
+        pool.roll({rigged: true});
+        expect(pool.values).toEqual([1, 4]);
+        expect(pool.value).toEqual(5);
       });
     });
   });

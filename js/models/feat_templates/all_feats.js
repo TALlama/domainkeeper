@@ -1,3 +1,5 @@
+import { Die } from "../../dice.js";
+
 const maxStat = (maxAbility, value) => { return {maxAbility, value} };
 const investedIn = (ability) => maxStat(ability, 7);
 const minStat = (ability, value) => { return {ability, value} };
@@ -138,6 +140,22 @@ export const faithFeats = [
     effects: "Your people share a collective faith, whether of a single deity or a particular national pantheon. The first time Culture would be reduced each turn, prevent 1 point of the reduction.",
     newTurn({activity}) {
       activity.addRollBonus({name: this.name, value: 2, ability: "Culture"});
+    },
+  }, {
+    name: "Root Work",
+    level: 1,
+    prerequisites: [trainedIn("culture")], //WAS: trained in Folklore
+    description: "Folk magics protect against unexpected misfortune",
+    // WAS: description: "Folk magics protect against unexpected misfortune",
+    // WAS: new activity can give bonus to avoid events
+    effects: "You lead your people in protective folk magic practices, spurring on mass practice of these simple rituals. Each turn, roll a DC 11 check. On a success, your sages see danger coming: gain a +2 circumstance bonus to resolve an event.",
+    newTurn({activity}) {
+      if (Die.flatCheck(11)) {
+        activity.info("🧿 Root Work offers protection this turn");
+        activity.addRollBonus({name: this.name, value: 2, activity: "Event"});
+      } else {
+        activity.info("🥀 Root Work provides no insight this turn");
+      }
     },
   }, {
     name: "Sanctified Settlements",
@@ -302,7 +320,7 @@ export const infiltrationFeats = [
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Loyalty", boost: "Culture"});
     }
-    }, {
+  }, {
     name: "Covert Collusion",
     level: 2,
     prerequisites: [trainedIn("loyalty")], //WAS: expert in Intrigue
