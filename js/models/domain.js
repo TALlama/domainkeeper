@@ -263,6 +263,9 @@ export class Domain {
     return this.feats.last();
   }
 
+  hasFeat(name) { return this.findFeats({name}).length > 0 }
+  findFeats(pattern) { return this.feats.matches(pattern) }
+
   /////////////////////////////////////////////// Consumable Management
 
   findConsumables(pattern) { return this.consumables.matches(pattern) }

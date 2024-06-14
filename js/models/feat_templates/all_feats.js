@@ -181,6 +181,23 @@ export const magicFeats = [
       activity.addTrade({name: this.name, reduce: "Culture", boost: "Economy"});
     },
   }, {
+    name: "Practical Magic",
+    level: 1,
+    prerequisites: [trainedIn("culture")], //WAS: trained in Magic
+    description: "Commonplace magic improves practical skills",
+    effects: "Magic has an honored place in your society, and your people incorporate it into their everyday work to make life easier. At the start of each turn, roll vs DC 11. On a success, gain a Creative Solution consumable.",
+    // WAS: +1 circumstance bonus to Agriculture, Defense, Engineering, and Wilderness checks; if your kingdom is a master in Magic, this bonus increases to +2
+    newTurn({domain, activity}) {
+      let dc = 11;
+      if (domain.hasFeat("Mystic Utopia")) { dc = 6 }
+      if (Die.flatCheck(dc)) {
+        activity.info("🪄 Practical Magic offers intriguing possibilities");
+        domain.addReroll({name: "Magical Solution", description: "Reroll +2"});
+      } else {
+        activity.info("🐇 Practical Magic is always nice, but can't help this turn");
+      }
+    },
+  }, {
     name: "Mage Corps",
     level: 2,
     prerequisites: [expertIn("culture")], //WAS: expert in Magic
@@ -189,6 +206,17 @@ export const magicFeats = [
     bonuses: [
       {unlock: "Recruit Army", unit: "Mage Corps"},
     ],
+  }, {
+    name: "Mystic Utopia",
+    level: 15,
+    prerequisites: [legendaryIn("culture"), {feat: "Practical Magic"}], //WAS: legendary in Magic; Practical Magic
+    description: "Magic suffuses the entire domain, making it a shining paragon of mystic power.",
+    // WAS: description: "Magic suffuses the entire kingdom, making it a shining paragon of mystic power",
+    // WAS: practical magic bonus is +3 now; advantage on Supernatural Solution checks
+    effects: "The domain is a thoroughly mystic society. The DC for Practical Magic checks is now 5. When you make a Creative Solution check, roll twice and take the better result; this is a fortune effect.",
+    // TODO bonuses: [
+    // TODO   {type: "advantage", activity: "Creative Solution"},
+    // TODO ],
   },
 ];
 
