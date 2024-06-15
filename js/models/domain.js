@@ -126,7 +126,7 @@ export class Domain {
     Milestone.check(trigger, this).forEach(milestone => {
       this.milestones[milestone.name] = activity?.id || "--the-distant-past--";
       activity?.info(milestone.message);
-      this.boost({by: milestone.xp, activity}, "xp");
+      this.boost("xp", {by: milestone.xp, activity});
     });
   }
 
@@ -152,32 +152,26 @@ export class Domain {
     return 99999;
   }
 
-  modify({by, activity}, names) {
-    names.forEach(name => {
-      let key = name.toLocaleLowerCase();
-      let current = this[key];
-      let min = this.min(name);
-      let target = Math.max(min, current + by);
-      let max = this.max(name);
-      let overage = target - max;
-      this[key] = Math.min(max, target);
-      this.checkMilestones(key, activity);
-      if (overage > 0) {
-        (activity || this).info(`🛑 ${name} cannot be above ${max}; added ${overage*50}xp instead`);
-        this.xp += overage * 50;
-      }
-    })
+  modify(name, {by, activity}) {
+    let key = name.toLocaleLowerCase();
+    let current = this[key];
+    let min = this.min(name);
+    let target = Math.max(min, current + by);
+    let max = this.max(name);
+    let overage = target - max;
+    console.log({name, by, current, range: [min, max].join("-"), target, overage});
+    (activity || this).info(`🐛 info: ${JSON.stringify({name, by, current, range: [min, max].join("-"), target, overage})}`);
+    this[key] = Math.min(max, target);
+    this.checkMilestones(key, activity);
+    if (overage > 0) {
+      let xp = overage * 50;
+      (activity || this).info(`🛑 ${name} cannot be above ${max}; added ${xp}xp instead`);
+      this.xp += xp;
+    }
   }
-  boost(...names) {
-    let opts = (typeof names[0] === "object") ? names.shift() : {};
-    opts.by ??= 1;
-    this.modify(opts, names);
-  }
-  reduce(...names) {
-    let opts = (typeof names[0] === "object") ? names.shift() : {};
-    opts.by ??= -1;
-    this.modify(opts, names);
-  }
+
+  boost(name, {by=1, ...opts}={}) { this.modify(name, {by, ...opts}) }
+  reduce(name, {by=1, ...opts}={}) { this.modify(name, {by: -1 * by, ...opts}) }
 
   get controlDC() {
     let size = this.size;

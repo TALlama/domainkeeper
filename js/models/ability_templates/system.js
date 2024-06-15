@@ -1,4 +1,5 @@
 import { withDiffs } from "../../helpers.js";
+import { Die } from "../../dice.js";
 
 import { Ability } from "../abilities.js";
 import { Feat } from "../feat.js";
@@ -100,8 +101,9 @@ export var systemTemplates = [{
       activity.domain.culture = activity.domain.economy = activity.domain.loyalty = activity.domain.stability = 2;
       activity.log = [];
       activity.decisions.forEach(decision => {
-        const mods = boosts[decision.resolution];
-        if (mods) activity.boost(...mods);
+        (boosts[decision.resolution] || []).forEach(ability => {
+          activity.boost(ability);
+        });
       });
     };
     let shared = {
@@ -195,14 +197,14 @@ export var systemTemplates = [{
     resolutions: {
       ...Ability.all.toDictionary(ability => [`Lower ${ability}`, ({activity}) => activity.reduce(ability)]),
       "Lower random ability": ({activity}) => activity.reduce(Ability.random),
-      "1d4 Unrest": ({activity}) => activity.boost({by: [1, 2, 3, 4].random()}, "Unrest"),
+      "1d4 Unrest": ({activity}) => activity.boost("Unrest", {by: Die.d4()}),
       "Lose 1 Fame": ({activity}) => activity.domain.useConsumable({name: "Fame"}),
       "Nothing happened": ({activity}) => {},
     },
     picked(resolution, context) {
       let {activity, decision} = context;
       decision.resolutions[resolution](context);
-      activity.boost({by: 30}, "XP");
+      activity.boost("XP", {by: 30});
     },
   }, {
     name: "Next",

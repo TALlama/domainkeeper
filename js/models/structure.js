@@ -5,6 +5,8 @@
 /********************************************************************************/
 
 import "../extensions.js";
+import { Die, DicePool } from "../dice.js";
+
 import { Ability } from "./abilities.js";
 import { Powerup } from "./powerup.js";
 
@@ -382,7 +384,7 @@ export class Structure extends Powerup {
       upgradeTo: [`Wall, Stone`],
       description: `Wooden walls provide serviceable defenses to a settlement.`,
       effects: `A wooden wall is built along the border of your settlement. The first time you build a wooden wall in each settlement, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/settlement
     }, {
       name: `Dump`,
       level: 2,
@@ -413,7 +415,7 @@ export class Structure extends Powerup {
       description: `Magical streetlamps are everburning torches that have been fitted within lampposts along the streets. At your option, these magical lights might even be free-floating spheres of light or other unusual forms of illumination.`,
       bonuses: [{max: "Loyalty", value: 1}],
       effects: `Magical streetlamps provide nighttime illumination for an entire settlement. The first time you build magical streetlamps in a Kingdom turn, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/turn
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }, {
       name: `Wall, Stone`,
       level: 5,
@@ -421,7 +423,7 @@ export class Structure extends Powerup {
       upgradeTo: [`Wall, Magical`],
       description: `Stone walls provide solid defenses to a settlement’s borders.`,
       effects: `A stone wall is built along the border of your settlement. The first time you build a stone wall in each settlement, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/settlement
     }, {
       name: `Sewer System`,
       level: 7,
@@ -435,7 +437,7 @@ export class Structure extends Powerup {
       traits: ["Building", "Infrastructure", "Fortification", "Expensive"],
       description: `Force walls provide ephemeral defenses to a settlement’s borders.`,
       effects: `A magical wall is summoned along the border of your settlement, with glowing runes marking the perimeter. The first time you build a magical wall in each settlement, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/settlement
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/settlement
     }];
   }
 
@@ -621,7 +623,7 @@ export class Structure extends Powerup {
         {activity: "Quell Unrest", ability: "Culture", value: 1},
       ], // WAS +1 item bonus to Celebrate Holiday and Provide Care
       effects: `The first time you build a temple each Kingdom turn, reduce Unrest by 2. Treat the settlement’s level as one level higher than its actual level for the purposes of determining what divine magic items are readily available for sale in that settlement. This effect stacks up to three times but does not stack with the same effect granted by shrines or cathedrals.`,
-      added({activity}) { activity.reduce({by: 2}, "Unrest") }, // TODO limit to 1/turn
+      added({activity}) { activity.reduce("Unrest", {by: 2}) }, // TODO limit to 1/turn
     }, {
       name: `Cathedral`,
       level: 15,
@@ -632,7 +634,7 @@ export class Structure extends Powerup {
         {activity: "Quell Unrest", ability: "Culture", value: 2},
       ], // WAS +3 item bonus to Celebrate Holiday, Provide Care, and Repair Reputation (Corruption)
       effects: `The first time you build a cathedral in a turn, reduce Unrest by 4. While in a settlement with a cathedral, you gain a +3 item bonus to Lore and Religion checks made to Recall Knowledge while Investigating, and to all faith-themed checks made while Researching (Gamemastery Guide 154). Treat the settlement’s level as three levels higher than its actual level for the purposes of determining what divine magic items are available for sale in that settlement. This effect does not stack with the similar effect granted by shrines or temples.`,
-      added({activity}) { activity.reduce({by: 4}, "Unrest") }, // TODO limit to 1/turn
+      added({activity}) { activity.reduce("Unrest", {by: 4}) }, // TODO limit to 1/turn
     }];
 
     return [...religious];
@@ -820,7 +822,7 @@ export class Structure extends Powerup {
       description: `A popular tavern is a respectable establishment for entertainment, eating, and drinking.`,
       bonuses: [{activity, value: 1}], // WAS +1 item bonus to Hire Adventurers and to Rest and Relax using Trade
       effects: `The first time you build a popular tavern in a Kingdom turn, reduce Unrest by 2. If you attempt a Performance check to Earn Income in a settlement with a popular tavern, you gain a +1 item bonus to the check. All checks made to Gather Information in a settlement with at least one popular tavern gain a +1 item bonus.`,
-      added({activity}) { activity.reduce({by: 2}, "Unrest") },
+      added({activity}) { activity.reduce("Unrest", {by: 2}) },
     }, {
       name: `Tavern, Luxury`,
       level: 9,
@@ -829,7 +831,7 @@ export class Structure extends Powerup {
       description: `A luxury tavern is a high-class establishment for entertainment, eating, and drinking. It may even include a built-in stage for performers to use.`,
       bonuses: [{activity, value: 2}], // WAS +2 item bonus to Hire Adventurers and to Rest and Relax using Trade
       effects: `The first time you build a luxury tavern in a Kingdom turn, reduce Unrest by 1d4+1. If attempt a Performance check to Earn Income in a settlement with a luxury tavern, you gain a +2 item bonus to the check. All checks made to Gather Information in a settlement with at least one luxury tavern gain a +2 item bonus.`,
-      added({activity}) { activity.reduce({by: [2, 3, 4, 5].random()}, "Unrest") },
+      added({activity}) { activity.reduce("Unrest", {by: Die.d4()}) },
     }, {
       name: `Tavern, World-Class`,
       level: 15,
@@ -837,7 +839,7 @@ export class Structure extends Powerup {
       description: `A World-Class Tavern is a legendary establishment for entertainment, eating, and drinking. It has at least one venue for performances—perhaps multiple ones.`,
       bonuses: [{activity, value: 3}], // WAS +3 item bonus to Hire Adventurers, to Rest and Relax using Trade, and to Repair Reputation (Strife)
       effects: `The first time you build a world-class tavern in a turn, reduce Unrest by 2d4. If you try a Performance check to Earn Income in a settlement with a world-class tavern, you gain a +3 item bonus to the check. All checks made to Gather Information in a settlement with a world-class tavern gain a +3 item bonus.`,
-      added({activity}) { activity.reduce({by: [1, 2, 3, 4].random() + [1, 2, 3, 4].random()}, "Unrest") },
+      added({activity}) { activity.reduce("Unrest", {by: DicePool.parse("2d4").value}) },
     }];
 
     return [...taverns, {
@@ -885,7 +887,7 @@ export class Structure extends Powerup {
       description: `Artists appear in any sufficiently large settlement, but you have a special connection to this one, and you go here for inspiration.`,
       bonuses: [{activity, value: 1}],
       effects: `The first time you build an Art Studio each Kingdom turn, reduce Unrest by 1. `,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") },
+      added({activity}) { activity.reduce("Unrest") },
     }, {
       name: `Artists' District`,
       level: 9,
@@ -894,7 +896,7 @@ export class Structure extends Powerup {
       description: `A section of this settlement has become home to a variety of artists.`,
       bonuses: [{activity, value: 2}],
       effects: `The first time you build an Artists' District each Kingdom turn, reduce Unrest by 2. `,
-      added({activity}) { activity.reduce({by: 2}, "Unrest") },
+      added({activity}) { activity.reduce("Unrest", {by: 2}) },
     }, {
       name: `Opera House`,
       level: 15,
@@ -906,7 +908,7 @@ export class Structure extends Powerup {
         {activity, value: 2},
       ], // WAS +3 item bonus to Celebrate Holiday and Create a Masterpiece
       effects: `The first time you build an opera house each Kingdom turn, reduce Unrest by 4. While in a settlement with an opera house, you gain a +3 item bonus to Performance checks made to Earn Income.`,
-      added({activity}) { activity.reduce({by: 4}, "Unrest") },
+      added({activity}) { activity.reduce("Unrest", {by: 4}) },
     }];
   }
 
@@ -923,7 +925,7 @@ export class Structure extends Powerup {
         {activity: "Recruit Army", ability: "Loyalty", value: 1},
       ], // WAS +1 item bonus to Garrison Army, Recover Army, or Recruit Army (see the appendix starting on page 71)
       effects: `Barracks aid in the recruitment of armies and in helping soldiers recover from battle. The first time you build a barracks in any settlement, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/turn
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }, {
       name: `Keep`,
       level: 3,
@@ -936,7 +938,7 @@ export class Structure extends Powerup {
         {activity: "Train Army", value: 1},
       ], // WAS +1 item bonus to Deploy Army, Garrison Army, or Train Army (see the appendix starting on page 71)
       effects: `The first time you build a keep each Kingdom turn, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") }, // TODO limit to 1/turn
+      added({activity}) { activity.reduce("Unrest") }, // TODO limit to 1/turn
     }, {
       name: `Garrison`,
       level: 5,
@@ -948,7 +950,7 @@ export class Structure extends Powerup {
         {activity: "Train Army", value: 1},
       ], // WAS +1 item bonus to Outfit Army or Train Army (see the appendix starting on page 71)
       effects: `A garrison helps outfit armies with new gear or trains them. When you build a garrison, reduce Unrest by 1.`,
-      added({activity}) { activity.reduce({by: 1}, "Unrest") },
+      added({activity}) { activity.reduce("Unrest") },
     }, {
       name: `Castle`,
       level: 9,
@@ -962,7 +964,7 @@ export class Structure extends Powerup {
         {activity: "Recruit Army", value: 2},
       ], // TODO WAS +2 item bonus to New Leadership, Pledge of Fealty, Send Diplomatic Envoy, and +2 item bonus to Garrison Army, Recover Army, or Recruit Army (see the appendix starting on page 71)
       effects: `The first time you build a castle each Kingdom turn, reduce Unrest by 1d4.`,
-      added({activity}) { activity.reduce({by: [1, 2, 3, 4].random()}, "Unrest") }, // TODO limit to 1/turn
+      added({activity}) { activity.reduce("Unrest", {by: Die.d4()}) }, // TODO limit to 1/turn
     }, {
       name: `Military Academy`,
       level: 12,
@@ -984,7 +986,7 @@ export class Structure extends Powerup {
         {activity: "Recruit Army", value: 3},
       ], // WAS +3 item bonus to New Leadership, Pledge of Fealty, and Send Diplomatic Envoy, and +3 item bonus to Garrison Army, Recover Army, or Recruit Army (see the appendix starting on page 71)
       effects: `A palace can only be built in your capital. The first time you build a palace, reduce Unrest by 10.\nOnce your domain has a palace, you can reroll one Loyalty role per turn.`,
-      added({activity}) { activity.reduce({by: 10}, "Unrest") }, // TODO limit to 1/ever
+      added({activity}) { activity.reduce("Unrest", {by: 10}) }, // TODO limit to 1/ever
       newTurn({domain}) {
         domain.addReroll({name: this.name, ability: "Loyalty"});
       },

@@ -110,7 +110,7 @@ export class ActivityDecision {
         nonAbilityPaid(payment, {activity, decision}) {},
         picked(payment, {activity, decision}) {
           if (Ability.all.includes(payment)) {
-            activity.reduce({by: -decision.amount}, payment);
+            activity.reduce(payment, {by: decision.amount});
             decision.abilityPaid(payment, {activity, decision});
           } else {
             decision.nonAbilityPaid(payment, {activity, decision});
@@ -166,7 +166,7 @@ export class ActivityDecision {
 
         if (activity.callbacksEnabled) {
           decision.picked?.call(activity, value, {decision, activity});
-          activity.domain.decisionPicked(decision, {value, activity});
+          activity.turn?.domain?.decisionPicked(decision, {value, activity});
           activity.decisionResolved?.call(activity, decision, {value, activity});
           if (activity.resolved) {
             activity.onResolved();

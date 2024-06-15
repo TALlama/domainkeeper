@@ -200,15 +200,15 @@ test.describe("Stats", () => {
     test.describe("Up", () => {
       test("Below the maximum", () => {
         const domain = new Domain({});
-        domain.modify({by: 1}, ["culture"]);
+        domain.modify("culture", {by: 1});
         expect.soft(domain.culture).toEqual(3);
-        domain.modify({by: 2}, ["Culture"]);
+        domain.modify("Culture", {by: 2});
         expect.soft(domain.culture).toEqual(5);
       });
 
       test("Above the maximum", () => {
         const domain = new Domain({});
-        domain.modify({by: 4}, ["culture"]);
+        domain.modify("culture", {by: 4});
         expect.soft(domain.culture).toEqual(5);
         expect.soft(domain.xp).toEqual(50);
       });
@@ -217,13 +217,13 @@ test.describe("Stats", () => {
     test.describe("Down", () => {
       test("Above the minimum", () => {
         const domain = new Domain({});
-        domain.modify({by: -1}, ["culture"]);
+        domain.modify("culture", {by: -1});
         expect.soft(domain.culture).toEqual(1);
       });
 
       test("Below the minimum", () => {
         const domain = new Domain({});
-        domain.modify({by: -3}, ["culture"]);
+        domain.modify("culture", {by: -3});
         expect.soft(domain.culture).toEqual(0);
         expect.soft(domain.xp).toEqual(0);
       });

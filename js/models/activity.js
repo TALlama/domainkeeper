@@ -53,29 +53,20 @@ export class Activity {
 
   onResolved() {}
 
-  boost(...abilities) {
-    let {by, prefix} = abilities[0];
-    by && abilities.shift();
-    by ??= 1;
-    if (by < 0) { return this.reduce({by, prefix}, ...abilities) }
+  boost(ability, {by = 1, prefix, ...opts} = {}) {
+    if (by < 0) { return this.reduce(ability, {by: -1 * by, prefix, ...opts}) }
     prefix = prefix ? `${prefix}: ` : "";
-    abilities.forEach(ability => {
-      this.domain.boost({by, activity: this}, ability);
-      this.info(`📈 ${prefix}Boosted ${ability} by ${by}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
-    });
+
+    this.domain.boost(ability, {by, prefix, activity: this, ...opts});
+    this.info(`📈 ${prefix}Boosted ${ability} by ${by}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
   }
 
-  reduce(...abilities) {
-    let {by, prefix} = abilities[0];
-    by && abilities.shift();
-    by ??= -1;
-
-    if (by > 0) { return this.boost({by, prefix}, ...abilities) }
+  reduce(ability, {by = 1, prefix, ...opts} = {}) {
+    if (by < 0) { return this.boost(ability, {by: -1 * by, prefix, ...opts}) }
     prefix = prefix ? `${prefix}: ` : "";
-    abilities.forEach(ability => {
-      this.domain.boost({by, activity: this}, ability);
-      this.warning(`📉 ${prefix}Reduced ${ability} by ${Math.abs(by)}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
-    });
+
+    this.domain.reduce(ability, {by, prefix, activity: this, ...opts});
+    this.warning(`📉 ${prefix}Reduced ${ability} by ${by}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
   }
 
   addConsumable(attrs, logMessage) {

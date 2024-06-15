@@ -1,3 +1,5 @@
+import { Die, DicePool } from "../../dice.js";
+
 import { Ability } from "../abilities.js";
 import { Actor } from "../actor.js";
 
@@ -127,7 +129,7 @@ export var leadershipTemplates = [{
     this.info(`🎉 You claim the hex and immediately add it to your territory, increasing Size by 1 (this affects all statistics determined by Size; see page 38).`);
     let xp = this.domain.size < 10 ? 100 : (this.domain.size < 25 ? 50 : (this.domain.size < 50 ? 25 : 10));
     this.boost("Size");
-    this.boost({by: xp}, "xp");
+    this.boost("xp", {by: xp});
   },
   failure() { this.warning(`❌ You fail to claim the hex`) },
   criticalFailure() {
@@ -268,7 +270,7 @@ export var leadershipTemplates = [{
   },
   criticalFailure() {
     this.error(`🤬 The group refuses to pledge to you— furthermore, it will never Pledge Fealty to your domain, barring significant in-play changes or actions by the PCs (subject to the GM’s approval). The group’s potentially violent rebuff of your offer increases Unrest by 2.`);
-    this.boost({by: 2}, "Unrest");
+    this.boost("Unrest", {by: 2});
   },
 }, {
   icon: "🛣️",
@@ -366,7 +368,7 @@ export var leadershipTemplates = [{
     let targetAbility = Ability.previous(this.ability);
     let max = this.domain.max(targetAbility);
     let divided = Math.floor(max / divisor);
-    this.boost({by: Math.max(min, divided)}, targetAbility);
+    this.boost(targetAbility, {by: Math.max(min, divided)});
   },
   criticalSuccess() {
     this.info("🎁 You make good time and find plentiful resources!");
@@ -410,7 +412,7 @@ export var leadershipTemplates = [{
     let targetAbility = Ability.next(this.ability);
     let max = this.domain.max(targetAbility);
     let divided = Math.floor(max / divisor);
-    this.boost({by: Math.max(min, divided)}, targetAbility);
+    this.boost(targetAbility, {by: Math.max(min, divided)});
   },
   criticalSuccess() {
     this.info(`🎁 Your holiday is a delight to your people. The event is expensive, but incidental income from the celebrants covers the cost.`);
@@ -463,7 +465,7 @@ export var leadershipTemplates = [{
   },
   criticalFailure() {
     this.error(`💥 Your ally is tangled up in its own problems and is unable to assist you, is insulted by your request for aid, or might even have an interest in seeing your domain struggle against one of your ongoing events. Whatever the case, your pleas for aid make your domain look desperate. You gain no aid, but you do increase Unrest by 1d4.`);
-    this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
+    this.boost("Unrest", {by: Die.d4()});
   },
 }, {
   icon: "🎪",
@@ -615,12 +617,12 @@ export var leadershipTemplates = [{
   },
   failure() {
     this.info(`👌🏻 The people are unsure about this new leadership.`);
-    this.boost({by: [2, 3, 4, 5].random()}, "Unrest");
+    this.boost("Unrest", {by: DicePool.parse("1d4+1").value});
   },
   criticalFailure() {
     this.info(`👌🏻 The people reject any new leadership.`);
     this.addedType = "no-one";
-    this.boost({by: [2, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 8].random()}, "Unrest");
+    this.boost("Unrest", {by: DicePool.parse("2d4").value});
   },
 }, {
   icon: "🚋",
@@ -777,7 +779,7 @@ export var leadershipTemplates = [{
     if (consumed) {
       this.error("🤡 Fame reduced by 1");
     } else {
-      this.boost({by: [1, 2, 3, 4].random()}, "Unrest");
+      this.boost("Unrest", {by: Die.d4()});
     }
   },
 }].map(a => { return {type: "leadership", ...a}});

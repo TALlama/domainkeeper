@@ -90,7 +90,7 @@ export default class DomainActivityLog extends RxElement {
     consumable.used = true;
 
     reduce = reduce || consumable.reduce;
-    reduceBy = reduceBy || consumable.reduceBy || -1;
+    reduceBy = reduceBy || consumable.reduceBy || 1;
     boost = boost || consumable.boost;
     boostBy = boostBy || consumable.boostBy || 1;
 
@@ -99,10 +99,10 @@ export default class DomainActivityLog extends RxElement {
 
     let domain = this.domain;
     let reduceValue = domain[reduce.toLowerCase()];
-    if (reduceValue + reduceBy <= 0) { return denyUse(consumableEl) }
+    if (reduceValue - reduceBy <= 0) { return denyUse(consumableEl) }
 
-    domain.reduce({by: reduceBy}, reduce);
-    domain.boost({by: boostBy}, boost);
+    domain.reduce(reduce, {by: reduceBy});
+    domain.boost(boost, {by: boostBy});
     this.expire(event);
   }
 

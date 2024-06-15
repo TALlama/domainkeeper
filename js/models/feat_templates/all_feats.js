@@ -1,4 +1,5 @@
 import { Die } from "../../dice.js";
+import { Ability } from "../abilities.js";
 
 const maxStat = (maxAbility, value) => { return {maxAbility, value} };
 const investedIn = (ability) => maxStat(ability, 7);
@@ -68,7 +69,7 @@ export const generalFeats = withTrait([
     // WAS: when decreasing unrest from 6+, loyalty/2 bonus to delta; anarchy @ unrest 24+
     effects: "The administrators of your domain are selected by merit and are known for their integrity. At the start of each turn, reduce unrest by 1/5 of your Loyalty score.",
     newTurn({domain, activity}) {
-      activity.reduce({by: -Math.ceil(domain.loyalty / 5)}, "unrest");
+      activity.reduce("unrest", {by: Math.ceil(domain.loyalty / 5)});
     },
   }, {
     name: "Inspiring Entertainment",
@@ -79,7 +80,7 @@ export const generalFeats = withTrait([
     // WAS: when gaining unrest, culture check reduces gain  by culture score; +1 culture bonus when unrest > 0
     effects: "A tradition of satire and truthtelling allows your domain to address hard problems. At the start of each turn, reduce unrest by 1/5 of your Culture score.",
     newTurn({domain, activity}) {
-      activity.reduce({by: -Math.ceil(domain.culture / 5)}, "unrest");
+      activity.reduce("unrest", {by: Math.ceil(domain.culture / 5)});
     },
   }, {
     name: "Quick Recovery",
@@ -373,7 +374,7 @@ export const infiltrationFeats = [
     // WAS: subsequent attempt at Clandestine Business only increases the DC by 1; no unrest on success
     effects: "In the shadows, your people are able to conduct business without the prying eyes of the law. Once per turn, you may boost Unrest by 1 to boost Economy by 1.",
     newTurn({activity}) {
-      activity.addTrade({name: this.name, description: "Increase Economy and Unrest", reduce: "Unrest", reduceBy: 1, boost: "Economy"});
+      activity.addTrade({name: this.name, description: "Increase Economy and Unrest", reduce: "Unrest", reduceBy: -1, boost: "Economy"});
     }
   }, {
     name: "Strategic Sabotage",
@@ -553,7 +554,7 @@ export const defenseFeats = [
     // WAS: can Provide Care 1/leader/turn; later free action/turn
     effects: "The citizens of your domain value hospitality, and readily aid one another. At the start of each turn, reduce unrest by 1/5 of your Stability score.",
     newTurn({domain, activity}) {
-      activity.reduce({by: -Math.ceil(domain.stability / 5)}, "unrest");
+      activity.reduce("unrest", {by: Math.ceil(domain.stability / 5)});
     },
   }, {
     name: "Unconquerable",
