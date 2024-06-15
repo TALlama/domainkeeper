@@ -53,21 +53,15 @@ export class Activity {
 
   onResolved() {}
 
-  boost(ability, {by = 1, prefix, ...opts} = {}) {
-    if (by < 0) { return this.reduce(ability, {by: -1 * by, prefix, ...opts}) }
-    prefix = prefix ? `${prefix}: ` : "";
-
-    this.domain.boost(ability, {by, prefix, activity: this, ...opts});
-    this.info(`📈 ${prefix}Boosted ${ability} by ${by}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
+  boost(ability, {by = 1, ...opts} = {}) {
+    this.domain.boost(ability, {by, activity: this,
+      boosted: ({diff, is}) => this.info(`📈 Boosted ${ability} by ${diff}<small>, to ${is}</small>`),
+      reduced: ({diff, is}) => this.info(`📉 Reduced ${ability} by ${diff}<small>, to ${is}</small>`),
+      ...opts,
+    });
   }
 
-  reduce(ability, {by = 1, prefix, ...opts} = {}) {
-    if (by < 0) { return this.boost(ability, {by: -1 * by, prefix, ...opts}) }
-    prefix = prefix ? `${prefix}: ` : "";
-
-    this.domain.reduce(ability, {by, prefix, activity: this, ...opts});
-    this.warning(`📉 ${prefix}Reduced ${ability} by ${by}<small>, to ${this.domain[ability.toLowerCase()]}</small>`);
-  }
+  reduce(ability, {by = 1, ...opts} = {}) { this.boost(ability, {by: -by, ...opts}) }
 
   addConsumable(attrs, logMessage) {
     this.info(logMessage || `➕ Added ${attrs.name}`);

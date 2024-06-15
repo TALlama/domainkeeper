@@ -17,7 +17,12 @@ import { DiceRoll } from "./dice_roll.js";
 
 let nudgeValue = function(el, name, data, key, newValue) {
   let was = data[key];
-  nudge(el, activity => activity.boost(name, {prefix: "Nudge", by: newValue - was, activity}));
+  nudge(el, activity => {
+    activity.boost(name, {by: newValue - was, activity,
+      boosted: ({diff, is}) => activity.info(`📈 Nudge: Boosted ${name} by ${diff}<small>, to ${is}</small>`),
+      reduced: ({diff, is}) => activity.info(`📉 Nudge: Reduced ${name} by ${diff}<small>, to ${is}</small>`),
+    });
+  });
 }
 
 class DomainSheet extends RxElement {

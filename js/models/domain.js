@@ -152,18 +152,25 @@ export class Domain {
     return 99999;
   }
 
-  modify(name, {by, activity}) {
+  modify(name, {by, activity, boosted, reduced, complete, overflow, ...opts}) {
     let key = name.toLocaleLowerCase();
-    let current = this[key];
+    let was = this[key];
     let min = this.min(name);
-    let target = Math.max(min, current + by);
     let max = this.max(name);
+    let target = Math.max(min, was + by);
     let overage = target - max;
-    console.log({name, by, current, range: [min, max].join("-"), target, overage});
-    (activity || this).info(`🐛 info: ${JSON.stringify({name, by, current, range: [min, max].join("-"), target, overage})}`);
-    this[key] = Math.min(max, target);
+    let is = this[key] = Math.min(max, target);
+    let diff = is - was;
     this.checkMilestones(key, activity);
+
+    let callbackOpts = {name, ...opts, domain: this, diff: Math.abs(is - was), overage, was, is, min, max};
+    (diff < 0 && reduced) && reduced({...callbackOpts, diff: Math.abs(diff)});
+    (diff > 0 && boosted) && boosted({...callbackOpts, diff: Math.abs(diff)});
+    (diff !== 0 && complete) && complete(callbackOpts);
+    
     if (overage > 0) {
+      overflow && overflow(callbackOpts);
+
       let xp = overage * 50;
       (activity || this).info(`🛑 ${name} cannot be above ${max}; added ${xp}xp instead`);
       this.xp += xp;
