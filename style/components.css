@@ -741,8 +741,25 @@
       grid-area: traits;
     }
 
-    requirement-list {
+    .requirement-list {
       grid-area: requirements;
+
+      &:not(:empty) {
+        margin-bottom: var(--internal-margin);
+      }
+
+      .requirement.met::before {
+        content: "☑︎ ";
+      }
+
+      .requirement.unmet::before {
+        content: "☐ ";
+      }
+
+      li:has(.requirement.unmet) {
+        color: black;
+        background-color: hsl(0 90% 95%);
+      }
     }
 
     > .body {

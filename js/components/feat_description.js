@@ -1,4 +1,4 @@
-import { displayBonus } from "../helpers.js";
+import { displayBonus, displayRequirement } from "../helpers.js";
 
 import { Feat } from "../models/feat.js";
 
@@ -20,6 +20,7 @@ export class FeatDescription extends RxElement {
   }
 
   get domainSheet() { return document.querySelector("domain-sheet") }
+  get domain() { return this.domainSheet.domain }
 
   /////////////////////////////////////////////// Rendering
 
@@ -34,6 +35,7 @@ export class FeatDescription extends RxElement {
         <span class="level">Lvl ${this.feat.level}</span>
       </div>
       <div class="body">
+        <ul class="requirement-list list-unstyled">${(this.feat.prerequisites || []).map(req => `<li>${displayRequirement(this.domain, req)}</li>`).join("")}</ul>
         <ul class="bonuses list-unstyled">${(this.feat.bonuses || []).map(b => `<li><span class='bonus'>${displayBonus(b)}</span></li>`).join("")}</ul>
         <div class="description">${this.feat.description || ""}</div>
         <div class="effects">${this.feat.effects || ""}</div>

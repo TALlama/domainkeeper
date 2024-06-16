@@ -1,4 +1,5 @@
 import "./extensions.js";
+import { Requirement } from "./models/requirement.js";
 
 export function prettyJSON(value) { return JSON.stringify(value, (key, value) => key[0] === "_" ? undefined : value, 2) }
 export function debugJSON(value) { return `<code class="debug"><pre>${prettyJSON(value)?.escapeHtml()}</pre></code>` }
@@ -14,6 +15,11 @@ export function displayBonus(bonus) {
   } else {
     return bonus.description || errorMessage(`UNKNOWN BONUS ${debugJSON(bonus)}`, bonus);
   }
+}
+
+export function displayRequirement(domain, req) {
+  let requirement = Requirement.evaluate(domain, req);
+  return `<span class="requirement ${requirement.met ? "met" : "unmet"}">${requirement.description}</span>`;
 }
 
 export function describeRoll({activity, ability, unit, structure}) {

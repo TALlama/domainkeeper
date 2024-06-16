@@ -1,12 +1,14 @@
 import { describeRoll, mod } from "../helpers.js";
+import { nudge } from "../components/event_helpers.js";
+
 import { addTransient, hydrateList } from "./utils.js";
 import { Ability } from "./abilities.js";
 import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
 import { Turn } from "./turn.js";
 import { Feat } from "./feat.js";
-import { nudge } from "../components/event_helpers.js";
 import { Milestone } from "./milestone.js";
+import { Requirement } from "./requirement.js";
 
 let abilitiesStartAt = 2;
 
@@ -113,7 +115,7 @@ export class Domain {
     }
   }
 
-  /////////////////////////////////////////////// XP & Milestones
+  /////////////////////////////////////////////// Events
 
   decisionPicked(decision, opts={}) {
     this.feats.forEach(feat => feat.decisionPicked && feat.decisionPicked({domain: this, decision, feat, ...opts}));
@@ -209,6 +211,8 @@ export class Domain {
 
     return sizeMod + baseControlDCByLevel[this.level];
   }
+
+  checkRequirements(...requirements) { return Requirement.evaluate(this, ...requirements) }
 
   /////////////////////////////////////////////// Logging
 

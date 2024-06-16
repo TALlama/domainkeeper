@@ -33,25 +33,25 @@ export const generalFeats = withTrait([
   }, {
     name: "Kingdom Assurance: Culture",
     level: 1,
-    prerequisites: [investedIn("culture")], //WAS: trained in Culture
+    prerequisites: [investedIn("Culture")], //WAS: trained in Culture
     description: "Receive a fixed result on any Culture check.",
     effects: "Even when things go poorly in other areas, you can count on consistency in carrying out activities using Culture. When you would attempt a check for that stat, you can forgo rolling and instead take a result equal to 10 + your proficiency bonus + any potency bonus; do not apply any other bonuses, penalties, or modifiers to this result.",
   }, {
     name: "Kingdom Assurance: Economy",
     level: 1,
-    prerequisites: [investedIn("economy")], //WAS: trained in Economy
+    prerequisites: [investedIn("Economy")], //WAS: trained in Economy
     description: "Receive a fixed result on any Economy check.",
     effects: "Even when things go poorly in other areas, you can count on consistency in carrying out activities using Economy. When you would attempt a check for that stat, you can forgo rolling and instead take a result equal to 10 + your proficiency bonus + any potency bonus; do not apply any other bonuses, penalties, or modifiers to this result.",
   }, {
     name: "Kingdom Assurance: Loyalty",
     level: 1,
-    prerequisites: [investedIn("loyalty")], //WAS: trained in Loyalty
+    prerequisites: [investedIn("Loyalty")], //WAS: trained in Loyalty
     description: "Receive a fixed result on any Loyalty check.",
     effects: "Even when things go poorly in other areas, you can count on consistency in carrying out activities using Loyalty. When you would attempt a check for that stat, you can forgo rolling and instead take a result equal to 10 + your proficiency bonus + any potency bonus; do not apply any other bonuses, penalties, or modifiers to this result.",
   }, {
     name: "Kingdom Assurance: Stability",
     level: 1,
-    prerequisites: [investedIn("stability")], //WAS: trained in Stability
+    prerequisites: [investedIn("Stability")], //WAS: trained in Stability
     description: "Receive a fixed result on any Stability check.",
     effects: "Even when things go poorly in other areas, you can count on consistency in carrying out activities using Stability. When you would attempt a check for that stat, you can forgo rolling and instead take a result equal to 10 + your proficiency bonus + any potency bonus; do not apply any other bonuses, penalties, or modifiers to this result.",
   }, {
@@ -63,7 +63,7 @@ export const generalFeats = withTrait([
   // }, {
     name: "Service Reform", // WAS: Endure Anarchy",
     level: 5,
-    prerequisites: [investedIn("loyalty")], //WAS: "Loyalty 14",
+    prerequisites: [investedIn("Loyalty")], //WAS: "Loyalty 14",
     description: "Continual reform staves off unrest.",
     // WAS: description: "Recover from Unrest more quickly",
     // WAS: when decreasing unrest from 6+, loyalty/2 bonus to delta; anarchy @ unrest 24+
@@ -74,7 +74,7 @@ export const generalFeats = withTrait([
   }, {
     name: "Inspiring Entertainment",
     level: 5,
-    prerequisites: [investedIn("culture")], //WAS: Culture 14
+    prerequisites: [investedIn("Culture")], //WAS: Culture 14
     description: "An active art scene lets people safely vent unrest.",
     // WAS: description: "Use Culture on checks to determine Unrest",
     // WAS: when gaining unrest, culture check reduces gain  by culture score; +1 culture bonus when unrest > 0
@@ -85,7 +85,7 @@ export const generalFeats = withTrait([
   }, {
     name: "Quick Recovery",
     level: 3,
-    prerequisites: [investedIn("stability")], //WAS: Stability 14
+    prerequisites: [investedIn("Stability")], //WAS: Stability 14
     description: "Harmful events are easier to end.",
     effects: "Your domain is known for its resilience. When you attempt to end an ongoing event, reduce the DC by 4.",
     bonuses: [
@@ -115,7 +115,7 @@ export const artFeats = [
   {
     name: "Impressive Accoutrements",
     level: 1,
-    prerequisites: [trainedIn("culture")], //WAS: trained in Arts
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Arts
     description: "A refined culture makes diplomacy easier.",
     // WAS: description: "Cultural refinement aids in diplomatic relations",
     // WAS: new activity burns luxury goods to boost Send Diplomatic Envoy, Request Foreign Aid, and Establish Trade Agreement
@@ -126,7 +126,7 @@ export const artFeats = [
   }, {
     name: "Art Festivals",
     level: 2,
-    prerequisites: [trainedIn("culture")],
+    prerequisites: [trainedIn("Culture")],
     description: "Your domain sets aside time from work to enjoy the fruits of their labor.",
     effects: "Most citizens perform at the festivals, but everyone attends. Once per turn, you may reduce Economy by 1 to boost Culture by 1.",
     newTurn({activity}) {
@@ -135,7 +135,7 @@ export const artFeats = [
   }, {
     name: "National Specialty",
     level: 1,
-    prerequisites: [trainedIn("culture")], //WAS: trained in Arts
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Arts
     description: "The domain is renowned for a specific artform, which is broadly useful.",
     // WAS: description: "Artists produce better specific luxury goods",
     // WAS: +1 to Rest and Relax and to Create a Masterpiece & two more activities
@@ -151,7 +151,7 @@ export const faithFeats = [
   {
     name: "Unifying Faith",
     level: 1,
-    prerequisites: [trainedIn("loyalty")], //WAS: trained in Folklore
+    prerequisites: [trainedIn("Loyalty")], //WAS: trained in Folklore
     description: "A national faith unifies your people’s values",
     // WAS: bonus to Celebrate Holiday, Quell Unrest, and Repair Reputation
     effects: "Your people share a collective faith, whether of a single deity or a particular national pantheon. The first time Culture would be reduced each turn, prevent 1 point of the reduction.",
@@ -161,7 +161,7 @@ export const faithFeats = [
   }, {
     name: "Root Work",
     level: 1,
-    prerequisites: [trainedIn("culture")], //WAS: trained in Folklore
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Folklore
     description: "Folk magics protect against unexpected misfortune",
     // WAS: description: "Folk magics protect against unexpected misfortune",
     // WAS: new activity can give bonus to avoid events
@@ -177,7 +177,7 @@ export const faithFeats = [
   }, {
     name: "Sanctified Settlements",
     level: 15,
-    prerequisites: [legendaryIn("culture"), {feat: "Unifying Faith"}], //WAS: legendary in Folklore; Unifying Faith
+    prerequisites: [legendaryIn("Culture"), {feat: "Unifying Faith"}], //WAS: legendary in Folklore; Unifying Faith
     description: "Your people’s faith is strong enough to resonate within the very streets and halls of their homes",
     // WAS: description: "Your people’s faith is strong enough to resonate within the very streets and halls of their homes",
     // WAS: all land is consecrated; can burn rp to enhance to 8th level
@@ -189,7 +189,7 @@ export const magicFeats = [
   {
     name: "Conjure Commodities",
     level: 2,
-    prerequisites: [expertIn("culture")], //WAS: trained in Magic
+    prerequisites: [expertIn("Culture")], //WAS: trained in Magic
     description: "Use magic to conjure the commodities you need",
     // WAS: description: "Use Luxuries to conjure other commodities",
     // WAS: new activity burns 1 luxury to make 2 other commodities
@@ -200,7 +200,7 @@ export const magicFeats = [
   }, {
     name: "Practical Magic",
     level: 1,
-    prerequisites: [trainedIn("culture")], //WAS: trained in Magic
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Magic
     description: "Commonplace magic improves practical skills",
     effects: "Magic has an honored place in your society, and your people incorporate it into their everyday work to make life easier. At the start of each turn, roll vs DC 11. On a success, gain a Creative Solution consumable.",
     // WAS: +1 circumstance bonus to Agriculture, Defense, Engineering, and Wilderness checks; if your kingdom is a master in Magic, this bonus increases to +2
@@ -217,7 +217,7 @@ export const magicFeats = [
   }, {
     name: "Mage Corps",
     level: 2,
-    prerequisites: [expertIn("culture")], //WAS: expert in Magic
+    prerequisites: [expertIn("Culture")], //WAS: expert in Magic
     description: "Recruit special units of mages into your armies",
     effects: "Some of your domain's mages are studied in the application of war magics. You can add Mage Corps special units to your armies",
     bonuses: [
@@ -226,7 +226,7 @@ export const magicFeats = [
   }, {
     name: "Mystic Utopia",
     level: 15,
-    prerequisites: [legendaryIn("culture"), {feat: "Practical Magic"}], //WAS: legendary in Magic; Practical Magic
+    prerequisites: [legendaryIn("Culture"), {feat: "Practical Magic"}], //WAS: legendary in Magic; Practical Magic
     description: "Magic suffuses the entire domain, making it a shining paragon of mystic power.",
     // WAS: description: "Magic suffuses the entire kingdom, making it a shining paragon of mystic power",
     // WAS: practical magic bonus is +3 now; advantage on Supernatural Solution checks
@@ -241,7 +241,7 @@ export const scholarlyFeats = [
   {
     name: "Alchemy Corps",
     level: 2,
-    prerequisites: [expertIn("culture")], //WAS: expert in Scholarship
+    prerequisites: [expertIn("Culture")], //WAS: expert in Scholarship
     description: "Access special units which grant utility and healing",
     // WAS: description: "Access special units which grant utility and healing",
     // WAS: can recruit Alchemy Corps units
@@ -256,7 +256,7 @@ export const statecraftFeats = [
   {
     name: "Folk Stories",
     level: 2,
-    prerequisites: [trainedIn("loyalty")],
+    prerequisites: [trainedIn("Loyalty")],
     description: "There is a rich array of stories valorizing your domain's history and accomplishments.",
     effects: "A shared story helps people feel connected to their community. Once per turn, you may reduce Culture by 1 to boost Loyalty by 1.",
     newTurn({activity}) {
@@ -265,7 +265,7 @@ export const statecraftFeats = [
   }, {
     name: "Strong Reputation",
     level: 2,
-    prerequisites: [expertIn("loyalty")], //WAS: expert in Statecraft
+    prerequisites: [expertIn("Loyalty")], //WAS: expert in Statecraft
     description: "Establish diplomatic ties and fealty more easily",
     // WAS: description: "Establish diplomatic ties and fealty more easily",
     // WAS: reduces the Negotiation DCs of other groups
@@ -290,7 +290,7 @@ export const boatingFeats = [
   {
     name: "Naval Regiments",
     level: 1,
-    prerequisites: [trainedIn("economy")], //WAS: trained in Boating
+    prerequisites: [trainedIn("Economy")], //WAS: trained in Boating
     description: "Your vessels are also make good war engines.",
     // WAS: description: "Your vessels are also make good war engines",
     // WAS: can build Naval Corps units; army deploy bonus
@@ -301,7 +301,7 @@ export const boatingFeats = [
   }, {
     name: "Unfettered Sails",
     level: 15,
-    prerequisites: [legendaryIn("economy")], //WAS: legendary in Boating, master in Magic or in Scholarship
+    prerequisites: [legendaryIn("Economy")], //WAS: legendary in Boating, master in Magic or in Scholarship
     description: "Through clever magics or ingenious invention, your people have learned the secrets to sailing the skies, no longer tied only to waterways",
     effects: "With a bit of help from magicians or scholars, your sea-faring folk have learned to sail the skies. Your kingdom treats any above-ground areas as if they were connected by navigable waterways.",
   }
@@ -314,7 +314,7 @@ export const industryFeats = [
   {
     name: "Frugal",
     level: 1,
-    prerequisites: [trainedIn("economy")],
+    prerequisites: [trainedIn("Economy")],
     description: "Once per turn, gain a bonus to a stabiity check",
     effects: "The domain is known for its frugality and careful planning. Once per turn, add a +2 circumstance bonus to a stability check.",
     newTurn({activity}) {
@@ -323,7 +323,7 @@ export const industryFeats = [
   }, {
     name: "Supply Chain",
     level: 2,
-    prerequisites: [expertIn("economy")], //WAS: expert in Industry
+    prerequisites: [expertIn("Economy")], //WAS: expert in Industry
     description: "Keep commodities moving to where they're most needed",
     // WAS: description: "Keep commodities moving to where they're most needed",
     // WAS: if commodities are gathered, bonus to Build Structure, Build Roads, Craft Luxuries, Create Masterpiece, Establish Settlement, and Trade Commodities
@@ -338,7 +338,7 @@ export const tradeFeats = [
   {
     name: "County Fairs",
     level: 5,
-    prerequisites: [expertIn("economy")], //WAS: expert in Trade
+    prerequisites: [expertIn("Economy")], //WAS: expert in Trade
     description: "County fairs bring the domain together, reducing unrest and benefiting the economy.",
     effects: "Your domain’s county fairs are a time of celebration and commerce, where the rural and urban economies come together. Once per turn, you can reduce Stability by 1 to boost Economy by 1.",
     newTurn({activity}) {
@@ -359,7 +359,7 @@ export const infiltrationFeats = [
   {
     name: "Patronage System",
     level: 2,
-    prerequisites: [trainedIn("loyalty")],
+    prerequisites: [trainedIn("Loyalty")],
     description: "The wealthy members of your society compete to patronize the arts.",
     effects: "Conspicuous consumption makes the arts grow, but fuels quiet fueds. Once per turn, you may reduce Loyalty by 1 to boost Culture by 1.",
     newTurn({activity}) {
@@ -368,7 +368,7 @@ export const infiltrationFeats = [
   }, {
     name: "Covert Collusion",
     level: 2,
-    prerequisites: [trainedIn("loyalty")], //WAS: expert in Intrigue
+    prerequisites: [trainedIn("Loyalty")], //WAS: expert in Intrigue
     description: "Turning a blind eye to certain activities can be beneficial.",
     // WAS: description: "Reduce difficulty of continual clandestine business",
     // WAS: subsequent attempt at Clandestine Business only increases the DC by 1; no unrest on success
@@ -379,7 +379,7 @@ export const infiltrationFeats = [
   }, {
     name: "Strategic Sabotage",
     level: 2,
-    prerequisites: [expertIn("loyalty")], //WAS: expert in Intrigue
+    prerequisites: [expertIn("Loyalty")], //WAS: expert in Intrigue
     description: "Infiltrate enemy armies and sabotage their efforts",
     // WAS: description: "Infiltrate enemy armies and sabotage their efforts",
     // WAS: new army action to sabotage before attacking
@@ -387,14 +387,14 @@ export const infiltrationFeats = [
   }, {
     name: "Preternatural Precautions",
     level: 7,
-    prerequisites: [masterIn("loyalty")], //WAS: master in Intrigue
+    prerequisites: [masterIn("Loyalty")], //WAS: master in Intrigue
     description: "Avoid magical inquiries into your operations",
     effects: "Your kingdom’s operatives are well-versed in avoiding even magical detections. When using Intrigue, the DC is never increased due to special circumstances which you may not have been aware of, such as the presence of detection or scrying magics.\n" +
       "In addition, your kingdom cannot be scried upon, and your leadership knows if someone has attempted to do so. The Emissary and Magister may choose a heavily- guarded secret means of overcoming this kingdom-wide protection against scrying, determining who has access to the method. If the kingdom is at least master in Magic, the Emissary and Magister may also choose for those attempting to scry on you to observe a false reality instead of simply blocking the effect.",
   }, {
     name: "Unceasing Infiltration",
     level: 15,
-    prerequisites: [legendaryIn("loyalty")], //WAS: legendary in Intrigue
+    prerequisites: [legendaryIn("Loyalty")], //WAS: legendary in Intrigue
     description: "You have spies everywhere, keeping you appraised",
     effects: "Your nation’s network of spies is extensive and always on the look-out for new information that may be beneficial.\n" +
       "At the start of the Activity phase of each domain turn, you may choose to attempt up to three free Infiltrations. You may instead choose to attempt only a single free Infiltration; if you do, treat your result as one degree of success better.",
@@ -405,7 +405,7 @@ export const politicsFeats = [
   {
     name: "Appeal to Tradition",
     level: 2,
-    prerequisites: [trainedIn("loyalty")], //WAS: trained in Politics
+    prerequisites: [trainedIn("Loyalty")], //WAS: trained in Politics
     description: "You adhere to tradition to inspire your citizens",
     // WAS: description: "You adhere to tradition to inspire your citizens",
     // WAS: +1 status bonus to Celebrate Holiday, New Leadership, and Quell Unrest when not using Warfare. This bonus increases to +2 if the domain’s at least master in Politics.
@@ -420,7 +420,7 @@ export const warfareFeats = [
   {
     name: "Crush Dissent",
     level: 1,
-    prerequisites: [trainedIn("loyalty")], //WAS: trained in Warfare
+    prerequisites: [trainedIn("Loyalty")], //WAS: trained in Warfare
     description: "Stifle dissent before it has a chance to spread",
     // WAS: description: "Stifle dissent before it has a chance to spread",
     // WAS: use Warfare to avoid unrest
@@ -432,7 +432,7 @@ export const warfareFeats = [
   }, {
     name: "Militant Peace-Keeping",
     level: 1,
-    prerequisites: [trainedIn("loyalty")], //WAS: trained in Warfare
+    prerequisites: [trainedIn("Loyalty")], //WAS: trained in Warfare
     description: "The threat of force keeps the peace.",
     // WAS: description: "Use Warfare for some Defense-related checks",
     // WAS: use Warfare instead of Defense for Fortify Hex and Repair Reputation (Crime); use Warfare on criminal events
@@ -455,7 +455,7 @@ export const agrictultureFeats = [
   {
     name: "Beasts of Burden",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Agriculture
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Agriculture
     description: "Use domestic animals to make work easier",
     // WAS: description: "Use domestic animals to make work easier",
     // WAS: bonus to Agriculture, Engineering, and Wilderness checks
@@ -467,7 +467,7 @@ export const agrictultureFeats = [
   }, {
     name: "Medicinal Crops",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Agriculture
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Agriculture
     description: "Enhance your domain’s healing skills",
     effects: "Your farmers and other agricultural producers dedicate a portion of their efforts to medicinal crops, making sure your healers are always stocked with what they need." +
       "Additionally, you gain a +2 circumstance bonus to any event regarding disease or curses, such as the Plague and Undead Uprising random events.",
@@ -478,7 +478,7 @@ export const agrictultureFeats = [
   }, {
     name: "Beast Mounts",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Agriculture
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Agriculture
     description: "Domesticate powerful animals to serve as mounts",
     // WAS: description: "Domesticate powerful animals to serve as mounts",
     // WAS: cavalry units get +2 bonus on melee attacks OR varied weapons tactic
@@ -486,7 +486,7 @@ export const agrictultureFeats = [
   }, {
     name: "Subsidize Agriculture",
     level: 2,
-    prerequisites: [expertIn("stability")], //WAS: expert in Agriculture
+    prerequisites: [expertIn("Stability")], //WAS: expert in Agriculture
     description: "Pay to keep farms growing sustainably.",
     // WAS: description: "Spend RP to improve crop harvests",
     // WAS: new free activity that burns RP to make food
@@ -497,7 +497,7 @@ export const agrictultureFeats = [
   }, {
     name: "Monstrous Husbandry",
     level: 7,
-    prerequisites: [masterIn("stability"), {feat: "Beast Mounts"}], //WAS: master in Agriculture; Beast Mounts
+    prerequisites: [masterIn("Stability"), {feat: "Beast Mounts"}], //WAS: master in Agriculture; Beast Mounts
     description: "Domesticate even more powerful creatures",
     // WAS: description: "Domesticate even more powerful creatures",
     // WAS: increase Beasts of Burden bonus by 1; cavalry units get a bonus tactic depending on the type of creature your domain has reared (GM discretion): Aerial Battalion, Aquatic Battalion, Darkvision, Merciless, or Tough Soldiers.
@@ -513,7 +513,7 @@ export const defenseFeats = [
   {
     name: "Fortified Fiefs",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Defense
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Defense
     description: "Bonus to Build defensive features",
     // WAS: description: "Bonus to Fortify or to Build certain Structures",
     // WAS: reduced DCs for Fortify Hex activity and when you use Build a Structure for a Barracks, Castle, Garrison, Keep, Wall, or Watchtower
@@ -525,7 +525,7 @@ export const defenseFeats = [
   }, {
     name: "Medic Corps",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Defense
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Defense
     description: "Access special units which grant healing",
     // WAS: description: "Access special units which grant healing",
     // WAS: can recruit Medic Corps units
@@ -536,20 +536,20 @@ export const defenseFeats = [
   }, {
     name: "Culture of Vigilance",
     level: 2,
-    prerequisites: [expertIn("stability")], //WAS: expert in Defense
+    prerequisites: [expertIn("Stability")], //WAS: expert in Defense
     description: "Bonus against Intrigue and dangerous events",
     effects: "Your people are constantly alert to potential threats of all kinds, and specifically to the threats posed by outsiders. The kingdom gains a +1 circumstance bonus against all dangerous events.\n" +
       "The circumstance bonus from this feat is increased by 1 for Assassination Attempt, Bandit Activity, Cult Activity, Drug Den, Sacrifices, Sensational Crime, Vandals, and any other dangerous event contingent on criminal or espionage activity",
   }, {
     name: "Siege Preparation",
     level: 2,
-    prerequisites: [expertIn("stability")], //WAS: expert in Defense
+    prerequisites: [expertIn("Stability")], //WAS: expert in Defense
     description: "Settlements can survive siege longer",
     effects: "Your settlements are set up to defend more easily from siege tactics, reinforcing any fortifications they possess and storing additional supplies. The fortification statistics for your settlements increase AC by 5 and increase HP by half (round up). In addition, armies garrisoned in a settlement gain the Increased Ammunition tactic as a bonus tactic, so long as they have a ranged attack.",
   }, {
     name: "Continual Care",
     level: 5,
-    prerequisites: [investedIn("stability")], //WAS: expert in Defense
+    prerequisites: [investedIn("Stability")], //WAS: expert in Defense
     description: "Healers and mystics care for the people, reducing unrest.",
     // WAS: can Provide Care 1/leader/turn; later free action/turn
     effects: "The citizens of your domain value hospitality, and readily aid one another. At the start of each turn, reduce unrest by 1/5 of your Stability score.",
@@ -559,7 +559,7 @@ export const defenseFeats = [
   }, {
     name: "Unconquerable",
     level: 15,
-    prerequisites: [legendaryIn("stability")], //WAS: legendary in Defense; Culture of Vigilance
+    prerequisites: [legendaryIn("Stability")], //WAS: legendary in Defense; Culture of Vigilance
     description: "You might completely ignore dangerous events, find spies with ease, and rally defenses rapidly",
     effects: "Your people are truly prepared for anything. Whenever the kingdom is faced with a dangerous event, you may choose to attempt a DC 6 flat check: on a success, the kingdom automatically succeeds the check to resolve the event, or critically succeeds if the flat check is a critical success. If the flat check fails, roll to resolve the event normally.",
   },
@@ -569,7 +569,7 @@ export const constructionFeats = [
   {
     name: "Dedicated Builders",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Engineering
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Engineering
     description: "Gain a bonus to all attempts to build",
     effects: "Expansion and upgrades to structures and infrastructure are a constant feature of your people’s lives, and they are always ready to lend a hand in the construction of new buildings and roads. The domain gains a +1 circumstance bonus to all stability checks to Build Structures and Build Infrastructure.",
     bonuses: [
@@ -579,7 +579,7 @@ export const constructionFeats = [
   }, {
     name: "National Service",
     level: 2,
-    prerequisites: [expertIn("stability")],
+    prerequisites: [expertIn("Stability")],
     description: "Citizens continually work to make the nation a better place.",
     effects: "The populace has organized to prioritize upkeep and modernization for their fellow citizens. Once per turn, you can reduce Loyalty by 1 to boost Stability by 1.",
     newTurn({activity}) {
@@ -588,13 +588,13 @@ export const constructionFeats = [
   }, {
     name: "Efficient Repairs",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Engineering
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Engineering
     description: "Repair structures faster and with less resources",
     effects: "When the kingdom attempts to use Build Structure to repair a structure, you may choose to either attempt an additional Build Structure activity for free but only to repair a structure, or to ignore the cost of repairing the single structure.",
   }, {
     name: "With What You’ve Got",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Engineering
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Engineering
     description: "Suit the land to your needs more efficiently",
     effects: "Your engineers and builders are quite skillful in working with the land they build upon. When the domain attempts to Build Structures or Build Infrastructure, ignore the DC penalty for working on rough terrain by 2.",
     bonuses: [
@@ -607,7 +607,7 @@ export const wildernessFeats = [
   {
     name: "Friends of the Wild",
     level: 1,
-    prerequisites: [trainedIn("stability")],
+    prerequisites: [trainedIn("Stability")],
     description: "Your people identify and make use of the natural resources all around them.",
     effects: "The settlements of your domain incorporate the riches of the land. Once per turn, you can add a +2 circumstance bonus any check using Economy.",
     newTurn({activity}) {
@@ -616,7 +616,7 @@ export const wildernessFeats = [
   }, {
     name: "Harmonious Blending",
     level: 1,
-    prerequisites: [trainedIn("stability")], //WAS: trained in Wilderness
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Wilderness
     description: "Settlements blend right into the wilds",
     // WAS: description: "Settlements blend right into the wilds",
     // WAS: bonus against events dependent on the status of the wilderness; free walls
@@ -627,7 +627,7 @@ export const wildernessFeats = [
   }, {
     name: "Natural Almanac",
     level: 2,
-    prerequisites: [expertIn("stability")], //WAS: expert in Wilderness
+    prerequisites: [expertIn("Stability")], //WAS: expert in Wilderness
     description: "Meticulous records make it easier to predict and adapt to natural phenomena",
     // WAS: description: "Meticulous records make it easier to predict and adapt to natural phenomena",
     // WAS: bonus to Establish Farmland, Harvest Crops & Livestock, and Hunt & Forage; bonus vs weather events

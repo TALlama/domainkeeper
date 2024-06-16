@@ -321,7 +321,14 @@ export var systemTemplates = [{
       groupOptionsBy: featName => `Level ${Feat.template(featName).level}`,
       optionDisableReason(featName) {
         let feat = Feat.template(featName);
-        if (feat.level > this.domain.level) { return `Requires level ${feat.level}` }
+
+        let levelRequirement = {ability: "Level", value: feat.level};
+        let prereqs = feat.prerequisites || [];
+
+        let reqs = this.domain.checkRequirements(levelRequirement, ...prereqs);
+        if (reqs.met) { return null }
+
+        return reqs.children.filter(r => !r.met).map(r => r.description).join(".\n");
       },
       
       displayValue: featName => `<feat-description name="${featName}"></feat-description>`,
