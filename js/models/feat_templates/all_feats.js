@@ -221,7 +221,7 @@ export const magicFeats = [
     description: "Recruit special units of mages into your armies",
     effects: "Some of your domain's mages are studied in the application of war magics. You can add Mage Corps special units to your armies",
     bonuses: [
-      {unlock: "Recruit Army", unit: "Mage Corps"},
+      {type: "unlock", activity: "Recruit Army", unit: "Mage Corps"},
     ],
   }, {
     name: "Mystic Utopia",
@@ -296,7 +296,7 @@ export const boatingFeats = [
     // WAS: can build Naval Corps units; army deploy bonus
     effects: "Life on the water is a focus for your people, and they know how to leverage their naval skills during warfare. You can add Naval Corps special units to your armies.",
     bonuses: [
-      {unlock: "Recruit Army", unit: "Naval Corps"},
+      {type: "unlock", activity: "Recruit Army", unit: "Naval Corps"},
     ],
   }, {
     name: "Unfettered Sails",
@@ -531,7 +531,7 @@ export const defenseFeats = [
     // WAS: can recruit Medic Corps units
     effects: "Collections of physicians, surgeons, clerics, shamans, and other healers march with your armies to tend to their wounds in the fields of battle. You can add Medic Corps special units to your armies.",
     bonuses: [
-      {unlock: "Recruit Army", unit: "Medic Corps"},
+      {type: "unlock", activity: "Recruit Army", unit: "Medic Corps"},
     ],
   }, {
     name: "Culture of Vigilance",

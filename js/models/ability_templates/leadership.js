@@ -17,7 +17,7 @@ export var leadershipTemplates = [{
   name: "Reconnoiter Hex",
   summary: "You hire a team to survey a particular hex.",
   whyDisabled(domain, leader) {
-    if (!domain.bonuses.find(p => p.unlock === "Reconnoiter Hex")) {
+    if (!domain.bonuses.find(p => p.type === "unlock" && p.activity === "Reconnoiter Hex")) {
       return "Build a Hunters' Lodge first";
     }
   },

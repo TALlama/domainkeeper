@@ -449,7 +449,7 @@ export class Structure extends Powerup {
       upgradeTo: [`Explorers' Hall`],
       description: `This lodge houses maps, training materials, and meat and hide processing areas for those who hunt game.`,
       bonuses: [
-        {unlock: "Reconnoiter Hex"},
+        {type: "unlock", activity: "Reconnoiter Hex"},
       ], // WAS +2 to Hunt & Gather and to Rest & Relax (Wilderness)
       effects: `Hunters allow you to Reconnoiter Hexes as a Leadership Activity, but only within 3 hexes of this settlement.`,
     }, {
@@ -459,7 +459,7 @@ export class Structure extends Powerup {
       upgradeTo: [`Explorers' Guild`],
       description: `In addition to being a meeting space, this hall contains maps and trophies from local explorers and adventurers.`,
       bonuses: [
-        {unlock: "Reconnoiter Hex"},
+        {type: "unlock", activity: "Reconnoiter Hex"},
         {activity: "Hire Adventurers", value: 1},
         {activity: "Abandon Hex", value: 1},
         {activity: "Claim Hex", value: 1},
@@ -473,7 +473,7 @@ export class Structure extends Powerup {
       traits: ["Building"],
       description: `This guild-hall boasts incredible trophies and luxurious interiors to suit even seasoned adventurers.`,
       bonuses: [
-        {unlock: "Reconnoiter Hex"},
+        {type: "unlock", activity: "Reconnoiter Hex"},
         {activity: "Hire Adventurers", value: 2},
         {activity: "Abandon Hex", value: 2},
         {activity: "Claim Hex", value: 2},
@@ -1028,7 +1028,7 @@ export class Structure extends Powerup {
         template.limit ??= 1;
 
         template.bonuses.forEach(b => {
-          if (b.activity) { b.type = "item" }
+          if (b.activity) { b.type = b.type ?? "item" }
         });
 
         return template;

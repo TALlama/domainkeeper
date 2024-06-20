@@ -1,6 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
-const { mod, describeRoll } = require('../js/helpers');
+const { mod, displayBonus, describeRoll } = require('../js/helpers');
+
+const { Feat } = require('../js/models/feat');
+const { Structure } = require('../js/models/structure');
 
 test.describe("mod", () => {
   test("positive numbers", () => {
@@ -15,6 +18,85 @@ test.describe("mod", () => {
 
   test("zero", () => {
     expect(mod(0)).toEqual("+0");
+  });
+});
+
+test.describe("displayBonus", () => {
+  test("with description", () => {
+    expect(displayBonus({description: "This is a test"})).toEqual("This is a test");
+  });
+
+  test("unknown bonus", () => {
+    expect(displayBonus({})).toContain("UNKNOWN BONUS");
+  });
+  
+  test.describe("activity bonus", () => {
+    test("whole activity", () => {
+      expect(displayBonus({activity: "Reticulate Splines", value: 2})).toEqual("⏩ +2 to Reticulate Splines") ;
+      expect(displayBonus({activity: "Reticulate Splines", value: -2})).toEqual("⏩ -2 to Reticulate Splines") ;
+    });
+
+    test("activity with ability", () => {
+      expect(displayBonus({activity: "Reticulate Splines", ability: "Culture", value: 2})).toEqual("⏩ +2 to Reticulate Splines using Culture") ;
+    });
+
+    test("activity with unit", () => {
+      expect(displayBonus({activity: "Reticulate Splines", unit: "Triangle", value: 2})).toEqual("⏩ +2 to Reticulate Splines for Triangle") ;
+      expect(displayBonus({activity: "Reticulate Splines", unit: "Triangle", ability: "Stability", value: 2})).toEqual("⏩ +2 to Reticulate Splines for Triangle using Stability") ;
+    });
+
+    test("activity with structure", () => {
+      expect(displayBonus({activity: "Reticulate Splines", structure: "Triangle", value: 2})).toEqual("⏩ +2 to Reticulate Splines for Triangle") ;
+      expect(displayBonus({activity: "Reticulate Splines", structure: "Triangle", ability: "Stability", value: 2})).toEqual("⏩ +2 to Reticulate Splines for Triangle using Stability") ;
+    });
+  });
+
+  test.describe("max bonus", () => {
+    test("positive", () => {
+      expect(displayBonus({max: "Culture", value: 2})).toEqual("⬆️ +2 to maximum Culture") ;
+    });
+
+    test("negative", () => {
+      expect(displayBonus({max: "Culture", value: -2})).toEqual("⬇️ -2 to maximum Culture") ;
+    });
+  });
+  
+  test.describe("unlock", () => {
+    test("whole activities", () => {
+      expect(displayBonus({type: "unlock", activity: "Reticulate Splines"})).toEqual("🔒 Unlock activity: Reticulate Splines") ;
+    });
+
+    test("specific units", () => {
+      expect(displayBonus({type: "unlock", activity: "Recruit Army", unit: "Dragon"})).toEqual("🔒 Unlock activity: Recruit Army for Dragon") ;
+    });
+
+    test("specific structures", () => {
+      expect(displayBonus({type: "unlock", activity: "Build Infrastructure", structure: "Playground"})).toEqual("🔒 Unlock activity: Build Infrastructure for Playground") ;
+    });
+  });
+  
+  test.describe("covers all bonuses", () => {
+    test("given by structures", () => {
+      let bonuses = Structure.templates
+        .flatMap(s => (s.bonuses || []).map(b => { return {...b, _source: s.name}}));
+      bonuses
+        .forEach(bonus => {
+          let text = displayBonus(bonus);
+          console.log(text, bonus);
+          expect.soft(text, `Unknown bonus: ${JSON.stringify(bonus)}`).not.toContain("UNKNOWN BONUS");
+        });
+    });
+
+    test("given by feats", () => {
+      let bonuses = Feat.templates
+        .flatMap(f => (f.bonuses || []).map(b => { return {...b, _source: f.name}}));
+      bonuses
+        .forEach(bonus => {
+          let text = displayBonus(bonus);
+          console.log(text, bonus);
+          expect.soft(text, `Unknown bonus: ${JSON.stringify(bonus)}`).not.toContain("UNKNOWN BONUS");
+        });
+    });
   });
 });
 

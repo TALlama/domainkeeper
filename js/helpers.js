@@ -6,12 +6,12 @@ export function debugJSON(value) { return `<code class="debug"><pre>${prettyJSON
 
 export function mod(value) { return value < 0 ? value.toString() : `+${value}` }
 export function displayBonus(bonus) {
-  if (bonus.activity) {
-    return `⏩ ${mod(bonus.value)} to ${bonus.activity} using ${bonus.ability || "any ability"}`;
+  if (bonus.type === "unlock") {
+    return `🔒 Unlock activity: ${describeRoll(bonus)}`;
+  } else if (bonus.activity) {
+    return `⏩ ${mod(bonus.value || 0)} to ${describeRoll(bonus)}`;
   } else if (bonus.max) {
     return `${bonus.value > 0 ? "⬆️" : "⬇️"} ${mod(bonus.value)} to maximum ${bonus.max}`;
-  } else if (bonus.unlock) {
-    return `🔒 Unlock ability: ${bonus.unlock}`;
   } else {
     return bonus.description || errorMessage(`UNKNOWN BONUS ${debugJSON(bonus)}`, bonus);
   }

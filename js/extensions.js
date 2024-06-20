@@ -51,9 +51,13 @@ Array.eql = Array.eql || function(a, b) {
 
 /* String extentions */
 String.prototype.escapeHtml = String.prototype.escapeHtml || function() {
-  const el = document.createElement("div");
-  el.innerText = this;
-  return el.innerHTML;
+  try {
+    const el = document.createElement("div");
+    el.innerText = this;
+    return el.innerHTML;
+  } catch (e) {
+    return "--- ERROR: CANNOT ESCAPE HTML ---";
+  }
 }
 
 class Die {
