@@ -3,7 +3,7 @@ const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
 const { leaders } = require('../fixtures/leaders');
 const { monitor } = require('../helpers');
-const { testMilestone } = require('./milestones.spec');
+const { testMilestone } = require('./milestones_helper');
 
 const abilities = ["Loyalty"];
 test.describe("Critical Success", () => {

@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
 const { Ability } = require('../../js/models/abilities');
-const { testMilestone } = require('./milestones.spec');
+const { testMilestone } = require('./milestones_helper');
 
 test.describe("Boosts the ability below the one rolled", () => {
   Ability.all.forEach(ability => {

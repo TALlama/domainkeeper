@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require("../fixtures/domains");
-const { testMilestone } = require('./milestones.spec');
+const { testMilestone } = require('./milestones_helper');
 
 const abilities = ["Economy", "Stability"];
 const unlockedBy = ["Hunters' Lodge", "Explorers' Hall", "Explorers' Guild"];

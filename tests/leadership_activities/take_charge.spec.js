@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require("../fixtures/domains");
 const { leaders } = require("../fixtures/leaders");
-const { testMilestone } = require('./milestones.spec');
+const { testMilestone } = require('./milestones_helper');
 
 let settlements = {
   capital: {name: "Capital", id: "settlement-capital", traits: ["Village"]},
