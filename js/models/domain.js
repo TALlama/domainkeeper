@@ -7,6 +7,7 @@ import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
 import { Turn } from "./turn.js";
 import { Feat } from "./feat.js";
+import { Feature } from "./feature.js";
 import { Milestone } from "./milestone.js";
 import { Requirement } from "./requirement.js";
 
@@ -19,6 +20,7 @@ export class Domain {
     hydrateList(this, {name: "settlements", type: Actor});
     hydrateList(this, {name: "turns", type: Turn});
     hydrateList(this, {name: "feats", type: Feat});
+    hydrateList(this, {name: "features", type: Feature});
 
     this.#setDefaults();
     Object.assign(this, properties);
@@ -73,6 +75,9 @@ export class Domain {
       ...(this.settlements || [])
         .filter(s => s.position)
         .map(s => ({editable: false, position: s.position, icon: s.icon || "🏠"})),
+      ...(this.features || [])
+        .filter(s => s.position)
+        .map(s => ({editable: false, position: s.position, icon: s.icon || "📍"})),
     ];
   }
   set markers(value) { /* ignore */ }
@@ -276,6 +281,21 @@ export class Domain {
 
   hasFeat(name) { return this.findFeats({name}).length > 0 }
   findFeats(pattern) { return this.feats.matches(pattern) }
+
+  /////////////////////////////////////////////// Features
+
+  addFeature(properties = {}) {
+    this.features = [...this.features, {...properties}];
+    return this.features.last();
+  }
+
+  findFeatures(pattern) { return this.features.matches(pattern) }
+  featuresAt([centerX, centerY], {find={}, deltaX=2, deltaY=5}={}) {
+    return this.findFeatures(find).filter(f => {
+      let [x, y] = f.position || [];
+      return Math.abs(x - centerX) <= deltaX && Math.abs(y - centerY) <= deltaY;
+    });
+  }
 
   /////////////////////////////////////////////// Consumable Management
 

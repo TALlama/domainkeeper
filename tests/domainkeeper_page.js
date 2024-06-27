@@ -263,10 +263,14 @@ export class DomainkeeperPage extends LocatorLike {
     return this.makeDecisions(picks.slice(1), opts);
   }
 
-  async makeDecision(pick, opts={}) {
+  async findDecision(pick, opts={}) {
     let within = (opts.within || this.currentActivity);
     return within.locator(`activity-decision-panel:not([resolved])`).first()
-      .locator(`label[data-display-title-value="${pick}"]`).click({force: true})
+      .locator(`label[data-display-title-value="${pick}"]`);
+  }
+
+  async makeDecision(pick, opts={}) {
+    return this.findDecision(pick, opts).then(d => d.click({force: true}))
   }
 
   async makeLocationDecision(position, opts={}) {
@@ -286,6 +290,13 @@ export class DomainkeeperPage extends LocatorLike {
     let el = within.locator(selector).first().locator(`domain-map`)
     await el.scrollIntoViewIfNeeded();
     return el.click({force: true, position: {x: position[0] / 100 * size[0], y: position[1] / 100 * size[1]}});
+  }
+
+  async featuresAt(position, opts={}) {
+    return this.page.evaluate(([position, opts]) => {
+      let domain = document.querySelector("domain-sheet").domain;
+      return domain.featuresAt(position, opts);
+    }, [position, opts]);
   }
 
   async startDomain(name = "Anvilania") {

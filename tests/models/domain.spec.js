@@ -33,6 +33,7 @@ test("Defaults", () => {
     "culture",
     "economy",
     "feats",
+    "features",
     "loyalty",
     "stability",
     "unrest",
@@ -231,6 +232,39 @@ test.describe("Stats", () => {
   })
 });
 
+test.describe("Features", () => {
+  test("Can tell you what features are near a spot", () => {
+    let position = [50, 50];
+    let [x, y] = position;
+    let deltaX = 2;
+    let deltaY = 5;
+
+    expect(new Domain({}).featuresAt(position)).toEqual([]);
+    expect(new Domain({features: [
+      {icon: "1️⃣", position},
+      {icon: "2️⃣", position: [x - deltaX, y - deltaY]},
+      {icon: "3️⃣", position: [x + deltaX, y + deltaY]},
+      {icon: "4️⃣", position: [x - deltaX, y + deltaY]},
+      {icon: "5️⃣", position: [x + deltaX, y - deltaY]},
+      {icon: "❌1", position: [x - 2 * deltaX, y - deltaY]},
+      {icon: "❌2", position: [x + 2 * deltaX, y + deltaY]},
+      {icon: "❌3", position: [x - 2 * deltaX, y + deltaY]},
+      {icon: "❌4", position: [x + 2 * deltaX, y - deltaY]},
+      {icon: "❌5", position: [x - deltaX, y - 2 * deltaY]},
+      {icon: "❌6", position: [x + deltaX, y + 2 * deltaY]},
+      {icon: "❌7", position: [x - deltaX, y + 2 * deltaY]},
+      {icon: "❌8", position: [x + deltaX, y - 2 * deltaY]},
+      {icon: "❌9"},
+    ]}).featuresAt(position).map(f => {return {icon: f.icon, position: f.position}})).toEqual([
+      {icon: "1️⃣", position},
+      {icon: "2️⃣", position: [x - deltaX, y - deltaY]},
+      {icon: "3️⃣", position: [x + deltaX, y + deltaY]},
+      {icon: "4️⃣", position: [x - deltaX, y + deltaY]},
+      {icon: "5️⃣", position: [x + deltaX, y - deltaY]},
+    ]);
+  })
+});
+
 test.describe("Markers", () => {
   test("Shows the settlements that have positions", () => {
     expect(new Domain({}).markers).toEqual([]);
@@ -241,7 +275,18 @@ test.describe("Markers", () => {
       {editable: false, icon: "1️⃣", position: [11, 11]},
       {editable: false, icon: "2️⃣", position: [22, 22]},
     ]);
-  })
+  });
+
+  test("Shows the features that have positions", () => {
+    expect(new Domain({}).markers).toEqual([]);
+    expect(new Domain({features: [
+      {icon: "1️⃣", position: [11, 11]},
+      {icon: "2️⃣", position: [22, 22]},
+    ]}).markers).toEqual([
+      {editable: false, icon: "1️⃣", position: [11, 11]},
+      {editable: false, icon: "2️⃣", position: [22, 22]},
+    ]);
+  });
 });
 
 test.describe("Milestones", () => {
