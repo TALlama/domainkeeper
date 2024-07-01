@@ -58,7 +58,7 @@ export class ActivityDecisionPanel extends RxElement {
             let value = decision.saveValue(option);
             let name = `${activity.id}__${decision.name}`;
             let id = `${name}__${value}`;
-            let whyDisabled = decision.optionDisableReason(option, {activity, decision});
+            let whyDisabled = decision.optionDisableReason(option, {activity, decision, domain: activity.domain});
             let label = `<label class='btn pickable ${whyDisabled ? "looks-disabled" : ""} ${decision.outcomeHint === value ? "hinted" : ""}' for="${id}" data-value="${value}" data-display-title-value="${decision.displayTitleValue(option)}">
               <input type=radio id="${id}" name="${name}" value="${value}" class="sr-only" @checked=false data-action="doPick" />
               ${decision.displayValue(option)}

@@ -310,6 +310,17 @@ export const boatingFeats = [
       {type: "unlock", activity: "Recruit Army", option: "Naval Corps"},
     ],
   }, {
+    name: "Channel Locks",
+    level: 2,
+    prerequisites: [expertIn("Economy"), trainedIn("Stability")], //WAS: expert in Boating, trained in Engineering
+    description: "Make rivers navigable over large elevation changes such as waterfalls.",
+    // WAS: description: "Make rivers navigable over large elevation changes such as waterfalls",
+    // WAS: make non-navigable rivers navigable
+    effects: "Your people are skilled in modifying or coping with difficult terrain features, such as using channel locks for steep elevation changes or rocky rapids.",
+    bonuses: [
+      {type: "unlock", activity: "Build Infrastructure", option: "Locks"},
+    ],
+  }, {
     name: "Unfettered Sails",
     level: 15,
     prerequisites: [legendaryIn("Economy")], //WAS: legendary in Boating, master in Magic or in Scholarship

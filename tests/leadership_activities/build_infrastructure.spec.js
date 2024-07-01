@@ -63,10 +63,26 @@ test.describe("Structure availability", () => {
 
     await dk.pickActivity("Build Infrastructure", [50, 50]);
     
-    await expect.soft(await dk.findOption("Road")).toBeAttached();
-    await expect.soft(await dk.findOption("Bridge")).toBeAttached();
-    await expect.soft(await dk.findOption("Irrigation")).toBeAttached();
-    await expect.soft(await dk.findOption("Fort")).toBeAttached();
+    await expect.soft(await dk.findOption("Road")).not.toHaveClass(/looks-disabled/);
+    await expect.soft(await dk.findOption("Bridge")).not.toHaveClass(/looks-disabled/);
+    await expect.soft(await dk.findOption("Irrigation")).not.toHaveClass(/looks-disabled/);
+    await expect.soft(await dk.findOption("Fort")).not.toHaveClass(/looks-disabled/);
+  });
+
+  test.describe("Locks", async () => {
+    test("Are not available by default", async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, inTurnOne);
+      await dk.pickLeader();
+      await dk.pickActivity("Build Infrastructure", [50, 50]);
+      await expect.soft(await dk.findOption("Locks")).toHaveClass(/looks-disabled/);
+    });
+
+    test("Are available with the Channel Locks feat", async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne, feats: ["Channel Locks"]});
+      await dk.pickLeader();
+      await dk.pickActivity("Build Infrastructure", [50, 50]);
+      await expect.soft(await dk.findOption("Locks")).not.toHaveClass(/looks-disabled/);
+    });
   });
 });
 

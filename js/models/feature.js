@@ -48,5 +48,9 @@ withTemplates(Feature, () => [{
   icon: "🏰",
   name: "Fort",
   traits: ["Defensive"],
+}, {
+  icon: "🚢",
+  name: "Locks",
+  traits: ["Transportation"],
 }]);
 withTraits(Feature);

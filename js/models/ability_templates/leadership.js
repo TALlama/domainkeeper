@@ -285,6 +285,11 @@ export var leadershipTemplates = [{
     name: "Structure",
     options: Feature.names,
     mutable: (activity) => activity.decision("Roll")?.mutable,
+    optionDisableReason(featureName, {domain}) {
+      if (featureName === "Locks" && !domain.hasFeat("Channel Locks")) {
+        return "Requires feat: Channel Locks";
+      }
+    },
   }, {
     name: "Roll",
     withOption: "structure",
