@@ -38,10 +38,6 @@ withTemplates(Feature, () => [{
   name: "Road",
   traits: ["Transportation"],
 }, {
-  icon: "⛵",
-  name: "Canal",
-  traits: ["Transportation"],
-}, {
   icon: "🌉",
   name: "Bridge",
   traits: ["Transportation"],

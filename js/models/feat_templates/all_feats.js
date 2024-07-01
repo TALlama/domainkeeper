@@ -221,7 +221,7 @@ export const magicFeats = [
     description: "Recruit special units of mages into your armies",
     effects: "Some of your domain's mages are studied in the application of war magics. You can add Mage Corps special units to your armies",
     bonuses: [
-      {type: "unlock", activity: "Recruit Army", unit: "Mage Corps"},
+      {type: "unlock", activity: "Recruit Army", option: "Mage Corps"},
     ],
   }, {
     name: "Mystic Utopia",
@@ -247,7 +247,7 @@ export const scholarlyFeats = [
     // WAS: can recruit Alchemy Corps units
     effects: "A subset of your domain's alchemical scholars receive training to work with your armies, passing out bombs, elixirs, and mutagens to enhance the army’s effects. You can add Alchemy Corps special units to your armies.",
     bonuses: [
-      {unlock: "Recruit Army", unit: "Alchemy Corps"},
+      {type: "unlock", activity: "Recruit Army", option: "Alchemy Corps"},
     ],
   },
 ];
@@ -288,6 +288,17 @@ export const cultureFeats = withTrait([
 ///////////////////////////////////////////////// Economy Feats
 export const boatingFeats = [
   {
+    name: "Canal Aptitude",
+    level: 1,
+    prerequisites: [trainedIn("Economy")], //WAS: trained in Boating
+    description: "Build Irrigation to develop waterways.",
+    // WAS: description: "Perform Irrigation to develop waterways",
+    // WAS: +2 to irrigation; canals are navigable
+    effects: "Your people are experts at navigating waterways, and create irrigation avenues through your domain to practice this craft. The domain gains a +2 circumstance bonus to Irrigation. These created rivers are generally considered navigable except in extreme circumstances.",
+    bonuses: [
+      {activity: "Build Infrastructure", option: "Irrigation", type: "circumstance", value: 2},
+    ],
+  }, {
     name: "Naval Regiments",
     level: 1,
     prerequisites: [trainedIn("Economy")], //WAS: trained in Boating
@@ -296,7 +307,7 @@ export const boatingFeats = [
     // WAS: can build Naval Corps units; army deploy bonus
     effects: "Life on the water is a focus for your people, and they know how to leverage their naval skills during warfare. You can add Naval Corps special units to your armies.",
     bonuses: [
-      {type: "unlock", activity: "Recruit Army", unit: "Naval Corps"},
+      {type: "unlock", activity: "Recruit Army", option: "Naval Corps"},
     ],
   }, {
     name: "Unfettered Sails",
@@ -531,7 +542,7 @@ export const defenseFeats = [
     // WAS: can recruit Medic Corps units
     effects: "Collections of physicians, surgeons, clerics, shamans, and other healers march with your armies to tend to their wounds in the fields of battle. You can add Medic Corps special units to your armies.",
     bonuses: [
-      {type: "unlock", activity: "Recruit Army", unit: "Medic Corps"},
+      {type: "unlock", activity: "Recruit Army", option: "Medic Corps"},
     ],
   }, {
     name: "Culture of Vigilance",

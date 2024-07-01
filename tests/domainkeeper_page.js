@@ -244,6 +244,12 @@ export class DomainkeeperPage extends LocatorLike {
     return this.currentActivity.getByRole("link", {name: "Cancel"}).click();
   }
 
+  async unmakeDecision(decision) {
+    return this.locator(`activity-decision-panel[name="${decision}"]`)
+      .getByRole('link', {name: "Pick again"})
+      .click();
+  }
+
   async makeDecisions(picks, opts={}) {
     if (picks.length === 0) { return Promise.resolve() }
 
@@ -263,14 +269,14 @@ export class DomainkeeperPage extends LocatorLike {
     return this.makeDecisions(picks.slice(1), opts);
   }
 
-  async findDecision(pick, opts={}) {
+  async findOption(pick, opts={}) {
     let within = (opts.within || this.currentActivity);
     return within.locator(`activity-decision-panel:not([resolved])`).first()
       .locator(`label[data-display-title-value="${pick}"]`);
   }
 
   async makeDecision(pick, opts={}) {
-    return this.findDecision(pick, opts).then(d => d.click({force: true}))
+    return this.findOption(pick, opts).then(d => d.click({force: true}))
   }
 
   async makeLocationDecision(position, opts={}) {

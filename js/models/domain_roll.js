@@ -1,12 +1,13 @@
 import { addTransient } from "./utils.js";
 
 export class DomainRoll {
-  constructor({domain, ability, activity, actorType, ...properties}) {
+  constructor({domain, ability, activity, actorType, option, ...properties}) {
     addTransient(this, {value: {}});
-    Object.assign(this, {...properties, domain, ability, activity, actorType});
+    Object.assign(this, {...properties, domain, ability, activity, actorType, option});
     
     const domainBonuses = domain.findBonuses({activity, ability, actorType}).sortBy("value");
-    this.availableBonuses = [...domainBonuses, ...this.unrestBonuses];
+    this.availableBonuses = [...domainBonuses, ...this.unrestBonuses]
+      .filter(b => !b.option || b.option === this.option);
   }
 
   get modifier() { return this.bonus }

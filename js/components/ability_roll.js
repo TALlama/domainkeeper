@@ -5,7 +5,7 @@ import { RxElement } from "./rx_element.js";
 export class AbilityRoll extends RxElement {
   connectedCallback() {
     reef.component(this, () => this.render());
-    this.domainRoll = new DomainRoll({domain: this.domain, ability: this.ability, activity: this.activityName, actorType: this.actorType});
+    this.domainRoll = new DomainRoll({domain: this.domain, option: this.option, ability: this.ability, activity: this.activityName, actorType: this.actorType});
     this.addEventListener("click", this);
   }
 
@@ -20,6 +20,8 @@ export class AbilityRoll extends RxElement {
 
   get ability() { return this.getAttribute("ability") }
   get abilityBonus() { return this.domainRoll.abilityBonus }
+
+  get option() { return this.getAttribute("option") }
 
   /////////////////////////////////////////////// Rendering
 

@@ -5,7 +5,7 @@ const { testMilestone } = require('./milestones_helper');
 
 testMilestone("Build Infrastructure", {
   domain: {...inTurnOne},
-  decisions: [[50, 50], "Stability", "--outcome--"],
+  decisions: [[50, 50], ["Road", "Irrigation"].random(), "Stability", "--outcome--"],
 });
 
 test.describe("Payment", () => {
@@ -63,8 +63,31 @@ test.describe("Structure availability", () => {
 
     await dk.pickActivity("Build Infrastructure", [50, 50]);
     
-    await expect.soft(await dk.findDecision("Road")).toBeAttached
-    await expect.soft(await dk.findDecision("Bridge")).toBeAttached();
-    await expect.soft(await dk.findDecision("Fort")).toBeAttached();
+    await expect.soft(await dk.findOption("Road")).toBeAttached();
+    await expect.soft(await dk.findOption("Bridge")).toBeAttached();
+    await expect.soft(await dk.findOption("Irrigation")).toBeAttached();
+    await expect.soft(await dk.findOption("Fort")).toBeAttached();
+  });
+});
+
+test.describe("Per-Structure bonuses", () => {
+  function setupWithFeat(page, feat, attrs = {}) {
+    return DomainkeeperPage.load(page, {...inTurnOne, ...attrs, feats: [feat]});
+  }
+
+  [
+    ["Canal Aptitude", "Irrigation", 2],
+  ].forEach(([feat, structure, bonus]) => {
+    test(`${feat} helps build ${structure}`, async ({ page }) => {
+      const dk = await setupWithFeat(page, feat);
+      await dk.pickLeader();
+
+      await dk.pickActivity("Build Infrastructure", [50, 50], structure);
+      await expect(await dk.findOption("Stability")).toContainText(`${feat}+${bonus}`);
+
+      await dk.unmakeDecision("Structure");
+      await dk.makeDecision("Road");
+      await expect(await dk.findOption("Stability")).not.toContainText(feat);
+    });
   });
 });

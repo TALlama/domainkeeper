@@ -2,6 +2,7 @@ import { Die, DicePool } from "../../dice.js";
 
 import { Ability } from "../abilities.js";
 import { Actor } from "../actor.js";
+import { Feature } from "../feature.js";
 
 let hexMods = `<p>Additional modifier based on the hex's worst terrain: Mountains: -4; Swamps: -3; Forests: -2; Hills: -1; Plains: -0.</p>`;
 let hexDCOptions = [
@@ -281,7 +282,12 @@ export var leadershipTemplates = [{
     name: "Location",
     prompt: "Choose a hex to build in",
   }, {
+    name: "Structure",
+    options: Feature.names,
+    mutable: (activity) => activity.decision("Roll")?.mutable,
+  }, {
     name: "Roll",
+    withOption: "structure",
     difficultyClassOptions: {options: hexDCOptions},
   }, {
     name: "Outcome",
@@ -294,10 +300,12 @@ export var leadershipTemplates = [{
   }, {
     name: "Payment",
     options: [...Ability.all, "abandoned"],
+    abilityPaid(ability, {activity}) { activity.addFeature() },
   }],
   criticalSuccess() {
     this.info(`🚀 The whole domain rallies around this project, and it is complete without cost.`);
     this.skipPayment();
+    this.addFeature();
   },
   success() {
     this.info("😓 Construction is always costly.");
@@ -310,6 +318,9 @@ export var leadershipTemplates = [{
   criticalFailure() {
     this.error("❌ The construction process is a failure.");
     this.abandonPayment();
+  },
+  addFeature() {
+    this.domain.addFeature({name: this.structure, position: this.position});
   },
 }, {
   icon: "💡",

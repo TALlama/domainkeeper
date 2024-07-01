@@ -157,5 +157,35 @@ test.describe("Bonuses", () => {
       expect(roll.bonus).toEqual(+2 +1 +1 -1 +2 -2 +3 -3 -1 -1); // +1
     });
   });
+
+  test.describe("with option", () => {
+    let ability = "Grace";
+    let activity = "Dance";
+    let option = "Tango";
+
+    test("when the bonus has no option", () => {
+      let domain = makeDomain([{name: "Dance your heart out", type: "circumstance", value: 1, ability, activity}]);
+      let roll = new DomainRoll({domain, ability, activity, option});
+      expect(roll.availableBonuses.map(b => b.name)).toEqual(["Dance your heart out"]);
+    });
+    
+    test("when the bonus has an option that matches the roll", () => {
+      let domain = makeDomain([{name: "Dance the Tango", type: "circumstance", value: 1, ability, activity, option}]);
+      let roll = new DomainRoll({domain, ability, activity, option});
+      expect(roll.availableBonuses.map(b => b.name)).toEqual(["Dance the Tango"]);
+    });
+
+    test("when the bonus has an option that differs from the roll", () => {
+      let domain = makeDomain([{name: "Dance the Tango", type: "circumstance", value: 1, ability, activity, option}]);
+      let roll = new DomainRoll({domain, ability, activity, option: "Waltz"});
+      expect(roll.availableBonuses.map(b => b.name)).toEqual([]);
+    });
+
+    test("when the bonus has an option but the roll does not", () => {
+      let domain = makeDomain([{name: "Dance the Tango", type: "circumstance", value: 1, ability, activity, option}]);
+      let roll = new DomainRoll({domain, ability, activity});
+      expect(roll.availableBonuses.map(b => b.name)).toEqual([]);
+    });
+  })
 });
 
