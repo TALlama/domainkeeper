@@ -29,6 +29,7 @@ export class Feat {
   /////////////////////////////////////////////// Actions
 
   onPick({domain, activity, turn}) {}
+  onRoll({domain, activity, turn, roll}) {}
   newTurn({domain, activity, turn}) {}
   
   /////////////////////////////////////////////// Templates

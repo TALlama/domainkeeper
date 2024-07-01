@@ -96,6 +96,7 @@ export class Activity {
   useConsumable(pattern) {
     let consumed = this.domain.useConsumable(pattern);
     if (consumed) { this.info(`🗑️ Used ${consumed.name}`) }
+    return consumed;
   }
 
   requirePayment(properties = {}) {

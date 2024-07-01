@@ -345,4 +345,8 @@ export class Domain {
     let description = attrs.description || `Trade ${reduce} for ${boost}`;
     this.addConsumable({action: "trade", description, reduce, boost, ...attrs});
   }
+
+  addCriticalFailureProtection({activity, ...attrs}) {
+    this.addConsumable({action: "criticalFailureProtection", description: `Ignore CritFail in ${activity}`, activity, ...attrs});
+  }
 }

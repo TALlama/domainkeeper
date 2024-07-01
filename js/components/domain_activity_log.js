@@ -20,6 +20,18 @@ export default class DomainActivityLog extends RxElement {
     activityFinder && this.activity({name: activityFinder});
 
     document.addEventListener("pool-outcome", event => {
+      let activity = this.currentActivity;
+      if (activity?.name !== event.detail.activity) { activity = null }
+      this.onRoll({
+        domain: this.domain,
+        turn: this.domain.currentTurn,
+        activity,
+        roll: event.detail.pool,
+        event,
+      });
+    });
+
+    document.addEventListener("pool-outcome", event => {
       let decision = this.currentActivity?.decision("Outcome");
       if (decision) { decision.outcomeHint = event.detail.outcome }
     });
@@ -104,6 +116,18 @@ export default class DomainActivityLog extends RxElement {
     domain.reduce(reduce, {by: reduceBy});
     domain.boost(boost, {by: boostBy});
     this.expire(event);
+  }
+
+  onRoll({domain, activity, roll, event}) {
+    let preventer = roll.outcome === "criticalFailure"
+      ? this.domain.findConsumables({action: "criticalFailureProtection"}).find(consumable => {
+        return !consumable.used && (!consumable.activity || consumable.activity === activity.name);
+      })
+      : null;
+    if (domain.useConsumable({id: preventer?.id || "no-match"})) {
+      activity.info(preventer.message || `${preventer.icon || "🛡️"} ${preventer.name} helps avoid disaster. Treat this Critical Failure as a normal Failure instead.`);
+      event.detail.outcome = "failure";
+    }
   }
 
   doActivity(event, {actionTarget}) {

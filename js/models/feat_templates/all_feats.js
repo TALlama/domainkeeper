@@ -99,8 +99,6 @@ export const generalFeats = withTrait([
     // WAS: crit success -> +1 FIP + 1d RP
     effects: "Your domain's reputation has spread far and wide, bringing in visitors to behold the spectacle of your greatness and pay their respects. Whenever you critically succeed at an activity, gain 1 Fame.",
     decisionPicked({domain, activity, decision}) {
-      console.log({name: decision.name, outcome: activity.outcome, decision});
-
       if (decision.name !== "Outcome") { return }
       if (activity.outcome !== "criticalSuccess") { return }
 
@@ -239,6 +237,18 @@ export const magicFeats = [
 
 export const scholarlyFeats = [
   {
+    name: "Cautious Creativity",
+    level: 1,
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Scholarship
+    description: "Reduce penalties for failing a Creative Solution",
+    // WAS: description: "Reduce penalties for failing a Creative Solution",
+    // WAS: can take -2 to Creative Solution to mitigate crit fail
+    effects: "Your scholars are careful not to incur unnecessary costs and to remain unperturbed in the face of failure." +
+      "Once per turn, when you roll a Critical Failure during a Creative Solution, treat it as a failure instead.",
+    newTurn({domain}) {
+      domain.addCriticalFailureProtection({icon: "🔶", name: this.name, activity: "Creative Solution"});
+    },
+  }, {
     name: "Alchemy Corps",
     level: 2,
     prerequisites: [expertIn("Culture")], //WAS: expert in Scholarship
@@ -249,6 +259,17 @@ export const scholarlyFeats = [
     bonuses: [
       {type: "unlock", activity: "Recruit Army", option: "Alchemy Corps"},
     ],
+  }, {
+    name: "Cooperative Mindset",
+    level: 7,
+    prerequisites: [masterIn("Culture"), {feat: "Cautious Creativity"}], //WAS: master in Scholarship
+    description: "Attempt a free Creative Solution each turn",
+    // WAS: description: "Attempt a free Creative Solution each turn",
+    // WAS: free creative solution/turn
+    effects: "The scholars in your domain freely share ideas and collaborate. Each turn, treat the first Critical Failure you roll as a normal failure instead.",
+    newTurn({domain}) {
+      domain.addCriticalFailureProtection({icon: "🟠", name: this.name});
+    },
   },
 ];
 
