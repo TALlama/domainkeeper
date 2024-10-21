@@ -29,6 +29,7 @@ export class DomainRoll {
 
     let available = this.availableBonusesOfType(type);
     if (type === "untyped") { return {type, modifier: available.sum("value"), used: available, unused: []} }
+    if (type === "outcomeBoost") { return {used: [available[0]], unused: available.slice(1)} };
 
     let biggestPenalty = available.filter(b => b.value < 0).first();
     let biggestBoost = available.filter(b => b.value > 0).last();
@@ -49,6 +50,9 @@ export class DomainRoll {
   get statusBonuses() { return this.divideBonuses("status").used }
   get circumstanceBonuses() { return this.divideBonuses("circumstance").used }
   get untypedBonuses() { return this.divideBonuses("untyped").used }
+
+  // Just the used boosts
+  get boosts() { return this.divideBonuses("outcomeBoost").used }
 
   // Numeric bonus of the used bonuses
   get bonus() { return this.bonuses.sum("value") }

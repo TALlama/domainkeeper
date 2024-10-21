@@ -15,6 +15,7 @@ params.getAll("rig-pool").forEach(value => DicePool.rig.push(value));
 
 export class DiceRoll extends RxElement {
   connectedCallback() {
+    this.eventDetail ??= {};
     this.rollString = this.textContent;
 
     this.innerHTML = `
@@ -80,7 +81,7 @@ export class DiceRoll extends RxElement {
   }
 
   fireRolledEvents() {
-    let detail = {pool: this.pool, target: this.target, ...this.dataset};
+    let detail = {pool: this.pool, target: this.target, ...this.dataset, ...this.eventDetail};
 
     this.fire("pool-rolled", {detail});
     if (this.target) {

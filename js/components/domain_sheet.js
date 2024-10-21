@@ -355,6 +355,7 @@ class DomainSheet extends RxElement {
         "data-actor-type": domainRoll.actorType,
       },
     );
+    roller.eventDetail = {domainRoll};
     if (dc !== false) {
       dc = dc || this.domain.controlDC;
       header.append(Maker.tag("span", {class: "dc"}, ` ${dc}`));

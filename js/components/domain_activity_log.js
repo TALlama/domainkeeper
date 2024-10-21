@@ -27,6 +27,7 @@ export default class DomainActivityLog extends RxElement {
         turn: this.domain.currentTurn,
         activity,
         roll: event.detail.pool,
+        domainRoll: event.detail.domainRoll,
         event,
       });
     });
@@ -118,16 +119,43 @@ export default class DomainActivityLog extends RxElement {
     this.expire(event);
   }
 
-  onRoll({domain, activity, roll, event}) {
-    let preventer = roll.outcome === "criticalFailure"
-      ? this.domain.findConsumables({action: "criticalFailureProtection"}).find(consumable => {
-        return !consumable.used && (!consumable.activity || consumable.activity === activity.name);
-      })
-      : null;
+  onRoll(options) {
+    this.onRollCriticalFailureProtection(options);
+    this.onRollBoostOutcome(options);
+  }
+
+  onRollCriticalFailureProtection({domain, activity, roll, event}) {
+    if (roll.outcome !== "criticalFailure") { return }
+
+    let preventer = this.domain.findConsumables({action: "criticalFailureProtection"}).find(consumable => {
+      return !consumable.used && (!consumable.activity || consumable.activity === activity.name);
+    });
+
     if (domain.useConsumable({id: preventer?.id || "no-match"})) {
       activity.info(preventer.message || `${preventer.icon || "🛡️"} ${preventer.name} helps avoid disaster. Treat this Critical Failure as a normal Failure instead.`);
       event.detail.outcome = "failure";
     }
+  }
+
+  onRollBoostOutcome({activity, roll, event}) {
+    if (roll.outcome === "criticalSuccess") { return }
+
+    let booster = event.detail.domainRoll.boosts.find(Boolean);
+    console.log("booster", JSON.stringify(booster));
+    if (!booster) { return }
+
+    event.detail.outcome = {
+      success: "criticalSuccess",
+      failure: "success",
+      criticalFailure: "failure",
+    }[event.detail.outcome];
+
+    let boostedOutcome = {
+      criticalSuccess: "Critical Success",
+      success: "Success",
+      failure: "Failure",
+    }[event.detail.outcome];
+    activity.info(booster.message || `${booster.icon || "⏫"} ${booster.source.name} boosts the outcome to ${boostedOutcome}.`);
   }
 
   doActivity(event, {actionTarget}) {

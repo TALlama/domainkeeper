@@ -142,6 +142,16 @@ export const artFeats = [
       {type: "circumstance", activity: "Cool Down", ability: "Culture", value: 1},
       {type: "circumstance", activity: "Create A Masterpiece", ability: "Culture", value: 1},
     ],
+  }, {
+    name: "Cultural Signature",
+    level: 4,
+    prerequisites: [expertIn("Culture")], //WAS: expert in Arts
+    description: "Shared stories spur your domain to work through hardship.",
+    effects: "Certain artistic and cultural signatures call your people together. Whether these signatures manifest in musical overtures, plays, novels, or simple visual motifs, they help remind your people of the core of their shared fates.",
+    bonuses: [
+      {type: "outcomeBoost", activity: "Build Up", ability: "Culture", value: 1},
+      {type: "outcomeBoost", activity: "Quell Unrest", ability: "Culture", value: 1},
+    ],
   },
 ];
 
@@ -172,6 +182,17 @@ export const faithFeats = [
         activity.info("🥀 Root Work provides no insight this turn");
       }
     },
+  }, {
+    name: "Cohesive Traditions",
+    level: 3,
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Folklore
+    description: "Simple traditions bond your people together",
+    // WAS: use Folklore to Quell Unrest on consecutive turns, ignoring the usual restriction. The domain gains a +1 circumstance bonus to Quell Unrest using Folklore. In addition, when you Quell Unrest using Folklore and roll a critical failure, you treat the result as a failure instead.
+    effects: "Simple traditions bond your people together, and calling on those traditions and values help to calm tensions. When using Stability to Take Charge or Quell Unrest, boost the outcome.",
+    bonuses: [
+      {type: "outcomeBoost", activity: "Take Charge", ability: "Stability", value: 1},
+      {type: "outcomeBoost", activity: "Quell Unrest", ability: "Stability", value: 1},
+    ],
   }, {
     name: "Sanctified Settlements",
     level: 15,

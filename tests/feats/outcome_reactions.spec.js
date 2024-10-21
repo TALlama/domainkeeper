@@ -67,3 +67,57 @@ test.describe(`Cooperative Mindset ignores one Critical Failures per turn`, () =
   });
 });
 
+[
+  ["Cultural Signature", {
+    activities: ["Build Up", "Quell Unrest"],
+    abilities: ["Culture"]}],
+  ["Cohesive Traditions", {
+    activities: ["Take Charge"],
+    decisions: ["Capital"],
+    abilities: ["Stability"]}],
+  ["Cohesive Traditions", {
+    activities: ["Quell Unrest"],
+    abilities: ["Stability"]}],
+  ["Impeccable Builders", {
+    leader: false,
+    affectsOutcomes: ["Success"],
+    activities: ["Build Structure"],
+    decisions: ["Cemetery", "Reduce Culture by 1 to proceed"],
+    abilities: ["Economy"]}],
+].forEach(([feat, {leader=true, affectsOutcomes=["Success", "Failure", "Critical Failure"], activities, abilities, decisions=[]}]) => {
+  let activityName = activities.random();
+  let ability = abilities.random();
+
+  test.describe(`${feat} ${decisions.join(" > ")} boosts outcomes`, () => {
+    function setupWithFeat(page, {rigDie, attrs={}}={}) {
+      return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: feat}]}, {path: `/?rig-die=${rigDie}`});
+    }
+
+    test(`ignores critical successes`, async ({ page }) => {
+      const naturalOutcome = "Critical Success";
+      const dk = await setupWithFeat(page, {rigDie: 20});
+
+      if (leader) { await dk.pickLeader() }
+      await dk.pickActivity(activityName, ...decisions);
+      await expect(await dk.findOption(ability)).toContainText(`${feat}⏫`);
+      await dk.makeDecision(ability);
+
+      await expect.soft(await dk.findOption(naturalOutcome)).toHaveClass(/hinted/);
+    });
+
+    test(`boosts the outcome one level`, async ({ page }) => {
+      const naturalOutcome = affectsOutcomes.random();
+      const boostedOutcome = {Success: "Critical Success", Failure: "Success", "Critical Failure": "Failure"}[naturalOutcome];
+      const rigDie = {Success: 13, Failure: 2, "Critical Failure": 1}[naturalOutcome];
+      const dk = await setupWithFeat(page, {rigDie});
+
+      if (leader) { await dk.pickLeader() }
+      await dk.pickActivity(activityName, ...decisions);
+      await expect(await dk.findOption(ability)).toContainText(`${feat}⏫`);
+      await dk.makeDecision(ability);
+
+      await expect(dk.activity(activityName).log).toContainText(`${feat} boosts the outcome to ${boostedOutcome}.`);
+      await expect.soft(await dk.findOption(boostedOutcome)).toHaveClass(/hinted/);
+    });
+  });
+});

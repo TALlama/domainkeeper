@@ -37,15 +37,21 @@ export class AbilityRoll extends RxElement {
 
   renderBonuses() {
     return `
+      ${this.domainRoll.boosts.map(b => this.renderBoost(b)).join("")}
       ${this.domainRoll.bonuses.map(b => this.renderBonus(b)).join("")}
       ${this.domainRoll.unusedBonuses.map(b => this.renderBonus(b, {used: false})).join("")}
     `;
   }
 
+  renderBoost(bonus) {
+    let string = `<span class='metadata'>${bonus.source?.name || "?"}</span><span class="modifier-contribution">⏫</span>`;
+    return `<li class="boost" title="${bonus.type}">${string}</li>`;
+  }
+
   renderBonus(bonus, {used}={}) {
     let string = `<span class='metadata'>${bonus.source?.name || "?"}</span><span class="modifier-contribution">${mod(bonus.value)}</span>`;
     string = used === false ? `<del>${string}</del>` : string;
-    return `<li title="${bonus.type}">${string}</li>`;
+    return `<li class="bonus" title="${bonus.type}">${string}</li>`;
   }
 
   /////////////////////////////////////////////// Event Handling
