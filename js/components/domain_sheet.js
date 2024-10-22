@@ -238,7 +238,7 @@ class DomainSheet extends RxElement {
       <article class="stat ${opts.class || ""} ${opts.class === "ability" && value === 1 ? "ability---danger" : ""} stat---${stat.toLocaleLowerCase()}" ${dataAttrs}>
         <input class="current" type="number" id="domain-${stat}" @value="${value}" min="${this.domain.min(stat)}" max="${max}" ${opts.readonly ? "readonly" : ""} data-action="doNudge" data-stat="${stat}" />
         <sl-tooltip content="${this.statTooltip(stat)}" placement="right" hoist><label for="domain-${stat}">${stat}</label></sl-tooltip>
-        <span class="max"><sl-tooltip content="Maxium value ${max}">${max}</sl-tooltip></span>
+        <span class="max">${max}</span>
         <a href="#" class="ability-roll icon-link" data-ability="${stat}">🎲<span class="sr-only">Roll ${stat}</span></a>
       </article>`;
   }
