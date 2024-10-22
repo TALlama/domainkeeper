@@ -29,7 +29,7 @@ export class DomainRoll {
 
     let available = this.availableBonusesOfType(type);
     if (type === "untyped") { return {type, modifier: available.sum("value"), used: available, unused: []} }
-    if (type === "outcomeBoost") { return {used: [available[0]], unused: available.slice(1)} };
+    if (type === "outcomeBoost") { return {used: available.slice(0, 1), unused: available.slice(1)} };
 
     let biggestPenalty = available.filter(b => b.value < 0).first();
     let biggestBoost = available.filter(b => b.value > 0).last();
