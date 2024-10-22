@@ -1,4 +1,5 @@
 import { mod } from "../helpers.js";
+import { escapeHtml } from "./toast.js";
 
 import { makeId } from "../models/with_id.js";
 import { Ability } from "../models/abilities.js";
@@ -94,7 +95,7 @@ class DomainSheet extends RxElement {
               <label for="use-slot-${slot}" title="${slot}">
                 ${domain.name} <span class="metadata">Level ${domain.level} @ Turn ${domain.turns.length - 1}</span>
               </label>
-              <code class="hidden" id="domain-${slot}-source">${JSON.stringify(domain)}</code>
+              <code class="hidden" id="domain-${slot}-source">${escapeHtml(JSON.stringify(domain))}</code>
               <sl-copy-button from="domain-${slot}-source" copy-label="Click to copy JSON">
                 <sl-icon slot="copy-icon" name="file-earmark-arrow-up"></sl-icon>
               </sl-copy-button>
