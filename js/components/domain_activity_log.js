@@ -228,6 +228,7 @@ export default class DomainActivityLog extends RxElement {
           </button>
         </li>`
       ).join("")}
+      <li class="add-consumable"><button data-action="addConsumable">+</button></li>
     </ul>`;
   }
 
@@ -260,6 +261,14 @@ export default class DomainActivityLog extends RxElement {
   }
 
   /////////////////////////////////////////////// Event handling
+
+  addConsumable(event) {
+    let name = prompt("What is the consumable called?");
+    if (name) {
+      let description = prompt("What does it do?");
+      this.domain.addConsumable({name, description, useBy: "end-of-time", action: "expire"});
+    }
+  }
 
   doNudge(event) {
     let activity = this.currentActivity;

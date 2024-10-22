@@ -881,6 +881,16 @@
     }
   }
 
+  .add-consumable {
+    margin-inline-start: auto;
+    align-self: stretch;
+    display: flex;
+
+    button {
+      --button-bg: white;
+    }
+  }
+
   .pickable-group {
     --min-item-width: 10em;
     --outcome-bg: var(--color-selected-bg);

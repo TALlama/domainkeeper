@@ -302,7 +302,7 @@ export class Domain {
   findConsumables(pattern) { return this.consumables.matches(pattern) }
 
   addConsumable(attrs) {
-    this.consumables.push({id: crypto.randomUUID(), name: "Consumable", description: "?", useBy: "end-of-turn", ...attrs});
+    this.consumables.push({id: crypto.randomUUID(), name: "Consumable", description: attrs.description ?? "?", useBy: "end-of-turn", ...attrs});
   }
 
   useConsumable(pattern) {
