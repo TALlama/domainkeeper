@@ -266,6 +266,7 @@ export default class DomainActivityLog extends RxElement {
     let name = prompt("What is the consumable called?");
     if (name) {
       let description = prompt("What does it do?");
+      this.currentActivity?.info(`📦 Added ${name}`);
       this.domain.addConsumable({name, description, useBy: "end-of-time", action: "expire"});
     }
   }
