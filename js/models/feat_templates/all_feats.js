@@ -143,6 +143,15 @@ export const artFeats = [
       activity.addRollBonus({name: this.name, value: 2, ability: "Loyalty"});
     },
   }, {
+    name: "Traveling Troubadours",
+    level: 1,
+    prerequisites: [trainedIn("Culture")],
+    description: "Once per turn, gain a bonus to a culture check",
+    effects: "Wandering minstrels canvass your domain telling stories and spreading news. Once per turn, add a +2 circumstance bonus to a culture check.",
+    newTurn({activity}) {
+      activity.addRollBonus({name: this.name, value: 2, ability: "Culture"});
+    }
+  }, {
     name: "Art Festivals",
     level: 2,
     prerequisites: [trainedIn("Culture")],
@@ -416,6 +425,18 @@ export const boatingFeats = [
 ];
 
 export const explorationFeats = [
+  {
+    name: "Adventurous Values",
+    level: 1,
+    prerequisites: [trainedIn("Economy")], //WAS: trained in Exploration
+    description: "Hiring Adventurers is easier and less expensive.",
+    // WAS: description: "Hiring Adventurers is easier and less expensive",
+    // WAS: lower dc and lower cost to hire adventurers
+    effects: "Your kingdom draws in many people with an adventurous streak, who are eager to go on quests to test their mettle and seek fame and fortune. Gain a +2 circumstance bonus to any check to Hire Adventurers. In addition, whenever you Hire Adventurers, roll a DC 15 check: on a success, the cost of hiring them is waived.",
+    bonuses: [
+      {type: "circumstance", activity: "Hire Adventurers", value: 2},
+    ],
+  },
 ];
 
 export const industryFeats = [
@@ -716,7 +737,7 @@ export const constructionFeats = [
     description: "Gain a bonus to all attempts to build",
     effects: "Expansion and upgrades to structures and infrastructure are a constant feature of your people’s lives, and they are always ready to lend a hand in the construction of new buildings and roads. The domain gains a +1 circumstance bonus to all stability checks to Build Structures and Build Infrastructure.",
     bonuses: [
-      {type: "circumstance", activity: "Build Structure", ability: "Stability", value: 1},
+      {type: "circumstance", activity: "Build Structure", ability: "Economy", value: 1},
       {type: "circumstance", activity: "Build Infrastructure", ability: "Stability", value: 1},
     ],
   }, {
@@ -758,7 +779,7 @@ export const wildernessFeats = [
     },
   }, {
     name: "Harmonious Blending",
-    level: 1,
+    level: 2,
     prerequisites: [trainedIn("Stability")], //WAS: trained in Wilderness
     description: "Settlements blend right into the wilds",
     // WAS: description: "Settlements blend right into the wilds",
