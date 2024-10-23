@@ -566,6 +566,17 @@ export const infiltrationFeats = [
 
 export const politicsFeats = [
   {
+    name: "Linguistic Integration",
+    level: 1,
+    prerequisites: [trainedIn("Loyalty")], //WAS: trained in Politics
+    description: "Citizens are encouraged to be multilingual",
+    // WAS: description: "Citizens are encouraged to be multilingual",
+    // WAS: +1 circumstance bonus to the Send Diplomatic Envoy, Request Foreign Aid, and Establish Trade Agreement domain activities. If the domain is at least master in Politics, the bonus increases to +2.
+    effects: "Your people are encouraged to learn multiple languages, which helps them to communicate with other nations. Once per turn, you can reroll a Loyalty check.",
+    newTurn({domain}) {
+      domain.addReroll({name: this.name, ability: "Loyalty"});
+    },
+  }, {
     name: "Appeal to Tradition",
     level: 2,
     prerequisites: [trainedIn("Loyalty")], //WAS: trained in Politics
