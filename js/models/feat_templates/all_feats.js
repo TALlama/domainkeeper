@@ -92,6 +92,27 @@ export const generalFeats = withTrait([
       {type: "dcModifier", value: -4, activity: "Event", label: "Ongoing Event"},
     ],
   }, {
+    name: "Free and Fair",
+    level: 7,
+    description: "Mitigate reductions to Loyalty.",
+    // WAS: description: "Use certain activities more efficiently",
+    // WAS: bonus to New Leadership and Pledge of Fealty; burn RP to reroll
+    // PROPOSED: dc15 ignore reduction to loyalty
+    effects: "Your domain's reputation for fair and transparent government inspires tremendous public trust. Whenever Loyalty would be reduced, roll with DC 15 to prevent 1 point of the reduction.",
+    bonuses: [
+      {type: "reductionProtection", value: 15, ability: "Loyalty"},
+    ],
+  }, {
+    name: "Quality of Life",
+    level: 7,
+    description: "Mitigate reductions to Culture.",
+    // WAS: description: "Cost of living expenses are reduced",
+    // WAS: gain bonus luxury goods; higher-level magic items
+    effects: "Your domain prizes the creature comforts of civilization, which are readily available to all. Whenever Culture would be reduced, roll with DC 15 to prevent 1 point of the reduction.",
+    bonuses: [
+      {type: "reductionProtection", value: 15, ability: "Culture"},
+    ],
+  }, {
     name: "Fame and Fortune",
     level: 11,
     description: "Success is celebrated with additional Fame.",
@@ -183,6 +204,17 @@ export const faithFeats = [
       }
     },
   }, {
+    name: "Proclaim to the Faithful",
+    level: 2,
+    prerequisites: [expertIn("Culture"), {feat: "Unifying Faith"}], //WAS: expert in Folklore; Unifying Faith
+    description: "Calling on canon, you quell hesitance or dissent and push through on efforts which need be done",
+    // WAS: description: "Calling on canon, you quell hesitance or dissent and push through on efforts which need be done",
+    // WAS: new activity to reduce unrest
+    effects: "You call on the teachings of your nation’s faith to quell hesitance or dissent and push through on efforts which need to be done. Once per turn, when you would reduce Culture, roll a DC5 flat check to reduce it by one less.",
+    newTurn({activity}) {
+      activity.addConsumable({name: this.name, description: "DC11 protection for Culture", bonuses: [{type: "reductionProtection", value: 11, ability: "Culture"}]});
+    },
+  }, {
     name: "Cohesive Traditions",
     level: 3,
     prerequisites: [trainedIn("Culture")], //WAS: trained in Folklore
@@ -269,6 +301,18 @@ export const scholarlyFeats = [
     newTurn({domain}) {
       domain.addCriticalFailureProtection({icon: "🔶", name: this.name, activity: "Creative Solution"});
     },
+  }, {
+    name: "Trusted Journalists",
+    level: 2,
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Scholarship
+    description: "Prevent misinformation from reducing Loyalty and Stability",
+    // WAS: description: "Corruption and Strife tend to accrue more slowly",
+    // WAS: increased strife and corruption thresholds; dc17 to avoid strife/corruption increases; penalty to intrigue
+    effects: "Journalists provide investigative reports on the goings-on in your domain, making it hard for issues that fester in obscurity to rise. Whenever Loyalty or Stability would be reduced, roll a DC18 flat check to reduce it by one less.",
+    bonuses: [
+      {type: "reductionProtection", value: 18, ability: "Loyalty"},
+      {type: "reductionProtection", value: 18, ability: "Stability"},
+    ],
   }, {
     name: "Alchemy Corps",
     level: 2,
@@ -395,6 +439,18 @@ export const industryFeats = [
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Stability", boost: "Economy"});
     },
+  }, {
+    name: "Industrious Efficiency",
+    level: 7,
+    prerequisites: [masterIn("Economy")], //WAS: master in Industry
+    description: "Spend less RP when rolling Resource Dice",
+    // WAS: description: "Spend less RP when rolling Resource Dice",
+    // WAS: lower rp costs for everything
+    // PROPOSED: dc15 ignore reduction to economy
+    effects: "Your people are incredibly efficient in their resource allocations. Whenever Economy would be reduced, roll with DC 15 to prevent 1 point of the reduction.",
+    bonuses: [
+      {type: "reductionProtection", value: 15, ability: "Economy"},
+    ],
   },
 ];
 
@@ -476,6 +532,17 @@ export const politicsFeats = [
     effects: "Your leaders are well-versed in the values and traditions of your people, which grants them an exceptional ability to inspire the public to come together. Once per turn, you can reduce Stability by 1 to boost Loyalty by 1.",
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Stability", boost: "Loyalty"});
+    },
+  }, {
+    name: "United Front",
+    level: 2,
+    prerequisites: [expertIn("Loyalty")], //WAS: expert in Politics
+    description: "Avoid Unrest not caused by leadership activities",
+    // WAS: description: "Avoid Unrest not caused by leadership activities",
+    // WAS: dc11 to avoid unrest increases
+    effects: "When misfortune besets your domain, the people know their leaders are still on their side and are willing to stay united against outside forces. The first time Loyalty would be reduced each turn, prevent 1 point of the reduction.",
+    newTurn({activity}) {
+      activity.addConsumable({name: this.name, description: "DC11 Protection for Loyalty", bonuses: [{type: "reductionProtection", value: 11, ability: "Loyalty"}]});
     },
   },
 ];
@@ -598,6 +665,18 @@ export const defenseFeats = [
       {type: "unlock", activity: "Recruit Army", option: "Medic Corps"},
     ],
   }, {
+    name: "Vigilant Watch",
+    level: 2,
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Defense
+    description: "Mitigate reductions to Economy",
+    // WAS: description: "Crime accumulates more slowly",
+    // WAS: increased Crime threshold; roll to avoid crime increases
+    // PROPOSED: 1/turn: ignore reduction to economy
+    effects: "Your people keep an eye out for trouble and report it to the authorities wherever it is found. The first time Economy would be reduced each turn, prevent 1 point of the reduction.",
+    newTurn({domain}) {
+      activity.addConsumable({name: this.name, description: "DC11 Protection for Economy", bonuses: [{type: "reductionProtection", value: 11, ability: "Economy"}]});
+    },
+  }, {
     name: "Culture of Vigilance",
     level: 2,
     prerequisites: [expertIn("Stability")], //WAS: expert in Defense
@@ -689,6 +768,17 @@ export const wildernessFeats = [
     // TODO add banner to events; dc -2
     // TODO when settlement added/upgraded, add walls
   }, {
+    name: "Muddle Through",
+    level: 2,
+    prerequisites: [trainedIn("Stability")], //WAS: trained in Wilderness
+    description: "Mitigate reductions to Stability",
+    // WAS: description: "Decay accumulates more slowly",
+    // WAS: increase Decay threshold; roll to avoid decay increases
+    effects: "Your people are focused on integrating their homes into the lands in a way that eases maintenance woes and helps mitigate issues which may arise due to natural wear and tear. The first time Stability would be reduced each turn, prevent 1 point of the reduction.",
+    newTurn({domain}) {
+      activity.addConsumable({name: this.name, description: "DC11 Protection for Stability", bonuses: [{type: "reductionProtection", value: 11, ability: "Stability"}]});
+    },
+  }, {
     name: "Natural Almanac",
     level: 2,
     prerequisites: [expertIn("Stability")], //WAS: expert in Wilderness
@@ -697,6 +787,17 @@ export const wildernessFeats = [
     // WAS: bonus to Establish Farmland, Harvest Crops & Livestock, and Hunt & Forage; bonus vs weather events
     effects: "Rangers, farmers, druids, and others who are attuned to nature keep careful track of the turning of the seasons and other natural cycles in the area. The domain gains a +4 circumstance bonus to Good Weather, Natural Disaster, and other events dependent on the weather and other natural cycles (at GM discretion).",
     // TODO add banner to weather events
+  }, {
+    name: "Alter Nature",
+    level: 7,
+    prerequisites: [masterIn("Stability")], //WAS: master in Wilderness
+    description: "Slowly alter the habitats and biomes of your nation",
+    // WAS: description: "Slowly alter the habitats and biomes of your nation",
+    // WAS: GM gives bonuses to certain checks
+    effects: "Your people take special care to influence the behavior of animals and other natural creatures in the region to favor and even aid the domain. Whenever Stability would be reduced, roll with DC 15 to prevent 1 point of the reduction.",
+    bonuses: [
+      {type: "reductionProtection", value: 15, ability: "Stability"},
+    ],
   },
 ];
 

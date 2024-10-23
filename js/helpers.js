@@ -8,6 +8,8 @@ export function mod(value) { return value < 0 ? value.toString() : `+${value}` }
 export function displayBonus(bonus) {
   if (bonus.type === "unlock") {
     return `🔒 Unlock activity: ${describeRoll(bonus)}`;
+  } else if (bonus.type === "reductionProtection") {
+    return `🛡️ DC${bonus.value || 11} Protection of ${bonus.ability}`;
   } else if (bonus.activity) {
     return `⏩ ${mod(bonus.value || 0)} to ${describeRoll(bonus)}`;
   } else if (bonus.max) {

@@ -1,4 +1,6 @@
+import { Die } from "../dice.js";
 import { describeRoll, mod } from "../helpers.js";
+
 import { nudge } from "../components/event_helpers.js";
 
 import { addTransient, hydrateList } from "./utils.js";
@@ -159,7 +161,24 @@ export class Domain {
     return 99999;
   }
 
-  modify(name, {by, activity, boosted, reduced, complete, overflow, ...opts}) {
+  modify(name, {by, activity, ...opts}) {
+    this.bonuses
+      .filter(b => b.type === "reductionProtection")
+      .filter(b => b.ability === name)
+      .forEach(({value, source}) => {
+        if (by < 0 && Die.flatCheck(value || 11)) {
+          console.log(`Protected! ${name} will reduce by 1 less due to ${source.name}`);
+          this.info(`🛡️ "${source.name}" protects against reduction to ${name}`);
+          by += 1
+        } else {
+          console.log("Not protected!");
+        }
+      });
+    
+    this.#modify(name, {by, activity, ...opts});
+  }
+
+  #modify(name, {by, activity, boosted, reduced, complete, overflow, ...opts}) {
     let key = name.toLocaleLowerCase();
     let was = this[key];
     let min = this.min(name);

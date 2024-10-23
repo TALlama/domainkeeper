@@ -236,6 +236,7 @@
         .max {
           grid-column: 3;
           font-size: var(--step--2);
+          white-space: nowrap;
 
           &:before {
             content: "/ ";
