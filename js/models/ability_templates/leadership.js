@@ -458,6 +458,13 @@ export var leadershipTemplates = [{
   decisions: [{
     name: "Roll",
     dc: "Group DC", // TODO make this work
+    optionDisableReason(ability) {
+      if (ability === "Culture" && !this.domain.hasFeat("Charming Negotiators")) {
+        return "Requires feat: Charming Negotiators";
+      } else if (ability === "Stability" && !this.domain.hasFeat("Shameless Call")) {
+        return "Requires feat: Shameless Call";
+      }
+    },
   }, {
     name: "Outcome",
     summaries: {

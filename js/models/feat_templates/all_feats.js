@@ -349,6 +349,17 @@ export const scholarlyFeats = [
 
 export const statecraftFeats = [
   {
+    name: "Charming Negotiators",
+    level: 3,
+    prerequisites: [trainedIn("Culture")], //WAS: trained in Statecraft
+    description: "You culture opens doors to foreign aid.",
+    // WAS: description: "Use Statecraft to Establish Trade Agreement",
+    // WAS: use Statecraft instead of Trade or Boating to Establish a Trade Agreement
+    effects: "Your diplomats are charming enough to overcome any gaps in trade knowledge they may have when negotiating with other economies. You can use Culture for diplomacy.",
+    bonuses: [
+      {type: "unlock", activity: "Request Foreign Aid", ability: "Culture"},
+    ],
+  }, {
     name: "Folk Stories",
     level: 2,
     prerequisites: [trainedIn("Loyalty")],
@@ -368,6 +379,17 @@ export const statecraftFeats = [
     bonuses: [
       {type: "dcModifier", value: -2, activity: "Pledge of Fealty", enabledByDefault: true},
       {type: "dcModifier", value: -2, activity: "Request Foreign Aid", enabledByDefault: true},
+    ],
+  }, {
+    name: "Shameless Call",
+    level: 3,
+    prerequisites: [masterIn("Loyalty")], //WAS: master in Statecraft
+    description: "Your people are unafraid to ask for help when needed.",
+    // WAS: description: "Reduce difficulty of continual foreign aid requests",
+    // WAS: lower dc increase for repeated Request Foreign Aid checks
+    effects: "The resolve of your populace is well known, and inspires others to help. You can use Stability for diplomacy.",
+    bonuses: [
+      {type: "unlock", activity: "Request Foreign Aid", ability: "Stability"},
     ],
   },
 ];
@@ -406,7 +428,7 @@ export const boatingFeats = [
     ],
   }, {
     name: "Channel Locks",
-    level: 2,
+    level: 4,
     prerequisites: [expertIn("Economy"), trainedIn("Stability")], //WAS: expert in Boating, trained in Engineering
     description: "Make rivers navigable over large elevation changes such as waterfalls.",
     // WAS: description: "Make rivers navigable over large elevation changes such as waterfalls",
