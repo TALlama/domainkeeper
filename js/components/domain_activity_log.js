@@ -2,6 +2,7 @@ import { Ability } from "../models/abilities.js";
 import { Activity } from "../models/activity.js";
 
 import { denyUse, twist, useUp } from "./animations.js";
+import { Die } from "../dice.js";
 import { debugJSON } from "../helpers.js";
 import { ActorEditor } from "./actor_editor.js";
 import { ActivitySheet } from "./activity_sheet.js";
@@ -130,6 +131,12 @@ export default class DomainActivityLog extends RxElement {
     let preventer = this.domain.findConsumables({action: "criticalFailureProtection"}).find(consumable => {
       return !consumable.used && (!consumable.activity || consumable.activity === activity.name);
     });
+
+    if (preventer.value && !Die.flatCheck(preventer.value)) {
+      domain.useConsumable({id: preventer?.id || "no-match"});
+      activity.info(preventer.message || `${preventer.icon || "🛡️"} ${preventer.name} could not avoid disaster.`);
+      return;
+    }
 
     if (domain.useConsumable({id: preventer?.id || "no-match"})) {
       activity.info(preventer.message || `${preventer.icon || "🛡️"} ${preventer.name} helps avoid disaster. Treat this Critical Failure as a normal Failure instead.`);

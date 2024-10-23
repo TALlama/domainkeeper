@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage } = require("../domainkeeper_page");
 const { onTurnOne } = require('../fixtures/domains');
+const { Ability } = require('../../js/models/abilities');
 
 test.describe(`Fame and Fortune grants fame on every critical success`, () => {
   let activityName = ["Build Up", "Cool Down"].random();
@@ -63,6 +64,36 @@ test.describe(`Cooperative Mindset ignores one Critical Failures per turn`, () =
     await dk.pickActivity(activityName, "Culture");
 
     await expect(dk.activity(activityName).log).toContainText("Cooperative Mindset helps avoid disaster.");
+    await expect(dk.consumables.names).toHaveText(["Fame"]);
+  });
+});
+
+test.describe(`Pull Together ignores one Critical Failure a turn with a DC11 flat check`, () => {
+  let activityName = ["Build Up", "Cool Down"].random();
+
+  function setupWithFeat(page, {rigDie, attrs={}}={}) {
+    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: `Pull Together`}]}, {path: `/?rig-die=1&rig-die=${rigDie}`});
+  }
+
+  test(`when the flat check passes`, async ({ page }) => {
+    const dk = await setupWithFeat(page, {rigDie: [11, 20].random()});
+    await expect(dk.consumables.names).toHaveText(["Fame", "Pull Together"]);
+
+    await dk.pickLeader();
+    await dk.pickActivity(activityName, Ability.random);
+
+    await expect(dk.activity(activityName).log).toContainText("Pull Together helps avoid disaster.");
+    await expect(dk.consumables.names).toHaveText(["Fame"]);
+  });
+
+  test(`when the flat check fails`, async ({ page }) => {
+    const dk = await setupWithFeat(page, {rigDie: [1, 10].random()});
+    await expect(dk.consumables.names).toHaveText(["Fame", "Pull Together"]);
+
+    await dk.pickLeader();
+    await dk.pickActivity(activityName, Ability.random);
+
+    await expect(dk.activity(activityName).log).toContainText("Pull Together could not avoid disaster.");
     await expect(dk.consumables.names).toHaveText(["Fame"]);
   });
 });

@@ -337,7 +337,7 @@ export const scholarlyFeats = [
     name: "Cooperative Mindset",
     level: 7,
     prerequisites: [masterIn("Culture"), {feat: "Cautious Creativity"}], //WAS: master in Scholarship
-    description: "Attempt a free Creative Solution each turn",
+    description: "Protect against critical failures",
     // WAS: description: "Attempt a free Creative Solution each turn",
     // WAS: free creative solution/turn
     effects: "The scholars in your domain freely share ideas and collaborate. Each turn, treat the first Critical Failure you roll as a normal failure instead.",
@@ -586,6 +586,17 @@ export const politicsFeats = [
     effects: "Your leaders are well-versed in the values and traditions of your people, which grants them an exceptional ability to inspire the public to come together. Once per turn, you can reduce Stability by 1 to boost Loyalty by 1.",
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Stability", boost: "Loyalty"});
+    },
+  }, {
+    name: "Pull Together",
+    level: 5,
+    prerequisites: [trainedIn("Loyalty")], //WAS: trained in Politics
+    description: "Your citizens help mitigate failures",
+    effects: "Your people are very reliable, and their commitment to common values aids in swift decision-making to keep most projects from getting too far off track. Once per domain turn when you roll a critical failure on a check, attempt a DC 11 flat check. On a success, your citizens heed the call to put in extra work to mitigate the disaster; treat the result as failure instead.",
+    // WAS: description: "Your citizens help mitigate failures",
+    // WAS: 1/turn, roll to avoid crit fail
+    newTurn({domain}) {
+      domain.addCriticalFailureProtection({icon: "🧡", name: this.name, value: 11});
     },
   }, {
     name: "United Front",
