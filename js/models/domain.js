@@ -161,7 +161,7 @@ export class Domain {
     return 99999;
   }
 
-  modify(name, {by, activity, ...opts}) {
+  modify(name, {by, activity, boosted, reduced, complete, overflow, ...opts}) {
     this.bonuses
       .filter(b => b.type === "reductionProtection")
       .filter(b => b.ability === name)
@@ -175,10 +175,6 @@ export class Domain {
         }
       });
     
-    this.#modify(name, {by, activity, ...opts});
-  }
-
-  #modify(name, {by, activity, boosted, reduced, complete, overflow, ...opts}) {
     let key = name.toLocaleLowerCase();
     let was = this[key];
     let min = this.min(name);
@@ -321,7 +317,7 @@ export class Domain {
   findConsumables(pattern) { return this.consumables.matches(pattern) }
 
   addConsumable(attrs) {
-    this.consumables.push({id: crypto.randomUUID(), name: "Consumable", description: attrs.description ?? "?", useBy: "end-of-turn", ...attrs});
+    this.consumables.push({id: crypto.randomUUID(), name: "Consumable", description: attrs?.description ?? "?", useBy: "end-of-turn", ...attrs});
   }
 
   useConsumable(pattern) {

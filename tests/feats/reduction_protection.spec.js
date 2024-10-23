@@ -5,11 +5,6 @@ const { onTurnOne } = require('../fixtures/domains');
 [
   // level 2: one-time DC11
   {
-    feat: "Free and Fair",
-    protects: "Loyalty",
-    threshold: 11,
-  },
-  {
     feat: "Proclaim to the Faithful",
     protects: "Culture",
     threshold: 11,
@@ -20,6 +15,11 @@ const { onTurnOne } = require('../fixtures/domains');
     threshold: 11,
   },
   // level 7: any-time DC15
+  {
+    feat: "Free and Fair",
+    protects: "Loyalty",
+    threshold: 15,
+  },
   {
     feat: "Quality of Life",
     protects: "Culture",
