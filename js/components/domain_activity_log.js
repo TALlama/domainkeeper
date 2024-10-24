@@ -132,7 +132,7 @@ export default class DomainActivityLog extends RxElement {
       return !consumable.used && (!consumable.activity || consumable.activity === activity.name);
     });
 
-    if (preventer.value && !Die.flatCheck(preventer.value)) {
+    if (preventer?.value && !Die.flatCheck(preventer.value)) {
       domain.useConsumable({id: preventer?.id || "no-match"});
       activity.info(preventer.message || `${preventer.icon || "🛡️"} ${preventer.name} could not avoid disaster.`);
       return;
@@ -147,8 +147,7 @@ export default class DomainActivityLog extends RxElement {
   onRollBoostOutcome({activity, roll, event}) {
     if (roll.outcome === "criticalSuccess") { return }
 
-    let booster = event.detail.domainRoll.boosts.find(Boolean);
-    console.log("booster", JSON.stringify(booster));
+    let booster = event.detail.domainRoll.boosts.find(b => b.type === "outcomeBoost");
     if (!booster) { return }
 
     event.detail.outcome = {
