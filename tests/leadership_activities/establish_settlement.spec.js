@@ -28,9 +28,10 @@ test.describe("Can establish a settlement", () => {
     await dk.pickLeader();
   
     const xpBefore = await dk.stat("xp");
-    await establishSettlement(dk, {outcome: outcomes.random(), settlementName: "Lowercase"});
+    const outcome = outcomes.random();
+    await establishSettlement(dk, {outcome, settlementName: "Lowercase"});
     await expect(dk.settlementNames).toHaveText(["Capital", "Lowercase"]);
-    await expect(await dk.stat("xp")).toEqual(xpBefore + 40 + 20); // 40 for second settlement 20 for irst success
+    await dk.expectStat("xp", xpBefore + 40 + (outcome == "Failure" ? 0 : 20)); // 40 for second settlement 20 for first success
   });
 });
 

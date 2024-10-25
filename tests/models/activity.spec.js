@@ -2,6 +2,10 @@ const { test, expect } = require('@playwright/test');
 const { Ability } = require("../../js/models/abilities");
 const { Activity } = require("../../js/models/activity");
 
+function withoutId(string) {
+  return string.replace(/ id="[^"]+" +/g, " ");
+}
+
 test("remembers the properties given to it", () => {
   let activity = new Activity({name: "Dance", prop: "value"});
   expect(activity.name).toEqual("Dance");
@@ -386,14 +390,14 @@ test.describe("default decisions", () => {
         let activity = new Activity("Dance");
         let decision = activity.decision("Roll");
         expect(decision.options).toEqual(Ability.all);
-        expect(decision.displayValue("Culture")).toEqual(`<ability-roll ability="Culture" activity="Dance">Culture</ability-roll>`);
+        expect(withoutId(decision.displayValue("Culture"))).toEqual(`<ability-roll ability="Culture" activity="Dance">Culture</ability-roll>`);
       });
 
       test("can be set by the properties", () => {
         let activity = new Activity({name: "Dance", decisions: [{name: "Roll", options: ["Culture"]}]});
         let decision = activity.decision("Roll");
         expect(decision.options).toEqual(["Culture"]);
-        expect(decision.displayValue("Culture")).toEqual(`<ability-roll ability="Culture" activity="Dance">Culture</ability-roll>`);
+        expect(withoutId(decision.displayValue("Culture"))).toEqual(`<ability-roll ability="Culture" activity="Dance">Culture</ability-roll>`);
       });
     });
   });

@@ -14,8 +14,8 @@ const testTrade = (feat, {reduce, boost}) => {
       await expect(dk.consumables.names).toHaveText(["Fame", feat]);
 
       await dk.consumables.withName(feat).click();
-      expect(await dk.stat(reduce)).toEqual(starting - 1);
-      expect(await dk.stat(boost)).toEqual(starting + 1);
+      await dk.expectStat(reduce, starting - 1);
+      await dk.expectStat(boost, starting + 1);
       await expect(dk.consumables.names).toHaveText(["Fame"]);
     });
 
@@ -25,8 +25,8 @@ const testTrade = (feat, {reduce, boost}) => {
       await expect(dk.consumables.names).toHaveText(["Fame", feat]);
 
       await dk.consumables.withName(feat).click();
-      expect(await dk.stat(reduce)).toEqual(starting);
-      expect(await dk.stat(boost)).toEqual(starting);
+      await dk.expectStat(reduce, starting);
+      await dk.expectStat(boost, starting);
       await expect(dk.consumables.names).toHaveText(["Fame", feat]);
     });
   });
@@ -62,15 +62,16 @@ test.describe("Covert Collusion", () => { // level 2; trained in loyalty
 
   test(`increases both Unrest and Economy`, async ({ page }) => {
     const startingUnrest = [0, 2, 10].random(); // works at any level of unrest
-    const startingEconomy = 2;
-    console.log("Starting at", {startingUnrest, startingEconomy});
 
-    const dk = await setupWithFeat(page, {unrest: startingUnrest, economy: startingEconomy});
+    const dk = await setupWithFeat(page, {unrest: startingUnrest});
     await expect(dk.consumables.names).toHaveText(["Fame", feat]);
 
+    const startingEconomy = await dk.stat("Economy");
+    console.log("Starting at", {startingUnrest, startingEconomy});
+
     await dk.consumables.withName(feat).click();
-    expect(await dk.stat(increase1)).toEqual(startingUnrest + 1);
-    expect(await dk.stat(increase2)).toEqual(startingEconomy + 1);
+    await dk.expectStat(increase1, startingUnrest + 1);
+    await dk.expectStat(increase2, startingEconomy + 1);
     await expect(dk.consumables.names).toHaveText(["Fame"]);
   });
 });

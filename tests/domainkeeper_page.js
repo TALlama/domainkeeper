@@ -51,7 +51,7 @@ export class DomainkeeperPage extends LocatorLike {
   static async load(page, domain, {path, expectTurn, ...opts} = {}) {
     const dk = new DomainkeeperPage(page);
     return page.goto(path || '/')
-      .then(() => domain && dk.loadDomain(domain, expectTurn))
+      .then(() => domain && dk.loadDomain({...domain}, expectTurn))
       .then(() => dk);
   }
 
@@ -367,6 +367,11 @@ export class DomainkeeperPage extends LocatorLike {
   }
 
   // Expectations
+
+  async expectStat(label, value, message) {
+    await expect(this.statInput(label), message).toHaveValue(value.toString());
+  }
+
   async shouldHaveStats(stats) {
     for (const [stat, value] of Object.entries(stats)) {
       let locator = this[stat];

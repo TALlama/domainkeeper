@@ -74,7 +74,7 @@ test.describe("Unrest", () => {
 
     let before = await dk.stat("Unrest");
     await dk.pickActivity("New Leadership", "Loyalty", "Success", "Ned");
-    expect(await dk.stat("Unrest")).toEqual(before + 1);
+    await dk.expectStat("Unrest", before + 1);
   });
 
   test('Failure adds 2-5 unrest', async ({ page }) => {

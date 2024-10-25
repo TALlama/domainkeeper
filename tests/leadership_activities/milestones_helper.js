@@ -21,7 +21,7 @@ export function testMilestone(activity, {domain, decisions, success, failure, xp
     
       const xpBefore = await dk.stat("xp");
       opts.pickSuccess ? await opts.pickSuccess(dk) : await dk.pickActivity(activity, ...decisions);
-      expect(await dk.stat("xp"), `XP After = ${xpBefore} + ${xp}`).toEqual(xpBefore + xp);
+      await dk.expectStat("xp", xpBefore + xp, `XP After = ${xpBefore} + ${xp}`);
       expect(dk.topActivity().log).toContainText(`Milestone: First successful ${activity}`);
     });
 
@@ -35,7 +35,7 @@ export function testMilestone(activity, {domain, decisions, success, failure, xp
     
       const xpBefore = await dk.stat("xp");
       opts.pickFailure ? await opts.pickFailure(dk) : await dk.pickActivity(activity, ...decisions);
-      expect(await dk.stat("xp")).toEqual(xpBefore);
+      await dk.expectStat("xp", xpBefore);
     });
   });
 };

@@ -210,7 +210,7 @@ test.describe("Cost to Build", () => {
 
     let before = await dk.stat("Culture");
     await go(dk, 1);
-    expect(await dk.stat("Culture")).toEqual(before - 1);
+    await dk.expectStat("Culture", before - 1);
   });
 
   test('In a town, you can reduce by 2 instead', async ({ page }) => {
@@ -218,7 +218,7 @@ test.describe("Cost to Build", () => {
 
     let before = await dk.stat("Culture");
     await go(dk, 2);
-    expect(await dk.stat("Culture")).toEqual(before - 2);
+    await dk.expectStat("Culture", before - 2);
   });
 
   test('In a city, you can reduce by 3 instead', async ({ page }) => {
@@ -226,7 +226,7 @@ test.describe("Cost to Build", () => {
 
     let before = await dk.stat("Culture");
     await go(dk, 3);
-    expect(await dk.stat("Culture")).toEqual(before - 3);
+    await dk.expectStat("Culture", before - 3);
   });
 
   test('In a metropolis, you can reduce by 4 instead', async ({ page }) => {
@@ -234,7 +234,7 @@ test.describe("Cost to Build", () => {
 
     let before = await dk.stat("Culture");
     await go(dk, 4);
-    expect(await dk.stat("Culture")).toEqual(before - 4);
+    await dk.expectStat("Culture", before - 4);
   });
 
   test('With a Masonic Lodge, payments cost 1 less', async ({ page }) => {
@@ -242,7 +242,7 @@ test.describe("Cost to Build", () => {
 
     let before = await dk.stat("Culture");
     await go(dk, 3);
-    expect(await dk.stat("Culture")).toEqual(before - 3);
+    await dk.expectStat("Culture", before - 3);
     await expect(dk.currentActorPowerups()).toHaveText(["Shrine", "Masonic Lodge", "Incomplete Keep (4/5)"]);
   });
 
@@ -251,7 +251,7 @@ test.describe("Cost to Build", () => {
 
     let before = await dk.stat("Culture");
     await go(dk, 3);
-    expect(await dk.stat("Culture")).toEqual(before - 3);
+    await dk.expectStat("Culture", before - 3);
     await expect(dk.currentActorPowerups()).toHaveText(["Shrine", "Planning Bureau", "Keep"]);
   });
 });

@@ -35,7 +35,7 @@ test.describe("Earns XP", () => {
 
       const before = await dk.stat("xp");
       await dk.pickActivity("Claim Hex", [50, 50], abilities.random(), outcomes.random());
-      expect(await dk.stat("xp"), `When growing to ${newSize}, should get ${baseXp} + ${milestoneXp} XP (started at ${before})`).toEqual(before + baseXp + milestoneXp);
+      await dk.expectStat("xp", before + baseXp + milestoneXp, `When growing to ${newSize}, should get ${baseXp} + ${milestoneXp} XP (started at ${before})`);
     });
 
     test("When NOT hitting a milestone", async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe("Earns XP", () => {
 
       const before = await dk.stat("xp");
       await dk.pickActivity("Claim Hex", [50, 50], abilities.random(), outcomes.random());
-      expect(await dk.stat("xp"), `When growing to ${newSize}, should get ${baseXp} XP (started at ${before})`).toEqual(before + baseXp);
+      await dk.expectStat("xp", before + baseXp, `When growing to ${newSize}, should get ${baseXp} XP (started at ${before})`);
     });
   });
 });

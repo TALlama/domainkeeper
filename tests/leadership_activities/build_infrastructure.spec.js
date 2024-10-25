@@ -5,7 +5,7 @@ const { testMilestone } = require('./milestones_helper');
 
 testMilestone("Build Infrastructure", {
   domain: {...inTurnOne},
-  decisions: [[50, 50], ["Road", "Irrigation"].random(), "Stability", "--outcome--"],
+  decisions: [[50, 50], ["Road", "Irrigation"].random(), "Stability", "--outcome--", "Reduce Loyalty by 1 to proceed"],
 });
 
 test.describe("Payment", () => {
@@ -22,7 +22,7 @@ test.describe("Payment", () => {
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50], "Road", "Stability", "Success", "Reduce Economy by 1 to proceed");
-    expect(await dk.stat("economy")).toEqual(2);
+    await dk.expectStat("economy", 2);
   });
 
   test("Failure costs 2", async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe("Payment", () => {
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50], "Road", "Stability", "Failure", "Reduce Economy by 2 to proceed");
-    expect(await dk.stat("economy")).toEqual(1);
+    await dk.expectStat("economy", 1);
   });
 });
 
@@ -40,7 +40,7 @@ test.describe("Abandoning the effort", () => {
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50], "Road", "Stability", ["Success", "Failure"].random(), "Abandon the attempt and pay nothing");
-    expect(await dk.stat("economy")).toEqual(3);
+    await dk.expectStat("economy", 3);
     // TODO no structure should be built
   });
 });

@@ -16,7 +16,7 @@ test.describe("Boosts the ability below the one rolled", () => {
 
           let before = await dk.stat(targetAbility);
           await dk.pickActivity("Cool Down", ability, "Critical Success");
-          expect(await dk.stat(targetAbility)).toEqual(before + 2);
+          await dk.expectStat(targetAbility, before + 2);
         });
 
         test("Increases the target ability by max/3", async ({ page }) => {
@@ -28,7 +28,7 @@ test.describe("Boosts the ability below the one rolled", () => {
 
           let before = await dk.stat(targetAbility);
           await dk.pickActivity("Cool Down", ability, "Critical Success");
-          expect(await dk.stat(targetAbility)).toEqual(before + 3);
+          await dk.expectStat(targetAbility, before + 3);
         });
       });
 
@@ -39,7 +39,7 @@ test.describe("Boosts the ability below the one rolled", () => {
 
           let before = await dk.stat(targetAbility);
           await dk.pickActivity("Cool Down", ability, "Success");
-          expect(await dk.stat(targetAbility)).toEqual(before + 1);
+          await dk.expectStat(targetAbility, before + 1);
         });
 
         test("Increases the target ability by max/4", async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe("Boosts the ability below the one rolled", () => {
 
           let before = await dk.stat(targetAbility);
           await dk.pickActivity("Cool Down", ability, "Success");
-          expect(await dk.stat(targetAbility)).toEqual(before + 2);
+          await dk.expectStat(targetAbility, before + 2);
         });
       });
 
@@ -70,7 +70,7 @@ test.describe("Boosts the ability below the one rolled", () => {
       
         let before = await dk.stat('Unrest');
         await dk.pickActivity("Cool Down", ability, "Critical Failure");
-        expect(await dk.stat("Unrest")).toEqual(before + 1);
+        await dk.expectStat("Unrest", before + 1);
       });
     });
   });

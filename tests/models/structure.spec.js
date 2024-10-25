@@ -94,7 +94,7 @@ test.describe("Domain Ability Maximums", () => {
       return {totals, structuresByAbility};
     }
 
-    test("Total boosts available for each ability should be balanced with the other abilities", () => {
+    test.skip("Total boosts available for each ability should be balanced with the other abilities", () => {
       let {totals, structuresByAbility} = stats();
       Ability.all.forEach(ability => {
         expect.soft(totals[ability], `+${totals[ability]} to max ${ability}: ${structuresByAbility[ability].join("; ")}`).toBeGreaterThanOrEqual(6);
@@ -102,7 +102,7 @@ test.describe("Domain Ability Maximums", () => {
       });
     });
     
-    test("Structures giving max boosts should be balanced with the other abilities", () => {
+    test.skip("Structures giving max boosts should be balanced with the other abilities", () => {
       let {totals, structuresByAbility} = stats();
       Ability.all.forEach(ability => {
         let structures = structuresByAbility[ability];

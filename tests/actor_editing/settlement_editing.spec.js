@@ -31,7 +31,7 @@ test.describe("Milestones", () => {
 
     let xpBefore = await dk.stat("xp");
     await setSize(dk, "Town");
-    expect(await dk.stat("xp")).toEqual(xpBefore + 60);
+    await dk.expectStat("xp", xpBefore + 60);
     expect(await dk.nudgeLog()).toContainText("Milestone: First Town");
   });
 
@@ -40,7 +40,7 @@ test.describe("Milestones", () => {
 
     let xpBefore = await dk.stat("xp");
     await setSize(dk, "City");
-    expect(await dk.stat("xp")).toEqual(xpBefore + 80);
+    await dk.expectStat("xp", xpBefore + 80);
     expect(await dk.nudgeLog()).toContainText("Milestone: First City");
   });
 
@@ -49,7 +49,7 @@ test.describe("Milestones", () => {
 
     let xpBefore = await dk.stat("xp");
     await setSize(dk, "Metropolis");
-    expect(await dk.stat("xp")).toEqual(xpBefore + 120);
+    await dk.expectStat("xp", xpBefore + 120);
     expect(await dk.nudgeLog()).toContainText("Milestone: First Metropolis");
   });
 });
