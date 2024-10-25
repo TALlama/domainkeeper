@@ -8,6 +8,11 @@ export class DomainRoll {
     const domainBonuses = domain.findBonuses({activity, ability, actorType}).sortBy("value");
     this.availableBonuses = [...domainBonuses, ...this.unrestBonuses]
       .filter(b => !b.option || b.option === this.option);
+    
+    let fortunes = this.divideBonuses("fortune").used;
+    let misfortunes = this.divideBonuses("misfortune").used;
+    this.keepSuffix = fortunes.length > misfortunes.length ? "kh" : (misfortunes.length > 0 ? "kl" : "");
+    this.dieCount = (fortunes.length + misfortunes.length) > 0 ? 2 : 1;
   }
 
   get modifier() { return this.bonus }
@@ -29,6 +34,7 @@ export class DomainRoll {
 
     let available = this.availableBonusesOfType(type);
     if (type === "untyped") { return {type, modifier: available.sum("value"), used: available, unused: []} }
+    if (type === "fortune" || type === "misfortune") { return {used: available, unused: []} };
     if (type === "outcomeBoost") { return {used: available.slice(0, 1), unused: available.slice(1)} };
 
     let biggestPenalty = available.filter(b => b.value < 0).first();
@@ -52,7 +58,7 @@ export class DomainRoll {
   get untypedBonuses() { return this.divideBonuses("untyped").used }
 
   // Just the used boosts
-  get boosts() { return this.divideBonuses("outcomeBoost").used }
+  get boosts() { return [...this.divideBonuses("fortune").used, ...this.divideBonuses("outcomeBoost").used] }
 
   // Numeric bonus of the used bonuses
   get bonus() { return this.bonuses.sum("value") }

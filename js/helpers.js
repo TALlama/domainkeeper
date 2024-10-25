@@ -10,6 +10,8 @@ export function displayBonus(bonus) {
     return `🔒 Unlock activity: ${describeRoll(bonus)}`;
   } else if (bonus.type === "reductionProtection") {
     return `🛡️ DC${bonus.value || 11} Protection of ${bonus.ability}`;
+  } else if (bonus.type === "fortune") {
+    return `🔄 Reroll ${describeRoll(bonus)}`;
   } else if (bonus.activity) {
     return `⏩ ${mod(bonus.value || 0)} to ${describeRoll(bonus)}`;
   } else if (bonus.max) {

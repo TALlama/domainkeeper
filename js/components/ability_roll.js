@@ -44,7 +44,11 @@ export class AbilityRoll extends RxElement {
   }
 
   renderBoost(bonus) {
-    let string = `<span class='metadata'>${bonus.source?.name || "?"}</span><span class="modifier-contribution">⏫</span>`;
+    let icon = {
+      fortune: "🔄",
+      outcomeBoost: "⏫",
+    }[bonus.type] || bonus.type;
+    let string = `<span class='metadata'>${bonus.source?.name || "?"}</span><span class="modifier-contribution">${icon}</span>`;
     return `<li class="boost" title="${bonus.type}">${string}</li>`;
   }
 

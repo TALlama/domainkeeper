@@ -55,12 +55,6 @@ export const generalFeats = withTrait([
     description: "Receive a fixed result on any Stability check.",
     effects: "Even when things go poorly in other areas, you can count on consistency in carrying out activities using Stability. When you would attempt a check for that stat, you can forgo rolling and instead take a result equal to 10 + your proficiency bonus + any potency bonus; do not apply any other bonuses, penalties, or modifiers to this result.",
   }, {
-  //   name: "Kingdom Skill Training",
-  //   level: 1,
-  //   description: "Gain a skill increase",
-  //   // WAS: +2 to a skill, with normal level gates
-  //   // PROPOSED: REMOVE - no skills to gain, and item bonus to activities is structures' job
-  // }, {
     name: "Service Reform", // WAS: Endure Anarchy",
     level: 5,
     prerequisites: [investedIn("Loyalty")], //WAS: "Loyalty 14",
@@ -182,6 +176,20 @@ export const artFeats = [
       {type: "outcomeBoost", activity: "Build Up", ability: "Culture", value: 1},
       {type: "outcomeBoost", activity: "Quell Unrest", ability: "Culture", value: 1},
     ],
+  }, {
+    name: "Artistic Hub",
+    level: 15,
+    prerequisites: [legendaryIn("Culture"), {feat: "National Specialty"}], //WAS: legendary in Arts; National Specialty
+    description: "Your domain is a globally-known hub for its specialized artforms.",
+    // WAS: Kingdom is known (DC 10 Society); better base attitude toward you; advantage on all Arts checks
+    effects: "Your nation has gained notoriety throughout the world for its specialized arts. Most people have heard of your nation (DC 10 Society), and those who have a liking for that artform generally have an attitude toward you one step better than normal.\n" +
+      "In addition, the influx of outside ideas related to your national specialty creates an incredible creative energy. When the domain attempts a Culture check to Build Up, Cool Down, Quell Unrest, Create a Masterpeice, or make a Creative Solution, roll twice and take the better result; this is a fortune effect.",
+    bonuses: [
+      {type: "fortune", activity: "Build Up", ability: "Culture"},
+      {type: "fortune", activity: "Cool Down", ability: "Culture"},
+      {type: "fortune", activity: "Quell Unrest", ability: "Culture"},
+      {type: "fortune", activity: "Create A Masterpiece"},
+    ],
   },
 ];
 
@@ -291,9 +299,9 @@ export const magicFeats = [
     // WAS: description: "Magic suffuses the entire kingdom, making it a shining paragon of mystic power",
     // WAS: practical magic bonus is +3 now; advantage on Supernatural Solution checks
     effects: "The domain is a thoroughly mystic society. The DC for Practical Magic checks is now 5. When you make a Creative Solution check, roll twice and take the better result; this is a fortune effect.",
-    // TODO bonuses: [
-    // TODO   {type: "advantage", activity: "Creative Solution"},
-    // TODO ],
+    bonuses: [
+      {type: "fortune", activity: "Creative Solution"},
+    ],
   },
 ];
 

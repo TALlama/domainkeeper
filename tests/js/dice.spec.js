@@ -196,6 +196,7 @@ test.describe("DieSet", () => {
   test.describe("construction", () => {
     test("simple", () => {
       let unrolled = new DieSet(2, 4);
+      expect(unrolled.description).toEqual("2d4");
       expect(unrolled.length).toEqual(2);
       expect(unrolled.size).toEqual(4);
       expect([2, 3, 4, 5, 6, 7, 8]).toContain(unrolled.value);
@@ -224,6 +225,28 @@ test.describe("DieSet", () => {
       expect(rolled.value).toEqual(3);
       expect(rolled.target).toEqual(6);
     });
+
+    test.describe("amalgamations", () => {
+      test("keep highest", () => {
+        let rolled = new DieSet(2, 4, {keep: "highest"});
+        expect(rolled.description).toEqual("2d4kh");
+        expect(rolled.length).toEqual(1);
+        expect(rolled.dice).toHaveLength(2);
+        expect(rolled.size).toEqual(4);
+        expect(rolled.keep).toEqual("highest");
+        expect([1, 2, 3, 4]).toContainEqual(rolled.value);
+      });
+  
+      test("keep lowest", () => {
+        let rolled = new DieSet(2, 4, {keep: "lowest"});
+        expect(rolled.description).toEqual("2d4kl");
+        expect(rolled.length).toEqual(1);
+        expect(rolled.dice).toHaveLength(2);
+        expect(rolled.size).toEqual(4);
+        expect(rolled.keep).toEqual("lowest");
+        expect([1, 2, 3, 4]).toContainEqual(rolled.value);
+      });
+    })
   });
 
   test.describe("ranges", () => {
@@ -354,6 +377,21 @@ test.describe("Pools", () => {
           expect(pool.elements[0]).toBeInstanceOf(DieSet);
           expect(pool.elements.map(e => e.length)).toEqual([2]);
           expect(pool.elements.map(e => e.size)).toEqual([20]);
+        });
+
+        test("with keep high", () => {
+          let pool = DicePool.parse("2d20kh");
+          expect(pool.elements).toHaveLength(1);
+          expect(pool.elements[0]).toBeInstanceOf(DieSet);
+          expect(pool.elements[0].keep).toEqual("highest");
+          expect(pool.elements.map(e => e.length)).toEqual([1]);
+          expect(pool.elements.map(e => e.size)).toEqual([20]);
+        });
+
+        test("with keep high and element values", () => {
+          let pool = DicePool.parse("2d20kh", {values: [[1, 20]]});
+          expect(pool.value).toEqual(20);
+          expect(pool.values).toEqual([[1, 20]]);
         });
 
         test("with element values given", () => {

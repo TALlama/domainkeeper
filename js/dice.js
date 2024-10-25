@@ -82,21 +82,33 @@ export class Die extends PoolElement {
 }
 
 export class DieSet extends PoolElement {
-  constructor(length, size, {value, values, ...opts}={}) {
+  constructor(length, size, {value, values, keep="all", ...opts}={}) {
     values = DieSet.valuesFor({length, size, value, values});
     super({...opts});
-    this.length = length;
+    this.keep = keep;
+    this.length = {highest: 1, lowest: 1}[keep] || length;
     this.size = size;
     this.dice = Array.from({length}, n => new Die(size, {...opts, value: values.shift()}));
-    this.value = this.values.reduce((sum, v) => sum + v, 0);
+    this.#updateValue();
   }
 
   get values() { return this.dice.map(d => d.value) }
 
-  get unsignedDescription() { return `${this.length}d${this.size}` }
-  get unsignedSummary() { return `(${this.dice.map(d => d.unsignedSummary).join(" + ")})` }
+  get keepSuffix() { return {highest: "kh", lowest: "kl"}[this.keep] || "" }
 
-  roll(opts) { return this.value = this.dice.reduce((sum, e) => sum + e.roll(opts), 0) }
+  get unsignedDescription() { return `${this.dice.length}d${this.size}${this.keepSuffix}` }
+  get unsignedSummary() { return `(${this.dice.map(d => d.unsignedSummary).join(this.keep === "all" ? " + " : " | ")})` }
+
+  roll(opts) { this.dice.forEach(d => d.roll(opts)); return this.#updateValue() }
+  #updateValue() {
+    if (this.keep === "all") {
+      return this.value = this.values.reduce((sum, v) => sum + v, 0);
+    } else if (this.keep === "highest") {
+      return this.value = this.values.sort((a, b) => b - a)[0];
+    } else if (this.keep === "lowest") {
+      return this.value = this.values.sort((a, b) => a - b)[0];
+    }
+  }
 
   static valuesFor({length, size, value, values}) {
     if (Array.isArray(values)) {
@@ -206,7 +218,9 @@ export class DicePool extends PoolElement {
       let value = values.shift();
       if (!size) { return new Flat(parseInt(count), {sign, value}) }
       if (parseInt(count || 1) === 1) { return new Die(parseInt(size), {sign, value}) }
-      return new DieSet(parseInt(count || 1), parseInt(size), {sign, values: value});
+
+      let keep = {kh: "highest", kl: "lowest"}[size.match(/(kh|kl)/)?.[1]] || "all";
+      return new DieSet(parseInt(count || 1), parseInt(size), {sign, keep, values: value});
     });
     return new this({elements, ...options});
   }

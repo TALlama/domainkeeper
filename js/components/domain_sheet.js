@@ -342,6 +342,9 @@ class DomainSheet extends RxElement {
   roll({die, domainRoll, dc}) {
     let header = Maker.tag("h6");
     let componentsEl = Maker.tag("span", {class: "components", appendTo: header});
+    domainRoll.boosts.forEach((boost) => {
+      componentsEl.append(Maker.tag("span", ` ${boost.icon || boost.source.icon || {fortune: "🔄"}[boost.type] || "✳️"} ${boost.source.name}`))
+    });
     domainRoll.bonuses.forEach((bonus) => {
       if (bonus.value !== 0) { componentsEl.append(Maker.tag("span", ` ${mod(bonus.value)} ${bonus.name || bonus.source?.name}`, {title: bonus.type})) }
     })
@@ -349,7 +352,7 @@ class DomainSheet extends RxElement {
 
     let roller = Maker.tag(
       "dice-roll",
-      `1d20+${domainRoll.bonus}`,
+      `${domainRoll.dieCount}d20${domainRoll.keepSuffix}+${domainRoll.bonus}`,
       {
         "data-ability": domainRoll.ability,
         "data-activity": domainRoll.activity,
