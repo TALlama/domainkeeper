@@ -5,7 +5,7 @@ const { leaders } = require('./fixtures/leaders');
 
 test.describe("Notes", () => {
   test('can name the domain', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     await expect(dk.name).toHaveText("Founded Yesterday");
     await dk.rename("Anvilania");
@@ -13,14 +13,14 @@ test.describe("Notes", () => {
   });
 
   test('can rename leaders', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.anne]});
 
     await dk.renameActor("Anne", "Destroyer");
     await expect(dk.currentActorName).toHaveText("Destroyer");
   });
 
   test('can name turns', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     let turn1 = dk.turn(1);
     await expect(turn1.name).toHaveText("Turn 1");
@@ -29,7 +29,7 @@ test.describe("Notes", () => {
   });
 
   test('can rename activities taken', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
 
     await expect(dk.turn(1).activityNames).toHaveText(["Prognostication", "Build Up", "Contribute", "News"]);
     await dk.topActivity().rename("Farsight Ceremony");
@@ -37,7 +37,7 @@ test.describe("Notes", () => {
   });
 
   test('can change activity summaries', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     await dk.pickActivity("Prognostication");

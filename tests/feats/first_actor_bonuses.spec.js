@@ -4,7 +4,7 @@ const { onTurnOne } = require('../fixtures/domains');
 
 test.describe("Civil Service", () => {
   function setupWithFeat(page) {
-    return DomainkeeperPage.load(page, {...onTurnOne, feats: ["Civil Service"]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), feats: ["Civil Service"]});
   }
 
   test('gives bonus to settlements', async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe("Civil Service", () => {
 
 test.describe("Cooperative Leadership", () => {
   function setupWithFeat(page) {
-    return DomainkeeperPage.load(page, {...onTurnOne, feats: ["Cooperative Leadership"]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), feats: ["Cooperative Leadership"]});
   }
 
   test('gives bonus to leaders', async ({ page }) => {

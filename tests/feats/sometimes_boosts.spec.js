@@ -4,7 +4,7 @@ const { onTurnOne } = require('../fixtures/domains');
 
 test.describe(`Root Work has a 50% chance of giving you a bonus on event rolls`, () => {
   function setupWithFeat(page, {rigDie, attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: `Root Work`}]}, {path: `/?rig-die=${rigDie}`});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: `Root Work`}]}, {path: `/?rig-die=${rigDie}`});
   }
 
   test(`if the die rolls 11 or more`, async ({ page }) => {
@@ -32,7 +32,7 @@ test.describe(`Root Work has a 50% chance of giving you a bonus on event rolls`,
 
 test.describe(`Practical Magic has a 50% chance of giving you a magical solution`, () => {
   function setupWithFeat(page, {rigDie, additionalFeats=[], attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: `Practical Magic`}, ...additionalFeats]}, {path: `/?rig-die=${rigDie}`});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: `Practical Magic`}, ...additionalFeats]}, {path: `/?rig-die=${rigDie}`});
   }
 
   test(`if the die rolls 11 or more`, async ({ page }) => {

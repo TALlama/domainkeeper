@@ -11,7 +11,7 @@ test.describe("Boosts the ability above the one rolled", () => {
     test.describe(`when rolling ${ability}, targetting ${targetAbility}`, () => {
       test.describe("Critical Success", () => {
         test("Increases the target ability by 2 at minimum", async ({ page }) => {
-          const dk = await DomainkeeperPage.load(page, inTurnOne);
+          const dk = await DomainkeeperPage.load(page, inTurnOne());
           await dk.pickLeader();
 
           let before = await dk.stat(targetAbility);
@@ -20,7 +20,7 @@ test.describe("Boosts the ability above the one rolled", () => {
         });
 
         test("Increases the target ability by max/3", async ({ page }) => {
-          const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [
+          const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [
             {name: "Capital", id: "settlement-capital", traits: ["Village"], powerups: [
               {bonuses: [{max: targetAbility, value: 4}]},
             ]}]});
@@ -34,7 +34,7 @@ test.describe("Boosts the ability above the one rolled", () => {
 
       test.describe("Success", () => {
         test("Increases the target ability by 1 at minimum", async ({ page }) => {
-          const dk = await DomainkeeperPage.load(page, inTurnOne);
+          const dk = await DomainkeeperPage.load(page, inTurnOne());
           await dk.pickLeader();
 
           let before = await dk.stat(targetAbility);
@@ -43,7 +43,7 @@ test.describe("Boosts the ability above the one rolled", () => {
         });
 
         test("Increases the target ability by max/4", async ({ page }) => {
-          const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [
+          const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [
             {name: "Capital", id: "settlement-capital", traits: ["Village"], powerups: [
               {bonuses: [{max: targetAbility, value: 3}]},
             ]}]});
@@ -56,7 +56,7 @@ test.describe("Boosts the ability above the one rolled", () => {
       });
 
       test("Failure leaves all abilities as they were", async ({ page }) => {
-        const dk = await DomainkeeperPage.load(page, inTurnOne);
+        const dk = await DomainkeeperPage.load(page, inTurnOne());
         await dk.pickLeader();
       
         let before = await dk.abilitiesTotal();
@@ -65,7 +65,7 @@ test.describe("Boosts the ability above the one rolled", () => {
       });
 
       test("Critical Failure causes unrest", async ({ page }) => {
-        const dk = await DomainkeeperPage.load(page, inTurnOne);
+        const dk = await DomainkeeperPage.load(page, inTurnOne());
         await dk.pickLeader();
       
         let before = await dk.stat('Unrest');

@@ -4,7 +4,7 @@ const { onTurnOne } = require('../fixtures/domains');
 
 test.describe("Service Reform reduces unrest by loyalty/5 every turn", () => {
   function setupWithFeat(page, attrs) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: "Service Reform"}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: "Service Reform"}]});
   }
 
   test('rounds up to the nearest whole number', async ({ page }) => {
@@ -22,7 +22,7 @@ test.describe("Service Reform reduces unrest by loyalty/5 every turn", () => {
 
 test.describe("Inspiring Entertainment reduces unrest by culture/5 every turn", () => {
   function setupWithFeat(page, attrs) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: "Inspiring Entertainment"}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: "Inspiring Entertainment"}]});
   }
 
   test('rounds up to the nearest whole number', async ({ page }) => {
@@ -40,7 +40,7 @@ test.describe("Inspiring Entertainment reduces unrest by culture/5 every turn", 
 
 test.describe("Continual Care reduces unrest by stability/5 every turn", () => {
   function setupWithFeat(page, attrs) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: "Continual Care"}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: "Continual Care"}]});
   }
 
   test('rounds up to the nearest whole number', async ({ page }) => {

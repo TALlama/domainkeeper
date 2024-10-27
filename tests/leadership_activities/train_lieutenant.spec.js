@@ -8,7 +8,7 @@ const { testMilestone } = require('./milestones_helper');
 const abilities = ["Loyalty"];
 test.describe("Critical Success", () => {
   test('the NPC gains a second activity', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.pc, leaders.npc]});
     await dk.pickLeader();
 
     await expect(dk.actorActivitiesLeft("Ned")).toHaveText("1");
@@ -19,7 +19,7 @@ test.describe("Critical Success", () => {
 
 test.describe("Success", () => {
   test('gives the chosen NPC more activity choices', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.pc, leaders.npc]});
     await dk.pickLeader();
 
     await dk.pickActivity("Train Lieutenant", "Ned", "Loyalty", "Success");
@@ -29,7 +29,7 @@ test.describe("Success", () => {
 
 test.describe("Failure", () => {
   test('nothing happens', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.pc, leaders.npc]});
     await dk.pickLeader();
 
     await monitor({
@@ -41,7 +41,7 @@ test.describe("Failure", () => {
 
 test.describe("Critical Failure", () => {
   test('trainee abandons their post', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.pc, leaders.npc]});
     await dk.pickLeader();
 
     await expect(dk.leaderNames).toHaveText(["Anne", "Ned"]);
@@ -52,7 +52,7 @@ test.describe("Critical Failure", () => {
 
 test.describe("Picking an NPC to train", () => {
   test('cannot train yourself', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [{...leaders.pc, initiative: 1}, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [{...leaders.pc, initiative: 1}, leaders.npc]});
     await dk.pickLeader();
 
     await dk.pickActivity("Train Lieutenant");
@@ -64,7 +64,7 @@ test.describe("Picking an NPC to train", () => {
   });
 
   test('if no NPCs are available, lets you know', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.pc]});
     await dk.pickLeader();
 
     await dk.pickActivity("Train Lieutenant");
@@ -74,7 +74,7 @@ test.describe("Picking an NPC to train", () => {
 
 test.describe("Cancelling", () => {
   test('can be cancelled until you roll', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.pc, leaders.npc]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.pc, leaders.npc]});
     await dk.pickLeader();
 
     await expect(dk.currentActorActivitiesLeft).toHaveText("2");
@@ -87,7 +87,7 @@ test.describe("Cancelling", () => {
 
 test.describe("Loading", () => {
   test('Adds an activity to the selected settlement', async ({ page }) => {
-    let saved = {...inTurnOne, leaders: [leaders.pc, leaders.npc]};
+    let saved = {...inTurnOne(), leaders: [leaders.pc, leaders.npc]};
     saved.turns[1].activities.push({
       "name": "Train Lieutenant",
       "actorId": leaders.pc.id,
@@ -106,6 +106,6 @@ test.describe("Loading", () => {
 });
 
 testMilestone("Train Lieutenant", {
-  domain: {...inTurnOne, leaders: [leaders.pc, leaders.npc]},
+  domain: () => ({...inTurnOne(), leaders: [leaders.pc, leaders.npc]}),
   decisions: ["Ned", abilities.random(), "--outcome--"],
 });

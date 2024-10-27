@@ -2,49 +2,49 @@ import { welcomeDomainkeeper, domainConcepts, news, buildUp, prognostication, co
 import { leaders } from "./leaders";
 
 export const settlements = {
-  forks: {
+  forks: () => ({
     icon: "⭐",
     name: "Capital",
     position: [85, 20],
     traits: ["Village"],
     powerups: [{name: "Town Hall"}],
-  },
+  }),
 }
 
-export const domainCreationTurn = {
+export const domainCreationTurn = () => Object.assign({}, {
   number: 0,
   name: "Domain Creation",
-  settlements: [settlements.forks],
+  settlements: [settlements.forks()],
   activities: [
     welcomeDomainkeeper.complete,
     placeCapital.forks,
     domainConcepts.complete,
     domainSummary.auto,
   ],
-};
+});
 
-export const onTurnOne = {
+export const onTurnOne = () => Object.assign({}, {
   name: "Founded Yesterday",
-  settlements: [settlements.forks],
+  settlements: [settlements.forks()],
   leaders: leaders.threePack,
-  turns: [domainCreationTurn],
-};
+  turns: [domainCreationTurn()],
+});
 
-export const inTurnOne = {
+export const inTurnOne = () => Object.assign({}, {
   name: "Founded Yesterday",
-  settlements: [settlements.forks],
+  settlements: [settlements.forks()],
   leaders: leaders.threePack,
-  turns: [domainCreationTurn, {
+  turns: [domainCreationTurn(), {
     number: 1,
     activities: [news.allGood],
   }],
-};
+});
 
-export const endTurnOne = {
+export const endTurnOne = () => Object.assign({}, {
   name: "Founded Yesterday",
   settlements: [{id: "settlement-starter", name: "Starter", traits: ["Village"]}],
   leaders: [leaders.anne],
-  turns: [domainCreationTurn, {
+  turns: [domainCreationTurn(), {
     number: 1,
     activities: [news.allGood, {
       ...contribute.culture, actorId: "settlement-starter",
@@ -54,7 +54,7 @@ export const endTurnOne = {
       ...prognostication.success, actorId: leaders.anne.id,
     }],
   }]
-};
+});
 
-export const unSaved = {...inTurnOne};
-export const allSaved = {...endTurnOne};
+export const unSaved = () => ({...inTurnOne()});
+export const allSaved = () => ({...endTurnOne()});

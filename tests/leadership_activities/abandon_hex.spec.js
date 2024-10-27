@@ -6,14 +6,14 @@ const { monitor } = require('../helpers');
 
 test.describe("Availability", () => {
   test('When size is 1', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     await expect(dk.activityPicker.getByRole("button", {name: "Abandon Hex"})).toBeDisabled();
   });
 
   test('When size is > 1', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, size: 2});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), size: 2});
     await dk.pickLeader();
 
     await expect(dk.activityPicker.getByRole("button", {name: "Abandon Hex"})).toBeEnabled();
@@ -21,6 +21,6 @@ test.describe("Availability", () => {
 });
 
 testMilestone("Abandon Hex", {
-  domain: {...inTurnOne, size: 2},
+  domain: () => ({...inTurnOne(), size: 2}),
   decisions: [[50, 50], "Stability", "--outcome--"],
 });

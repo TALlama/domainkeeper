@@ -46,7 +46,7 @@ const { onTurnOne } = require('../fixtures/domains');
 
   test.describe(`"${feat}" protects against reductions in ${protects}`, () => {
     function setupWithFeat(page, {rigDie, attrs={}}={}) {
-      return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: feat}]}, {path: `/?rig-die=${rigDie}`});
+      return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: feat}]}, {path: `/?rig-die=${rigDie}`});
     }
 
     test(`if the die rolls ${threshold} or more`, async ({ page }) => {

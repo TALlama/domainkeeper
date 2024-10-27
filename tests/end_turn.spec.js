@@ -11,7 +11,7 @@ async function eventPicks(dk, finalPick = "End turn") {
 
 test.describe("You can end your turn", () => {
   test('When all activities are complete, by triggering and resolving an event', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
 
     await dk.readyEventButton.click();
     await eventPicks(dk);
@@ -19,7 +19,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('Event might lead to another event', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
 
     await dk.readyEventButton.click();
     await eventPicks(dk, "Add another event");
@@ -28,7 +28,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('early reqires confirmation before the event', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     page.once('dialog', dialog => dialog.accept()); // accept early end of turn
     await dk.earlyEventButton.click();
@@ -37,7 +37,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('adds one fame, unless you already have 3', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
 
     await dk.readyEventButton.click();
     await expect(dk.consumables.names).toContainText([]);
@@ -46,7 +46,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('uses up end-of-turn consumables', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
 
     await page.evaluate(() => { document.querySelector("domain-sheet").domain.addConsumable() });
     await expect(dk.consumables.names).toContainText(["Consumable"]);
@@ -57,7 +57,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('adds a domain summary to, and collapses, the previous turn', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
     
     await expect(dk.turn("Turn 1").activityNames).not.toContainText(["Domain Summary"]);
     await expect(dk.turn("Turn 1").activityNames).toContainText(["News"]);
@@ -71,7 +71,7 @@ test.describe("You can end your turn", () => {
   });
 
   test('adds a news activity to the new turn', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, endTurnOne);
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
     
     await expect(dk.turn("Turn 2").activityNames).not.toContainText(["News"]);
     await dk.readyEventButton.click();

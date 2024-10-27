@@ -12,7 +12,7 @@ const featReducesDC = async (featName, explanation, {modifierName = featName, le
 
   test.describe(`${featName} ${explanation}`, () => {
     function setupWithFeat(page, attrs) {
-      return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: featName}]});
+      return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: featName}]});
     }
   
     test(`affects all uses of ${activities.join("; ")}`, async ({ page }) => {

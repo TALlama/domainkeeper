@@ -6,7 +6,7 @@ const { monitor } = require('./helpers');
 let abilities = "Culture Economy Loyalty Stability".split(" ");
 
 test('fame rerolls the last roll', async ({ page }) => {
-  const dk = await DomainkeeperPage.load(page, onTurnOne);
+  const dk = await DomainkeeperPage.load(page, onTurnOne());
 
   await monitor({ // no roll; fame won't get used
     shouldNotChange: () => dk.consumables.names,
@@ -23,7 +23,7 @@ test('fame rerolls the last roll', async ({ page }) => {
 });
 
 test('mint rerolls only economy rolls', async ({ page }) => {
-  const dk = await DomainkeeperPage.load(page, {...onTurnOne, settlements: [{name: "Denver", powerups: [{name: "Mint"}]}]});
+  const dk = await DomainkeeperPage.load(page, {...onTurnOne(), settlements: [{name: "Denver", powerups: [{name: "Mint"}]}]});
 
   // no economy roll; fame won't get used
   await dk.rollAbility("Culture");
@@ -43,7 +43,7 @@ test('mint rerolls only economy rolls', async ({ page }) => {
 });
 
 test('Pathfinder Society Outpost rerolls only "Clear/Claim Hex" rolls', async ({ page }) => {
-  const dk = await DomainkeeperPage.load(page, {...onTurnOne, settlements: [{name: "Denver", powerups: [{name: "Pathfinder Society Outpost"}]}]});
+  const dk = await DomainkeeperPage.load(page, {...onTurnOne(), settlements: [{name: "Denver", powerups: [{name: "Pathfinder Society Outpost"}]}]});
   await dk.pickLeader();
 
   // ineligble roll; fame won't get used
@@ -66,7 +66,7 @@ test('Pathfinder Society Outpost rerolls only "Clear/Claim Hex" rolls', async ({
 });
 
 test("Can affect rolls by giving circumstance bonuses", async ({ page }) => {
-  const dk = await DomainkeeperPage.load(page, onTurnOne);
+  const dk = await DomainkeeperPage.load(page, onTurnOne());
   await dk.pickLeader();
 
   await dk.pickActivity("Claim Hex", [50, 50], "Economy", "Critical Failure");

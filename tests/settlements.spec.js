@@ -4,7 +4,7 @@ const { inTurnOne } = require('./fixtures/domains');
 
 test.describe("Track when a settlement", () => {
   test('has its location updated', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     await dk.setActorLocation("Capital", [80, 25]);
     await expect(await dk.nudgeLog()).toContainText("Capital moved to 8");

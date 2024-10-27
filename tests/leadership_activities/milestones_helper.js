@@ -3,7 +3,7 @@ const { DomainkeeperPage } = require("../domainkeeper_page");
 const { inTurnOne } = require('../fixtures/domains');
 const { Ability } = require('../../js/models/abilities');
 
-export function testMilestone(activity, {domain, decisions, success, failure, xp, ...opts}) {
+export function testMilestone(activity, {domain, decisions, criticalSuccess, success, failure, criticalFailure, xp, ...opts}) {
   domain ??= inTurnOne;
   decisions ??= [];
   success ??= decisions;
@@ -11,12 +11,12 @@ export function testMilestone(activity, {domain, decisions, success, failure, xp
   xp ??= 20;
 
   test.describe(`Milestone on first use of ${activity}`, () => {
-    test(`when successful`, async ({ page }) => {
-      const decisions = success
+    let testSuccess = (withDecisions) => (async ({ page }) => {
+      const decisions = withDecisions
         .map(d => d === "--ability--" ? Ability.all.random() : d)
         .map(d => d === "--outcome--" ? ["Critical Success", "Success"].random() : d);
 
-      const dk = await DomainkeeperPage.load(page, domain);
+      const dk = await DomainkeeperPage.load(page, domain());
       await dk.pickLeader();
     
       const xpBefore = await dk.stat("xp");
@@ -25,17 +25,23 @@ export function testMilestone(activity, {domain, decisions, success, failure, xp
       expect(dk.topActivity().log).toContainText(`Milestone: First successful ${activity}`);
     });
 
-    test(`not awarded if failed`, async ({ page }) => {
-      const decisions = (failure || success)
+    let testFailure = (withDecisions) => (async ({ page }) => {
+      const decisions = withDecisions
         .map(d => d === "--ability--" ? Ability.all.random() : d)
         .map(d => d === "--outcome--" ? ["Critical Failure", "Failure"].random() : d);
 
-      const dk = await DomainkeeperPage.load(page, domain);
+      const dk = await DomainkeeperPage.load(page, domain());
       await dk.pickLeader();
     
       const xpBefore = await dk.stat("xp");
       opts.pickFailure ? await opts.pickFailure(dk) : await dk.pickActivity(activity, ...decisions);
       await dk.expectStat("xp", xpBefore);
-    });
+    })
+
+    test(`when successful`, testSuccess(success));
+    if (criticalSuccess) { test(`when critically successful`, testSuccess(criticalSuccess)) }
+
+    test(`not awarded if failed`, testFailure(failure));
+    if (criticalFailure) { test(`not awarded if critically failed`, testFailure(criticalFailure)) }
   });
 };

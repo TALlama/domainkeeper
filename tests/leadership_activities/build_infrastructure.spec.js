@@ -4,13 +4,15 @@ const { inTurnOne } = require("../fixtures/domains");
 const { testMilestone } = require('./milestones_helper');
 
 testMilestone("Build Infrastructure", {
-  domain: {...inTurnOne},
-  decisions: [[50, 50], ["Road", "Irrigation"].random(), "Stability", "--outcome--", "Reduce Loyalty by 1 to proceed"],
+  domain: inTurnOne,
+  criticalSuccess: [[50, 50], ["Road", "Irrigation"].random(), "Stability", "Critical Success"],
+  success: [[50, 50], ["Road", "Irrigation"].random(), "Stability", "Success", "Reduce Loyalty by 1 to proceed"],
+  failure: [[50, 50], ["Road", "Irrigation"].random(), "Stability", "Failure", "Reduce Loyalty by 2 to proceed"],
 });
 
 test.describe("Payment", () => {
   test("Critical Succcess builds for free", async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50], "Road", "Stability", "Critical Success");
@@ -18,7 +20,7 @@ test.describe("Payment", () => {
   });
 
   test("Success costs 1", async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, economy: 3});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), economy: 3});
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50], "Road", "Stability", "Success", "Reduce Economy by 1 to proceed");
@@ -26,7 +28,7 @@ test.describe("Payment", () => {
   });
 
   test("Failure costs 2", async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, economy: 3});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), economy: 3});
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50], "Road", "Stability", "Failure", "Reduce Economy by 2 to proceed");
@@ -36,7 +38,7 @@ test.describe("Payment", () => {
 
 test.describe("Abandoning the effort", () => {
   test("Allows you to avoid paying, but you don't get the structure", async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, economy: 3});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), economy: 3});
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50], "Road", "Stability", ["Success", "Failure"].random(), "Abandon the attempt and pay nothing");
@@ -47,7 +49,7 @@ test.describe("Abandoning the effort", () => {
 
 test.describe("Structures are remembered", () => {
   test("When a structure is built", async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     expect(await dk.featuresAt([50, 50])).toEqual([]);
@@ -58,7 +60,7 @@ test.describe("Structures are remembered", () => {
 
 test.describe("Structure availability", () => {
   test("Some structures are always available", async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     await dk.pickActivity("Build Infrastructure", [50, 50]);
@@ -71,14 +73,14 @@ test.describe("Structure availability", () => {
 
   test.describe("Locks", async () => {
     test("Are not available by default", async ({ page }) => {
-      const dk = await DomainkeeperPage.load(page, inTurnOne);
+      const dk = await DomainkeeperPage.load(page, inTurnOne());
       await dk.pickLeader();
       await dk.pickActivity("Build Infrastructure", [50, 50]);
       await expect.soft(await dk.findOption("Locks")).toHaveClass(/looks-disabled/);
     });
 
     test("Are available with the Channel Locks feat", async ({ page }) => {
-      const dk = await DomainkeeperPage.load(page, {...inTurnOne, feats: ["Channel Locks"]});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), feats: ["Channel Locks"]});
       await dk.pickLeader();
       await dk.pickActivity("Build Infrastructure", [50, 50]);
       await expect.soft(await dk.findOption("Locks")).not.toHaveClass(/looks-disabled/);
@@ -88,7 +90,7 @@ test.describe("Structure availability", () => {
 
 test.describe("Per-Structure bonuses", () => {
   function setupWithFeat(page, feat, attrs = {}) {
-    return DomainkeeperPage.load(page, {...inTurnOne, ...attrs, feats: [feat]});
+    return DomainkeeperPage.load(page, {...inTurnOne(), ...attrs, feats: [feat]});
   }
 
   [

@@ -6,7 +6,7 @@ const { monitor } = require('./helpers');
 
 test.describe("when it's a leader's turn", () => {
   test('you can pick two activities', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: leaders.twoPack});
     await dk.useSettlementActivities();
 
     await expect(dk.currentActorName).toHaveText("Anne");
@@ -18,7 +18,7 @@ test.describe("when it's a leader's turn", () => {
   });
 
   test('actors must pick two different activities', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: leaders.twoPack});
     await dk.useSettlementActivities();
 
     await expect(dk.currentActorName).toHaveText("Anne");
@@ -27,7 +27,7 @@ test.describe("when it's a leader's turn", () => {
   });
 
   test('initiative set the default order, but you can override it', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: leaders.twoPack}, {expectTurn: "Domain Creation"});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: leaders.twoPack}, {expectTurn: "Domain Creation"});
     await dk.useSettlementActivities();
 
     await expect(dk.currentActorName).toHaveText("Anne");
@@ -36,7 +36,7 @@ test.describe("when it's a leader's turn", () => {
   });
 
   test('you can always click on an actor to see their stats', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...endTurnOne, leaders: leaders.twoPack});
+    const dk = await DomainkeeperPage.load(page, {...endTurnOne(), leaders: leaders.twoPack});
 
     await expect(dk.currentActorName).toHaveText("Ned");
     await dk.leadersList.getByText("Anne").click(),
@@ -44,7 +44,7 @@ test.describe("when it's a leader's turn", () => {
   });
 
   test('picking activities lowers the number of activities you have left, but canceling returns them', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...onTurnOne, leaders: [leaders.anne, leaders.zack]});
+    const dk = await DomainkeeperPage.load(page, {...onTurnOne(), leaders: [leaders.anne, leaders.zack]});
     await dk.useSettlementActivities();
 
     await expect(dk.currentActorActivitiesLeft).toHaveText("2");

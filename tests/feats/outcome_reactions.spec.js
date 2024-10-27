@@ -7,7 +7,7 @@ test.describe(`Fame and Fortune grants fame on every critical success`, () => {
   let activityName = ["Build Up", "Cool Down"].random();
 
   function setupWithFeat(page, {rigDie, attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: `Fame and Fortune`}]}, {path: `/?rig-die=${rigDie}`});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: `Fame and Fortune`}]}, {path: `/?rig-die=${rigDie}`});
   }
 
   test(`on a critical success`, async ({ page }) => {
@@ -34,7 +34,7 @@ test.describe(`Cautious Creativity ignores one Critical Failure a turn for Creat
   let activityName = "Creative Solution";
 
   function setupWithFeat(page, {rigDie, attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: `Cautious Creativity`}]}, {path: `/?rig-die=${rigDie}`});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: `Cautious Creativity`}]}, {path: `/?rig-die=${rigDie}`});
   }
 
   test(`on a critical failure`, async ({ page }) => {
@@ -53,7 +53,7 @@ test.describe(`Cooperative Mindset ignores one Critical Failures per turn`, () =
   let activityName = ["Build Up", "Cool Down"].random();
 
   function setupWithFeat(page, {rigDie, attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: `Cooperative Mindset`}]}, {path: `/?rig-die=${rigDie}`});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: `Cooperative Mindset`}]}, {path: `/?rig-die=${rigDie}`});
   }
 
   test(`on a critical failure`, async ({ page }) => {
@@ -72,7 +72,7 @@ test.describe(`Pull Together ignores one Critical Failure a turn with a DC11 fla
   let activityName = ["Build Up", "Cool Down"].random();
 
   function setupWithFeat(page, {rigDie, attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: `Pull Together`}]}, {path: `/?rig-die=1&rig-die=${rigDie}`});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: `Pull Together`}]}, {path: `/?rig-die=1&rig-die=${rigDie}`});
   }
 
   test(`when the flat check passes`, async ({ page }) => {
@@ -121,7 +121,7 @@ test.describe(`Pull Together ignores one Critical Failure a turn with a DC11 fla
 
   test.describe(`${feat} ${decisions.join(" > ")} boosts outcomes`, () => {
     function setupWithFeat(page, {rigDie, attrs={}}={}) {
-      return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: feat}]}, {path: `/?rig-die=${rigDie}`});
+      return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: feat}]}, {path: `/?rig-die=${rigDie}`});
     }
 
     test(`ignores critical successes`, async ({ page }) => {

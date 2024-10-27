@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { DomainkeeperPage, TraitEditor } = require("../domainkeeper_page");
-const { inTurnOne, endTurnOne } = require('../fixtures/domains');
+const { inTurnOne } = require('../fixtures/domains');
 
 function setSize(dk, size) {
   return dk.editActor("Capital", async editor => {
@@ -11,14 +11,14 @@ function setSize(dk, size) {
 }
 
 test('can rename settlements', async ({ page }) => {
-  const dk = await DomainkeeperPage.load(page, inTurnOne);
+  const dk = await DomainkeeperPage.load(page, inTurnOne());
 
   await dk.renameActor("Capital", "The Hub");
   await expect(dk.currentActorName).toHaveText("The Hub");
 });
 
 test('can update traits', async ({ page }) => {
-  const dk = await DomainkeeperPage.load(page, inTurnOne);
+  const dk = await DomainkeeperPage.load(page, inTurnOne());
 
   await expect(dk.currentActorTraits()).toHaveText(["Village"]);
   await setSize(dk, "Town");
@@ -27,7 +27,7 @@ test('can update traits', async ({ page }) => {
 
 test.describe("Milestones", () => {
   test('first Town', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     let xpBefore = await dk.stat("xp");
     await setSize(dk, "Town");
@@ -36,7 +36,7 @@ test.describe("Milestones", () => {
   });
 
   test('first City', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     let xpBefore = await dk.stat("xp");
     await setSize(dk, "City");
@@ -45,7 +45,7 @@ test.describe("Milestones", () => {
   });
 
   test('first Metropolis', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     let xpBefore = await dk.stat("xp");
     await setSize(dk, "Metropolis");

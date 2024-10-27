@@ -18,7 +18,7 @@ const { Ability } = require('../../js/models/abilities');
   ability ??= Ability.random;
 
   function setupWithFeat(page, {rigDie, attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: feat}]}, {path: `/?rig-die=${rigDie.join("&rig-die=")}`});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: feat}]}, {path: `/?rig-die=${rigDie.join("&rig-die=")}`});
   }
 
   test(`"${feat}" provides fortune when doing ${pick.join(" > ")}`, async ({ page }) => {

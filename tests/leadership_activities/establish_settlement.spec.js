@@ -24,7 +24,7 @@ test.describe("Can establish a settlement", () => {
   let outcomes = ["Critical Success", "Success", "Failure"];
   
   test(`with the following outcomes: ${outcomes.join("; ")}`, async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
   
     const xpBefore = await dk.stat("xp");
@@ -37,7 +37,7 @@ test.describe("Can establish a settlement", () => {
 
 test.describe("Cost", () => {
   test(`Critical Success is free`, async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     let before = await dk.abilitiesTotal();
@@ -46,7 +46,7 @@ test.describe("Cost", () => {
   });
 
   test(`Success costs 1`, async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     let before = await dk.abilitiesTotal();
@@ -55,7 +55,7 @@ test.describe("Cost", () => {
   });
 
   test(`Failure costs 2`, async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.pickLeader();
 
     let before = await dk.abilitiesTotal();
@@ -66,10 +66,10 @@ test.describe("Cost", () => {
 
 test.describe("Loading", () => {
   test('Connects to the settlement', async ({ page }) => {
-    let saved = {...inTurnOne};
+    let saved = {...inTurnOne()};
     saved.turns[1].activities.push({
       "name": "Establish Settlement",
-      "actorId": inTurnOne.leaders[0].id,
+      "actorId": inTurnOne().leaders[0].id,
       "location": "ok",
       "position": [80, 25],
       "ability": "Loyalty",
@@ -88,7 +88,7 @@ test.describe("Loading", () => {
 });
 
 testMilestone("Establish Settlement", {
-  domain: {...inTurnOne, settlements: [{name: "One", position: [50, 50]}, {name: "Two"}]},
+  domain: () => ({...inTurnOne(), settlements: [{name: "One", position: [50, 50]}, {name: "Two"}]}),
   pickSuccess: async (dk) => await establishSettlement(dk, {outcome: ["Critical Success", "Success"].random(), existingSettlements: ["One", "Two"]}),
   pickFailure: async (dk) => await establishSettlement(dk, {outcome: ["Critical Failure"].random(), existingSettlements: ["One", "Two"]}),
 });

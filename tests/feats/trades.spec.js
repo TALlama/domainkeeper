@@ -5,7 +5,7 @@ const { onTurnOne } = require('../fixtures/domains');
 const testTrade = (feat, {reduce, boost}) => {
   test.describe(feat, () => {
     function setupWithFeat(page, attrs = {}) {
-      return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [feat]});
+      return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [feat]});
     }
 
     test(`converts ${reduce} to ${boost}`, async ({ page }) => {
@@ -57,7 +57,7 @@ test.describe("Covert Collusion", () => { // level 2; trained in loyalty
   let increase2 = "Economy";
 
   function setupWithFeat(page, attrs = {}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [feat]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [feat]});
   }
 
   test(`increases both Unrest and Economy`, async ({ page }) => {

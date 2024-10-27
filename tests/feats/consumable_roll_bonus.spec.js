@@ -4,7 +4,7 @@ const { onTurnOne } = require('../fixtures/domains');
 
 test.describe("Impressive Accoutrements: single-use Loyalty bonus", () => {
   function setupWithFeat(page, attrs) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: "Impressive Accoutrements"}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: "Impressive Accoutrements"}]});
   }
   let activity = ["Build Up", "Cool Down"].random();
 
@@ -29,7 +29,7 @@ test.describe("Impressive Accoutrements: single-use Loyalty bonus", () => {
 
 test.describe("Unifying Faith: single-use Culture bonus", () => {
   function setupWithFeat(page, attrs) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: "Unifying Faith"}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: "Unifying Faith"}]});
   }
   let activity = ["Build Up", "Cool Down"].random();
 
@@ -54,7 +54,7 @@ test.describe("Unifying Faith: single-use Culture bonus", () => {
 
 test.describe("Frugal: single-use Stability bonus", () => {
   function setupWithFeat(page, attrs) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: "Frugal"}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: "Frugal"}]});
   }
   let activity = ["Build Up", "Cool Down"].random();
 
@@ -79,7 +79,7 @@ test.describe("Frugal: single-use Stability bonus", () => {
 
 test.describe("Friends of the Wild: single-use Economy bonus", () => {
   function setupWithFeat(page, attrs) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: "Friends of the Wild"}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: "Friends of the Wild"}]});
   }
   let activity = ["Build Up", "Cool Down"].random();
 

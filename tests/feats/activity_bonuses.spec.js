@@ -43,7 +43,7 @@ const { Ability } = require('../../js/models/abilities');
   ability ??= Ability.random;
 
   function setupWithFeat(page, {attrs={}}={}) {
-    return DomainkeeperPage.load(page, {...onTurnOne, ...attrs, feats: [{name: feat}]});
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: feat}]});
   }
 
   test(`"${feat}" gives a +${bonus} bonus to ${pick.join(" > ")}`, async ({ page }) => {

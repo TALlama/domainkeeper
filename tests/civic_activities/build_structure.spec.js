@@ -15,7 +15,7 @@ test.describe("Progresses toward the selected structure", () => {
     let noProgressOutcomes = ["Failure", "Critical Failure"];
 
     test(`Can be built immediately with any of the following outcomes: ${progressOutcomes.join("; ")}`, async ({ page }) => {
-      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({structures: ["Shrine"]})]});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({structures: ["Shrine"]})]});
       await dk.setCurrentActor("Bigappel");
   
       await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
@@ -25,7 +25,7 @@ test.describe("Progresses toward the selected structure", () => {
     });
     
     test(`On any of the following outcomes: ${noProgressOutcomes.join("; ")}`, async ({ page }) => {
-      const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({structures: ["Shrine"]})]});
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({structures: ["Shrine"]})]});
       await dk.setCurrentActor("Bigappel");
 
       await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
@@ -43,7 +43,7 @@ test.describe("Progresses toward the selected structure", () => {
     test.describe("On a clean start", () => {
       let setup = async (page, size) => {
         let settlement = makeSettlement({size, structures: ["Shrine"]});
-        const dk = await DomainkeeperPage.load(page, {...inTurnOne, level: 2, settlements: [settlement]});
+        const dk = await DomainkeeperPage.load(page, {...inTurnOne(), level: 2, settlements: [settlement]});
         await dk.setCurrentActor("Bigappel");
         await expect(dk.currentActorPowerups()).toHaveText(["Shrine"]);
         return dk;
@@ -99,7 +99,7 @@ test.describe("Progresses toward the selected structure", () => {
     test.describe("When already started", () => {
       let setup = async (page, size) => {
         let settlement = {...makeSettlement({size}), powerups: [{name: "Shrine"}, {name: costTwoBuildingSite, type: "building-site", progress: 1, incompleteTemplate: costTwoStructure}]}
-        const dk = await DomainkeeperPage.load(page, {...inTurnOne, level: 2, settlements: [settlement]});
+        const dk = await DomainkeeperPage.load(page, {...inTurnOne(), level: 2, settlements: [settlement]});
         await dk.setCurrentActor("Bigappel");
         return dk;
       };
@@ -142,7 +142,7 @@ test.describe("Progresses toward the selected structure", () => {
     test.describe("When upgrading from an existing structure", () => {
       let setup = async (page, size) => {
         let settlement = makeSettlement({size, structures: ["General Store"]});
-        const dk = await DomainkeeperPage.load(page, {...inTurnOne, culture: 4, level: 4, settlements: [settlement]});
+        const dk = await DomainkeeperPage.load(page, {...inTurnOne(), culture: 4, level: 4, settlements: [settlement]});
         await dk.setCurrentActor("Bigappel");
         return dk;
       };
@@ -194,7 +194,7 @@ test.describe("Cost to Build", () => {
   let highCostStructure = "Keep";
   let setup = async (page, size, ...structures) => {
     let settlement = makeSettlement({size, structures: ["Shrine", ...structures]})
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, culture: 5, level: 3, settlements: [settlement]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), culture: 5, level: 3, settlements: [settlement]});
     await dk.setCurrentActor("Bigappel");
     await expect(dk.currentActorPowerups()).toHaveText(["Shrine", ...structures]);
     return dk;
@@ -258,7 +258,7 @@ test.describe("Cost to Build", () => {
 
 test.describe("Available structures", () => {
   test('are constrained by domain level', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({structures: ["Shrine"]})]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({structures: ["Shrine"]})]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");
@@ -273,7 +273,7 @@ test.describe("Available structures", () => {
   });
 
   test('are constrained by their limit traits', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, level: 2, settlements: [makeSettlement({structures: ["Inn"]})]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), level: 2, settlements: [makeSettlement({structures: ["Inn"]})]});
     await dk.setCurrentActor("Bigappel");
 
     await dk.pickActivity("Build Structure");
@@ -291,7 +291,7 @@ test.describe("Affect on settlement type", () => {
   };
 
   test('becomes a Town when there are 4+ completed structures', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({size: "Village", structureCount: 3})]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({size: "Village", structureCount: 3})]});
     await dk.setCurrentActor("Bigappel");
 
     await build(dk);
@@ -300,7 +300,7 @@ test.describe("Affect on settlement type", () => {
   });
 
   test('becomes a City when there are 8+ completed structures', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({size: "Town", structureCount: 7})]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({size: "Town", structureCount: 7})]});
     await dk.setCurrentActor("Bigappel");
 
     await build(dk);
@@ -309,7 +309,7 @@ test.describe("Affect on settlement type", () => {
   });
 
   test('becomes a Metropolis when there are 16+ completed structures', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, settlements: [makeSettlement({size: "City", structureCount: 15})]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({size: "City", structureCount: 15})]});
     await dk.setCurrentActor("Bigappel");
 
     await build(dk);

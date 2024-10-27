@@ -6,7 +6,7 @@ const { Ability } = require('../js/models/abilities');
 
 test.describe("Track changes to the domain's", () => {
   test('ability scores', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     let ability = Ability.random;
     await dk.statInput(ability).fill("4");
@@ -17,7 +17,7 @@ test.describe("Track changes to the domain's", () => {
   });
 
   test('xp', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     let oldValue = await dk.stat("xp");
     await dk.statInput("XP").fill("1000");
@@ -27,7 +27,7 @@ test.describe("Track changes to the domain's", () => {
   });
 
   test('other stats', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     let stat = "Unrest Size Level".split(" ").random();
     let oldValue = await dk.stat(stat);
@@ -40,7 +40,7 @@ test.describe("Track changes to the domain's", () => {
 
 test.describe("Track when a structure is", () => {
   test('added', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.settlementsList.getByText("Capital").click();
 
     await page.getByLabel("Structure:").fill("Herbalist");
@@ -51,7 +51,7 @@ test.describe("Track when a structure is", () => {
   });
 
   test('destroyed', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
     await dk.settlementsList.getByText("Capital").click();
 
     await page.locator('li').filter({hasText: 'Town Hall' }).getByRole("link", {name: "ℹ️"}).click();
@@ -66,14 +66,14 @@ test.describe("Track when a structure is", () => {
 
 test.describe("Track when an actor", () => {
   test('is renamed', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, inTurnOne);
+    const dk = await DomainkeeperPage.load(page, inTurnOne());
 
     await dk.renameActor("Anne", "Lady Anne");
     await expect(await dk.nudgeLog()).toContainText(`Kneel, Anne. Rise, Lady Anne!`);
   });
 
   test('has traits are added', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [leaders.anne]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [leaders.anne]});
 
     expect(await dk.currentActorTraits()).toHaveText(["PC"]);
     await dk.addActorTraits("Anne", ["Famous"]);
@@ -82,7 +82,7 @@ test.describe("Track when an actor", () => {
   });
 
   test('has traits are removed', async ({ page }) => {
-    const dk = await DomainkeeperPage.load(page, {...inTurnOne, leaders: [{...leaders.anne, traits: ["PC", "Famous"]}]});
+    const dk = await DomainkeeperPage.load(page, {...inTurnOne(), leaders: [{...leaders.anne, traits: ["PC", "Famous"]}]});
 
     await dk.removeActorTraits("Anne", ["Famous"]);
     expect(await dk.currentActorTraits()).toHaveText(["PC"]);
