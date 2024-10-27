@@ -4,6 +4,7 @@ import { describeRoll, mod } from "../helpers.js";
 import { nudge } from "../components/event_helpers.js";
 
 import { addTransient, hydrateList } from "./utils.js";
+import { withTraits } from "./with_traits.js";
 import { Ability } from "./abilities.js";
 import { Actor } from "./actor.js";
 import { Structure } from "./structure.js";
@@ -101,6 +102,7 @@ export class Domain {
 
     this.consumables ??= [];
     this.turns ??= [];
+    this.traits ??= [];
   }
 
   #addDefaultActors() {
@@ -365,3 +367,4 @@ export class Domain {
     this.addConsumable({action: "criticalFailureProtection", description: `Ignore CritFail in ${activity}`, activity, ...attrs});
   }
 }
+withTraits(Domain);

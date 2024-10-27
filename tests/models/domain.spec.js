@@ -45,6 +45,7 @@ test("Defaults", () => {
     "settlements",
     "leaders",
     "turns",
+    "traits",
   ].sort());
 });
 

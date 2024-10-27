@@ -7,7 +7,7 @@ export class DomainEditor extends EditorDialog {
     return {
       ...data,
       name: this.domain.name,
-      // traits: this.listToToggle(this.domain.traits),
+      traits: this.listToToggle(this.domain.traits),
     };
   }
 
@@ -17,7 +17,7 @@ export class DomainEditor extends EditorDialog {
     return `
       ${this.renderFormField("name")}
       <br/>
-      ${"this.renderTraitEditor()"}
+      ${this.renderTraitEditor()}
       <br/>
       ${this.renderFeats()}
       <br/>
@@ -64,11 +64,11 @@ export class DomainEditor extends EditorDialog {
       this.domain.name = this.data.name;
     }
 
-    // let newTraits = this.toggleToList(this.data.traits);
-    // if (this.domain.traits.sort().join() !== newTraits.sort().join()) {
-    //   nudge(this, (activity) => activity.info(`🥉 ${this.domain.name} now has traits: ${newTraits.join(", ")}`));
-    //   this.domain.traits = newTraits;
-    // }
+    let newTraits = this.toggleToList(this.data.traits);
+    if (this.domain.traits.sort().join() !== newTraits.sort().join()) {
+      nudge(this, (activity) => activity.info(`🥉 ${this.domain.name} now has traits: ${newTraits.join(", ")}`));
+      this.domain.traits = newTraits;
+    }
   }
 }
 DomainEditor.define("domain-editor");
