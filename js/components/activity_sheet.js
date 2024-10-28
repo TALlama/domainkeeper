@@ -75,7 +75,7 @@ export class ActivitySheet extends RxElement {
     let desc = callOrReturn(this.activity.description || "", this);
     return this.hideDescription || desc === ""
       ? ""
-      : `<blockquote class="description">${desc}</blockquote>`;
+      : `<blockquote class="description activity-description">${desc}</blockquote>`;
   }
 
   renderDecisions() {

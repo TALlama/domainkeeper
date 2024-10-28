@@ -495,6 +495,15 @@ export const explorationFeats = [
       {type: "circumstance", activity: "Hire Adventurers", value: 2},
     ],
   },
+  ...["Aquatic", "Arctic", "Desert", "Forest", "Mountains", "Plains", "Sky", "Swamp", "Underground"].map((terrain) => { return {
+    name: `${terrain} Terrain Mastery`,
+    level: 3,
+    prerequisites: [trainedIn("Economy")], //WAS: trained in Exploration
+    description: `Exploration is easier in ${terrain} hexes.`,
+    effects: "Your nation’s explorers are experienced in navigating this type of terrain. Ignore DC increases for this terrain type by 1/4th your Economy.",
+    // TODO make this work
+    // TODO scale up with level?
+  }}),
 ];
 
 export const industryFeats = [

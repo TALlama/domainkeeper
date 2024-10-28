@@ -4,19 +4,37 @@ import { Ability } from "../abilities.js";
 import { Actor } from "../actor.js";
 import { Feature } from "../feature.js";
 
-let hexMods = `<p>Additional modifier based on the hex's worst terrain: Mountains: -4; Swamps: -3; Forests: -2; Hills: -1; Plains: -0.</p>`;
-let hexDCOptions = [
-  {name: "Mountains", value: 4},
-  {name: "Swamps", value: 3},
-  {name: "Forests", value: 2},
-  {name: "Hills", value: 1},
-  {name: "Plains", value: 0},
-];
+function hexModifiers(domain) {
+  let dcOptions = [
+    {name: "Mountains", value: 4},
+    {name: "Swamps", value: 3},
+    {name: "Forests", value: 2},
+    {name: "Hills", value: 1},
+    {name: "Plains", value: 0},
+  ];
+
+  dcOptions.forEach(option => {
+    option.originalValue = option.value;
+    if (domain.hasFeat(`${option.name} Terrain Mastery`)) {
+      option.value -= Math.min(Math.max(1, Math.floor(domain.economy / 4)), option.originalValue);
+    }
+  });
+
+  return {
+    description: `<p>Additional DC modifier based on the hex's worst terrain: ${dcOptions.map(o => `${o.name}: +${o.value}${o.originalValue !== o.value ? ` (reduced from +${o.originalValue})` : ""}`).join("; ")}</p>`,
+    dcOptions,
+  }
+}
 
 export var leadershipTemplates = [{
   icon: "🧭",
   name: "Reconnoiter Hex",
   summary: "You hire a team to survey a particular hex.",
+  description() {
+    return `
+      <p>Explorers attempt to map a hex and discover any sites of interest.</p>
+      ${hexModifiers(this.domain).description}`;
+  },
   whyDisabled(domain, leader) {
     if (!domain.bonuses.find(p => p.type === "unlock" && p.activity === "Reconnoiter Hex")) {
       return "Build a Hunters' Lodge first";
@@ -28,7 +46,7 @@ export var leadershipTemplates = [{
   }, {
     name: "Roll",
     options: ["Economy", "Stability"],
-    difficultyClassOptions: {options: hexDCOptions},
+    difficultyClassOptions() { return {options: hexModifiers(this.domain).dcOptions}},
   }, {
     name: "Outcome",
     summaries: {
@@ -61,7 +79,7 @@ export var leadershipTemplates = [{
         <li>If you’re trying to remove a hazard or encounter, use Stability. The DC of this check is set by the highest level creature or hazard in the hex (as set by Table 10–5: DCs by Level, on page 503 of the Pathfinder Core Rulebook).</li>
         <li>If the hex is outside your domain, increase the DC by 2.</li>
       </ol>
-      ${hexMods}`;
+      ${hexModifiers(this.domain).description}`;
   },
   decisions: [{
     name: "Location",
@@ -69,12 +87,14 @@ export var leadershipTemplates = [{
   }, {
     name: "Roll",
     options: ["Economy", "Stability"],
-    difficultyClassOptions: {
-      selected: ["Outside Domain"],
-      options: [
-        {name: "Outside Domain", value: 2},
-        ...hexDCOptions,
-      ],
+    difficultyClassOptions() {
+      return {
+        selected: ["Outside Domain"],
+        options: [
+          {name: "Outside Domain", value: 2},
+          ...hexModifiers(this.domain).dcOptions,
+        ],
+      }
     },
   }, {
     name: "Outcome",
@@ -278,7 +298,7 @@ export var leadershipTemplates = [{
   icon: "🛣️",
   name: "Build Infrastructure",
   summary: "You organize the effort to tame the land.",
-  description() { return hexMods },
+  description() { return hexModifiers(this.domain).description },
   decisions: [{
     name: "Location",
     prompt: "Choose a hex to build in",
@@ -294,7 +314,7 @@ export var leadershipTemplates = [{
   }, {
     name: "Roll",
     withOption: "structure",
-    difficultyClassOptions: {options: hexDCOptions},
+    difficultyClassOptions() { return {options: hexModifiers(this.domain).dcOptions} },
   }, {
     name: "Outcome",
     summaries: {

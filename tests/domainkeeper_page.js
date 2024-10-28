@@ -463,6 +463,7 @@ export class ActivitySheet extends LocatorLike {
   // Parts
   get name() { return this.locator(".activity-name") }
   get summary() { return this.locator(".summary .value") }
+  get description() { return this.locator(".activity-description") }
   get difficultyClass() { return new DifficultyClass(this.page, this.locator("difficulty-class")) }
   get log() { return this.locator("section.log") }
   decisionPanel(name) { return new DecisionPanel(this.page, this.locator(`activity-decision-panel[name="${name}"]`)) }
