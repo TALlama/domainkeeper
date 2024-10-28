@@ -35,7 +35,7 @@ export class Structure extends Powerup {
 
     let structureCount = actor.powerups.matches({type: "structure"}).length;
     const upgradeSettlementType = (oldType, newType, threshold) => {
-      if (actor.hasTrait(oldType) && structureCount >= threshold) {
+      if (actor.hasTrait(oldType) && structureCount > threshold) {
         activity.info(`📈 With ${structureCount} structures, ${actor.name} is now a ${newType}!`);
         actor.removeTrait(oldType, {activity});
         actor.addTrait(newType, {activity});

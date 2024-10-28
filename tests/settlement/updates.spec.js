@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
-const { DomainkeeperPage } = require('./domainkeeper_page');
-const { inTurnOne } = require('./fixtures/domains');
+const { DomainkeeperPage } = require('../domainkeeper_page');
+const { inTurnOne } = require('../fixtures/domains');
 
 test.describe("Track when a settlement", () => {
   test('has its location updated', async ({ page }) => {
