@@ -352,6 +352,26 @@ export const scholarlyFeats = [
     newTurn({domain}) {
       domain.addCriticalFailureProtection({icon: "🟠", name: this.name});
     },
+  }, {
+    name: "Scholarly Summit",
+    level: 15,
+    prerequisites: [legendaryIn("Culture")], //WAS: legendary in Scholarship
+    description: "Your domain attracts the brightest scholars and uses their brilliant ideas.",
+    // WAS: description: "Scholarship Your kingdom attracts the brightest scholars",
+    // WAS: extra bonus on Creative Solution crit successes; advantage on Creative Solution checks
+    effects: "Scholars learn from their mistakes. " +
+      "Whenever you roll a failure on any check, in addition to the normal failure effects, gain 20xp. " +
+      "Whenever you roll a critical failure on any check, in addition to the normal failure effects, gain 50xp.",
+    decisionPicked({domain, activity, decision}) {
+      if (decision.name !== "Outcome") { return }
+
+      let student = ["🧑‍🎓", "👩‍🎓"].random();
+      if (activity.outcome === "failure") {
+        activity.boost("xp", {by: 20, boosted: ({diff, is}) => activity.info(`${student} ${this.name} sees this as a learning opportunity. Gained ${diff}xp, <small>to ${is}</small>`)});
+      } else if (activity.outcome === "criticalFailure") {
+        activity.boost("xp", {by: 50, boosted: ({diff, is}) => activity.info(`${student} ${this.name} now has such a wonderful example of what not to do. Gained ${diff}xp, <small>to ${is}</small>`)});
+      }
+    },
   },
 ];
 

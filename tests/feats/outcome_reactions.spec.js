@@ -152,3 +152,34 @@ test.describe(`Pull Together ignores one Critical Failure a turn with a DC11 fla
     });
   });
 });
+
+test.describe("Scholarly Summit gives XP on failures", () => {
+  let feat = "Scholarly Summit";
+  let activityName = ["Build Up", "Cool Down"].random(); // any one will do but these are easy to run
+
+  function setupWithFeat(page, {rigDie, attrs={}}={}) {
+    return DomainkeeperPage.load(page, {...onTurnOne(), ...attrs, feats: [{name: feat}]});
+  }
+
+  test(`on a failure`, async ({ page }) => {
+    const dk = await setupWithFeat(page);
+    const xpBefore = await dk.stat("xp");
+
+    await dk.pickLeader();
+    await dk.pickActivity(activityName, Ability.random, "Failure");
+
+    await expect(dk.activity(activityName).log).toContainText(`${feat} sees this as a learning opportunity. Gained 20xp,`);
+    await dk.expectStat("xp", xpBefore + 20, `XP After = ${xpBefore} + 20`);
+  });
+
+  test(`on a critical failure`, async ({ page }) => {
+    const dk = await setupWithFeat(page);
+    const xpBefore = await dk.stat("xp");
+
+    await dk.pickLeader();
+    await dk.pickActivity(activityName, Ability.random, "Critical Failure");
+
+    await expect(dk.activity(activityName).log).toContainText(`${feat} now has such a wonderful example of what not to do. Gained 50xp,`);
+    await dk.expectStat("xp", xpBefore + 50, `XP After = ${xpBefore} + 50`);
+  });
+});
