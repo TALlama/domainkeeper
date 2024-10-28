@@ -419,6 +419,14 @@ export const statecraftFeats = [
     bonuses: [
       {type: "unlock", activity: "Request Foreign Aid", ability: "Stability"},
     ],
+  }, {
+    name: "Peace-Talk Tact",
+    level: 7,
+    prerequisites: [masterIn("Loyalty")], //WAS: master in Statecraft
+    description: "Take fewer penalties due to being at war.",
+    // WAS: description: "Take fewer Statecraft penalties due to being at war",
+    // WAS: remove wartime penatly to Send Diplomatic Relations
+    effects: "Your diplomats are well-versed in negotiating during the tension of war-time. The domain takes no penalty to diplomatic efforts while at war with a target’s ally or allies, and it takes only a –2 circumstance penalty for being at war with a target; it does not treat its result for the check as one degree of success worse."
   },
 ];
 
