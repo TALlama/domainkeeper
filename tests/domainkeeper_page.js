@@ -498,6 +498,7 @@ export class ActivitySheet extends LocatorLike {
 
 export class DecisionPanel extends LocatorLike {
   // Parts
+  get description() { return this.locator(".decision-panel-description") }
   get options() { return this.locator("label.pickable") }
   option(name) { return this.locator(`label[data-display-title-value="${name}"]`) }
   optionButton(option) { return this.getByRole('radio', {name: option, includeHidden: true}) }

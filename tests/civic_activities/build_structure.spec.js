@@ -280,3 +280,92 @@ test.describe("Available structures", () => {
     await expect(dk.currentActivity.decisionPanel("Pick a structure").locator(".looks-disabled")).toContainText("Inn");
   });
 });
+
+test.describe("Limit by settlement type", () => {
+  function makeSettlement({size, structureCount}) {
+    return {name: "Bigappel", id: "nyc", traits: [size || "Village"], powerups: Array.from({length: structureCount || 0}, (_, ix) => {return {name: `Generic Block ${ix + 1}`}})};
+  }
+  let build = async (dk) => {
+    await dk.pickActivity("Build Structure", "Shrine", "Reduce Culture by 1 to proceed", "Economy", "Critical Success");
+    await dk.setCurrentActor("Bigappel");
+  };
+
+  test.describe(`In a Village`, () => {
+    let structureCount = 8;
+
+    test(`Town prevented until domain is level 3`, async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({size: "Village", structureCount})]});
+      await dk.setCurrentActor("Bigappel");
+
+      await dk.pickActivity("Build Structure");
+      await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+        .toContainText("This Village can only contain 8 structures. Domain must be level 3 to build a 9th building and become a Town.");
+    });
+
+    test(`Town is allowed at high enough levels`, async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), level: 3, settlements: [makeSettlement({size: "Village", structureCount})]});
+      await dk.setCurrentActor("Bigappel");
+
+      await dk.pickActivity("Build Structure");
+      await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+        .toContainText(`Choose a structure you want to build. This Village will grow to a Town when you build the 9th structure.`);
+    });
+  });
+
+  test.describe(`In a Town`, () => {
+    let structureCount = 16;
+
+    test('City prevented until domain is level 9', async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({size: "Town", structureCount})]});
+      await dk.setCurrentActor("Bigappel");
+
+      await dk.pickActivity("Build Structure");
+      await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+        .toContainText("This Town can only contain 16 structures. Domain must be level 7 to build a 17th building and become a City.");
+    });
+
+    test(`City is allowed at high enough levels`, async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), level: 7, settlements: [makeSettlement({size: "Town", structureCount})]});
+      await dk.setCurrentActor("Bigappel");
+
+      await dk.pickActivity("Build Structure");
+      await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+        .toContainText(`Choose a structure you want to build. This Town will grow to a City when you build the 17th structure.`);
+    });
+  });
+
+  test.describe(`In a City`, () => {
+    let structureCount = 32;
+
+    test('Metropolis prevented until domain is level 15', async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({size: "City", structureCount})]});
+      await dk.setCurrentActor("Bigappel");
+
+      await dk.pickActivity("Build Structure");
+      await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+        .toContainText("This City can only contain 32 structures. Domain must be level 15 to build a 33rd building and become a Metropolis.");
+    });
+
+    test(`Metropolis is allowed at high enough levels`, async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), level: 15, settlements: [makeSettlement({size: "City", structureCount})]});
+      await dk.setCurrentActor("Bigappel");
+
+      await dk.pickActivity("Build Structure");
+      await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+        .toContainText(`Choose a structure you want to build. This City will grow to a Metropolis when you build the 33rd structure.`);
+    });
+  });
+
+  test.describe(`In a Metropolis`, () => {
+    let structureCount = 64;
+
+    test('Cannot build too many structures', async ({ page }) => {
+      const dk = await DomainkeeperPage.load(page, {...inTurnOne(), settlements: [makeSettlement({size: "Metropolis", structureCount})]});
+      await dk.setCurrentActor("Bigappel");
+
+      await dk.pickActivity("Build Structure");
+      await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+        .toContainText("This Metropolis can only contain 64 structures. Domain must be level 21 to build a 67th building and become a Megalopolis.");
+    });
+  });
+});

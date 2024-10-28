@@ -23,11 +23,47 @@ export var civicTemplates = [{
   description: () => `Add building's cost to the DC`,
   decisions: [{
     name: "Pick a structure",
-    description() { return "Choose a structure you want to build." },
+    structureCount() {
+      return this.actor.powerups.matches({type: "structure"}).length
+    },
+    structuresMaxed() {
+      if (this._structuresMaxed) { return this._structuresMaxed }
+
+      let structureCount = this.structureCount();
+      let {size, structureLimit, level, threshold, nextSize} = [
+        {size: "Village", structureLimit: 8, level: 3, threshold: "9th", nextSize: "Town"},
+        {size: "Town", structureLimit: 16, level: 7, threshold: "17th", nextSize: "City"},
+        {size: "City", structureLimit: 32, level: 15, threshold: "33rd", nextSize: "Metropolis"},
+        {size: "Metropolis", structureLimit: 64, level: 21, threshold: "67th", nextSize: "Megalopolis"},
+      ].find(({size}) => this.actor.hasTrait(size));
+      if (this.domain.level >= level) {
+        return this._structuresMaxed = {
+          maxed: false,
+          description: `Choose a structure you want to build. This ${size} will grow to a ${nextSize} when you build the ${threshold} structure.`,
+          size, structureLimit, level, threshold, nextSize,
+        };
+      } else if (structureCount < structureLimit) {
+        return this._structuresMaxed = {
+          maxed: false,
+          description: `Choose a structure you want to build. This ${size} can contain ${structureLimit} structures.`,
+          size, structureLimit, level, threshold, nextSize,
+        };
+      } else {
+        return this._structuresMaxed = {
+          maxed: true,
+          description: `This ${size} can only contain ${structureLimit} structures. Domain must be level ${level} to build a ${threshold} building and become a ${nextSize}.`,
+          size, structureLimit, level, threshold, nextSize,
+        };
+      }
+    },
+    description() { return this.structuresMaxed().description;},
     saveAs: "structureName",
     options() { return Structure.availableTemplates(this.domain.level).map(s => s.name) },
     groupOptionsBy: structureName => `Level ${Structure.template(structureName).level}`,
     optionDisableReason(structureName) {
+      let maxed = this.structuresMaxed();
+      if (maxed.maxed) { return maxed.description }
+
       let alreadyBuilt = this.actor.powerups.matches({template: structureName});
       if (alreadyBuilt.length === 0) { return null }
 

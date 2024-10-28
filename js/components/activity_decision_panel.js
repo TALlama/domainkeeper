@@ -48,7 +48,7 @@ export class ActivityDecisionPanel extends RxElement {
     }
 
     return `
-      <div class="description">${callOrReturn(decision.description || "", decision, {decision, activity})}</div>
+      <div class="description decision-panel-description">${callOrReturn(decision.description || "", decision, {decision, activity})}</div>
       ${this.renderEditor(activity, decision)}
       <fieldset class='pickable-group'>
         ${decision.options.length === 0 ? "🚫" : ""}
