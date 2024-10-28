@@ -861,6 +861,17 @@ export const constructionFeats = [
     bonuses: [
       {type: "dcModifier", value: -2, activity: "Build Infrastructure", label: "Difficult Terrain"},
     ],
+  }, {
+    name: "Impeccable Builders",
+    level: 2,
+    prerequisites: [expertIn("Stability")], //WAS: expert in Engineering
+    description: "Critically succeed building tasks more often",
+    // WAS: description: "Critically succeed building tasks more often",
+    // WAS: building success is crit success; later crit fail is fail
+    effects: "Your builders put up structures with surprising efficiency and skill. When the kingdom rolls a success to Build a Structure, it gets a critical success instead.",
+    bonuses: [
+      {type: "outcomeBoost", activity: "Build Structure", ability: "Economy", value: 1, outcome: "success"},
+    ],
   },
 ];
 
