@@ -36,6 +36,12 @@ export var civicTemplates = [{
         {size: "City", structureLimit: 32, level: 15, threshold: "33rd", nextSize: "Metropolis"},
         {size: "Metropolis", structureLimit: 64, level: 21, threshold: "67th", nextSize: "Megalopolis"},
       ].find(({size}) => this.actor.hasTrait(size));
+
+      if (this.domain.hasFeat("Public Programs")) {
+        structureLimit += 2;
+        threshold = {10: "11th", 18: "19th", 34: "35th", 68: "69th"}[structureLimit];
+      }
+
       if (this.domain.level >= level) {
         return this._structuresMaxed = {
           maxed: false,

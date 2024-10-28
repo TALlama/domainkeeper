@@ -535,6 +535,14 @@ export const industryFeats = [
 
 export const tradeFeats = [
   {
+    name: "Public Programs",
+    level: 1,
+    prerequisites: [trainedIn("Economy")], //WAS: trained in Trade
+    description: "Your domain has public programs that keep people engaged and benefit the local economy. Each settlement can support 2 more structures.",
+    // WAS: description: "Gain a bonus to Improve Lifestyle and reduce Collect Taxes penalties when you use it",
+    // WAS: bonus to Improve Lifestyle; cooldown for Collect Taxes
+    // TODO make this work (no limits right now)
+  }, {
     name: "County Fairs",
     level: 5,
     prerequisites: [expertIn("Economy")], //WAS: expert in Trade

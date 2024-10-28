@@ -310,6 +310,29 @@ test.describe("Limit by settlement type", () => {
       await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
         .toContainText(`Choose a structure you want to build. This Village will grow to a Town when you build the 9th structure.`);
     });
+
+    test.describe("With Public Programs, you can have 2 more per settlement", () => {
+      let structureCount = 10;
+      let feat = "Public Programs";
+
+      test(`Town prevented until domain is level 3`, async ({ page }) => {
+        const dk = await DomainkeeperPage.load(page, {...inTurnOne(), feats: [{name: feat}], settlements: [makeSettlement({size: "Village", structureCount})]});
+        await dk.setCurrentActor("Bigappel");
+
+        await dk.pickActivity("Build Structure");
+        await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+          .toContainText("This Village can only contain 10 structures. Domain must be level 3 to build a 11th building and become a Town.");
+      });
+
+      test(`Town is allowed at high enough levels`, async ({ page }) => {
+        const dk = await DomainkeeperPage.load(page, {...inTurnOne(), level: 3, feats: [{name: feat}], settlements: [makeSettlement({size: "Village", structureCount})]});
+        await dk.setCurrentActor("Bigappel");
+
+        await dk.pickActivity("Build Structure");
+        await expect(dk.currentActivity.decisionPanel("Pick a structure").description)
+          .toContainText(`Choose a structure you want to build. This Village will grow to a Town when you build the 11th structure.`);
+      });
+    });
   });
 
   test.describe(`In a Town`, () => {
