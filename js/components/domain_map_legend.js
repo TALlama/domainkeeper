@@ -65,13 +65,23 @@ export class DomainMapLegend extends RxElement {
       label.textContent = info.icon ?? DomainMap.defaultIcon;
       positions.appendChild(label);
       const coordinates = document.createElement('dd');
-      coordinates.textContent = info.position ? `${Number(info.position[0]).toFixed(1)}%, ${Number(info.position[1]).toFixed(1)}%` : "…";
+      const hexCode = info.position ? this.getHexCode(...info.position) : null;
+      const percents = info.position ? `${Number(info.position[0]).toFixed(1)}%, ${Number(info.position[1]).toFixed(1)}%` : "…";
+      coordinates.textContent = hexCode ? `${hexCode} (${percents})` : percents;
       positions.appendChild(coordinates);
 
       let makeCurrent = (event) => { this.map.ixCurrentMarker = index }
       label.addEventListener("click", makeCurrent);
       coordinates.addEventListener("click", makeCurrent);
     });
+  }
+
+  getHexCode(x, y) {
+    const hexesHigh = 10;
+    const hexesWide = 29;
+    let row = Number(y / 100 * hexesHigh).toFixed(0);
+    let col = Number(x / 100 * (row % 2 === 0 ? hexesWide : hexesWide-1)).toFixed(0);
+    return `${row}, ${col}`;
   }
 }
 DomainMapLegend.define('domain-map-legend');
