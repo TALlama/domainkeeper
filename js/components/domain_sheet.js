@@ -376,7 +376,7 @@ class DomainSheet extends RxElement {
     });
 
     this.domain.feats.forEach((feat) => {
-      feat.onRoll({roll: domainRoll, activity, turn: activity.turn, domain: this.domain});
+      feat.onRoll({roll: domainRoll, activity, turn: activity?.turn, domain: this.domain});
     });
 
     this.diceTray.prepend(roller);

@@ -198,6 +198,7 @@ export class DomainkeeperPage extends LocatorLike {
   currentActorPowerups() { return this.locator(`actor-sheet .powerups li .powerup-name`) }
 
   pickLeader(value) { return value ? this.setCurrentActor(value) : this.locator(".leaders-section .actor .name").first().click() }
+  pickSettlement(value) { return value ? this.setCurrentActor(value) : this.locator(".settlements-section .actor .name").first().click() }
 
   async addStructure(settlementName, properties) {
     return this.page.evaluate((opts) =>

@@ -366,5 +366,9 @@ export class Domain {
   addCriticalFailureProtection({activity, ...attrs}) {
     this.addConsumable({action: "criticalFailureProtection", description: `Ignore CritFail in ${activity}`, activity, ...attrs});
   }
+
+  addActivityDiscount({activity, ...attrs}) {
+    this.addConsumable({action: "activityDiscount", description: `One ${activity} activity per round is free`, activity, ...attrs});
+  }
 }
 withTraits(Domain);

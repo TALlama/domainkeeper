@@ -503,7 +503,21 @@ export const explorationFeats = [
     effects: "Your nation’s explorers are experienced in navigating this type of terrain. Ignore DC increases for this terrain type by 1/4th your Economy.",
     // TODO make this work
     // TODO scale up with level?
-  }}),
+  }}), {
+    name: "Constant Exploration",
+    level: 7,
+    prerequisites: [masterIn("Economy")], //WAS: master in Exploration
+    description: "Citizen effort grants a bonus activity.",
+    effects: "Your people are dedicated to constant exploration. Once per domain turn, one Leader that has already taken an exploration activity can take an additional activity.",
+    newTurn({domain}) {
+      domain.addActivityDiscount({
+        name: this.name,
+        activities: ["Reconnoiter Hex", "Clear Hex", "Claim Hex"],
+        description: `One exploration activity per round is free`,
+        consumedMessage: `🗑️ Used ${this.name} to do another activity this turn`
+      });
+    },
+  },
 ];
 
 export const industryFeats = [
@@ -559,6 +573,22 @@ export const tradeFeats = [
     effects: "Your domain’s county fairs are a time of celebration and commerce, where the rural and urban economies come together. Once per turn, you can reduce Stability by 1 to boost Economy by 1.",
     newTurn({activity}) {
       activity.addTrade({name: this.name, reduce: "Unrest", boost: "Economy"});
+    },
+  }, {
+    name: "Trade Broker",
+    level: 7,
+    prerequisites: [masterIn("Economy")], //WAS: master in Trade
+    description: "With enough trade agreements, you can get just what you need.",
+    // WAS: description: "Reduce the cost of managing multiple trade agreements simultaneously",
+    // WAS: lower cost to Manage Trade Agreements
+    effects: "Your interconnected web of trade agreements means you can always shuffle around resources. Once per domain turn, one Leader that has already taken a Build Up or Cool Down activity can take an additional activity.",
+    newTurn({domain}) {
+      domain.addActivityDiscount({
+        name: this.name,
+        activities: ["Build Up", "Cool Down"],
+        description: `One ability boosting activity per round is free`,
+        consumedMessage: `🗑️ Used ${this.name} to do another activity this turn`
+      });
     },
   },
 ];
@@ -661,6 +691,20 @@ export const politicsFeats = [
     effects: "When misfortune besets your domain, the people know their leaders are still on their side and are willing to stay united against outside forces. The first time Loyalty would be reduced each turn, prevent 1 point of the reduction.",
     newTurn({activity}) {
       activity.addConsumable({name: this.name, description: "DC11 Protection for Loyalty", bonuses: [{type: "reductionProtection", value: 11, ability: "Loyalty"}]});
+    },
+  }, {
+    name: "National Pride",
+    level: 7,
+    prerequisites: [masterIn("Loyalty")], //NEW
+    description: "Citizens support new initiatives from their leaders.",
+    effects: "Your people are quick to take up new causes. Once per domain turn, one Leader that has already taken a political activity can take an additional activity.",
+    newTurn({domain}) {
+      domain.addActivityDiscount({
+        name: this.name,
+        activities: ["Quell Unrest", "Take Charge", "New Leadership", "Train Lieutenant"],
+        description: `One exploration activity per round is free`,
+        consumedMessage: `🗑️ Used ${this.name} to do another activity this turn`
+      });
     },
   },
 ];
@@ -872,6 +916,21 @@ export const constructionFeats = [
     bonuses: [
       {type: "outcomeBoost", activity: "Build Structure", ability: "Economy", value: 1, outcome: "success"},
     ],
+  }, {
+    name: "Unintrusive Builders",
+    level: 7,
+    prerequisites: [masterIn("Stability")], //WAS: master in Engineering
+    description: "Building is national habit, allowing more activities",
+    // WAS: description: "Building is national habit, allowing more activities",
+    effects: "Your people are always building, expanding, and improving their homes and communities. Once per domain turn, one Settlement that has already taken a political activity can take an additional activity.",
+    newTurn({domain}) {
+      domain.addActivityDiscount({
+        name: this.name,
+        activities: ["Build Structure"],
+        description: `One exploration activity per round is free`,
+        consumedMessage: `🗑️ Used ${this.name} to do another activity this turn`
+      });
+    },
   },
 ];
 

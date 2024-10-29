@@ -5,5 +5,6 @@ export const leaders = {
 };
 leaders.pc = leaders.anne;
 leaders.npc = leaders.ned;
+leaders.onePack = [leaders.anne];
 leaders.twoPack = [leaders.anne, leaders.ned];
-leaders.threePack = [leaders.anne, leaders.ned, leaders.ned];
+leaders.threePack = [leaders.anne, leaders.ned, leaders.zack];

@@ -120,6 +120,22 @@ export default class DomainActivityLog extends RxElement {
     this.expire(event);
   }
 
+  activityDiscount(event) {
+    let consumable = this.consumableFromEvent(event);
+    if (consumable.used) { return }
+
+    let user = this.domainSheet.currentActor;
+    let freeActivityNames = [consumable.activity, ...(consumable.activities?.slice(0) || [])].filter(Boolean);
+    let freeActivity = this.currentTurn.activities.find(a =>
+      a.actorId === user.id && freeActivityNames.includes(a.template)
+    );
+    if (!freeActivity) { return denyUse(event.target.closest(".consumable")) }
+
+    consumable.used = true;
+    user.bonusActivities += 1;
+    this.expire(event);
+  }
+
   onRoll(options) {
     this.onRollCriticalFailureProtection(options);
     this.onRollBoostOutcome(options);
