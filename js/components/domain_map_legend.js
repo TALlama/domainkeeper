@@ -18,7 +18,8 @@ export class DomainMapLegend extends RxElement {
     this.shadowRoot.innerHTML = `
       <style>
         header {
-          display: flex;
+          display: grid;
+          grid-template-columns: auto 1fr;
           gap: var(--external-margin);
           align-items: baseline;
           justify-items: stretch;
@@ -32,16 +33,17 @@ export class DomainMapLegend extends RxElement {
 
         dl {
           display: flex;
-          flex-wrap: wrap;
           margin: 0;
           font-size: var(--step--2);
+          white-space: nowrap;
           z-index: 1;
+          overflow-x: scroll;
 
           dt, dd { padding: var(--internal-margin); }
 
           dt { padding-inline-end: var(--small-margin) }
           dt { text-shadow: 0 0 2px var(--marker-glow), 0 0 2px var(--marker-glow), 0 0 2px var(--marker-glow), 0 0 2px var(--marker-glow); }
-          dt:not(:first-child) { margin-left: auto; }
+          & dt:not(:first-child) { margin-left: auto; }
           dd { margin-inline-start: 0; padding-inline-start: var(--small-margin) }
 
           dt.current, dt.current + dd { background: var(--color-selected-bg); color: black; }
@@ -73,6 +75,10 @@ export class DomainMapLegend extends RxElement {
       let makeCurrent = (event) => { this.map.ixCurrentMarker = index }
       label.addEventListener("click", makeCurrent);
       coordinates.addEventListener("click", makeCurrent);
+
+      let highlight = (event) => { this.map.ixHighlightedMarker = index }
+      label.addEventListener("mouseover", highlight);
+      coordinates.addEventListener("mouseover", highlight);
     });
   }
 

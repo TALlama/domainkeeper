@@ -68,6 +68,16 @@ export class DomainMap extends RxElement {
     }
   }
 
+  get ixHighlightedMarker() { return this._ixHighlightedMarker || this.ixCurrentMarker }
+  set ixHighlightedMarker(value) {
+    this._ixCurrentMarker = value;
+
+    this._markers.forEach(marker => marker.classList.remove('highlighted'));
+
+    let marker = this._markers[value];
+    marker?.classList.add('highlighted');
+  }
+
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) { return }
 
@@ -139,6 +149,12 @@ export class DomainMap extends RxElement {
           &.ghost {
             opacity: 0.5;
             pointer-events: none;
+          }
+
+          &.highlighted {
+            --marker-glow: var(--color-selected-bg);
+            transform: translate(-50%, -50%) scale(1.5);
+            z-index: 1;
           }
         }
 
@@ -244,7 +260,7 @@ export class DomainMap extends RxElement {
 
     this.holdEvents("domains:marker-placed", () => {
       this._markers?.forEach(marker => marker.remove());
-      this._markers = this.markers.map(info => this.makeMarker(info));
+      this._markers = this.markers.map((info, index) => this.makeMarker({...info, index}));
       if (this._markers.length === 0) { this._markers = [this.makeMarker()] }
       this.ixCurrentMarker = 0;
       
@@ -260,6 +276,7 @@ export class DomainMap extends RxElement {
     let marker = document.createElement('div');
     marker.classList.add('marker');
     marker.classList.add('hidden');
+    marker.classList.toggle('highlighted', properties.index === this.ixHighlightedMarker);
     marker.append(properties.icon ?? DomainMap.defaultIcon);
     marker.dataset.properties = JSON.stringify(properties);
     if (properties.position) { this.placeMarker(properties.position, marker) }
