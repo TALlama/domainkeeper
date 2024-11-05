@@ -21,7 +21,7 @@ export class ActorEditor extends EditorDialog {
 
   renderDialogContents() {
     return `
-      ${this.renderFormField("name")}
+      ${this.renderFormField("name", this.data.id)}
       <br/>
       ${this.renderTraitEditor()}
       <br/>
@@ -32,6 +32,7 @@ export class ActorEditor extends EditorDialog {
   /////////////////////////////////////////////// Event handling
 
   update(event) {
+    this.updateProperty("name", this.data.id);
     if (this.actor.name !== this.data.name) {
       nudge(this, (activity) => activity.info(`⚔️ Kneel, ${this.actor.name}. Rise, ${this.data.name}!`));
       this.actor.name = this.data.name;

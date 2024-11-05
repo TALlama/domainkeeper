@@ -26,6 +26,10 @@
     color: var(--text-color-muted);
   }
 
+  .zero-state {
+    color: var(--text-color-muted);
+  }
+
   dl.dl-oneline {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(3em, 1fr));

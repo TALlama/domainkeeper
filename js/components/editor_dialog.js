@@ -73,8 +73,8 @@ export class EditorDialog extends RxElement {
     return `<sl-spinner></sl-spinner>`;
   }
 
-  renderFormField(property) {
-    return `<sl-input name="${property}" label="${humanize(property)}" value="${this.data[property]}" data-action="updateProperty"></sl-input>`;
+  renderFormField(property, scope = "modal") {
+    return `<sl-input id="${scope}-${property}" name="${property}" label="${humanize(property)}" value="${this.data[property]}"></sl-input>`;
   }
 
   renderTraitEditor(property = "traits") {
@@ -103,15 +103,14 @@ export class EditorDialog extends RxElement {
   show() { return this.dialog.show() }
   hide() { return this.dialog.hide() }
 
-  updateProperty(event) {
-    let formControl = event.target.closest("[name]");
-    let property = formControl?.name;
-    if (property) {
-      this.data[property] = this.propertyValue({property, formControl, event});
+  updateProperty(property, scope = "modal") {
+    let formControl = this.$(`#${scope}-${property}[name="${property}"]`);
+    if (formControl) {
+      this.data[property] = this.propertyValue({property, formControl});
     }
   }
 
-  propertyValue({property, formControl, event}) { return formControl.value }
+  propertyValue({property, formControl}) { return formControl.value }
 
   updatePosition(event) {
     let formControl = event.target.closest("[name]");

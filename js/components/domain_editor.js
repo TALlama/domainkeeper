@@ -15,7 +15,7 @@ export class DomainEditor extends EditorDialog {
 
   renderDialogContents() {
     return `
-      ${this.renderFormField("name")}
+      ${this.renderFormField("name", "domain")}
       <br/>
       ${this.renderTraitEditor()}
       <br/>
@@ -35,6 +35,7 @@ export class DomainEditor extends EditorDialog {
             <span class='metadata'>${feat.description}</span>
           </li>
         `).join("")}
+        ${this.domain.feats.length === 0 ? "<li class='zero-state'>None</li>" : ""}
       </ul>
     `;
   }
@@ -59,6 +60,8 @@ export class DomainEditor extends EditorDialog {
   /////////////////////////////////////////////// Event handling
 
   update(event) {
+    this.updateProperty("name", "domain");
+
     if (this.domain.name !== this.data.name) {
       nudge(this, (activity) => activity.info(`🎉 Long Live ${this.data.name}!`));
       this.domain.name = this.data.name;

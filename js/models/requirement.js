@@ -81,7 +81,6 @@ class MaxStatRequirement extends Requirement {
   evaluate() {
     let ability = this.opts.maxAbility;
     let minimum = this.opts.value;
-    console.log(this.model);
     let current = this.model.max(ability);
     this.description = `${ability} max must be ${minimum} or higher`
     this.met = current >= minimum;
