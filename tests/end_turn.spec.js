@@ -9,7 +9,7 @@ async function shouldHaveEvent(dk) {
 
 async function eventPicks(dk, finalPick = "End turn") {
   await shouldHaveEvent(dk);
-  await dk.makeDecisions(["Culture", "Success", "Nothing happened"]);
+  await dk.makeDecisions(["Culture", "Success", "No effect"]);
   return dk.currentActivity.makeDecision(finalPick);
 }
 
@@ -36,7 +36,7 @@ test.describe("You can end your turn", () => {
 
     await dk.readyEventButton.click();
     await shouldHaveEvent(dk);
-    await dk.makeDecisions(["Skip", "Nothing happened", "End turn"]);
+    await dk.makeDecisions(["Skip", "No effect", "End turn"]);
     await expect(dk.getByText("Turn 2", {exact: true})).toBeVisible();
   });
 

@@ -188,7 +188,19 @@ export var systemTemplates = [{
     options: [...Ability.all, "Skip"],
     description(context) { return `
       <p>You probably need to roll to avoid something bad happening, or to make sure something good happens.</p>
-      <p>Need an idea? I think <em>${Ability.all.random()}</em> looks good today.</p>`;
+      <p>Does the event tell you to roll a skill? Convert that…</p>
+      <dl style="display: grid; grid-template-columns: auto 1fr; gap: 0 1em;">
+        <dt>Culture</dt>
+        <dd>Arts, Folklore, Magic, Scholarship</dd>
+        <dt>Economy</dt>
+        <dd>Boating, Exploration, Industry, Trade</dd>
+        <dt>Loyalty</dt>
+        <dd>Intrigue, Politics, Statecraft, Warfare</dd>
+        <dt>Stability</dt>
+        <dd>Agriculture, Defense, Engineering, Wilderness</dd>
+      </dl>
+      <p>Need an idea? I think <em>${Ability.all.random()}</em> looks good today.</p>
+      `;
     },
     picked(ability, {activity}) {
       if (ability === "Skip") { activity.decision("Outcome").resolution = "success" }
@@ -197,13 +209,21 @@ export var systemTemplates = [{
     name: "Outcome",
   }, {
     name: "Resolution",
+    description(context) { return `
+      <p>Convert results with…</p>
+      <dl style="display: grid; grid-template-columns: auto 1fr; gap: 0 1em;">
+        <dt>Ruin</dt><dd>Half and reduce the relevant ability: Corruption ➭ Culture; Crime ➭ Economy; Strife ➭ Loyalty; Decay ➭ Stability</dd>
+        <dt>RP / Resource Dice</dt><dd>Increase or Reduce a random ability by 1 for every die, or for every 3 RP</dd>
+      </dl>
+      `;
+    },
     options() { return Object.keys(this.resolutions) },
     resolutions: {
       ...Ability.all.toDictionary(ability => [`Lower ${ability}`, ({activity}) => activity.reduce(ability)]),
       "Lower random ability": ({activity}) => activity.reduce(Ability.random),
       "1d4 Unrest": ({activity}) => activity.boost("Unrest", {by: Die.d4()}),
       "Lose 1 Fame": ({activity}) => activity.domain.useConsumable({name: "Fame"}),
-      "Nothing happened": ({activity}) => {},
+      "No effect": ({activity}) => {},
     },
     picked(resolution, context) {
       let {activity, decision} = context;
