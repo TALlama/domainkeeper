@@ -304,40 +304,33 @@ export var systemTemplates = [{
   name: "Level Up",
   summary: "The domain grows in renown and stature",
   decisions: [{
-    name: "Choose wisely",
-    options: [],
+    name: "Kingdon Feat",
+    options() { return Feat.names },
+    picked(feat, {activity}) {
+      activity.domain.addFeat({name: feat});
+      activity.info(`🤯 The domain gained the ${feat} feat`);
+    },
+    groupOptionsBy: featName => `Level ${Feat.template(featName).level}`,
+    optionDisableReason(featName) {
+      let feat = Feat.template(featName);
+
+      let levelRequirement = {ability: "Level", value: feat.level};
+      let prereqs = feat.prerequisites || [];
+
+      let reqs = this.domain.checkRequirements(levelRequirement, ...prereqs);
+      if (reqs.met) { return null }
+
+      return reqs.children.filter(r => !r.met).map(r => r.description).join(".\n");
+    },
+    
+    displayValue: featName => `<feat-description name="${featName}"></feat-description>`,
+    displayTitleValue: featName => featName,
   }],
   added() {
     this.domain.level += 1;
     this.domain.xp -= 1000;
     this.info(`🎉 The domain is now level ${this.domain.level}!`);
     this.warning(`🎯 The Control DC has increased to ${this.domain.controlDC}`);
-
-    // add level-up stuff here
-
-    this.decisions[0] = {
-      name: "Kingdon Feat",
-      options: Feat.names,
-      picked(feat, {activity}) {
-        activity.domain.addFeat({name: feat});
-        activity.info(`🤯 The domain gained the ${feat} feat`);
-      },
-      groupOptionsBy: featName => `Level ${Feat.template(featName).level}`,
-      optionDisableReason(featName) {
-        let feat = Feat.template(featName);
-
-        let levelRequirement = {ability: "Level", value: feat.level};
-        let prereqs = feat.prerequisites || [];
-
-        let reqs = this.domain.checkRequirements(levelRequirement, ...prereqs);
-        if (reqs.met) { return null }
-
-        return reqs.children.filter(r => !r.met).map(r => r.description).join(".\n");
-      },
-      
-      displayValue: featName => `<feat-description name="${featName}"></feat-description>`,
-      displayTitleValue: featName => featName,
-    };
   },
   onResolved() {
     this.turn.addUniqueActivity({name: "Domain Summary"});
