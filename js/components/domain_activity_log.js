@@ -295,7 +295,7 @@ export default class DomainActivityLog extends RxElement {
 
   doNudge(event) {
     let activity = this.currentActivity;
-    if (!["Nudge", "Event"].includes(activity?.name)) {
+    if (!["Nudge", "Event"].includes(activity?.template)) {
       this.activity({name: "Nudge"});
       activity = this.currentTurn.activities.last();
     };
