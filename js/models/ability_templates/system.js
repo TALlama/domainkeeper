@@ -185,9 +185,13 @@ export var systemTemplates = [{
   description: () => `The GM has an event to read.`,
   decisions: [{
     name: "Roll",
+    options: [...Ability.all, "Skip"],
     description(context) { return `
       <p>You probably need to roll to avoid something bad happening, or to make sure something good happens.</p>
       <p>Need an idea? I think <em>${Ability.all.random()}</em> looks good today.</p>`;
+    },
+    picked(ability, {activity}) {
+      if (ability === "Skip") { activity.decision("Outcome").resolution = "success" }
     },
   }, {
     name: "Outcome",

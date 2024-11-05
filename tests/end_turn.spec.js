@@ -3,8 +3,12 @@ const { DomainkeeperPage } = require("./domainkeeper_page");
 const { endTurnOne, inTurnOne } = require("./fixtures/domains");
 const { monitor } = require('./helpers');
 
-async function eventPicks(dk, finalPick = "End turn") {
+async function shouldHaveEvent(dk) {
   await expect((await dk.currentActivity).locator(".activity-name", {name: "Event"})).toBeVisible();
+}
+
+async function eventPicks(dk, finalPick = "End turn") {
+  await shouldHaveEvent(dk);
   await dk.makeDecisions(["Culture", "Success", "Nothing happened"]);
   return dk.currentActivity.makeDecision(finalPick);
 }
@@ -24,6 +28,15 @@ test.describe("You can end your turn", () => {
     await dk.readyEventButton.click();
     await eventPicks(dk, "Add another event");
     await eventPicks(dk, "End turn");
+    await expect(dk.getByText("Turn 2", {exact: true})).toBeVisible();
+  });
+
+  test('Event might not need a roll', async ({ page }) => {
+    const dk = await DomainkeeperPage.load(page, endTurnOne());
+
+    await dk.readyEventButton.click();
+    await shouldHaveEvent(dk);
+    await dk.makeDecisions(["Skip", "Nothing happened", "End turn"]);
     await expect(dk.getByText("Turn 2", {exact: true})).toBeVisible();
   });
 

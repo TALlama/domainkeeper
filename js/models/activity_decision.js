@@ -60,6 +60,8 @@ export class ActivityDecision {
         saveAs: "ability",
         options: Ability.all,
         displayValue(ability) {
+          if (["Skip", "None"].includes(ability)) { return ability }
+
           let option = this.activity[this.withOption];
           let optionAttr = this.withOption ? ` option="${option}"` : "";
           return `<ability-roll id="${[this.activity.id, ability, option].filter(Boolean).join("-")}" ${optionAttr} ability="${ability}" activity="${this.activity.template}">${ability}</ability-roll>`
