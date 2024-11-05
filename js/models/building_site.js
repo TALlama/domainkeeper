@@ -26,6 +26,21 @@ export class BuildingSite extends Powerup {
   get foundationName() { return this.foundationId == "new" ? null : this.foundation?.name }
   set foundationName(value) { /* ignore */ }
 
+  improve(progress, {actor, activity, who="You"}) {
+    this.progress += progress;
+    if (this.progress >= this.cost) {
+      actor.removePowerup(this);
+      actor.removePowerup(this.foundation);
+      Structure.add({template: this.incompleteTemplate, actor, activity,
+        added: ({fullName}) => {
+          activity.info(`🏛️ ${who} built the ${fullName}!`)
+        },
+      });
+    } else {
+      activity.info(`🚧 ${this.name} is now ${this.percentage}% complete.`);
+    }
+  }
+
   static type = "building-site";
 
   static add({incompleteTemplate, actor, ...opts}) {

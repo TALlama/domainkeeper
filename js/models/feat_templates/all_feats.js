@@ -917,6 +917,25 @@ export const constructionFeats = [
       {type: "outcomeBoost", activity: "Build Structure", ability: "Economy", value: 1, outcome: "success"},
     ],
   }, {
+    name: "Community Construction",
+    level: 8,
+    prerequisites: [expertIn("Stability")], //WAS: expert in Engineering
+    description: "Cities continue to build structures.",
+    // WAS: description: "Substitute unusual resources for your projects",
+    // WAS: commodity swap when building
+    effects: "Building is a communal act. Once a structure is started, cities will contribute to its completion each turn even if no Leadership Activities are used. Each turn, every settlement will pick a random building site and contribute 1d4 progress to it. Towns contribute 1d4+1 progress; Cities contribute 1d4+2 progress; Metropolises contribute 1d4+3 progress.",
+    newTurn({domain, activity}) {
+      domain.settlements.forEach((settlement) => {
+        let bonus = 0;
+        if (settlement.hasTrait("Town")) { bonus = 1; }
+        if (settlement.hasTrait("City")) { bonus = 2; }
+        if (settlement.hasTrait("Metropolis")) { bonus = 3; }
+
+        let site = settlement.powerups.filter(p => p.type === "building-site").random();
+        site?.improve(Die.d4() + bonus, {actor: settlement, activity, who: this.name});
+      });
+    }
+  }, {
     name: "Unintrusive Builders",
     level: 7,
     prerequisites: [masterIn("Stability")], //WAS: master in Engineering

@@ -165,19 +165,7 @@ export var civicTemplates = [{
   makeProgresss(progress) {
     if (progress === 0) { return }
 
-    let buildingSite = this.findBuildingSite();
-    buildingSite.progress += progress;
-    if (buildingSite.progress >= buildingSite.cost) {
-      this.actor.removePowerup(buildingSite);
-      this.actor.removePowerup(buildingSite.foundation);
-      Structure.add({template: this.structureName, actor: this.actor, activity: this,
-        added: ({fullName}) => {
-          this.info(`🏛️ You built the ${fullName}!`)
-        },
-      });
-    } else {
-      this.info(`🚧 ${buildingSite.name} is now ${buildingSite.percentage}% complete.`);
-    }
+    this.findBuildingSite().improve(progress, {actor: this.actor, activity: this});
   },
   baseProgress() {
     let outlay = this.decision("Payment")?.amount || 1;
