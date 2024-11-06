@@ -353,6 +353,6 @@ export var systemTemplates = [{
     this.warning(`🎯 The Control DC has increased to ${this.domain.controlDC}`);
   },
   onResolved() {
-    this.turn.addUniqueActivity({name: "Domain Summary"});
+    this.domain.endTurn({turn: this.turn});
   },
 }].map(a => { return {type: "system", actorId: "system", ...a}});
